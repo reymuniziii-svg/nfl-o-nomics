@@ -340,10 +340,22 @@ timestamp will silently rot.
 ## 8. Method notes
 
 * **Politeness:** `maxlag=5` on every call, ~60ms spacing, exponential backoff
-  on 429/503 and on `maxlag` rejections, descriptive `User-Agent` with contact.
-  A cold full run is ~1,400 calls / ~6.5 min and drew 19 retries, 0 failures.
-  Requests are batched wherever the API allows (up to 50 Wikidata entities and
-  20 Commons files per call), which is what keeps the count that low.
+  over 7 attempts on 429/503 and on `maxlag` rejections, descriptive
+  `User-Agent` with contact. A cold full run is ~1,740 calls / ~7 min and drew
+  29 retries with **0 exhausted calls**. Requests are batched wherever the API
+  allows (up to 50 Wikidata entities and 20 Commons files per call), which is
+  what keeps the count that low.
+* **A failed call is never a miss.** An early clean re-run silently lost Tyler
+  Higbee: a transport failure returned an empty result, which is
+  indistinguishable from "this player has no photo" and quietly deflated the
+  hit rate by one. The client now raises `WikiUnavailable` when a call
+  exhausts its retries; the row is recorded as `verification_method =
+  api_error` and counted separately from genuine misses, so a flaky network
+  can never masquerade as a coverage finding. **Treat any non-zero
+  `UNRESOLVED (api error)` count in the run summary as a re-run signal, not a
+  result.**
+* **Reproducibility verified:** two independent cold runs (no cache) produced a
+  byte-identical `player_images_sample.csv`.
 * **Optional response cache:** `--cache PATH` memoizes raw API responses.
   Deliberately defaults to *off* and is documented to live **outside the repo** —
   `data/raw/` stays empty (verified `PASS` at the end of every run).

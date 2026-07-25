@@ -52,9 +52,15 @@ usable = free-culture only: CC BY, CC BY-SA, CC0/public domain, and the
 PD-USGov / attribution-style tags. Anything carrying NC, ND, fair-use or
 "non-free" is rejected even though it verified as the right person.
 
-Outputs (overwritten in full on every run -- the script is idempotent):
+Outputs (overwritten in full on every run -- the script is idempotent; two
+independent cold runs produce a byte-identical sample CSV):
   data/curated/staging/player_images_sample.csv
+  data/curated/staging/player_images_collisions.csv
   audit/findings_image_audit.md  is written by hand from this script's summary
+
+A call that exhausts its retries raises WikiUnavailable and the player is
+recorded as verification_method='api_error' -- NOT as a genuine miss, which
+would silently deflate the headline coverage number.
 
 Usage:
   python3.11 audit/audit_images.py [--top 250] [--start 2021] [--end 2025]
