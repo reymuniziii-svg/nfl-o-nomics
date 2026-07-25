@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<!--
+  STUDY C — "THE BLOCK"
+  POV: The hero's real job is surviving as a screenshot, so design the square first and let the phone and the desktop be crops of the same logic.
+  Surface: division cost-per-win HERO card (SPEC §3.1.2, §4) — rank 1 uncovered in PHASE_A_COVERAGE.md.
+  Extends the mockup's extracted system (PHASE_A_TOKENS.md §10). Originates nothing outside it.
+  Sample data. Not real 2025 figures.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>YIELD/YARD — Hero study C: The Block</title>
+<style>
+@font-face{
+  font-family:'Bebas Neue';
+  src:url("../handoff/project/uploads/Bebas_Neue,DM_Serif_Display,Squada_One/Bebas_Neue/BebasNeue-Regular.ttf") format("truetype");
+  font-weight:400; font-display:swap;
+}
+
+:root{
+  --yy-end-zone:#071C16; --yy-film-room:#111416; --yy-chalk-white:#FFFFFF;
+  --yy-yield-lime:#A6E22E; --yy-premium-gold:#D4AF37; --yy-muted:#A8B1AD; --yy-paper:#F5F6F2;
+  --yy-radius-card:22px; --yy-radius-card-sm:16px; --yy-radius-mark:2px; --yy-radius-chip:4px;
+  --yy-font-display:'Bebas Neue','Arial Narrow',sans-serif;
+  --yy-font-athletic:'Squadron Black','Rajdhani','Arial Narrow',sans-serif;
+  --yy-font-body:'Inter',system-ui,-apple-system,'Segoe UI',Arial,sans-serif;
+  --yy-surface-app:#0B0D0E;
+  --yy-surface-card:linear-gradient(160deg,#181C1D,#0E1112);
+  --yy-surface-card-lg:linear-gradient(160deg,#16191B,#0A0C0D);
+  --yy-ink-dark-1:#EAF1EC; --yy-ink-dark-2:#A8B1AD; --yy-ink-dark-3:#6E8078;
+  --yy-ink-light-1:#071C16; --yy-ink-light-2:#46534F;
+  --yy-lime-ink:#4F7413;
+  --yy-negative:#D9503C; --yy-negative-soft:#E8A08D; --yy-band-mid:#8FA39A;
+  --yy-card-border-dark:1px solid rgba(168,177,173,.22);
+  --yy-gridline:rgba(168,177,173,.10);
+}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--yy-paper);font-family:var(--yy-font-body);color:var(--yy-ink-light-1)}
+
+.study{padding:40px 44px 64px;max-width:1240px}
+.pov{border:1px solid rgba(7,28,22,.15);border-radius:var(--yy-radius-card);background:#fff;padding:20px 24px;max-width:920px;margin:0 0 32px}
+.pov h1{margin:0 0 4px;font:400 40px/.95 var(--yy-font-display);letter-spacing:.02em}
+.pov .eyebrow{font:700 11px var(--yy-font-athletic);letter-spacing:.16em;text-transform:uppercase;color:var(--yy-lime-ink);margin-bottom:8px}
+.pov p{margin:10px 0 0;font:400 13.5px/1.7 var(--yy-font-body);color:var(--yy-ink-light-2)}
+.pov b{color:var(--yy-ink-light-1);font-weight:600}
+.pov .trade{margin-top:14px;padding-top:12px;border-top:1px solid rgba(7,28,22,.12)}
+.stage{display:flex;flex-wrap:wrap;gap:36px;align-items:flex-start}
+.slot{display:flex;flex-direction:column;gap:10px}
+.slot .cap{font:400 11px/1.3 var(--yy-font-body);color:rgba(7,28,22,.55);max-width:430px}
+.slot .cap b{font:700 11.5px var(--yy-font-athletic);letter-spacing:.08em;background:rgba(7,28,22,.07);border-radius:5px;padding:3px 8px;margin-right:8px}
+.note{max-width:920px;margin:34px 0 0;font:400 12px/1.65 var(--yy-font-body);color:var(--yy-ink-light-2)}
+.note code{font:11px ui-monospace,monospace;background:rgba(7,28,22,.06);padding:1px 5px;border-radius:3px}
+
+/* ── the hero card ────────────────────────────────────────────────────────── */
+.blk{
+  background:var(--yy-surface-card);
+  border:var(--yy-card-border-dark);
+  border-radius:var(--yy-radius-card-sm);
+  color:var(--yy-ink-dark-1);
+  font-variant-numeric:tabular-nums;
+  display:flex;flex-direction:column;justify-content:space-between;
+}
+.blk--export{border-color:rgba(168,177,173,.42)}   /* stronger edge for the exported crop */
+
+.blk__top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.blk__label{font:500 9px var(--yy-font-athletic);letter-spacing:.16em;text-transform:uppercase;color:var(--yy-ink-dark-3)}
+.blk__sample{font:500 8px var(--yy-font-athletic);letter-spacing:.14em;color:var(--yy-negative-soft);border:1px solid rgba(232,160,141,.4);border-radius:var(--yy-radius-chip);padding:3px 6px;flex:none}
+.blk__toggle{display:flex;gap:4px;flex:none}
+.blk__toggle span{font:500 9px var(--yy-font-athletic);letter-spacing:.1em;padding:5px 9px;border-radius:11px;color:var(--yy-ink-dark-2);border:1px solid rgba(168,177,173,.3)}
+.blk__toggle span[data-on]{background:var(--yy-yield-lime);color:var(--yy-end-zone);border-color:var(--yy-yield-lime)}
+
+.blk__lead{margin-top:14px}
+.blk__num{font:600 88px/.82 var(--yy-font-athletic);letter-spacing:-.05em;color:var(--yy-yield-lime)}
+.blk__who{font:400 26px/1 var(--yy-font-display);letter-spacing:.02em;color:var(--yy-chalk-white);margin-top:10px}
+.blk__say{font:400 12px/1.55 var(--yy-font-body);color:rgba(234,241,236,.62);margin-top:8px;max-width:33ch}
+.blk__say b{color:var(--yy-yield-lime);font-weight:600}
+
+.stack{margin-top:16px}
+.stack__row{display:flex;align-items:center;gap:9px;padding:7px 0;border-top:1px solid rgba(168,177,173,.13)}
+.stack__ab{width:34px;flex:none;font:500 10px var(--yy-font-athletic);letter-spacing:.1em;color:var(--yy-ink-dark-2)}
+.stack__bar{flex:1;height:4px;background:rgba(168,177,173,.14);border-radius:var(--yy-radius-mark);position:relative}
+.stack__fill{position:absolute;left:0;top:0;bottom:0;border-radius:var(--yy-radius-mark);background:var(--yy-negative)}
+.stack__tick{position:absolute;top:-3px;bottom:-3px;width:1px;background:rgba(212,175,55,.75)}
+.stack__v{width:56px;flex:none;text-align:right;font:600 13px var(--yy-font-athletic);letter-spacing:-.03em;color:var(--yy-negative-soft)}
+
+.blk__foot{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:14px;padding-top:11px;border-top:1px solid rgba(168,177,173,.18)}
+.blk__bench{font:500 9px var(--yy-font-athletic);letter-spacing:.12em;color:var(--yy-ink-dark-2)}
+.blk__bench i{font-style:normal;color:var(--yy-premium-gold)}
+.blk__mark{font:400 13px/1 var(--yy-font-display);letter-spacing:.02em;color:rgba(234,241,236,.55);flex:none}
+.blk__mark s{text-decoration:none;color:var(--yy-yield-lime)}
+
+.size-square{width:400px;height:400px;padding:20px}
+.size-mobile{width:390px;padding:16px}
+.size-mobile .blk__num{font-size:72px}
+.size-wide{width:1040px;padding:26px 28px}
+.size-wide .blk__num{font-size:120px}
+.size-wide .blk__who{font-size:34px}
+.size-wide .blk__say{font-size:13px;max-width:44ch}
+.wide-grid{display:flex;gap:40px;align-items:flex-end}
+.wide-grid > :first-child{flex:none;width:420px}
+.wide-grid > :last-child{flex:1}
+.size-wide .stack{margin-top:0}
+.size-wide .stack__row{padding:11px 0}
+.size-wide .stack__ab{width:44px;font-size:12px}
+.size-wide .stack__v{width:74px;font-size:17px}
+.size-wide .stack__bar{height:6px}
+
+/* ── feed legibility rig (SPEC §4: legible dropped into a light AND a dark feed) ── */
+.feed{border-radius:18px;padding:18px;width:440px}
+.feed--light{background:#FFFFFF;border:1px solid rgba(7,28,22,.12)}
+.feed--dark{background:#111416;border:1px solid rgba(255,255,255,.10)}
+.feed__hdr{display:flex;align-items:center;gap:9px;margin-bottom:12px}
+.feed__av{width:26px;height:26px;border-radius:50%;background:#2A2F31;flex:none}
+.feed__nm{font:600 12px var(--yy-font-body)}
+.feed--light .feed__nm{color:var(--yy-ink-light-1)}
+.feed--dark  .feed__nm{color:var(--yy-ink-dark-1)}
+.feed__sub{font:400 11px var(--yy-font-body);color:var(--yy-ink-dark-3)}
+.feed .size-square{width:404px;height:404px}
+</style>
+</head>
+<body>
+<div class="study">
+
+  <div class="pov">
+    <div class="eyebrow">Study C · division cost-per-win hero</div>
+    <h1>THE BLOCK</h1>
+    <p><b>Point of view:</b> the hero's real job is surviving as a screenshot, so design the square
+    first and let the phone and the desktop be crops of the same logic.</p>
+    <p class="trade"><b>What it trades away:</b> comparison precision. Three of the four teams are
+    demoted to a stack of 4px bars, so the division stops being a comparison and becomes a headline
+    with footnotes. It also stakes the whole card on one number — which is fine on
+    <code>/division/afc-east</code>, and wrong the moment a Jets fan opens it, because the card is
+    about Buffalo. The subject-led variant (C4) fixes that and immediately loses the thing that made
+    the square work: the number it leads with is no longer the interesting one.</p>
+  </div>
+
+  <div class="stage">
+
+    <!-- ── SQUARE — the native size ──────────────────────────────────────── -->
+    <div class="slot">
+      <div class="cap"><b>C1</b>Square · 400 · <b style="background:rgba(166,226,46,.22)">native</b> — designed first, cropped from</div>
+      <div class="blk blk--export size-square">
+        <div>
+          <div class="blk__top">
+            <div class="blk__label">AFC East · cost per win · cash · 2025</div>
+            <div class="blk__sample">SAMPLE</div>
+          </div>
+          <div class="blk__lead">
+            <div class="blk__num">$18.3M</div>
+            <div class="blk__who">BUFFALO BILLS</div>
+            <div class="blk__say">The division's cheapest win — <b>29% below</b> the league average,
+            on the third-largest payroll in the AFC East.</div>
+          </div>
+        </div>
+        <div>
+          <div class="stack">
+            <div class="stack__row">
+              <div class="stack__ab">MIA</div>
+              <div class="stack__bar"><div class="stack__fill" style="width:76.3%"></div><div class="stack__tick" style="left:64.5%"></div></div>
+              <div class="stack__v">$30.5M</div>
+            </div>
+            <div class="stack__row">
+              <div class="stack__ab">NYJ</div>
+              <div class="stack__bar"><div class="stack__fill" style="width:85.3%"></div><div class="stack__tick" style="left:64.5%"></div></div>
+              <div class="stack__v">$34.1M</div>
+            </div>
+            <div class="stack__row">
+              <div class="stack__ab">NE</div>
+              <div class="stack__bar"><div class="stack__fill" style="width:95%"></div><div class="stack__tick" style="left:64.5%"></div></div>
+              <div class="stack__v">$38.0M</div>
+            </div>
+          </div>
+          <div class="blk__foot">
+            <div class="blk__bench"><i>▮</i> LEAGUE AVG $25.8M / WIN</div>
+            <div class="blk__mark">YIELD<s>/</s>YARD</div>
+          </div>
+        </div>
+      </div>
+      <div class="cap">Everything the reader needs is inside the crop: subject, metric, units, benchmark, season, sample flag and mark.</div>
+    </div>
+
+    <!-- ── MOBILE ────────────────────────────────────────────────────────── -->
+    <div class="slot">
+      <div class="cap"><b>C2</b>Mobile · 390 full-bleed · the square, given room</div>
+      <div class="blk size-mobile">
+        <div>
+          <div class="blk__top">
+            <div class="blk__label">AFC East · cost per win · 2025</div>
+            <div class="blk__toggle"><span data-on>CASH</span><span>CAP</span></div>
+          </div>
+          <div class="blk__lead">
+            <div class="blk__num">$18.3M</div>
+            <div class="blk__who">BUFFALO BILLS</div>
+            <div class="blk__say">The division's cheapest win — <b>29% below</b> the league average.</div>
+          </div>
+        </div>
+        <div>
+          <div class="stack">
+            <div class="stack__row">
+              <div class="stack__ab">MIA</div>
+              <div class="stack__bar"><div class="stack__fill" style="width:76.3%"></div><div class="stack__tick" style="left:64.5%"></div></div>
+              <div class="stack__v">$30.5M</div>
+            </div>
+            <div class="stack__row">
+              <div class="stack__ab">NYJ</div>
+              <div class="stack__bar"><div class="stack__fill" style="width:85.3%"></div><div class="stack__tick" style="left:64.5%"></div></div>
+              <div class="stack__v">$34.1M</div>
+            </div>
+            <div class="stack__row">
+              <div class="stack__ab">NE</div>
+              <div class="stack__bar"><div class="stack__fill" style="width:95%"></div><div class="stack__tick" style="left:64.5%"></div></div>
+              <div class="stack__v">$38.0M</div>
+            </div>
+          </div>
+          <div class="blk__foot">
+            <div class="blk__bench"><i>▮</i> LEAGUE AVG $25.8M / WIN · CASH</div>
+            <div class="blk__mark">YIELD<s>/</s>YARD</div>
+          </div>
+        </div>
+      </div>
+      <div class="cap">Same composition, same order, one size prop. The toggle only exists in-product; the exported crop drops it.</div>
+    </div>
+
+  </div>
+
+  <!-- ── DESKTOP WIDE ─────────────────────────────────────────────────────── -->
+  <div class="stage" style="margin-top:36px">
+    <div class="slot">
+      <div class="cap"><b>C3</b>Desktop · 1040 wide</div>
+      <div class="blk size-wide">
+        <div class="blk__top">
+          <div class="blk__label">AFC East · cost per win · 2025 · cash numerator</div>
+          <div class="blk__toggle"><span data-on>CASH</span><span>CAP</span></div>
+        </div>
+        <div class="wide-grid" style="margin-top:18px">
+          <div>
+            <div class="blk__num">$18.3M</div>
+            <div class="blk__who">BUFFALO BILLS · 13–4</div>
+            <div class="blk__say">The division's cheapest win — <b>29% below</b> the league average
+            of $25.8M, on the third-largest payroll in the AFC East.</div>
+          </div>
+          <div class="stack">
+            <div class="stack__row">
+              <div class="stack__ab">MIA</div>
+              <div class="stack__bar"><div class="stack__fill" style="width:76.3%"></div><div class="stack__tick" style="left:64.5%"></div></div>
+              <div class="stack__v">$30.5M</div>
+            </div>
+            <div class="stack__row">
+              <div class="stack__ab">NYJ</div>
+              <div class="stack__bar"><div class="stack__fill" style="width:85.3%"></div><div class="stack__tick" style="left:64.5%"></div></div>
+              <div class="stack__v">$34.1M</div>
+            </div>
+            <div class="stack__row">
+              <div class="stack__ab">NE</div>
+              <div class="stack__bar"><div class="stack__fill" style="width:95%"></div><div class="stack__tick" style="left:64.5%"></div></div>
+              <div class="stack__v">$38.0M</div>
+            </div>
+          </div>
+        </div>
+        <div class="blk__foot">
+          <div class="blk__bench"><i>▮</i> LEAGUE AVG $25.8M / WIN · CASH TO PLAYERS ON THE ROSTER; CASH PAID TO PLAYERS RELEASED IN-YEAR IS NOT INCLUDED</div>
+          <div class="blk__mark">YIELD<s>/</s>YARD</div>
+        </div>
+      </div>
+      <div class="cap">At 1040 the stack sits beside the number rather than beneath it — the only layout change across all three sizes.</div>
+    </div>
+  </div>
+
+  <!-- ── SUBJECT-LED VARIANT ──────────────────────────────────────────────── -->
+  <div class="stage" style="margin-top:36px">
+    <div class="slot">
+      <div class="cap"><b>C4</b>Square · subject-led (viewer follows NYJ) — the variant that fixes the "card is about someone else" problem</div>
+      <div class="blk blk--export size-square">
+        <div>
+          <div class="blk__top">
+            <div class="blk__label">AFC East · cost per win · cash · 2025</div>
+            <div class="blk__sample">SAMPLE</div>
+          </div>
+          <div class="blk__lead">
+            <div class="blk__num" style="color:var(--yy-negative-soft)">$34.1M</div>
+            <div class="blk__who">NEW YORK JETS</div>
+            <div class="blk__say"><b style="color:var(--yy-negative-soft)">32% above</b> the league
+            average, and $15.8M more per win than Buffalo — the widest intra-division gap in the AFC.</div>
+          </div>
+        </div>
+        <div>
+          <div class="stack">
+            <div class="stack__row">
+              <div class="stack__ab" style="color:var(--yy-yield-lime)">BUF</div>
+              <div class="stack__bar"><div class="stack__fill" style="width:45.8%;background:var(--yy-yield-lime)"></div><div class="stack__tick" style="left:64.5%"></div></div>
+              <div class="stack__v" style="color:var(--yy-yield-lime)">$18.3M</div>
+            </div>
+            <div class="stack__row">
+              <div class="stack__ab">MIA</div>
+              <div class="stack__bar"><div class="stack__fill" style="width:76.3%;background:var(--yy-band-mid)"></div><div class="stack__tick" style="left:64.5%"></div></div>
+              <div class="stack__v" style="color:var(--yy-ink-dark-1)">$30.5M</div>
+            </div>
+            <div class="stack__row">
+              <div class="stack__ab">NE</div>
+              <div class="stack__bar"><div class="stack__fill" style="width:95%"></div><div class="stack__tick" style="left:64.5%"></div></div>
+              <div class="stack__v">$38.0M</div>
+            </div>
+          </div>
+          <div class="blk__foot">
+            <div class="blk__bench"><i>▮</i> LEAGUE AVG $25.8M / WIN</div>
+            <div class="blk__mark">YIELD<s>/</s>YARD</div>
+          </div>
+        </div>
+      </div>
+      <div class="cap">Note what breaks: the leading number is now the <i>bad</i> one, so the card's most prominent element is salmon, not lime — and the brief's "lime = the selected team" reading cannot survive here without saying that a bad team gets a lime headline.</div>
+    </div>
+  </div>
+
+  <!-- ── FEED LEGIBILITY RIG ──────────────────────────────────────────────── -->
+  <div class="stage" style="margin-top:36px">
+    <div class="slot">
+      <div class="cap"><b>C5</b>Dropped into a <b style="background:rgba(7,28,22,.07)">light</b> feed</div>
+      <div class="feed feed--light">
+        <div class="feed__hdr"><div class="feed__av"></div><div><div class="feed__nm">@yieldyard</div><div class="feed__sub">2m · sample</div></div></div>
+        <div class="blk blk--export size-square">
+          <div>
+            <div class="blk__top"><div class="blk__label">AFC East · cost per win · cash · 2025</div><div class="blk__sample">SAMPLE</div></div>
+            <div class="blk__lead">
+              <div class="blk__num">$18.3M</div>
+              <div class="blk__who">BUFFALO BILLS</div>
+              <div class="blk__say">The division's cheapest win — <b>29% below</b> the league average.</div>
+            </div>
+          </div>
+          <div>
+            <div class="stack">
+              <div class="stack__row"><div class="stack__ab">MIA</div><div class="stack__bar"><div class="stack__fill" style="width:76.3%"></div><div class="stack__tick" style="left:64.5%"></div></div><div class="stack__v">$30.5M</div></div>
+              <div class="stack__row"><div class="stack__ab">NYJ</div><div class="stack__bar"><div class="stack__fill" style="width:85.3%"></div><div class="stack__tick" style="left:64.5%"></div></div><div class="stack__v">$34.1M</div></div>
+              <div class="stack__row"><div class="stack__ab">NE</div><div class="stack__bar"><div class="stack__fill" style="width:95%"></div><div class="stack__tick" style="left:64.5%"></div></div><div class="stack__v">$38.0M</div></div>
+            </div>
+            <div class="blk__foot"><div class="blk__bench"><i>▮</i> LEAGUE AVG $25.8M / WIN</div><div class="blk__mark">YIELD<s>/</s>YARD</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="cap">On white, the in-product border (<code>rgba(168,177,173,.22)</code>) disappears and the card's corners look cut off. The export variant raises it to <code>.42</code> — one token, one condition.</div>
+    </div>
+
+    <div class="slot">
+      <div class="cap"><b>C6</b>Dropped into a <b style="background:rgba(7,28,22,.07)">dark</b> feed</div>
+      <div class="feed feed--dark">
+        <div class="feed__hdr"><div class="feed__av"></div><div><div class="feed__nm">@yieldyard</div><div class="feed__sub">2m · sample</div></div></div>
+        <div class="blk blk--export size-square">
+          <div>
+            <div class="blk__top"><div class="blk__label">AFC East · cost per win · cash · 2025</div><div class="blk__sample">SAMPLE</div></div>
+            <div class="blk__lead">
+              <div class="blk__num">$18.3M</div>
+              <div class="blk__who">BUFFALO BILLS</div>
+              <div class="blk__say">The division's cheapest win — <b>29% below</b> the league average.</div>
+            </div>
+          </div>
+          <div>
+            <div class="stack">
+              <div class="stack__row"><div class="stack__ab">MIA</div><div class="stack__bar"><div class="stack__fill" style="width:76.3%"></div><div class="stack__tick" style="left:64.5%"></div></div><div class="stack__v">$30.5M</div></div>
+              <div class="stack__row"><div class="stack__ab">NYJ</div><div class="stack__bar"><div class="stack__fill" style="width:85.3%"></div><div class="stack__tick" style="left:64.5%"></div></div><div class="stack__v">$34.1M</div></div>
+              <div class="stack__row"><div class="stack__ab">NE</div><div class="stack__bar"><div class="stack__fill" style="width:95%"></div><div class="stack__tick" style="left:64.5%"></div></div><div class="stack__v">$38.0M</div></div>
+            </div>
+            <div class="blk__foot"><div class="blk__bench"><i>▮</i> LEAGUE AVG $25.8M / WIN</div><div class="blk__mark">YIELD<s>/</s>YARD</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="cap">On <code>#111416</code> — the brand's own Film Room — the card nearly merges with the feed. The same raised border is what separates them. A dark card on a dark feed is the harder of the two cases, and it is the one the brand's flagship theme guarantees.</div>
+    </div>
+  </div>
+
+  <p class="note">
+    <b>Sample data.</b> Shaped from the handoff mockup's own placeholder league
+    (<code>support.js</code> <code>RAW</code>) for AFC East 2025. Plausible, not real.
+    <br><br>
+    <b>Tokens exercised:</b> the mockup's hero-metric recipe verbatim
+    (<code>600 64px/.85</code>, <code>letter-spacing:-.05em</code>, lime — here scaled to 72/88/120px
+    across the three sizes); <code>--yy-surface-card</code> and <code>--yy-card-border-dark</code>,
+    with a proposed <code>--yy-card-border-export</code> at <code>.42</code>; the gold benchmark tick
+    from the division strip, reused at 4px bar height; the dark ink ladder; the negative family for
+    above-average cost; <code>--yy-radius-mark</code>. Adds
+    <code>font-variant-numeric:tabular-nums</code> (D6) — load-bearing here, because the leading
+    number changes on every division and season.
+  </p>
+
+</div>
+</body>
+</html>

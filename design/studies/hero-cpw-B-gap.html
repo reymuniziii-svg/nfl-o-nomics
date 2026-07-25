@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<!--
+  STUDY B — "THE GAP"
+  POV: A cost-per-win number means nothing alone — make the league average the axis and draw each team as a distance from it.
+  Surface: division cost-per-win HERO card (SPEC §3.1.2, §4) — rank 1 uncovered in PHASE_A_COVERAGE.md.
+  Extends the mockup's extracted system (PHASE_A_TOKENS.md §10). Originates nothing outside it.
+  Sample data. Not real 2025 figures.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>YIELD/YARD — Hero study B: The Gap</title>
+<style>
+@font-face{
+  font-family:'Bebas Neue';
+  src:url("../handoff/project/uploads/Bebas_Neue,DM_Serif_Display,Squada_One/Bebas_Neue/BebasNeue-Regular.ttf") format("truetype");
+  font-weight:400; font-display:swap;
+}
+
+:root{
+  --yy-end-zone:#071C16; --yy-film-room:#111416; --yy-chalk-white:#FFFFFF;
+  --yy-yield-lime:#A6E22E; --yy-premium-gold:#D4AF37; --yy-muted:#A8B1AD; --yy-paper:#F5F6F2;
+  --yy-radius-card:22px; --yy-radius-card-sm:16px; --yy-radius-mark:2px; --yy-radius-chip:4px;
+  --yy-font-display:'Bebas Neue','Arial Narrow',sans-serif;
+  --yy-font-athletic:'Squadron Black','Rajdhani','Arial Narrow',sans-serif;
+  --yy-font-body:'Inter',system-ui,-apple-system,'Segoe UI',Arial,sans-serif;
+  --yy-surface-card:linear-gradient(160deg,#181C1D,#0E1112);
+  --yy-surface-card-lg:linear-gradient(160deg,#16191B,#0A0C0D);
+  --yy-ink-dark-1:#EAF1EC; --yy-ink-dark-2:#A8B1AD; --yy-ink-dark-3:#6E8078;
+  --yy-ink-light-1:#071C16; --yy-ink-light-2:#46534F;
+  --yy-lime-ink:#4F7413;
+  --yy-negative:#D9503C; --yy-negative-soft:#E8A08D; --yy-band-mid:#8FA39A;
+  --yy-card-border-dark:1px solid rgba(168,177,173,.22);
+  --yy-gridline:rgba(168,177,173,.10);
+}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--yy-paper);font-family:var(--yy-font-body);color:var(--yy-ink-light-1)}
+
+.study{padding:40px 44px 64px;max-width:1240px}
+.pov{border:1px solid rgba(7,28,22,.15);border-radius:var(--yy-radius-card);background:#fff;padding:20px 24px;max-width:920px;margin:0 0 32px}
+.pov h1{margin:0 0 4px;font:400 40px/.95 var(--yy-font-display);letter-spacing:.02em}
+.pov .eyebrow{font:700 11px var(--yy-font-athletic);letter-spacing:.16em;text-transform:uppercase;color:var(--yy-lime-ink);margin-bottom:8px}
+.pov p{margin:10px 0 0;font:400 13.5px/1.7 var(--yy-font-body);color:var(--yy-ink-light-2)}
+.pov b{color:var(--yy-ink-light-1);font-weight:600}
+.pov .trade{margin-top:14px;padding-top:12px;border-top:1px solid rgba(7,28,22,.12)}
+.stage{display:flex;flex-wrap:wrap;gap:36px;align-items:flex-start}
+.slot{display:flex;flex-direction:column;gap:10px}
+.slot .cap{font:400 11px/1.3 var(--yy-font-body);color:rgba(7,28,22,.55);max-width:420px}
+.slot .cap b{font:700 11.5px var(--yy-font-athletic);letter-spacing:.08em;background:rgba(7,28,22,.07);border-radius:5px;padding:3px 8px;margin-right:8px}
+.note{max-width:920px;margin:34px 0 0;font:400 12px/1.65 var(--yy-font-body);color:var(--yy-ink-light-2)}
+.note code{font:11px ui-monospace,monospace;background:rgba(7,28,22,.06);padding:1px 5px;border-radius:3px}
+
+/* ── the hero card ────────────────────────────────────────────────────────── */
+.gap{
+  background:var(--yy-surface-card);
+  border:var(--yy-card-border-dark);
+  border-radius:var(--yy-radius-card-sm);
+  color:var(--yy-ink-dark-1);
+  font-variant-numeric:tabular-nums;
+  display:flex;flex-direction:column;
+}
+.gap--wide{border-radius:var(--yy-radius-card);background:var(--yy-surface-card-lg)}
+
+.gap__head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.gap__label{font:500 9px var(--yy-font-athletic);letter-spacing:.16em;text-transform:uppercase;color:var(--yy-ink-dark-3)}
+.gap__title{font:400 28px/1 var(--yy-font-display);letter-spacing:.02em;color:var(--yy-chalk-white);margin-top:5px}
+.gap__toggle{display:flex;gap:4px;flex:none}
+.gap__toggle span{font:500 9px var(--yy-font-athletic);letter-spacing:.1em;padding:5px 9px;border-radius:11px;color:var(--yy-ink-dark-2);border:1px solid rgba(168,177,173,.3)}
+.gap__toggle span[data-on]{background:var(--yy-yield-lime);color:var(--yy-end-zone);border-color:var(--yy-yield-lime)}
+
+.gap__lede{font:400 12px/1.55 var(--yy-font-body);color:rgba(234,241,236,.7);margin-top:11px}
+.gap__lede b{color:var(--yy-yield-lime);font-weight:600}
+.gap__lede i{font-style:normal;color:var(--yy-negative-soft);font-weight:600}
+
+/* the axis — the gold rule is centred on the TRACK, never on the card, so the bars
+   and the benchmark share one origin at every size (--yy-benchmark-rule) */
+.axis{margin-top:16px;position:relative;--axis-l:47px;--axis-r:75px}
+.axis__label{display:flex;justify-content:center;margin-bottom:7px;padding-left:var(--axis-l);padding-right:var(--axis-r)}
+.axis__label span{font:500 8.5px var(--yy-font-athletic);letter-spacing:.14em;color:var(--yy-premium-gold);white-space:nowrap}
+.axis__ends{display:flex;justify-content:space-between;margin-top:9px;padding-left:var(--axis-l);padding-right:var(--axis-r);font:500 8.5px var(--yy-font-athletic);letter-spacing:.12em;color:var(--yy-ink-dark-3)}
+
+.grow{display:flex;align-items:center;gap:9px;padding:10px 0;position:relative}
+.grow__track::before{content:"";position:absolute;left:50%;top:-10px;bottom:-10px;width:0;
+  border-left:1px dashed rgba(212,175,55,.65);box-shadow:-1px 0 0 rgba(212,175,55,.28)}
+.grow__ab{width:38px;flex:none;font:400 20px/1 var(--yy-font-display);letter-spacing:.04em;color:var(--yy-ink-dark-1)}
+.grow__track{flex:1;height:22px;position:relative}
+.grow__gl{position:absolute;top:0;bottom:0;width:1px;background:var(--yy-gridline)}
+.grow__bar{position:absolute;top:6px;height:10px;border-radius:var(--yy-radius-mark)}
+.grow__val{width:66px;flex:none;text-align:right}
+.grow__d{font:600 17px/1 var(--yy-font-athletic);letter-spacing:-.03em}
+.grow__abs{font:500 8.5px var(--yy-font-athletic);letter-spacing:.1em;color:var(--yy-ink-dark-3);margin-top:4px}
+
+.under .grow__bar{background:var(--yy-yield-lime)}
+.under .grow__d{color:var(--yy-yield-lime)}
+.over  .grow__bar{background:var(--yy-negative)}
+.over  .grow__d{color:var(--yy-negative-soft)}
+.even  .grow__bar{background:var(--yy-band-mid)}
+.even  .grow__d{color:var(--yy-ink-dark-1)}
+
+.gap__foot{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:12px;padding-top:11px;border-top:1px solid rgba(168,177,173,.18)}
+.gap__bench{font:500 9px var(--yy-font-athletic);letter-spacing:.12em;color:var(--yy-ink-dark-2)}
+.gap__bench i{font-style:normal;color:var(--yy-premium-gold)}
+.gap__mark{font:400 13px/1 var(--yy-font-display);letter-spacing:.02em;color:rgba(234,241,236,.55)}
+.gap__mark s{text-decoration:none;color:var(--yy-yield-lime)}
+.gap__sample{font:500 8px var(--yy-font-athletic);letter-spacing:.14em;color:var(--yy-negative-soft);border:1px solid rgba(232,160,141,.4);border-radius:var(--yy-radius-chip);padding:3px 6px}
+
+/* Cap+ side column, wide only — carries the mandated caption (SPEC §4) */
+.capplus{width:78px;flex:none;text-align:right;border-left:1px solid rgba(168,177,173,.13);padding-left:14px}
+.capplus__n{font:600 20px/1 var(--yy-font-athletic);letter-spacing:-.03em}
+.capplus__l{font:500 8px var(--yy-font-athletic);letter-spacing:.16em;color:var(--yy-ink-dark-3);margin-top:4px}
+
+.size-mobile{width:390px;padding:16px}
+.size-square{width:400px;height:400px;padding:20px;justify-content:space-between}
+.size-square .gap__title{font-size:32px}
+.size-wide{width:1040px;padding:26px 28px}
+.size-wide .gap__title{font-size:44px}
+.size-wide .grow{padding:13px 0}
+.size-wide .grow__ab{width:52px;font-size:26px}
+.size-wide .grow__d{font-size:24px}
+.size-wide .grow__val{width:96px}
+.size-wide .axis{--axis-l:61px;--axis-r:207px}
+</style>
+</head>
+<body>
+<div class="study">
+
+  <div class="pov">
+    <div class="eyebrow">Study B · division cost-per-win hero</div>
+    <h1>THE GAP</h1>
+    <p><b>Point of view:</b> a cost-per-win number means nothing on its own — make the league
+    average the axis and draw each team as a distance from it.</p>
+    <p class="trade"><b>What it trades away:</b> absolute magnitude. You read <i>position</i> first
+    and the dollar figure second, so "$18.3M per win" stops being the headline. The benchmark has to
+    be named twice — once on the axis, once in the footer — or the card is unreadable the moment it
+    leaves the page. And it has a failure mode the ranked list does not: a division where all four
+    teams sit near average produces a card with almost no ink on it. The chart is only as
+    interesting as the spread, and some divisions have none.</p>
+  </div>
+
+  <div class="stage">
+
+    <!-- ── MOBILE 390, canonical ─────────────────────────────────────────── -->
+    <div class="slot">
+      <div class="cap"><b>B1</b>Mobile · 390 full-bleed · canonical</div>
+      <div class="gap size-mobile">
+        <div class="gap__head">
+          <div>
+            <div class="gap__label">Cost per win vs league · 2025</div>
+            <div class="gap__title">AFC EAST</div>
+          </div>
+          <div class="gap__toggle"><span data-on>CASH</span><span>CAP</span></div>
+        </div>
+
+        <div class="gap__lede">Buffalo buys wins <b>$7.5M cheaper</b> than the league.
+        New England pays <i>$12.2M more</i>.</div>
+
+        <div class="axis">
+          <div class="axis__label"><span>◆ LEAGUE AVERAGE · $25.8M / WIN</span></div>
+
+          <div class="grow under">
+            <div class="grow__ab">BUF</div>
+            <div class="grow__track">
+              <div class="grow__gl" style="left:23%"></div><div class="grow__gl" style="left:77%"></div>
+              <div class="grow__bar" style="right:50%;width:26.8%"></div>
+            </div>
+            <div class="grow__val"><div class="grow__d">−$7.5M</div><div class="grow__abs">$18.3M</div></div>
+          </div>
+
+          <div class="grow over">
+            <div class="grow__ab">MIA</div>
+            <div class="grow__track">
+              <div class="grow__gl" style="left:23%"></div><div class="grow__gl" style="left:77%"></div>
+              <div class="grow__bar" style="left:50%;width:16.8%"></div>
+            </div>
+            <div class="grow__val"><div class="grow__d">+$4.7M</div><div class="grow__abs">$30.5M</div></div>
+          </div>
+
+          <div class="grow over">
+            <div class="grow__ab">NYJ</div>
+            <div class="grow__track">
+              <div class="grow__gl" style="left:23%"></div><div class="grow__gl" style="left:77%"></div>
+              <div class="grow__bar" style="left:50%;width:29.6%"></div>
+            </div>
+            <div class="grow__val"><div class="grow__d">+$8.3M</div><div class="grow__abs">$34.1M</div></div>
+          </div>
+
+          <div class="grow over">
+            <div class="grow__ab">NE</div>
+            <div class="grow__track">
+              <div class="grow__gl" style="left:23%"></div><div class="grow__gl" style="left:77%"></div>
+              <div class="grow__bar" style="left:50%;width:43.6%"></div>
+            </div>
+            <div class="grow__val"><div class="grow__d">+$12.2M</div><div class="grow__abs">$38.0M</div></div>
+          </div>
+
+          <div class="axis__ends"><span>◄ CHEAPER WINS</span><span>DEARER WINS ►</span></div>
+        </div>
+
+        <div class="gap__foot">
+          <div class="gap__bench"><i>◆</i> LEAGUE AVG $25.8M / WIN · CASH</div>
+          <div class="gap__mark">YIELD<s>/</s>YARD</div>
+        </div>
+      </div>
+      <div class="cap">Axis scale ±$14M. Gridlines at ±$6.4M sit at 10% opacity — the mockup's value, under the brand's 15% ceiling.</div>
+    </div>
+
+    <!-- ── SQUARE ────────────────────────────────────────────────────────── -->
+    <div class="slot">
+      <div class="cap"><b>B2</b>Square · 400 · feed / OG</div>
+      <div class="gap size-square">
+        <div>
+          <div class="gap__head">
+            <div>
+              <div class="gap__label">Cost per win vs league · cash · 2025</div>
+              <div class="gap__title">AFC EAST</div>
+            </div>
+            <div class="gap__sample">SAMPLE</div>
+          </div>
+          <div class="axis" style="margin-top:14px">
+            <div class="axis__label"><span>◆ LEAGUE AVERAGE · $25.8M / WIN</span></div>
+            <div class="grow under">
+              <div class="grow__ab">BUF</div>
+              <div class="grow__track"><div class="grow__bar" style="right:50%;width:26.8%"></div></div>
+              <div class="grow__val"><div class="grow__d">−$7.5M</div></div>
+            </div>
+            <div class="grow over">
+              <div class="grow__ab">MIA</div>
+              <div class="grow__track"><div class="grow__bar" style="left:50%;width:16.8%"></div></div>
+              <div class="grow__val"><div class="grow__d">+$4.7M</div></div>
+            </div>
+            <div class="grow over">
+              <div class="grow__ab">NYJ</div>
+              <div class="grow__track"><div class="grow__bar" style="left:50%;width:29.6%"></div></div>
+              <div class="grow__val"><div class="grow__d">+$8.3M</div></div>
+            </div>
+            <div class="grow over">
+              <div class="grow__ab">NE</div>
+              <div class="grow__track"><div class="grow__bar" style="left:50%;width:43.6%"></div></div>
+              <div class="grow__val"><div class="grow__d">+$12.2M</div></div>
+            </div>
+            <div class="axis__ends"><span>◄ CHEAPER</span><span>DEARER ►</span></div>
+          </div>
+        </div>
+        <div class="gap__foot">
+          <div class="gap__bench"><i>◆</i> LEAGUE AVG $25.8M / WIN</div>
+          <div class="gap__mark">YIELD<s>/</s>YARD</div>
+        </div>
+      </div>
+      <div class="cap">At square, the absolute figures drop and only the gap survives — the deliberate version of the trade-off.</div>
+    </div>
+
+  </div>
+
+  <div class="stage" style="margin-top:36px">
+    <!-- ── DESKTOP WIDE — with the Cap+ column and its mandated caption ───── -->
+    <div class="slot">
+      <div class="cap"><b>B3</b>Desktop · 1040 wide · adds the Cap+ column</div>
+      <div class="gap gap--wide size-wide">
+        <div class="gap__head">
+          <div>
+            <div class="gap__label">Cost per win vs league · 2025 · cash numerator</div>
+            <div class="gap__title">AFC EAST — DISTANCE FROM AVERAGE</div>
+          </div>
+          <div class="gap__toggle"><span data-on>CASH</span><span>CAP</span></div>
+        </div>
+
+        <div class="gap__lede">Buffalo buys wins <b>$7.5M cheaper</b> than the league average.
+        New England pays <i>$12.2M more</i> for each of six.</div>
+
+        <div class="axis">
+          <div class="axis__label"><span>◆ LEAGUE AVERAGE · $25.8M PER WIN</span></div>
+
+          <div class="grow under">
+            <div class="grow__ab">BUF</div>
+            <div class="grow__track">
+              <div class="grow__gl" style="left:23%"></div><div class="grow__gl" style="left:77%"></div>
+              <div class="grow__bar" style="right:50%;width:26.8%"></div>
+            </div>
+            <div class="grow__val"><div class="grow__d">−$7.5M</div><div class="grow__abs">$18.3M / WIN</div></div>
+            <div class="capplus"><div class="capplus__n" style="color:var(--yy-yield-lime)">111</div><div class="capplus__l">CAP+</div></div>
+          </div>
+          <div class="grow over">
+            <div class="grow__ab">MIA</div>
+            <div class="grow__track">
+              <div class="grow__gl" style="left:23%"></div><div class="grow__gl" style="left:77%"></div>
+              <div class="grow__bar" style="left:50%;width:16.8%"></div>
+            </div>
+            <div class="grow__val"><div class="grow__d">+$4.7M</div><div class="grow__abs">$30.5M / WIN</div></div>
+            <div class="capplus"><div class="capplus__n" style="color:var(--yy-negative-soft)">92</div><div class="capplus__l">CAP+</div></div>
+          </div>
+          <div class="grow over">
+            <div class="grow__ab">NYJ</div>
+            <div class="grow__track">
+              <div class="grow__gl" style="left:23%"></div><div class="grow__gl" style="left:77%"></div>
+              <div class="grow__bar" style="left:50%;width:29.6%"></div>
+            </div>
+            <div class="grow__val"><div class="grow__d">+$8.3M</div><div class="grow__abs">$34.1M / WIN</div></div>
+            <div class="capplus"><div class="capplus__n" style="color:var(--yy-band-mid)">95</div><div class="capplus__l">CAP+</div></div>
+          </div>
+          <div class="grow over">
+            <div class="grow__ab">NE</div>
+            <div class="grow__track">
+              <div class="grow__gl" style="left:23%"></div><div class="grow__gl" style="left:77%"></div>
+              <div class="grow__bar" style="left:50%;width:43.6%"></div>
+            </div>
+            <div class="grow__val"><div class="grow__d">+$12.2M</div><div class="grow__abs">$38.0M / WIN</div></div>
+            <div class="capplus"><div class="capplus__n" style="color:var(--yy-negative-soft)">90</div><div class="capplus__l">CAP+</div></div>
+          </div>
+
+          <div class="axis__ends"><span>◄ CHEAPER WINS</span><span>DEARER WINS ►</span></div>
+        </div>
+
+        <div class="gap__foot">
+          <div class="gap__bench"><i>◆</i> LEAGUE AVG $25.8M / WIN · <b style="color:var(--yy-ink-dark-2);font-weight:500">CAP+ 100 = LEAGUE AVERAGE</b> · CASH TO PLAYERS ON THE ROSTER</div>
+          <div class="gap__mark">YIELD<s>/</s>YARD</div>
+        </div>
+      </div>
+      <div class="cap">Where Cap+ appears, the "100 = league average" caption is mandatory (SPEC §4) — shown here sharing the footer with the dollar benchmark, which is the only place both can live without a second caption row.</div>
+    </div>
+  </div>
+
+  <p class="note">
+    <b>Sample data.</b> Shaped from the handoff mockup's own placeholder league
+    (<code>support.js</code> <code>RAW</code>) for AFC East 2025. Plausible, not real.
+    <br><br>
+    <b>Tokens exercised:</b> the mockup's diverging-bar geometry from <code>SPEND MIX vs LEAGUE</code>
+    (centred axis, bar offset left/right by sign, signed value right-aligned) rebuilt on
+    <code>--yy-surface-card</code>; the gold benchmark rule as
+    <code>1px dashed rgba(212,175,55,.65)</code> over a <code>.6</code> solid — the mockup's exact
+    frontier-line recipe; <code>--yy-gridline</code> at 10%; the lime / <code>#8FA39A</code> /
+    <code>#D9503C</code> band colours; <code>--yy-radius-mark</code> on every bar. Adds
+    <code>font-variant-numeric:tabular-nums</code> (D6) so the ± column stays aligned as values change.
+    <br><br>
+    <b>Open question this study raises:</b> on a division card there is no "selected team", so lime
+    here means <i>better than the benchmark</i> (which <code>design.md</code> authorises — "Yield
+    Lime: positive trajectory") rather than <i>your team</i>. On <code>/team/{abbr}</code> the same
+    component would have a subject, and the two meanings collide. → Rey.
+  </p>
+
+</div>
+</body>
+</html>

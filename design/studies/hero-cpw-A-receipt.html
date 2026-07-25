@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<!--
+  STUDY A — "THE RECEIPT"
+  POV: The hero is a price list — rank the division by what a win actually costs, and let the ledger do the arguing.
+  Surface: division cost-per-win HERO card (SPEC §3.1.2, §4) — rank 1 uncovered in PHASE_A_COVERAGE.md.
+  Extends the mockup's extracted system (PHASE_A_TOKENS.md §10). Originates nothing outside it.
+  Sample data. Not real 2025 figures.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>YIELD/YARD — Hero study A: The Receipt</title>
+<style>
+/* Bebas Neue is the only display face shipped in the handoff kit. Rajdhani and Inter are NOT
+   shipped (Google Fonts only) — per PHASE_A_TOKENS.md §12 — so the athletic and body stacks fall
+   back to system faces offline. That fallback is itself part of the finding. */
+@font-face{
+  font-family:'Bebas Neue';
+  src:url("../handoff/project/uploads/Bebas_Neue,DM_Serif_Display,Squada_One/Bebas_Neue/BebasNeue-Regular.ttf") format("truetype");
+  font-weight:400; font-display:swap;
+}
+
+:root{
+  /* published brand tokens */
+  --yy-end-zone:#071C16; --yy-film-room:#111416; --yy-chalk-white:#FFFFFF;
+  --yy-yield-lime:#A6E22E; --yy-premium-gold:#D4AF37; --yy-muted:#A8B1AD; --yy-paper:#F5F6F2;
+  --yy-radius-card:22px; --yy-radius-control:8px;
+  --yy-font-display:'Bebas Neue','Arial Narrow',sans-serif;
+  --yy-font-athletic:'Squadron Black','Rajdhani','Arial Narrow',sans-serif;
+  --yy-font-body:'Inter',system-ui,-apple-system,'Segoe UI',Arial,sans-serif;
+  /* extracted from the mockup */
+  --yy-surface-app:#0B0D0E;
+  --yy-surface-card:linear-gradient(160deg,#181C1D,#0E1112);
+  --yy-surface-card-lg:linear-gradient(160deg,#16191B,#0A0C0D);
+  --yy-surface-track:#39423E;
+  --yy-ink-dark-1:#EAF1EC; --yy-ink-dark-2:#A8B1AD; --yy-ink-dark-3:#6E8078;
+  --yy-ink-light-1:#071C16; --yy-ink-light-2:#46534F; --yy-ink-light-3:#71807A;
+  --yy-lime-ink:#4F7413; --yy-red-ink:#B33A26;
+  --yy-negative:#D9503C; --yy-negative-soft:#E8A08D; --yy-band-mid:#8FA39A;
+  --yy-card-border-dark:1px solid rgba(168,177,173,.22);
+  --yy-hairline-dark:1px solid rgba(168,177,173,.18);
+  --yy-gridline:rgba(168,177,173,.10);
+  --yy-blank-rule:1px dashed rgba(232,160,141,.75);
+  --yy-radius-card-sm:16px; --yy-radius-mark:2px; --yy-radius-chip:4px;
+}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--yy-paper);font-family:var(--yy-body,var(--yy-font-body));color:var(--yy-ink-light-1)}
+
+/* ── study chrome (mirrors the handoff's own design-doc chrome) ───────────── */
+.study{padding:40px 44px 64px;max-width:1240px}
+.pov{border:1px solid rgba(7,28,22,.15);border-radius:var(--yy-radius-card);background:#fff;padding:20px 24px;max-width:920px;margin:0 0 32px}
+.pov h1{margin:0 0 4px;font:400 40px/.95 var(--yy-font-display);letter-spacing:.02em}
+.pov .eyebrow{font:700 11px var(--yy-font-athletic);letter-spacing:.16em;text-transform:uppercase;color:var(--yy-lime-ink);margin-bottom:8px}
+.pov p{margin:10px 0 0;font:400 13.5px/1.7 var(--yy-font-body);color:var(--yy-ink-light-2)}
+.pov b{color:var(--yy-ink-light-1);font-weight:600}
+.pov .trade{margin-top:14px;padding-top:12px;border-top:1px solid rgba(7,28,22,.12)}
+.stage{display:flex;flex-wrap:wrap;gap:36px;align-items:flex-start}
+.slot{display:flex;flex-direction:column;gap:10px}
+.slot .cap{font:400 11px/1.3 var(--yy-font-body);color:rgba(7,28,22,.55)}
+.slot .cap b{font:700 11.5px var(--yy-font-athletic);letter-spacing:.08em;background:rgba(7,28,22,.07);border-radius:5px;padding:3px 8px;margin-right:8px}
+.note{max-width:920px;margin:34px 0 0;font:400 12px/1.65 var(--yy-font-body);color:var(--yy-ink-light-2)}
+.note code{font:11px ui-monospace,monospace;background:rgba(7,28,22,.06);padding:1px 5px;border-radius:3px}
+
+/* ── the hero card ────────────────────────────────────────────────────────── */
+.cpw{
+  background:var(--yy-surface-card);
+  border:var(--yy-card-border-dark);
+  border-radius:var(--yy-radius-card-sm);
+  color:var(--yy-ink-dark-1);
+  font-variant-numeric:tabular-nums;      /* D6 — absent from the mockup, required by SPEC §4 */
+  display:flex;flex-direction:column;
+}
+.cpw--wide{border-radius:var(--yy-radius-card);background:var(--yy-surface-card-lg)}
+
+.cpw__head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.cpw__label{font:500 9px var(--yy-font-athletic);letter-spacing:.16em;text-transform:uppercase;color:var(--yy-ink-dark-3)}
+.cpw__title{font:400 28px/1 var(--yy-font-display);letter-spacing:.02em;color:var(--yy-chalk-white);margin-top:5px}
+.cpw__toggle{display:flex;gap:4px;flex:none}
+.cpw__toggle span{font:500 9px var(--yy-font-athletic);letter-spacing:.1em;padding:5px 9px;border-radius:11px;color:var(--yy-ink-dark-2);border:1px solid rgba(168,177,173,.3)}
+.cpw__toggle span[data-on]{background:var(--yy-yield-lime);color:var(--yy-end-zone);border-color:var(--yy-yield-lime)}
+
+.cpw__rows{margin-top:14px}
+.row{display:flex;align-items:center;gap:10px;padding:11px 0;border-top:1px solid rgba(168,177,173,.13)}
+.row:first-child{border-top:0}
+.row__rank{width:14px;font:500 10px var(--yy-font-athletic);color:var(--yy-ink-dark-3)}
+.row__team{width:74px;flex:none}
+.row__ab{font:400 22px/1 var(--yy-font-display);letter-spacing:.04em;color:var(--yy-ink-dark-1)}
+.row__nm{font:500 8.5px var(--yy-font-athletic);letter-spacing:.12em;color:var(--yy-ink-dark-3);margin-top:3px}
+.row__bar{flex:1;height:8px;background:rgba(168,177,173,.14);border-radius:var(--yy-radius-mark);position:relative;overflow:visible}
+.row__fill{position:absolute;left:0;top:0;bottom:0;border-radius:var(--yy-radius-mark)}
+.row__tick{position:absolute;top:-4px;bottom:-4px;width:1px;background:rgba(212,175,55,.75)}
+.row__val{width:74px;text-align:right;flex:none}
+.row__num{font:600 21px/1 var(--yy-font-athletic);letter-spacing:-.03em}
+.row__delta{font:500 9px var(--yy-font-athletic);letter-spacing:.06em;color:var(--yy-ink-dark-3);margin-top:4px}
+
+.is-cheap .row__num{color:var(--yy-yield-lime)}
+.is-mid   .row__num{color:var(--yy-ink-dark-1)}
+.is-dear  .row__num{color:var(--yy-negative-soft)}
+.is-cheap .row__fill{background:var(--yy-yield-lime)}
+.is-mid   .row__fill{background:var(--yy-band-mid)}
+.is-dear  .row__fill{background:var(--yy-negative)}
+
+/* zero-win state — SPEC §2.5, never rendered as ∞ / N/A / blank */
+.row--zero{opacity:.9}
+.row--zero .row__bar{background:transparent;border:var(--yy-blank-rule);height:8px}
+.row--zero .row__num{font:600 15px/1 var(--yy-font-athletic);color:var(--yy-negative-soft);letter-spacing:0}
+.row--zero .row__delta{color:var(--yy-negative-soft)}
+
+.cpw__foot{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:12px;padding-top:11px;border-top:1px solid rgba(168,177,173,.18)}
+.cpw__bench{font:500 9px var(--yy-font-athletic);letter-spacing:.12em;color:var(--yy-ink-dark-2)}
+.cpw__bench i{font-style:normal;color:var(--yy-premium-gold)}
+.cpw__mark{font:400 13px/1 var(--yy-font-display);letter-spacing:.02em;color:rgba(234,241,236,.55)}
+.cpw__mark s{text-decoration:none;color:var(--yy-yield-lime)}
+.cpw__sample{font:500 8px var(--yy-font-athletic);letter-spacing:.14em;color:var(--yy-negative-soft);border:1px solid rgba(232,160,141,.4);border-radius:var(--yy-radius-chip);padding:3px 6px}
+
+/* size variants — one composition, three sizes (SPEC §4) */
+.size-mobile{width:390px;padding:16px}
+.size-square{width:400px;height:400px;padding:20px;justify-content:space-between}
+.size-square .cpw__title{font-size:34px}
+.size-square .row{padding:9px 0}
+.size-wide{width:1040px;padding:26px 28px}
+.size-wide .cpw__title{font-size:44px}
+.size-wide .row{padding:14px 0}
+.size-wide .row__ab{font-size:26px}
+.size-wide .row__num{font-size:28px}
+.size-wide .row__team{width:120px}
+.size-wide .row__val{width:150px}
+</style>
+</head>
+<body>
+<div class="study">
+
+  <div class="pov">
+    <div class="eyebrow">Study A · division cost-per-win hero</div>
+    <h1>THE RECEIPT</h1>
+    <p><b>Point of view:</b> the hero is a price list — rank the division by what a win actually
+    costs, and let the ledger do the arguing.</p>
+    <p class="trade"><b>What it trades away:</b> the payroll. You read the <i>ratio</i> and never see
+    that Buffalo and Miami spend within $6M of each other — total spend is off the card entirely.
+    And a rank list flattens distance: 1st-to-2nd looks the same as 3rd-to-4th even when the gap is
+    four times larger. The bar length is the only place the real spread survives, and at 390px it is
+    8px tall.</p>
+  </div>
+
+  <div class="stage">
+
+    <!-- ── MOBILE 390, canonical ─────────────────────────────────────────── -->
+    <div class="slot">
+      <div class="cap"><b>A1</b>Mobile · 390 full-bleed · canonical</div>
+      <div class="cpw size-mobile">
+        <div class="cpw__head">
+          <div>
+            <div class="cpw__label">Cost per win · 2025</div>
+            <div class="cpw__title">AFC EAST</div>
+          </div>
+          <div class="cpw__toggle"><span data-on>CASH</span><span>CAP</span></div>
+        </div>
+
+        <div class="cpw__rows">
+          <div class="row is-cheap">
+            <div class="row__rank">1</div>
+            <div class="row__team"><div class="row__ab">BUF</div><div class="row__nm">BILLS · 13–4</div></div>
+            <div class="row__bar"><div class="row__fill" style="width:45.8%"></div><div class="row__tick" style="left:64.5%"></div></div>
+            <div class="row__val"><div class="row__num">$18.3M</div><div class="row__delta">−$7.5M vs LG</div></div>
+          </div>
+          <div class="row is-dear">
+            <div class="row__rank">2</div>
+            <div class="row__team"><div class="row__ab">MIA</div><div class="row__nm">DOLPHINS · 8–9</div></div>
+            <div class="row__bar"><div class="row__fill" style="width:76.3%"></div><div class="row__tick" style="left:64.5%"></div></div>
+            <div class="row__val"><div class="row__num">$30.5M</div><div class="row__delta">+$4.7M vs LG</div></div>
+          </div>
+          <div class="row is-dear">
+            <div class="row__rank">3</div>
+            <div class="row__team"><div class="row__ab">NYJ</div><div class="row__nm">JETS · 7–10</div></div>
+            <div class="row__bar"><div class="row__fill" style="width:85.3%"></div><div class="row__tick" style="left:64.5%"></div></div>
+            <div class="row__val"><div class="row__num">$34.1M</div><div class="row__delta">+$8.3M vs LG</div></div>
+          </div>
+          <div class="row is-dear">
+            <div class="row__rank">4</div>
+            <div class="row__team"><div class="row__ab">NE</div><div class="row__nm">PATRIOTS · 6–11</div></div>
+            <div class="row__bar"><div class="row__fill" style="width:95%"></div><div class="row__tick" style="left:64.5%"></div></div>
+            <div class="row__val"><div class="row__num">$38.0M</div><div class="row__delta">+$12.2M vs LG</div></div>
+          </div>
+        </div>
+
+        <div class="cpw__foot">
+          <div class="cpw__bench"><i>▮</i> LEAGUE AVG $25.8M / WIN</div>
+          <div class="cpw__mark">YIELD<s>/</s>YARD</div>
+        </div>
+      </div>
+      <div class="cap">Gold tick = league average, on every bar. Ratio bars share one $0–40M scale.</div>
+    </div>
+
+    <!-- ── SQUARE, feed / OG ─────────────────────────────────────────────── -->
+    <div class="slot">
+      <div class="cap"><b>A2</b>Square · 400 · feed / OG</div>
+      <div class="cpw size-square">
+        <div>
+          <div class="cpw__head">
+            <div>
+              <div class="cpw__label">Cost per win · cash · 2025</div>
+              <div class="cpw__title">AFC EAST</div>
+            </div>
+            <div class="cpw__sample">SAMPLE</div>
+          </div>
+          <div class="cpw__rows">
+            <div class="row is-cheap">
+              <div class="row__team"><div class="row__ab">BUF</div><div class="row__nm">13–4</div></div>
+              <div class="row__bar"><div class="row__fill" style="width:45.8%"></div><div class="row__tick" style="left:64.5%"></div></div>
+              <div class="row__val"><div class="row__num">$18.3M</div></div>
+            </div>
+            <div class="row is-dear">
+              <div class="row__team"><div class="row__ab">MIA</div><div class="row__nm">8–9</div></div>
+              <div class="row__bar"><div class="row__fill" style="width:76.3%"></div><div class="row__tick" style="left:64.5%"></div></div>
+              <div class="row__val"><div class="row__num">$30.5M</div></div>
+            </div>
+            <div class="row is-dear">
+              <div class="row__team"><div class="row__ab">NYJ</div><div class="row__nm">7–10</div></div>
+              <div class="row__bar"><div class="row__fill" style="width:85.3%"></div><div class="row__tick" style="left:64.5%"></div></div>
+              <div class="row__val"><div class="row__num">$34.1M</div></div>
+            </div>
+            <div class="row is-dear">
+              <div class="row__team"><div class="row__ab">NE</div><div class="row__nm">6–11</div></div>
+              <div class="row__bar"><div class="row__fill" style="width:95%"></div><div class="row__tick" style="left:64.5%"></div></div>
+              <div class="row__val"><div class="row__num">$38.0M</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="cpw__foot">
+          <div class="cpw__bench"><i>▮</i> LEAGUE AVG $25.8M / WIN</div>
+          <div class="cpw__mark">YIELD<s>/</s>YARD</div>
+        </div>
+      </div>
+      <div class="cap">Self-contained: title, benchmark, units and mark all inside the crop.</div>
+    </div>
+
+  </div>
+
+  <div class="stage" style="margin-top:36px">
+    <!-- ── DESKTOP WIDE ──────────────────────────────────────────────────── -->
+    <div class="slot">
+      <div class="cap"><b>A3</b>Desktop · 1040 wide · same component, size prop</div>
+      <div class="cpw size-wide">
+        <div class="cpw__head">
+          <div>
+            <div class="cpw__label">Cost per win · 2025 · cash numerator</div>
+            <div class="cpw__title">AFC EAST — WHAT A WIN COSTS</div>
+          </div>
+          <div class="cpw__toggle"><span data-on>CASH</span><span>CAP</span></div>
+        </div>
+        <div class="cpw__rows">
+          <div class="row is-cheap">
+            <div class="row__rank">1</div>
+            <div class="row__team"><div class="row__ab">BUF</div><div class="row__nm">BUFFALO BILLS · 13–4</div></div>
+            <div class="row__bar"><div class="row__fill" style="width:45.8%"></div><div class="row__tick" style="left:64.5%"></div></div>
+            <div class="row__val"><div class="row__num">$18.3M</div><div class="row__delta">29% BELOW LEAGUE</div></div>
+          </div>
+          <div class="row is-dear">
+            <div class="row__rank">2</div>
+            <div class="row__team"><div class="row__ab">MIA</div><div class="row__nm">MIAMI DOLPHINS · 8–9</div></div>
+            <div class="row__bar"><div class="row__fill" style="width:76.3%"></div><div class="row__tick" style="left:64.5%"></div></div>
+            <div class="row__val"><div class="row__num">$30.5M</div><div class="row__delta">18% ABOVE LEAGUE</div></div>
+          </div>
+          <div class="row is-dear">
+            <div class="row__rank">3</div>
+            <div class="row__team"><div class="row__ab">NYJ</div><div class="row__nm">NEW YORK JETS · 7–10</div></div>
+            <div class="row__bar"><div class="row__fill" style="width:85.3%"></div><div class="row__tick" style="left:64.5%"></div></div>
+            <div class="row__val"><div class="row__num">$34.1M</div><div class="row__delta">32% ABOVE LEAGUE</div></div>
+          </div>
+          <div class="row is-dear">
+            <div class="row__rank">4</div>
+            <div class="row__team"><div class="row__ab">NE</div><div class="row__nm">NEW ENGLAND PATRIOTS · 6–11</div></div>
+            <div class="row__bar"><div class="row__fill" style="width:95%"></div><div class="row__tick" style="left:64.5%"></div></div>
+            <div class="row__val"><div class="row__num">$38.0M</div><div class="row__delta">47% ABOVE LEAGUE</div></div>
+          </div>
+
+          <!-- zero-win rule, SPEC §2.5 — shown as a live state, not a footnote -->
+          <div class="row row--zero">
+            <div class="row__rank">—</div>
+            <div class="row__team"><div class="row__ab">CLE</div><div class="row__nm">2017 · STATE: 0 WINS</div></div>
+            <div class="row__bar"></div>
+            <div class="row__val"><div class="row__num">$151.1M spent · 0 wins</div><div class="row__delta">RATIO SUPPRESSED · EXCLUDED FROM RANKING</div></div>
+          </div>
+        </div>
+        <div class="cpw__foot">
+          <div class="cpw__bench"><i>▮</i> LEAGUE AVG $25.8M / WIN · CASH TO PLAYERS ON THE ROSTER; CASH PAID TO PLAYERS RELEASED IN-YEAR IS NOT INCLUDED</div>
+          <div class="cpw__mark">YIELD<s>/</s>YARD</div>
+        </div>
+      </div>
+      <div class="cap">The zero-win row (SPEC §2.5) is a rendering state, not an edge case — it uses the mockup's dashed "absence" grammar rather than an empty bar.</div>
+    </div>
+  </div>
+
+  <p class="note">
+    <b>Sample data.</b> Figures are shaped from the handoff mockup's own placeholder league
+    (<code>support.js</code> <code>RAW</code>) for AFC East 2025, divided into wins. They are
+    plausible, not real, and the card carries a <code>SAMPLE</code> chip in the feed variant.
+    <br><br>
+    <b>Tokens exercised:</b> <code>--yy-surface-card</code>, <code>--yy-card-border-dark</code>,
+    <code>--yy-radius-card-sm</code> (16px mobile) and <code>--yy-radius-card</code> (22px wide),
+    <code>--yy-radius-mark</code> (2px bars), the gold benchmark tick at
+    <code>rgba(212,175,55,.75)</code> lifted verbatim from the mockup's division strip, the
+    dark ink ladder (<code>#EAF1EC / #A8B1AD / #6E8078</code>), the lime/mid/negative value colours,
+    and the mockup's selected-pill recipe for the CASH/CAP toggle. Adds
+    <code>font-variant-numeric:tabular-nums</code>, which the mockup never sets (D6).
+  </p>
+
+</div>
+</body>
+</html>
