@@ -3,8 +3,10 @@
 
 Builds the three candidate formulations of Cap+ -- performance delivered per
 cap-normalized resource, indexed so 100 = league average and 1 SD ~= 15 points --
-backtests them over the audited spend-side window (2013-2025), and emits a
-performance-only fallback index over the full performance window (1999-2025).
+backtests them over the audited spend-side window (2013-2025), emits a
+performance-only fallback index over the full performance window (1999-2025),
+and builds the **recommended** ship-ready formula, Cap+ (Total-Cost), exactly as
+approved in CAPPLUS_MEMO.md 7 (see RECOMMENDED BUILD below).
 
 Inputs (all local, no network):
     data/marts/team_season_results.csv      861 rows, 1999-2025
@@ -70,6 +72,44 @@ SNIFF = [
     (2021, "NO", "2021 NO -- post-Brees cap hell", "report"),
     (2022, "NO", "2022 NO -- post-Brees cap hell", "report"),
 ]
+
+# --------------------------------------------------------------------------- #
+# RECOMMENDED BUILD -- Cap+ (Total-Cost). CAPPLUS_MEMO.md §7, approved 2026-07-25.
+#
+#     Cap+ = (100 + 15 · P) ÷ R
+#     R    = team cost ÷ league-average cost, floored at the season's 25th pct
+#     cost = (cap charged to rostered players + λ · dead money) ÷ league cap
+#
+# Three rules the memo fixes and this module implements literally:
+#
+#   (1) λ = 1.5 -- a *published economic claim* ("a dollar of dead cap costs us
+#       half again what a live dollar does"), not a tuning knob. λ = 1.0 and
+#       λ = 2.0 are carried as comparison columns only because the memo prints
+#       them side by side; they are never the shipped value.
+#   (2) The floor. A team earns no credit for cap it simply never spent, so the
+#       cost measure is floored at the season's 25th percentile *before* it is
+#       divided by the league average -- see `recommended_columns` for why the
+#       normalisation is taken after the floor and not before.
+#   (3) The same-stage rule. All 32 teams in a season are read from ONE dated
+#       snapshot -- see `resolve_dead_money_same_stage`.
+#
+# Calibration is the same as every other candidate: season mean exactly 100, one
+# pooled within-season SD across the whole window so 1 SD = 15.000 points.
+#
+# Nine seasons only (2014, 2015, 2017, 2018, 2019, 2022, 2023, 2024, 2025).
+# 2013, 2016, 2020, 2021 are not computed -- no full-league dead-money table.
+# --------------------------------------------------------------------------- #
+LAMBDA_REC = 1.5
+LAMBDA_GRID = (1.0, 1.5, 2.0)
+FLOOR_Q = 0.25
+REC_SEASONS = (2014, 2015, 2017, 2018, 2019, 2022, 2023, 2024, 2025)
+
+
+def lam_suffix(lam: float) -> str:
+    """Column suffix for a dead-dollar weight. The recommended λ owns the bare
+    name (`capplus_rec`); the comparison weights are tagged `_lam10`/`_lam20`."""
+    return "" if lam == LAMBDA_REC else f"_lam{int(round(lam * 10)):02d}"
+
 
 CANDIDATES = [
     ("capplus_A", "A ratio (as specified)"),
@@ -268,6 +308,71 @@ def resolve_dead_money(dm: pd.DataFrame, mode: str = "latest") -> pd.DataFrame:
     return out[["season", "team", "dead_money", "dm_asof_date", "dm_asof_stage", "dm_coverage"]]
 
 
+def resolve_dead_money_same_stage(dm: pd.DataFrame):
+    """The same-stage rule for the recommended build (memo condition 3).
+
+    All 32 teams in a season must be read from **one** dated snapshot, so that a
+    leaders-only later article cannot single individual teams out. For each
+    season we therefore keep the single `asof_date` whose table covers the whole
+    league (`coverage == 'full32'`) and discard every other row for that season.
+
+    Seasons and the snapshot each resolves to:
+
+        2014  2014-02-18 preseason     2019  2019-03-10 preseason
+        2015  2015-10-28 midseason     2022  2022-07-05 preseason
+        2017  2017-07-05 preseason     2023  2023-07-14 preseason
+        2018  2018-07-14 preseason     2024  2024-11-27 late_season
+                                       2025  2025-12-17 late_season
+
+    2018 is the only season with two full-32 tables (2018-03-01 and 2018-07-14).
+    We take the **latest**, for two reasons: a table published after the league
+    year has opened is the more complete accounting of that season's charges,
+    and it is the reading under which exactly two seasons (2014 and 2019) are
+    pre-league-year tables -- which is how the memo badges them, "provisional".
+    The March/July 2018 pair is also the memo's own illustration of how far a
+    date can move a level ($155.2M vs $348.5M league-wide), which is precisely
+    why the rule exists.
+
+    Seasons with no full-32 table at all -- 2013, 2016, 2020, 2021 -- return no
+    rows. The recommended build is not computed for them, by design: standardis-
+    ing a season in which only the five worst offenders are observed would rate
+    2013 Oakland as average. Those seasons render an explicit "not available".
+
+    Returns (per-team resolution, one-row-per-season snapshot table).
+    """
+    d = dm.copy()
+    d["asof_date"] = pd.to_datetime(d["asof_date"])
+    full = d[d["coverage"] == "full32"].copy()
+    keep = full.groupby("season")["asof_date"].max().rename("keep_date").reset_index()
+    full = full.merge(keep, on="season")
+    full = full[full["asof_date"] == full["keep_date"]].drop(columns=["keep_date"])
+    assert (full.groupby("season")["team"].nunique() == 32).all(), "same-stage snapshot is not full-32"
+    assert (full.groupby("season")["asof_date"].nunique() == 1).all(), "more than one date in a season"
+    assert tuple(sorted(full["season"].unique())) == REC_SEASONS, "recommended-build seasons changed"
+
+    snap = (full.groupby("season")
+            .agg(asof_date=("asof_date", "first"), asof_stage=("asof_stage", "first"),
+                 teams=("team", "nunique"),
+                 median_dead_money_M=("dead_money_usd", lambda x: x.median() / 1e6),
+                 total_dead_money_M=("dead_money_usd", lambda x: x.sum() / 1e6))
+            .reset_index())
+    # A table published before the league year opened (mid-March) cannot see
+    # that season's cuts and restructures at all, so its levels are a floor, not
+    # a measurement. Those seasons ship badged "provisional" -- 2014 (Feb 18)
+    # and 2019 (Mar 10). A July preseason table is after the league year opened.
+    league_year_opens = pd.to_datetime(snap["season"].astype(str) + "-03-15")
+    snap["badge"] = np.where(
+        snap["asof_date"] < league_year_opens, "provisional",
+        np.where(snap["asof_stage"] == "preseason", "preseason", "in-season"))
+    snap["asof_date"] = snap["asof_date"].dt.strftime("%Y-%m-%d")
+
+    out = full.rename(columns={"dead_money_usd": "dead_money_rec",
+                               "asof_date": "dm_rec_asof_date",
+                               "asof_stage": "dm_rec_asof_stage"})
+    out["dm_rec_asof_date"] = out["dm_rec_asof_date"].dt.strftime("%Y-%m-%d")
+    return out[["season", "team", "dead_money_rec", "dm_rec_asof_date", "dm_rec_asof_stage"]], snap
+
+
 def season_dm_coverage(dmres: pd.DataFrame) -> pd.DataFrame:
     n = dmres.groupby("season")["team"].nunique().rename("n_teams_with_dm").reset_index()
     n["season_dm_coverage"] = np.where(n["n_teams_with_dm"] >= 32, "full32", "partial")
@@ -393,6 +498,97 @@ def build_all(weights_key: str, perf_raw, cap, dmres):
     return d, b_table
 
 
+def recommended_columns(d: pd.DataFrame, lam: float, floor_q: float = FLOOR_Q,
+                        apply_floor: bool = True) -> pd.DataFrame:
+    """Add `cost` / `R` / raw / calibrated columns for one dead-dollar weight λ.
+
+    `cost` = (cap charged to rostered players + λ · dead money) ÷ league cap.
+
+    **The floor is applied to the cost measure, and the league average is taken
+    after the floor.** The floor is a rule about how cost is *credited* -- "no
+    credit for cap you never spent" -- so it belongs to the cost measure, and R
+    then has to be that credited cost relative to the league average of the same
+    credited measure, otherwise R = 1.00 no longer means "league-average cost"
+    under the metric's own accounting (flooring after normalising leaves the
+    mean of R above 1 and quietly deflates the whole league). Mean(R) is exactly
+    1.000 in every season here; the raw index is (100 + 15·P) ÷ R.
+
+    Note that flooring `cost` at its season 25th percentile and flooring the
+    *unfloored* R at its own season 25th percentile are the same operation --
+    R is cost divided by a positive per-season constant -- so nothing depends
+    on which of the two the floor is read as applying to. Only the placement of
+    the normalisation matters, and it is taken last.
+
+    Exactly 8 of 32 teams are floored in every season, by construction.
+    """
+    suf = lam_suffix(lam)
+    m = d["rec_computable"].to_numpy()
+    ssn = d.loc[m, "season"]
+    cost = (d.loc[m, "cap_used_total"] + lam * d.loc[m, "dead_money_rec"]) / d.loc[m, "league_cap"]
+    if apply_floor:
+        floor = cost.groupby(ssn).transform(lambda s: s.quantile(floor_q))
+        eff = np.maximum(cost, floor)
+    else:
+        floor = pd.Series(np.nan, index=cost.index)
+        eff = cost
+    for col, val in (
+        (f"cost_rec{suf}", cost),
+        (f"cost_floor{suf}", floor),
+        (f"R_rec_unfloored{suf}", cost / cost.groupby(ssn).transform("mean")),
+        (f"R_rec{suf}", eff / eff.groupby(ssn).transform("mean")),
+    ):
+        d[col] = np.nan
+        d.loc[m, col] = val
+    d[f"rec_floored{suf}"] = False
+    d.loc[m, f"rec_floored{suf}"] = (cost < floor).to_numpy() if apply_floor else False
+    d[f"raw_rec{suf}"] = np.nan
+    d.loc[m, f"raw_rec{suf}"] = (100.0 + 15.0 * d.loc[m, "P"]) / d.loc[m, f"R_rec{suf}"]
+    return calibrate(d, f"raw_rec{suf}", f"capplus_rec{suf}")
+
+
+def build_recommended(perf_raw, cap, dm_same, weights_key: str = DEFAULT_W,
+                      lambdas=LAMBDA_GRID, apply_floor: bool = True) -> pd.DataFrame:
+    """Cap+ (Total-Cost) -- the approved build, at each λ in `lambdas`."""
+    perf = build_performance(perf_raw, WEIGHTS[weights_key])
+    d = perf.merge(cap[["season", "team", "cap_used_total", "league_cap", "cash_spent_total"]],
+                   on=["season", "team"], how="left", validate="1:1")
+    d = d.merge(dm_same, on=["season", "team"], how="left", validate="1:1")
+    d["perf_index"] = 100.0 + 15.0 * d["P"]
+    d["rec_computable"] = d["season"].between(*CAP_WINDOW) & d["dead_money_rec"].notna()
+    # plain cap consumed, λ=1 and unweighted -- published beside the cost index
+    # so the weighted figure is never read as "% of cap used" (memo condition 4)
+    d["cap_consumed_rec"] = np.nan
+    m = d["rec_computable"]
+    d.loc[m, "cap_consumed_rec"] = (
+        (d.loc[m, "cap_used_total"] + d.loc[m, "dead_money_rec"]) / d.loc[m, "league_cap"])
+    for lam in lambdas:
+        d = recommended_columns(d, lam, apply_floor=apply_floor)
+    # every season is a complete 32-team league, so ranking perf_index over the
+    # whole frame and over the recommended subset give the same numbers
+    d["rk_perf_index"] = d.groupby("season")["perf_index"].rank(ascending=False, method="min")
+    for lam in lambdas:
+        suf = lam_suffix(lam)
+        d["rk_capplus_rec" + suf] = np.nan
+        d.loc[m, "rk_capplus_rec" + suf] = d[m].groupby("season")["capplus_rec" + suf].rank(
+            ascending=False, method="min")
+
+    # Invariants of the approved build, asserted rather than described.
+    for lam in lambdas:
+        suf = lam_suffix(lam)
+        avg = d[m].groupby("season")["R_rec" + suf].mean().to_numpy()
+        assert np.allclose(avg, 1.0), f"R_rec{suf}: league average is not 1.000"
+        if apply_floor:
+            n_fl = d[m].groupby("season")["rec_floored" + suf].sum()
+            assert (n_fl == 8).all(), f"the 25th-pct floor must bind for 8 of 32 teams, got {set(n_fl)}"
+        cal = d[m]["capplus_rec" + suf]
+        assert np.allclose(d[m].groupby("season")["capplus_rec" + suf].mean().to_numpy(), 100.0), \
+            f"capplus_rec{suf}: season mean is not exactly 100"
+        dev = cal - d[m].groupby("season")["capplus_rec" + suf].transform("mean")
+        pooled = np.sqrt((dev ** 2).sum() / (len(cal) - d[m]["season"].nunique()))
+        assert abs(pooled - 15.0) < 1e-9, f"capplus_rec{suf}: pooled within-season SD is {pooled}"
+    return d
+
+
 def build_partial_scenarios(perf_raw, cap, dmres, weights_key=DEFAULT_W):
     """Candidate C under lo/hi fills for the partial-coverage seasons."""
     covsz = season_dm_coverage(dmres)
@@ -493,10 +689,64 @@ def top_bottom(d: pd.DataFrame, col: str, k: int = 15):
     return fmt(s.nlargest(k, col)), fmt(s.nsmallest(k, col))
 
 
+def yoy_autocorr(frame: pd.DataFrame, col: str) -> float:
+    """Season-to-season correlation over *consecutive* season pairs only.
+
+    The recommended window has four gaps (2015→2017, 2019→2022, ...), and a team
+    is not comparable across a gap, so only adjacent seasons contribute: 2014-15,
+    2017-18, 2018-19, 2022-23, 2023-24, 2024-25 -- six pairs, 192 observations.
+    """
+    piv = frame.pivot_table(index="team", columns="season", values=col)
+    seasons = sorted(frame["season"].unique())
+    xs, ys = [], []
+    for s0, s1 in zip(seasons[:-1], seasons[1:]):
+        if s1 - s0 != 1:
+            continue
+        both = piv[[s0, s1]].dropna()
+        xs.extend(both[s0].tolist())
+        ys.extend(both[s1].tolist())
+    if len(xs) <= 3 or np.std(xs) == 0 or np.std(ys) == 0:
+        return np.nan  # the baseline's "adjustment" is identically zero
+    return float(np.corrcoef(xs, ys)[0, 1])
+
+
+def rec_diagnostics(rec: pd.DataFrame, cols) -> pd.DataFrame:
+    """The memo's §3.2 headline diagnostics, for the recommended build."""
+    r = rec[rec["rec_computable"]].copy()
+    rows = []
+    for col, label in cols:
+        s = r.dropna(subset=[col]).copy()
+        s["rk"] = s.groupby("season")[col].rank(ascending=False, method="min")
+        s["adjustment"] = s[col] - s["perf_index"]
+        shift = (s["rk"] - s["rk_perf_index"]).abs()
+        rows.append(dict(
+            build=label, n=len(s),
+            corr_P=float(s[col].corr(s["P"])),
+            corr_win_pct=float(s[col].corr(s["win_pct"])),
+            mean_abs_rank_shift=float(shift.mean()),
+            pct_shift_ge5=float((shift >= 5).mean() * 100),
+            max_rank_shift=int(shift.max()),
+            yoy_autocorr=yoy_autocorr(s, col),
+            adj_persistence=yoy_autocorr(s, "adjustment"),
+        ))
+    return pd.DataFrame(rows)
+
+
+def top3_dead_money_effect(rec: pd.DataFrame, lam: float):
+    """Effect of the cap adjustment on each season's three biggest dead-money
+    charges, versus those same teams' own performance rating. Negative = the
+    metric punished them. This is the memo's λ-table left-hand column."""
+    suf = lam_suffix(lam)
+    r = rec[rec["rec_computable"]]
+    t3 = r.sort_values(["season", "dead_money_rec"], ascending=[True, False]).groupby("season").head(3)
+    return (float((t3["rk_perf_index"] - t3["rk_capplus_rec" + suf]).mean()),
+            float((t3["capplus_rec" + suf] - t3["perf_index"]).mean()))
+
+
 # --------------------------------------------------------------------------- #
 # 6. outputs
 # --------------------------------------------------------------------------- #
-def write_outputs(d, alt, d_sc, scen, partial, bounds, b_table, dm_raw, dmres):
+def write_outputs(d, alt, d_sc, scen, partial, bounds, b_table, dm_raw, dmres, rec, dm_snap):
     out_cols = [
         "season", "team", "games", "wins", "losses", "ties", "win_pct",
         "point_diff_per_game", "epa_margin_per_play",
@@ -519,17 +769,29 @@ def write_outputs(d, alt, d_sc, scen, partial, bounds, b_table, dm_raw, dmres):
     sc = d_sc[["season", "team", "capplus_C", "capplus_C_pos"]].rename(
         columns={"capplus_C": "capplus_C_stagecons", "capplus_C_pos": "capplus_C_pos_stagecons"})
     out = out.merge(sc, on=["season", "team"], how="left")
+
+    # ---- recommended build: Cap+ (Total-Cost), memo §7 ----
+    rec_cols = ["season", "team", "rec_computable",
+                "dead_money_rec", "dm_rec_asof_date", "dm_rec_asof_stage", "cap_consumed_rec"]
+    for lam in LAMBDA_GRID:  # R components, then the index itself
+        suf = lam_suffix(lam)
+        rec_cols += [f"cost_rec{suf}", f"cost_floor{suf}", f"R_rec_unfloored{suf}",
+                     f"R_rec{suf}", f"rec_floored{suf}"]
+    rec_cols += ["capplus_rec"] + [f"capplus_rec{lam_suffix(l)}" for l in LAMBDA_GRID
+                                   if l != LAMBDA_REC]
+    out = out.merge(rec[rec_cols], on=["season", "team"], how="left")
+    out["rec_computable"] = out["rec_computable"].fillna(False)
     out = out.sort_values(["season", "team"]).reset_index(drop=True)
     out.to_csv(D("data", "marts", "capplus_candidates.csv"), index=False)
 
-    md = render_findings(d, alt, d_sc, scen, partial, bounds, b_table, dm_raw, dmres, out)
+    md = render_findings(d, alt, d_sc, scen, partial, bounds, b_table, dm_raw, dmres, out, rec, dm_snap)
     with open(D("audit", "findings_capplus_backtest.md"), "w") as fh:
         fh.write(md)
     print(f"wrote data/marts/capplus_candidates.csv  ({len(out)} rows, {len(out.columns)} cols)")
     print(f"wrote audit/findings_capplus_backtest.md ({len(md.splitlines())} lines)")
 
 
-def render_findings(d, alt, d_sc, scen, partial, bounds, b_table, dm_raw, dmres, out):
+def render_findings(d, alt, d_sc, scen, partial, bounds, b_table, dm_raw, dmres, out, rec, dm_snap):
     w = d[d["in_cap_window"]].copy()
     cw = w[w["C_computable"]].copy()
     S = []
@@ -1246,25 +1508,169 @@ def render_findings(d, alt, d_sc, scen, partial, bounds, b_table, dm_raw, dmres,
       f"{w['relative_cash'].pipe(lambda x: np.log(x).std(ddof=1))/0.15:.2f} for cash. That weight "
       "is the whole product. It should be chosen and stated, not inherited from an algebraic "
       "accident.\n")
+    # ---------------- 15. the recommended build ----------------
+    S.extend(render_recommended(rec, dm_snap, d))
+
     A("---\n")
     A("Files written: `data/marts/capplus_candidates.csv` (861 rows × "
       f"{len(out.columns)} columns; candidates null before 2013, C null outside full-coverage "
       "seasons, scenario brackets populated only for team-seasons with an observed dead-money "
-      "figure), `audit/findings_capplus_backtest.md` (this file).\n")
+      "figure, recommended build populated for the nine same-stage seasons), "
+      "`audit/findings_capplus_backtest.md` (this file).\n")
     return "\n".join(S)
+
+
+def render_recommended(rec, dm_snap, d):
+    """§15 — the approved formula, every table reproducible from this script."""
+    S = []
+    A = S.append
+    r = rec[rec["rec_computable"]].copy()
+
+    A("## 15. Recommended build — Cap+ (Total-Cost), λ = 1.5\n")
+    A("This is the formula approved in `CAPPLUS_MEMO.md` §7. Everything below is produced by "
+      "`audit/capplus_backtest.py`; nothing in this section is computed by hand.\n")
+    A("```\n"
+      "Cap+ = (100 + 15 × P) ÷ R\n"
+      "R    = team cost ÷ league-average cost, floored at the season's 25th percentile\n"
+      "cost = (cap charged to rostered players + 1.5 × dead money) ÷ league cap\n"
+      "```\n")
+    A(f"All 32 teams read from one snapshot per season (§15.1); season mean exactly 100; one pooled "
+      f"within-season SD across the window so 1 SD = 15.000 points; **{len(r)} team-seasons** over "
+      f"nine seasons — {', '.join(str(s) for s in REC_SEASONS)}. 2013, 2016, 2020 and 2021 are not "
+      f"computed and render an explicit \"not available\".\n")
+
+    A("### 15.1 Same-stage snapshot resolution\n")
+    A("One dated table per season, covering all 32 teams. 2018 is the only season with two "
+      "full-league tables; the later one is used (see `resolve_dead_money_same_stage`).\n")
+    A(md_table(dm_snap, {"median_dead_money_M": ".2f", "total_dead_money_M": ".1f"}) + "\n")
+    prov = dm_snap[dm_snap["badge"] == "provisional"]
+    A(f"**{' and '.join(str(int(s)) for s in prov['season'])} ship badged _provisional_**: their "
+      f"tables were published before the league year opened, so the median team charge is "
+      f"{' and '.join(f'${v:.1f}M' for v in prov['median_dead_money_M'])} against "
+      f"${dm_snap.loc[dm_snap.season == 2024, 'median_dead_money_M'].iloc[0]:.1f}M in 2024. That is "
+      f"a date effect, not a league that got more disciplined.\n")
+
+    A("### 15.2 The floor\n")
+    fl = r.groupby("season").agg(floored_teams=("rec_floored", "sum"),
+                                 cost_floor=("cost_floor", "first"),
+                                 min_cost=("cost_rec", "min"),
+                                 median_cost=("cost_rec", "median"),
+                                 max_cost=("cost_rec", "max"),
+                                 R_min=("R_rec", "min"), R_max=("R_rec", "max")).reset_index()
+    A(md_table(fl, {"cost_floor": ".4f", "min_cost": ".4f", "median_cost": ".4f",
+                    "max_cost": ".4f", "R_min": ".4f", "R_max": ".4f"}) + "\n")
+    A("Eight of 32 teams are floored every season, by construction. The floor is what stops a team "
+      "being paid for cap it never spent: **2017 CLE (0-16) consumed the second-lowest weighted "
+      f"cost in the window and lands at {r.loc[(r.season == 2017) & (r.team == 'CLE'), 'capplus_rec'].iloc[0]:.1f}, "
+      f"32nd**; without the floor the same rate metric rates them mid-pack. Note the floor is "
+      "applied to the *cost* measure and the league average is taken after it, so mean(R) is "
+      "exactly 1.000 every season and R = 1.00 still reads as \"league-average cost\".\n")
+
+    A("### 15.3 Sniff table — recommended build\n")
+    idx = d[["season", "team", "capplus_C_pos"]].copy()
+    idx["rk_C_pos"] = idx.groupby("season")["capplus_C_pos"].rank(ascending=False, method="min")
+    j = rec.merge(idx, on=["season", "team"], how="left")
+    rows = []
+    for season, team, label, expect in SNIFF:
+        q = j[(j.season == season) & (j.team == team)].iloc[0]
+        rows.append(dict(
+            case=label, expected=expect,
+            perf=fmt_idx(q["perf_index"], q["rk_perf_index"]),
+            C_pos=fmt_idx(q["capplus_C_pos"], q["rk_C_pos"]),
+            capplus_rec=fmt_idx(q["capplus_rec"], q["rk_capplus_rec"]),
+            dead_money_M=(q["dead_money_rec"] / 1e6 if pd.notna(q["dead_money_rec"]) else np.nan),
+            cost=q["cost_rec"], R=q["R_rec"]))
+    A(md_table(pd.DataFrame(rows), {"dead_money_M": ".1f", "cost": ".3f", "R": ".3f"}) + "\n")
+    A("`C_pos` is the λ=1, latest-date, unfloored build of §7 — the column the recommended build "
+      "replaces. `cost` is the weighted cost index; `R` is that cost after the floor, relative to "
+      "the league average.\n")
+
+    A("### 15.4 Headline diagnostics\n")
+    dg = rec_diagnostics(rec, [("perf_index", "performance only (baseline)"),
+                               ("capplus_rec_lam10", "Cap+ (Total-Cost), λ = 1.0"),
+                               ("capplus_rec", "**Cap+ (Total-Cost), λ = 1.5 — recommended**"),
+                               ("capplus_rec_lam20", "Cap+ (Total-Cost), λ = 2.0")])
+    A(md_table(dg, {"corr_P": ".3f", "corr_win_pct": ".3f", "mean_abs_rank_shift": ".2f",
+                    "pct_shift_ge5": ".1f", "yoy_autocorr": ".3f", "adj_persistence": "+.3f"}) + "\n")
+    rr = dg[dg["build"].str.contains("1.5")].iloc[0]
+    A(f"The recommended build moves teams **{rr.mean_abs_rank_shift:.2f} rank places** on average "
+      f"versus ranking on performance alone, with **{rr.pct_shift_ge5:.1f}% moving 5+ spots** and a "
+      f"biggest single move of **{int(rr.max_rank_shift)} places**. Correlation with performance "
+      f"falls from 0.998 (candidate C as written) to **{rr.corr_P:.3f}**, and with win percentage "
+      f"to **{rr.corr_win_pct:.3f}**. It persists year to year at **{rr.yoy_autocorr:.3f}** against "
+      f"{dg.iloc[0].yoy_autocorr:.3f} for performance — but the *cap adjustment alone* (Cap+ minus "
+      f"performance) persists at only **{rr.adj_persistence:+.3f}**. Cap+ is single-season resource "
+      f"accounting, not a front-office quality score, and the metric should say so itself.\n")
+
+    A("### 15.5 What the dead-dollar weight λ does\n")
+    A("Effect on the three biggest dead-money charges in each season (27 team-seasons), versus "
+      "those same teams' own performance rating. Negative = the metric punished them.\n")
+    named = [(2022, "ATL"), (2025, "NO"), (2023, "LA"), (2024, "DEN"), (2023, "SF")]
+    rows = []
+    for lam in LAMBDA_GRID:
+        suf = lam_suffix(lam)
+        places, points = top3_dead_money_effect(rec, lam)
+        row = {"λ": f"**{lam} (recommended)**" if lam == LAMBDA_REC else f"{lam}",
+               "top-3 dead-money teams": f"{places:+.2f} places / {points:+.1f} points"}
+        for s, t in named:
+            q = r[(r.season == s) & (r.team == t)].iloc[0]
+            row[f"{s} {t}"] = f"{q['capplus_rec' + suf]:.0f} (#{int(q['rk_capplus_rec' + suf])})"
+        rows.append(row)
+    A(md_table(pd.DataFrame(rows)) + "\n")
+    p10 = top3_dead_money_effect(rec, 1.0)
+    A(f"At λ=1 the page would say \"dead money included\" and dead money would do essentially "
+      f"nothing ({p10[0]:+.2f} places, {p10[1]:+.1f} points, and 2022 Atlanta lands "
+      f"{int(r.loc[(r.season == 2022) & (r.team == 'ATL'), 'rk_capplus_rec_lam10'].iloc[0])}th — "
+      f"better than its 24th-place performance rank, so the brief's \"famous cap disasters rate "
+      f"poorly\" requirement fails). At λ=2 the metric starts punishing charges that were ordinary "
+      f"for their season: 2024 Denver drops to "
+      f"{int(r.loc[(r.season == 2024) & (r.team == 'DEN'), 'rk_capplus_rec_lam20'].iloc[0])}th on a "
+      f"charge that consumed exactly the 2024 median share of the cap. **λ=1.5 is a published "
+      f"economic claim, and the brief's Atlanta requirement passes only because of it.**\n")
+
+    A("### 15.6 Kansas City, 2014–2025\n")
+    kc = r[r.team == "KC"][["season", "perf_index", "rk_perf_index", "capplus_rec",
+                            "rk_capplus_rec", "cost_rec", "dead_money_rec"]].copy()
+    kc["dead_money_M"] = kc["dead_money_rec"] / 1e6
+    kc = kc.drop(columns=["dead_money_rec"])
+    A(md_table(kc, {"perf_index": ".1f", "capplus_rec": ".1f", "cost_rec": ".3f",
+                    "dead_money_M": ".1f"}) + "\n")
+    A("The arc a fan believes and the cash-based candidates could not produce: "
+      + ", ".join(f"**#{int(q.rk_capplus_rec)} in {int(q.season)}**"
+                  for _, q in kc[kc.season.isin([2019, 2022, 2023, 2025])].iterrows()) + ".\n")
+
+    A("### 15.7 All-time top 15 and bottom 15 (288 team-seasons)\n")
+    s = r.copy()
+    s["rec"] = s["wins"].astype(int).astype(str) + "-" + s["losses"].astype(int).astype(str)
+    for label, f in (("Top 15", s.nlargest(15, "capplus_rec")), ("Bottom 15", s.nsmallest(15, "capplus_rec"))):
+        A(f"- {label}: " + " · ".join(
+            f"{int(q.season)} {q.team} {q.rec} **{q.capplus_rec:.1f}**" for _, q in f.iterrows()) + "\n")
+
+    A("### 15.8 The cost index is not a percentage of cap (memo condition 4)\n")
+    pct_w = float((r["cost_rec"] > 1.0).mean() * 100)
+    pct_p = float((r["cap_consumed_rec"] > 1.0).mean() * 100)
+    A(f"At λ=1.5, **{pct_w:.1f}% of team-seasons have a weighted cost above 1.00** "
+      f"({int((r['cost_rec'] > 1.0).sum())} of {len(r)}), against {pct_p:.1f}% on the plain "
+      f"cap-consumed figure. The weighted number is a **cost index** and must never be labelled "
+      f"\"% of cap used\"; both are in the mart (`cost_rec` and `cap_consumed_rec`) and the memo "
+      f"requires them published side by side.\n")
+    return S
 
 
 def main():
     perf_raw, cap, lgcap, dm_raw = load_inputs()
     dmres = resolve_dead_money(dm_raw, "latest")
     dmres_sc = resolve_dead_money(dm_raw, "stage_cons")
+    dm_same, dm_snap = resolve_dead_money_same_stage(dm_raw)
 
     d, b_table = build_all(DEFAULT_W, perf_raw, cap, dmres)
     alt = {k: build_all(k, perf_raw, cap, dmres)[0] for k in WEIGHTS if k != DEFAULT_W}
     d_sc, _ = build_all(DEFAULT_W, perf_raw, cap, dmres_sc)
     scen, partial, bounds = build_partial_scenarios(perf_raw, cap, dmres)
+    rec = build_recommended(perf_raw, cap, dm_same)
+    assert int(rec["rec_computable"].sum()) == 288, "recommended build must cover 288 team-seasons"
 
-    write_outputs(d, alt, d_sc, scen, partial, bounds, b_table, dm_raw, dmres)
+    write_outputs(d, alt, d_sc, scen, partial, bounds, b_table, dm_raw, dmres, rec, dm_snap)
 
 
 if __name__ == "__main__":

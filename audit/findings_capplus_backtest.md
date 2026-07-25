@@ -713,6 +713,128 @@ Three decisions the memo has to make before that is shippable:
 2. **Nine seasons or thirteen?** C covers 2014, 2015, 2017–2019, 2022–2025 only. Shipping C means four seasons of the flagship metric are blank — including 2013 SEA, the case the brief leads with. Shipping B everywhere means the flagship metric cannot see dead money at all. A hybrid (C where covered, B elsewhere) creates two metrics under one name and should be rejected.
 3. **How much spend weight?** The three forms embed radically different implicit weights: the ratio form ~0, the subtraction form exactly 1, the positive-anchored form SD(log R)/0.15 ≈ 0.39 for total cost and ≈ 0.85 for cash. That weight is the whole product. It should be chosen and stated, not inherited from an algebraic accident.
 
+## 15. Recommended build — Cap+ (Total-Cost), λ = 1.5
+
+This is the formula approved in `CAPPLUS_MEMO.md` §7. Everything below is produced by `audit/capplus_backtest.py`; nothing in this section is computed by hand.
+
+```
+Cap+ = (100 + 15 × P) ÷ R
+R    = team cost ÷ league-average cost, floored at the season's 25th percentile
+cost = (cap charged to rostered players + 1.5 × dead money) ÷ league cap
+```
+
+All 32 teams read from one snapshot per season (§15.1); season mean exactly 100; one pooled within-season SD across the window so 1 SD = 15.000 points; **288 team-seasons** over nine seasons — 2014, 2015, 2017, 2018, 2019, 2022, 2023, 2024, 2025. 2013, 2016, 2020 and 2021 are not computed and render an explicit "not available".
+
+### 15.1 Same-stage snapshot resolution
+
+One dated table per season, covering all 32 teams. 2018 is the only season with two full-league tables; the later one is used (see `resolve_dead_money_same_stage`).
+
+| season | asof_date | asof_stage | teams | median_dead_money_M | total_dead_money_M | badge |
+| ---: | --- | --- | ---: | ---: | ---: | --- |
+| 2014 | 2014-02-18 | preseason | 32 | 4.03 | 161.2 | provisional |
+| 2015 | 2015-10-28 | midseason | 32 | 14.26 | 471.3 | in-season |
+| 2017 | 2017-07-05 | preseason | 32 | 5.27 | 236.0 | preseason |
+| 2018 | 2018-07-14 | preseason | 32 | 8.81 | 348.5 | preseason |
+| 2019 | 2019-03-10 | preseason | 32 | 3.39 | 158.1 | provisional |
+| 2022 | 2022-07-05 | preseason | 32 | 19.11 | 713.1 | preseason |
+| 2023 | 2023-07-14 | preseason | 32 | 20.30 | 797.9 | preseason |
+| 2024 | 2024-11-27 | late_season | 32 | 50.28 | 1456.5 | in-season |
+| 2025 | 2025-12-17 | late_season | 32 | 41.02 | 1659.3 | in-season |
+
+**2014 and 2019 ship badged _provisional_**: their tables were published before the league year opened, so the median team charge is $4.0M and $3.4M against $50.3M in 2024. That is a date effect, not a league that got more disciplined.
+
+### 15.2 The floor
+
+| season | floored_teams | cost_floor | min_cost | median_cost | max_cost | R_min | R_max |
+| ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 2014 | 8 | 0.8963 | 0.7473 | 0.9420 | 1.0491 | 0.9507 | 1.1127 |
+| 2015 | 8 | 1.0051 | 0.9365 | 1.0228 | 1.0940 | 0.9741 | 1.0602 |
+| 2017 | 8 | 0.9262 | 0.7579 | 0.9580 | 1.0529 | 0.9602 | 1.0915 |
+| 2018 | 8 | 0.9454 | 0.7643 | 0.9857 | 1.0874 | 0.9554 | 1.0989 |
+| 2019 | 8 | 0.8911 | 0.7149 | 0.9069 | 1.1151 | 0.9646 | 1.2071 |
+| 2022 | 8 | 0.9431 | 0.8621 | 0.9854 | 1.1352 | 0.9484 | 1.1417 |
+| 2023 | 8 | 0.9460 | 0.8528 | 0.9813 | 1.2946 | 0.9483 | 1.2977 |
+| 2024 | 8 | 1.0143 | 0.9611 | 1.0605 | 1.1606 | 0.9525 | 1.0898 |
+| 2025 | 8 | 1.0414 | 1.0164 | 1.0700 | 1.3380 | 0.9475 | 1.2173 |
+
+Eight of 32 teams are floored every season, by construction. The floor is what stops a team being paid for cap it never spent: **2017 CLE (0-16) consumed the second-lowest weighted cost in the window and lands at 72.9, 32nd**; without the floor the same rate metric rates them mid-pack. Note the floor is applied to the *cost* measure and the league average is taken after it, so mean(R) is exactly 1.000 every season and R = 1.00 still reads as "league-average cost".
+
+### 15.3 Sniff table — recommended build
+
+| case | expected | perf | C_pos | capplus_rec | dead_money_M | cost | R |
+| --- | --- | --- | --- | --- | ---: | ---: | ---: |
+| 2013 SEA -- champs, rookie-deal QB | elite | 128.4 (#2) | -- | -- | -- | -- | -- |
+| 2014 NE -- efficient champion | high | 119.8 (#4) | 118.5 (#5) | 118.4 (#3) | 8.5 | 0.953 | 1.011 |
+| 2016 NE -- efficient champion | high | 130.7 (#1) | -- | -- | -- | -- | -- |
+| 2018 NE -- efficient champion | high | 116.5 (#6) | 115.7 (#7) | 119.4 (#4) | 4.0 | 0.964 | 0.974 |
+| 2017 PHI -- champs, injured starter QB | high | 125.2 (#1) | 114.2 (#7) | 114.7 (#7) | 14.0 | 1.053 | 1.092 |
+| 2023 SF -- cheap QB, NFC champs | elite | 127.5 (#2) | 145.9 (#1) | 133.9 (#1) | 17.2 | 0.853 | 0.948 |
+| 2019 KC -- SB win, rookie-deal Mahomes | report | 118.4 (#5) | 137.2 (#1) | 122.6 (#3) | 0.9 | 0.794 | 0.965 |
+| 2020 KC -- SB loss, mega-deal signed | report | 120.2 (#4) | -- | -- | -- | -- | -- |
+| 2021 KC -- mega-deal era | report | 116.3 (#5) | -- | -- | -- | -- | -- |
+| 2022 KC -- SB win, mega-deal era | report | 127.3 (#3) | 126.9 (#3) | 130.5 (#2) | 8.0 | 0.969 | 0.974 |
+| 2023 KC -- SB win, mega-deal era | report | 113.2 (#7) | 111.0 (#7) | 116.3 (#6) | 7.7 | 0.968 | 0.970 |
+| 2021 LAR -- all-in veteran roster, won SB | report | 114.3 (#7) | -- | -- | -- | -- | -- |
+| 2013 OAK -- record 43.6% of adj cap dead | poor | 80.7 (#29) | -- | -- | -- | -- | -- |
+| 2022 CHI -- record dead money, bad team | poor | 74.0 (#31) | 71.5 (#31) | 77.2 (#31) | 57.6 | 0.954 | 0.960 |
+| 2022 ATL -- record dead money, bad team | poor | 92.3 (#24) | 88.1 (#28) | 89.5 (#27) | 63.2 | 1.026 | 1.032 |
+| 2024 DEN -- record individual dead money, 10-7 | report | 112.5 (#9) | 111.3 (#10) | 104.4 (#13) | 85.2 | 1.146 | 1.076 |
+| 2017 CLE -- 0-16 | bottom | 69.9 (#32) | 88.7 (#23) | 72.9 (#32) | 11.5 | 0.761 | 0.960 |
+| 2016 CLE -- 1-15 | bottom | 65.2 (#32) | -- | -- | -- | -- | -- |
+| 2021 NO -- post-Brees cap hell | report | 103.6 (#15) | -- | -- | -- | -- | -- |
+| 2022 NO -- post-Brees cap hell | report | 97.5 (#18) | 98.2 (#18) | 95.0 (#21) | 33.3 | 1.020 | 1.026 |
+
+`C_pos` is the λ=1, latest-date, unfloored build of §7 — the column the recommended build replaces. `cost` is the weighted cost index; `R` is that cost after the floor, relative to the league average.
+
+### 15.4 Headline diagnostics
+
+| build | n | corr_P | corr_win_pct | mean_abs_rank_shift | pct_shift_ge5 | max_rank_shift | yoy_autocorr | adj_persistence |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| performance only (baseline) | 288 | 1.000 | 0.956 | 0.00 | 0.0 | 0 | 0.402 | -- |
+| Cap+ (Total-Cost), λ = 1.0 | 288 | 0.966 | 0.923 | 1.74 | 10.4 | 13 | 0.386 | +0.125 |
+| **Cap+ (Total-Cost), λ = 1.5 — recommended** | 288 | 0.950 | 0.906 | 2.23 | 14.6 | 15 | 0.386 | +0.158 |
+| Cap+ (Total-Cost), λ = 2.0 | 288 | 0.915 | 0.871 | 2.82 | 20.5 | 17 | 0.389 | +0.187 |
+
+The recommended build moves teams **2.23 rank places** on average versus ranking on performance alone, with **14.6% moving 5+ spots** and a biggest single move of **15 places**. Correlation with performance falls from 0.998 (candidate C as written) to **0.950**, and with win percentage to **0.906**. It persists year to year at **0.386** against 0.402 for performance — but the *cap adjustment alone* (Cap+ minus performance) persists at only **+0.158**. Cap+ is single-season resource accounting, not a front-office quality score, and the metric should say so itself.
+
+### 15.5 What the dead-dollar weight λ does
+
+Effect on the three biggest dead-money charges in each season (27 team-seasons), versus those same teams' own performance rating. Negative = the metric punished them.
+
+| λ | top-3 dead-money teams | 2022 ATL | 2025 NO | 2023 LA | 2024 DEN | 2023 SF |
+| --- | --- | --- | --- | --- | --- | --- |
+| 1.0 | -0.63 places / -1.1 points | 96 (#19) | 94 (#23) | 106 (#11) | 113 (#10) | 134 (#1) |
+| **1.5 (recommended)** | -3.22 places / -5.5 points | 89 (#27) | 86 (#27) | 95 (#20) | 104 (#13) | 134 (#1) |
+| 2.0 | -5.33 places / -9.2 points | 83 (#30) | 80 (#28) | 87 (#27) | 99 (#20) | 135 (#1) |
+
+At λ=1 the page would say "dead money included" and dead money would do essentially nothing (-0.63 places, -1.1 points, and 2022 Atlanta lands 19th — better than its 24th-place performance rank, so the brief's "famous cap disasters rate poorly" requirement fails). At λ=2 the metric starts punishing charges that were ordinary for their season: 2024 Denver drops to 20th on a charge that consumed exactly the 2024 median share of the cap. **λ=1.5 is a published economic claim, and the brief's Atlanta requirement passes only because of it.**
+
+### 15.6 Kansas City, 2014–2025
+
+| season | perf_index | rk_perf_index | capplus_rec | rk_capplus_rec | cost_rec | dead_money_M |
+| ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 2014 | 107.9 | 12 | 106.7 | 12 | 0.953 | 3.5 |
+| 2015 | 117.7 | 6 | 114.5 | 8 | 1.061 | 21.9 |
+| 2017 | 110.9 | 9 | 108.6 | 8 | 0.986 | 8.6 |
+| 2018 | 122.9 | 2 | 120.0 | 3 | 1.012 | 16.8 |
+| 2019 | 118.4 | 5 | 122.6 | 3 | 0.794 | 0.9 |
+| 2022 | 127.3 | 3 | 130.5 | 2 | 0.969 | 8.0 |
+| 2023 | 113.2 | 7 | 116.3 | 6 | 0.968 | 7.7 |
+| 2024 | 113.9 | 8 | 119.4 | 3 | 0.997 | 12.7 |
+| 2025 | 100.2 | 18 | 104.7 | 16 | 1.047 | 20.3 |
+
+The arc a fan believes and the cash-based candidates could not produce: **#3 in 2019**, **#2 in 2022**, **#6 in 2023**, **#16 in 2025**.
+
+### 15.7 All-time top 15 and bottom 15 (288 team-seasons)
+
+- Top 15: 2019 BAL 14-2 **138.1** · 2022 SF 13-4 **135.6** · 2024 DET 15-2 **134.0** · 2023 SF 12-5 **133.9** · 2022 KC 14-3 **130.5** · 2014 SEA 12-4 **129.9** · 2022 BUF 13-3 **129.0** · 2023 BAL 13-4 **128.8** · 2015 CAR 15-1 **128.1** · 2017 MIN 13-3 **127.9** · 2025 NE 14-3 **127.9** · 2024 BAL 12-5 **127.1** · 2019 NE 12-4 **126.2** · 2023 DAL 12-5 **125.2** · 2025 LA 12-5 **124.6**
+
+- Bottom 15: 2023 CAR 2-15 **62.9** · 2025 LV 3-14 **64.7** · 2025 NYJ 3-14 **70.1** · 2025 TEN 3-14 **71.4** · 2018 ARI 3-13 **71.7** · 2022 HOU 3-13 **71.9** · 2024 NYG 3-14 **72.8** · 2017 CLE 0-16 **72.9** · 2024 CAR 5-12 **73.4** · 2014 LV 3-13 **75.0** · 2019 CIN 2-14 **75.4** · 2019 WAS 3-13 **76.1** · 2018 SF 4-12 **76.2** · 2025 CLE 5-12 **76.4** · 2014 TEN 2-14 **76.5**
+
+### 15.8 The cost index is not a percentage of cap (memo condition 4)
+
+At λ=1.5, **44.1% of team-seasons have a weighted cost above 1.00** (127 of 288), against 14.2% on the plain cap-consumed figure. The weighted number is a **cost index** and must never be labelled "% of cap used"; both are in the mart (`cost_rec` and `cap_consumed_rec`) and the memo requires them published side by side.
+
 ---
 
-Files written: `data/marts/capplus_candidates.csv` (861 rows × 46 columns; candidates null before 2013, C null outside full-coverage seasons, scenario brackets populated only for team-seasons with an observed dead-money figure), `audit/findings_capplus_backtest.md` (this file).
+Files written: `data/marts/capplus_candidates.csv` (861 rows × 69 columns; candidates null before 2013, C null outside full-coverage seasons, scenario brackets populated only for team-seasons with an observed dead-money figure, recommended build populated for the nine same-stage seasons), `audit/findings_capplus_backtest.md` (this file).

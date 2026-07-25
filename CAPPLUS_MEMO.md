@@ -2,7 +2,7 @@
 
 **For:** Rey (product owner) · **2026-07-25** · **Decision:** approve one formula, or send it back.
 
-Sources: `audit/findings_capplus_backtest.md` (**BT §n**), `audit/findings_contracts.md`, `audit/findings_deadmoney_sourcing.md`, `data/marts/capplus_candidates.csv`. Numbers marked **[new]** were recomputed 2026-07-25 from the candidates mart plus `data/curated/dead_money_team_season.csv`; they are **not yet in the backtest script** (see condition 5).
+Sources: `audit/findings_capplus_backtest.md` (**BT §n**), `audit/findings_contracts.md`, `audit/findings_deadmoney_sourcing.md`, `data/marts/capplus_candidates.csv`. Numbers marked **[new]** were recomputed 2026-07-25 from the candidates mart plus `data/curated/dead_money_team_season.csv`; they are now **reproduced by `audit/capplus_backtest.py`**, which ships the recommended build and re-derives every [new] figure below (see condition 5, and BT §15). Reconciliation moved every sniff value by less than 0.05 index points and changed no rank; it corrected exactly one [new] figure, the λ=1.0 cell in §3.2, which is flagged there.
 
 ---
 
@@ -58,9 +58,11 @@ Three things the pass/fail column hides, all of which matter more than it does:
 
 | Dead-dollar weight λ | Top-3 dead-money teams | 2022 ATL | 2025 NO | 2023 LA | 2024 DEN | 2023 SF |
 |---|---|---|---|---|---|---|
-| 1.0 ("a dollar is a dollar") | **+0.26 places — no punishment at all** | 96 (#19) | 94 (#23) | 106 (#11) | 113 (#10) | 134 (#1) |
+| 1.0 ("a dollar is a dollar") | **−0.63 places / −1.1 points — no punishment worth the name** [corrected] | 96 (#19) | 94 (#23) | 106 (#11) | 113 (#10) | 134 (#1) |
 | **1.5 (recommended)** | **−3.22 places / −5.5 points** | 89 (#27) | 86 (#27) | 95 (#20) | 104 (#13) | 134 (#1) |
 | 2.0 | −5.33 places / −9.2 points | 83 (#30) | 80 (#28) | 87 (#27) | **99 (#20)** | 135 (#1) |
+
+*[corrected]*: the panel's original λ=1.0 entry read "+0.26 places — no punishment at all". That figure came from a λ=1 build **without the floor**, while the five team cells on the same row came from the floored build. Under the recommended build's own rules — the floor applied at every λ — the λ=1 effect is **−0.63 places / −1.1 points**. The argument is unchanged: at λ=1 the punishment is a fifth of what λ=1.5 delivers and Atlanta still lands 19th, better than its 24th-place performance rank.
 
 At λ=1 the page says "dead money included" and dead money does nothing. At λ=2 we start punishing charges that were ordinary for their season — 2024 Denver drops 11 places despite consuming exactly the 2024 median share of the cap. λ=1.5 puts the famous disasters where they belong and leaves Denver near where it belongs.
 
@@ -108,5 +110,5 @@ All 32 teams read from one snapshot date per season; season mean exactly 100; on
 2. **A committed recurring source** for next year's table, or an explicit page statement that figures are transcribed from dated press compilations with per-row citations.
 3. **Every value carries its snapshot date and stage**, and no dead-money or cap-consumed level is ever plotted as a connected series across seasons — the same 32 teams read $155.2M in March 2018 and $348.5M in July 2018, a 2.2× swing from date alone.
 4. **Publish the weighted cost and the plain cap-consumed percentage side by side.** At λ=1.5, 44.1% of team-seasons exceed 1.00 [new], so the weighted figure is a cost index and must never be labelled "% of cap used."
-5. **The recommended build is not in the repo yet.** `audit/capplus_backtest.py` ships C-pos at λ=1 with no floor; λ, the floor and the same-stage date rule must be added, the backtest re-run, and the numbers re-reviewed before anything renders.
+5. **The recommended build now ships in the repo — RESOLVED 2026-07-25.** Raised because `audit/capplus_backtest.py` shipped only C-pos at λ=1 with no floor. λ=1.5, the 25th-percentile floor and the same-stage snapshot rule are now implemented in that script and the backtest has been re-run: see BT §15 for the reproducible tables, and `capplus_rec` / `capplus_rec_lam10` / `capplus_rec_lam20` plus the R components (`cost_rec`, `cost_floor`, `R_rec`, `dm_rec_asof_date`) in `data/marts/capplus_candidates.csv`. Every [new] figure above reproduces from the script — all ten sniff values within 0.05 index points, every rank exact, all §3.2 diagnostics to the printed precision — with the single λ=1.0 correction recorded there.
 6. **Frame Cap+ as single-season resource accounting**, never "well-run front office," and publish the adjustment's +0.158 year-over-year persistence ourselves.
