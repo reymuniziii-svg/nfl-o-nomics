@@ -245,6 +245,10 @@ behind a hover or an info affordance.
 Both are escalated unresolved. Neither blocks the Phase-0 gate; both must be settled before
 build.
 
+**Both settled 2026-07-25 per `BUILD_PLAN.md` GATE #3:** decision 1 — `IMAGE_MIN_WIDTH_PX = 300`
+(93.6% / 6.4% fallback); decision 2 — option (a), CSS-filter-only. Licensing follow-up owned by
+Rey. The escalation text above and the options below are kept as the record.
+
 > **OPEN DECISION 1 — image resolution floor.** The headline 97.2% assumes *any* resolution
 > is acceptable. The distribution is bimodal: median 1165×1496, with a thin tail of
 > unusable thumbnails — the single highest-cap player in the population, Dak Prescott, is

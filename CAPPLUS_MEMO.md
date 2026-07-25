@@ -2,6 +2,8 @@
 
 **For:** Rey (product owner) · **2026-07-25** · **Decision:** approve one formula, or send it back.
 
+**APPROVED — gate #1 cleared by Rey, 2026-07-25.** The recommended build in §7 (Total-Cost, λ=1.5, floored, one snapshot per season, nine seasons) is the shipping formula.
+
 Sources: `audit/findings_capplus_backtest.md` (**BT §n**), `audit/findings_contracts.md`, `audit/findings_deadmoney_sourcing.md`, `data/marts/capplus_candidates.csv`. Numbers marked **[new]** were recomputed 2026-07-25 from the candidates mart plus `data/curated/dead_money_team_season.csv`; they are now **reproduced by `audit/capplus_backtest.py`**, which ships the recommended build and re-derives every [new] figure below (see condition 5, and BT §15). Reconciliation moved every sniff value by less than 0.05 index points and changed no rank; it corrected exactly one [new] figure, the λ=1.0 cell in §3.2, which is flagged there.
 
 ---

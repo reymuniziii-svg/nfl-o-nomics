@@ -189,8 +189,8 @@ runbook is `RISKS.md` risk 2.
    Commons `imageinfo`), with **team-category confirmation outranking exact-name match**.
 2. Captures the full licence metadata block (`SPEC.md` §7.10) including `share_alike` and
    `last_verified_at`.
-3. Applies the **automated treatment step** per the design spec. **The treatment
-   implementation is gated on OPEN DECISION 2** (`SPEC.md` §5.2): under option (a) the
+3. Applies the **automated treatment step** per the design spec. **OPEN DECISION 2 cleared
+   2026-07-25 — option (a)** (`SPEC.md` §5.2): under option (a) the
    pipeline stores the unmodified source and the treatment is CSS-only at render time, so no
    fixed derivative is created; under (c) the pipeline bakes the treatment and stamps the
    asset's licence obligations into the metadata. The pipeline is written so this is a

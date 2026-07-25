@@ -126,11 +126,12 @@ never rendered as a 32-team view with 22+ silent gaps.
 
 ### 2.2 Cap+ — the flagship metric
 
-> ## PENDING APPROVAL GATE #1
-> **No Cap+ value renders anywhere in the product until Rey signs the formula in
-> `CAPPLUS_MEMO.md` §7.** The component may be built against the neutral placeholder theme
-> and against `capplus_candidates.csv`, but the promotion to `capplus_official` and any
-> route that renders a Cap+ number are gated. See `BUILD_PLAN.md` gate #1.
+> ## APPROVED (gate #1, 2026-07-25)
+> **Rey signed the formula in `CAPPLUS_MEMO.md` §7 on 2026-07-25. The render block is
+> cleared** — the promotion to `capplus_official` and the routes that render a Cap+ number are
+> no longer gated on approval. The promotion itself still runs in ETL Phase 1
+> (`BUILD_PLAN.md` Phase 1); Cap+ renders from `capplus_official` once it has. See
+> `BUILD_PLAN.md` gate #1.
 
 The recommended build from `CAPPLUS_MEMO.md` §7, formula block reproduced verbatim:
 
@@ -433,8 +434,9 @@ PR that adds arbitrary filtering is rejected on sight.
    teams, current season, cost per win with the numerator toggle from §2.5, ranked. Renders at
    three sizes; the mobile size is the canonical one.
 3. **League Cap+ leaderboard — all 32 teams.** Not a top-10. The full table, sortable,
-   CSV-exportable, with the "100 = league average" caption. Gated on approval gate #1; until
-   the gate clears this slot renders the Team Rating leaderboard under its own name.
+   CSV-exportable, with the "100 = league average" caption. Gate #1 cleared 2026-07-25; this
+   slot renders the Team Rating leaderboard under its own name until `capplus_official` is
+   promoted in ETL Phase 1.
 4. **Largest dead-money charges** — from the ledger, with `is_actual` chips and as-of dates.
 5. **Entry cards** — three fixed cards routing into the team, player and compare views, each
    seeded with a concrete example rather than an empty state.
@@ -629,6 +631,8 @@ resolution floor. The renderer branches on width either way, so the floor is a c
 > **600px floor → 77.3% / 22.7% fallback**. The distribution is bimodal — median 1165×1496 with
 > a thin tail of unusable thumbnails; the single highest-cap player in the population, Dak
 > Prescott, is **138×239**.
+> **DECIDED 2026-07-25 — `IMAGE_MIN_WIDTH_PX = 300` is the shipping default (93.6% / 6.4%
+> fallback), config-reversible. Options above kept as the record.**
 
 > **OPEN DECISION 2 — ShareAlike derivative works (Rey, legal).** 48.0% of usable photos
 > (117 of 244) are CC BY-SA. A colour-treated, cropped or recomposited photo is a **derivative
@@ -637,6 +641,8 @@ resolution floor. The renderer branches on width either way, so the floor is a c
 > no new fixed derivative is created — **keeps 97.2%**; **(b)** use only the CC BY / PD / CC0
 > half, 127 photos — **coverage collapses to 50.6%**; **(c)** accept and honour CC BY-SA on
 > treated assets — **keeps 97.2%**, with licence obligations attached to served assets.
+> **DECIDED 2026-07-25 — option (a), CSS-filter-only; licensing follow-up owned by Rey.
+> Options above kept as the record.**
 
 Identity resolution rules that must not be "simplified" by a future maintainer: **team
 confirmation always outranks an exact name match** (this is the single most important rule —
@@ -756,7 +762,8 @@ tries to read a dead-money value from this mart fails to compile. Dead money com
 
 ### 7.4 `capplus_official` — 288 rows, grain `(season, team)`, nine seasons
 
-Promoted from `capplus_candidates.csv` **only after approval gate #1**. The app never reads
+Promoted from `capplus_candidates.csv`. **Approval gate #1 cleared 2026-07-25**; the promotion
+runs in ETL Phase 1. The app never reads
 `capplus_candidates` — that file is a backtest artefact with 69 columns of alternates.
 
 ```ts

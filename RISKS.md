@@ -12,9 +12,9 @@ move it.
 
 | # | Risk | Likelihood | Impact | Owner |
 |---:|---|---|---|---|
-| 1 | Dead-money REVIEW-tier licensing withheld | Medium | **Critical** | Rey (legal) |
+| 1 | Dead-money REVIEW-tier licensing withheld | Medium | **Critical** | Rey (licensing), engineering proceeding on defaults |
 | 2 | Team logo IP takedown | Low | High | Engineering |
-| 3 | ShareAlike photo derivative-work exposure | Medium | High | Rey (legal) |
+| 3 | ShareAlike photo derivative-work exposure | Medium | High | Rey (licensing), engineering proceeding on defaults |
 | 4 | λ=1.5 public defensibility | Medium | Medium | Rey + Engineering |
 | 5 | Timeline compression | **High** | Medium | Rey |
 | 6 | nflverse schema drift / release timing | Medium | Medium | Engineering |
@@ -39,6 +39,11 @@ REVIEW-Spotrac 64, REVIEW-OTC 192.
 2024 and 2025 drop to **zero** teams; 2018 drops to 3, 2019 to 14, 2022 to 3, 2023 to 2. Seven
 of the nine Cap+ seasons — including both most recent seasons — depend on REVIEW-tier rows.
 **Cap+ would ship on two seasons, one of which (2014) is near content-free.**
+
+**Status 2026-07-25 — owner Rey (licensing), engineering proceeding on defaults.** Gate #3
+instance 3 ruled: build with full REVIEW-tier data, `DEAD_MONEY_TIER` stays wired so a reversal
+is a config flip, Rey owns the legal conversation, Aug 22 checkpoint stands. **The Medium /
+Critical rating is unchanged and stands until licensing concludes.**
 
 **Mitigation, in order:**
 
@@ -99,7 +104,9 @@ photo is a **derivative work**, and ShareAlike obliges the derivative to carry t
 This was invisible until the image audit; the naive read is "it's all Creative Commons, we're
 fine."
 
-**Rey's decision, pending** (`SPEC.md` §5.2, OPEN DECISION 2). Three options:
+**Rey ruled 2026-07-25 — option (a)** (`SPEC.md` §5.2, OPEN DECISION 2). **Owner: Rey
+(licensing), engineering proceeding on defaults; the Medium / High rating is unchanged and
+stands until licensing concludes.** The three options as they were put to him:
 
 - **(a) CSS-filter-only treatment over an unmodified source — the compliant middle path, and
   the recommended one.** The pipeline stores and serves the original file exactly as Commons

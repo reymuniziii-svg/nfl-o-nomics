@@ -27,6 +27,9 @@ launch**. Gates 1, 2 and 4 are Rey's; gate 3 is Rey's and legal's together. Noth
 plan is an approval gate.
 
 > ### GATE #1 — Cap+ formula
+> **CLEARED 2026-07-25.** Rey approved the `CAPPLUS_MEMO.md` §7 build; it is the shipping
+> formula and the render block below is lifted. Promotion to `capplus_official` still runs in
+> Phase 1.
 > **Blocks: any Cap+ value rendering anywhere.** Rey approves the formula in
 > `CAPPLUS_MEMO.md` §7, or sends it back. Until it clears, the Cap+ component is built against
 > `capplus_candidates.csv` in development only, `capplus_official` is not promoted, and the
@@ -42,6 +45,10 @@ plan is an approval gate.
 > Phase 5; Rajdhani substitutes until it does and the swap is one token value.
 
 > ### GATE #3 — IP/asset posture
+> **Rey ruled 2026-07-25: proceed on all three instances; licensing handled by Rey personally
+> (owner: Rey). Engineering proceeds with the defaults below; every default is a one-line
+> config reversal if licensing review changes the answer.**
+>
 > **The brief's third gate — any change to the IP or asset posture.** It carries three open
 > instances: the two image decisions, and the dead-money REVIEW-tier sign-off folded in below.
 >
@@ -56,6 +63,11 @@ plan is an approval gate.
 > (`ARCHITECTURE.md` §5). Neither blocks Phases 1–2: `IMAGE_MIN_WIDTH_PX` is a config constant
 > and the treatment is written as a configuration branch, so either answer is a one-line change
 > (`DECISIONS.md` 49).
+> **DECIDED 2026-07-25 — instance 1 (resolution floor):** ship at `IMAGE_MIN_WIDTH_PX = 300`
+> (93.6% coverage / 6.4% fallback) as the default.
+> **DECIDED 2026-07-25 — instance 2 (ShareAlike):** option (a), the recommended one in
+> `RISKS.md` risk 3 — CSS-filter-only treatment, keeping 97.2% coverage, the original file
+> served untransformed with attribution.
 >
 > **Instance 3 — dead-money REVIEW tier (legal).**
 > **Blocks: Phase 3 shipping dead-money views for recent seasons.** Without sign-off on the
@@ -66,6 +78,9 @@ plan is an approval gate.
 > project; see `RISKS.md` risk 1 for the fallback rendering plan.
 > **Start the legal conversation this week.** It is the only item on this plan whose lead time
 > is outside our control.
+> **DECIDED 2026-07-25 — instance 3 (dead-money REVIEW tier):** build with full REVIEW-tier
+> data; the `DEAD_MONEY_TIER` flag stays wired so a licensing reversal is a config flip. Rey
+> owns the legal conversation; the Aug 22 checkpoint stands.
 
 > ### GATE #4 — production launch
 > **Blocks: the Phase 5 public push (Monday Sep 7).** Rey gives the go. It does **not** block
@@ -95,7 +110,8 @@ plan is an approval gate.
    - **`license_tier` added to `dead_money_team_season`**, derived deterministically from
      `source_url`. This is the mechanism the legal contingency depends on and it must exist
      before Phase 3 regardless of how legal resolves.
-5. **`capplus_official` promotion path** wired and tested, held behind gate #1.
+5. **`capplus_official` promotion path** wired and tested; no longer held — gate #1 cleared
+   2026-07-25.
 6. **Idempotency + byte-stable re-run** verified on every script (`ARCHITECTURE.md` §4.3).
 7. **Golden tests in CI** — all 18 from `DATA_AUDIT.md` §3 at their stated tolerances, plus
    test 16b as a negative golden test, plus the 11 structural tests.
@@ -104,8 +120,7 @@ plan is an approval gate.
 
 **Exit criteria.** Every mart in `SPEC.md` §7 exists with the specified columns and row counts;
 CI is green on golden + structural + byte-stability; a seeded Neon `dev` branch answers every
-query the four views need. **Gate #1 requested from Rey no later than Aug 3** so a rejection
-still has room.
+query the four views need. **Gate #1 cleared 2026-07-25**, ahead of the Aug 3 request deadline.
 
 ---
 
