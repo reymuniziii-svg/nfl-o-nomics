@@ -394,7 +394,7 @@ def write_findings(sched: pd.DataFrame, checks, beyond, odd_games=None) -> None:
                  "those two clubs played 16. Any check asserting \"every team plays 17 games "
                  "from 2021\" will produce a false positive here.")
     A.append("**`games.csv` extends past the audit window.** It currently carries "
-             f"{beyond or 'no'} future season(s) with null scores "
+             f"{beyond_txt} as a future season with null scores "
              "(272 unplayed 2026 REG rows). The mart clips to 1999–2025, so those never "
              "enter it; a naive reader that does not clip will produce 0-0 team-seasons.")
     A.append("**EPA is opponent- and era-unadjusted.** League-mean offensive EPA/play "

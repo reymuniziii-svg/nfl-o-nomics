@@ -24,8 +24,8 @@ Installed via pip through the session's outbound HTTPS proxy (`HTTPS_PROXY`); TL
 
 | Dataset | URL pattern | Verified range | Notes |
 | --- | --- | --- | --- |
-| Play-by-play / EPA | `nflverse-data/releases/download/pbp/play_by_play_{YEAR}.parquet` | 1999–2025 (27 seasons) | All 27 assets returned HTTP 200. Missing years: none. **2025 is present** (~20.3 MB, 48771 rows). 2026 returns 404, as expected. |
-| Schedules / results | `nfldata/master/data/games.csv` | 1999–2025 complete | File itself extends to 2026; season(s) [np.int64(2026)] are future/unplayed schedule rows and are excluded from the mart. |
+| Play-by-play / EPA | `nflverse-data/releases/download/pbp/play_by_play_{YEAR}.parquet` | 1999–2025 (27 seasons) | All 27 assets returned HTTP 200. Missing years: none. **2025 is present** (~20.3 MB, 48,771 rows, complete through Super Bowl LX on 2026-02-08). 2026 returns 404, as expected. |
+| Schedules / results | `nfldata/master/data/games.csv` | 1999–2025 complete | 7,548 rows total, no season gaps. File extends to 2026; season(s) 2026 are future/unplayed schedule rows and are excluded from the mart. |
 
 Read strategy: DuckDB `httpfs` scans each season's release parquet remotely and projects only the six needed columns (`season, season_type, posteam, defteam, play_type, epa`) out of 372, so no raw parquet is ever written to disk. `data/raw/` is empty at rest. `audit/audit_pbp.py --download` is a one-season-at-a-time fallback that deletes each file immediately after aggregating.
 
@@ -112,7 +112,7 @@ Findings:
 4. **Null `play_type`** exists (e.g. 1,460 rows in 2024, of which 570 have null `epa`) — administrative rows, correctly excluded from scrimmage counts.
 5. **Schedule length is not constant.** 16 REG games/team 1999–2020 (248 games/season while the league had 31 teams, 256 from 2002), 17 from 2021 (272/season). Calendar weeks run one longer than games in every season (17 weeks for 16 games through 2020, 18 for 17 from 2021) because of byes, so `week` is not a game counter. Postseason grows from 11 games/season to 13 in 2020 with the expanded field. Per-team game counts, not fixed constants, must drive any rate stat.
 6. **Short team-seasons exist and are correct**: 2022 BUF (16 games), 2022 CIN (16 games). The 2022 Bills–Bengals Week 17 game was abandoned after Damar Hamlin's cardiac arrest and never made up, so 2022 has 271 REG games rather than 272 and those two clubs played 16. Any check asserting "every team plays 17 games from 2021" will produce a false positive here.
-7. **`games.csv` extends past the audit window.** It currently carries [np.int64(2026)] future season(s) with null scores (272 unplayed 2026 REG rows). The mart clips to 1999–2025, so those never enter it; a naive reader that does not clip will produce 0-0 team-seasons.
+7. **`games.csv` extends past the audit window.** It currently carries 2026 as a future season with null scores (272 unplayed 2026 REG rows). The mart clips to 1999–2025, so those never enter it; a naive reader that does not clip will produce 0-0 team-seasons.
 8. **EPA is opponent- and era-unadjusted.** League-mean offensive EPA/play drifts from −0.056 (1999) to roughly +0.03 (2020) as scoring environments changed. Cross-era team comparisons should be centered per season.
 9. **Ties**: `win_pct` counts a tie as half a win. 2007 NE, 2008 DET and 2017 CLE all have 0 ties, so the golden tests are unaffected by that choice.
 
