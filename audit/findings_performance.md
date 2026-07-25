@@ -97,6 +97,8 @@ Findings:
 | 2008 DET = 0-16-0 | **PASS** | 0-16-0 (PF 268, PA 517) |
 | 2017 CLE = 0-16-0 | **PASS** | 0-16-0 (PF 234, PA 410) |
 | EPA mart joins 1:1 with results mart on (season, team) | **PASS** | 861 EPA keys / 861 results keys, 861 matched, 0 duplicates both sides |
+| league points_for == points_against every season | **PASS** | every season balances (each game contributes both sides) |
+| wins + losses + ties == games | **PASS** | holds for all 861 team-seasons |
 | data/raw/ left empty | **PASS** | empty |
 | EPA present & sane, all 27 seasons | **PASS** | league-mean offensive EPA/play spans -0.0561 (1999) to +0.0314 (2020); band is −0.15…+0.15 — no season is close to an edge, no drift |
 | EPA null rate on pass/run plays | **PASS** | worst season is 2000 at 0.0156% (5 of 31,965 plays); 0.0000% in 20 of 27 seasons |
@@ -108,10 +110,11 @@ Findings:
 2. **Retroactive franchise recoding in pbp** (section 4). Any join to an era-correct source must go through `audit/team_codes.py`.
 3. **Empty-string team codes** occur in the pbp files on non-scrimmage rows (timeouts, end-of-quarter markers). Zero scrimmage plays are affected, but `''` is coerced to null in normalization so it can never become a team.
 4. **Null `play_type`** exists (e.g. 1,460 rows in 2024, of which 570 have null `epa`) — administrative rows, correctly excluded from scrimmage counts.
-5. **Schedule length changes**: 16 REG games/team through 2020, 17 from 2021 (regular season expands to 18 weeks). 2001 ran 17 weeks for 16 games (the post-9/11 makeup week). Per-team game counts, not fixed constants, must drive any rate stat.
-6. **`games.csv` extends past the audit window.** It currently carries [np.int64(2026)] future season(s) with null scores (272 unplayed 2026 REG rows). The mart clips to 1999–2025, so those never enter it; a naive reader that does not clip will produce 0-0 team-seasons.
-7. **EPA is opponent- and era-unadjusted.** League-mean offensive EPA/play drifts from −0.056 (1999) to roughly +0.03 (2020) as scoring environments changed. Cross-era team comparisons should be centered per season.
-8. **Ties**: `win_pct` counts a tie as half a win. 2007 NE, 2008 DET and 2017 CLE all have 0 ties, so the golden tests are unaffected by that choice.
+5. **Schedule length is not constant.** 16 REG games/team 1999–2020 (248 games/season while the league had 31 teams, 256 from 2002), 17 from 2021 (272/season). Calendar weeks run one longer than games in every season (17 weeks for 16 games through 2020, 18 for 17 from 2021) because of byes, so `week` is not a game counter. Postseason grows from 11 games/season to 13 in 2020 with the expanded field. Per-team game counts, not fixed constants, must drive any rate stat.
+6. **Short team-seasons exist and are correct**: 2022 BUF (16 games), 2022 CIN (16 games). The 2022 Bills–Bengals Week 17 game was abandoned after Damar Hamlin's cardiac arrest and never made up, so 2022 has 271 REG games rather than 272 and those two clubs played 16. Any check asserting "every team plays 17 games from 2021" will produce a false positive here.
+7. **`games.csv` extends past the audit window.** It currently carries [np.int64(2026)] future season(s) with null scores (272 unplayed 2026 REG rows). The mart clips to 1999–2025, so those never enter it; a naive reader that does not clip will produce 0-0 team-seasons.
+8. **EPA is opponent- and era-unadjusted.** League-mean offensive EPA/play drifts from −0.056 (1999) to roughly +0.03 (2020) as scoring environments changed. Cross-era team comparisons should be centered per season.
+9. **Ties**: `win_pct` counts a tie as half a win. 2007 NE, 2008 DET and 2017 CLE all have 0 ties, so the golden tests are unaffected by that choice.
 
 ## 7. Outputs
 

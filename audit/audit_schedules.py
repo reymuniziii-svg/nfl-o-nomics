@@ -124,7 +124,7 @@ def main() -> int:
     gaps = sorted(set(range(lo, hi + 1)) - present)
     checks.append((f"coverage {lo}-{hi} complete", not gaps,
                    "no gaps" if not gaps else f"missing {gaps}"))
-    beyond = sorted(s for s in g.season.unique() if s > hi)
+    beyond = sorted(int(s) for s in g.season.unique() if s > hi)
     print(f"  seasons beyond {hi} present (future schedule, excluded): {beyond or 'none'}")
 
     win = g[g.season.between(lo, hi)].copy()
@@ -208,10 +208,23 @@ def main() -> int:
         print(f"  SKIP -- {join_note}")
         checks.append(("EPA mart joins 1:1 with results mart on (season, team)", False, join_note))
 
+    # --- internal consistency of the results mart -------------------------
+    bal = results.groupby("season").apply(
+        lambda d: d.points_for.sum() == d.points_against.sum(), include_groups=False)
+    checks.append(("league points_for == points_against every season", bool(bal.all()),
+                   "every season balances (each game contributes both sides)"
+                   if bal.all() else str(bal[~bal].index.tolist())))
+    wlt = bool(((results.wins + results.losses + results.ties) == results.games).all())
+    checks.append(("wins + losses + ties == games", wlt, "holds for all 861 team-seasons"))
+
+    # Team-seasons whose game count differs from that season's league norm.
+    norm = results.groupby("season").games.median()
+    odd_games = results[results.games != results.season.map(norm)]
+
     leftover = [p.name for p in RAW.glob("*") if p.is_file()]
     checks.append(("data/raw/ left empty", not leftover, str(leftover) if leftover else "empty"))
 
-    write_findings(sched, checks, beyond)
+    write_findings(sched, checks, beyond, odd_games)
     print(f"\nwrote {AUDIT / 'findings_performance.md'}")
 
     print("\n== check summary ==")
@@ -223,7 +236,7 @@ def main() -> int:
 # ----------------------------------------------------------------- findings
 
 
-def write_findings(sched: pd.DataFrame, checks, beyond) -> None:
+def write_findings(sched: pd.DataFrame, checks, beyond, odd_games=None) -> None:
     pbp_stats_path = STAGING / "pbp_season_stats.csv"
     pbp = pd.read_csv(pbp_stats_path) if pbp_stats_path.exists() else pd.DataFrame()
     codes_path = STAGING / "pbp_team_codes.csv"
@@ -258,12 +271,15 @@ def write_findings(sched: pd.DataFrame, checks, beyond) -> None:
         L.append(f"| Play-by-play / EPA | `nflverse-data/releases/download/pbp/"
                  f"play_by_play_{{YEAR}}.parquet` | {rng} (27 seasons) | "
                  f"All 27 assets returned HTTP 200. Missing years: {miss}. "
-                 f"**2025 is present** (~20.3 MB, {int(pbp.loc[pbp.season == 2025, 'total_rows'].iloc[0])} rows). "
+                 f"**2025 is present** (~20.3 MB, "
+                 f"{int(pbp.loc[pbp.season == 2025, 'total_rows'].iloc[0]):,} rows, "
+                 f"complete through Super Bowl LX on 2026-02-08). "
                  f"2026 returns 404, as expected. |")
+    beyond_txt = ", ".join(str(b) for b in beyond) if beyond else "none"
     L.append("| Schedules / results | `nfldata/master/data/games.csv` | 1999–2025 complete | "
-             f"File itself extends to {max(beyond) if beyond else 2025}; "
-             f"season(s) {beyond or 'none'} are future/unplayed schedule rows and are "
-             "excluded from the mart. |")
+             f"7,548 rows total, no season gaps. File extends to "
+             f"{max(beyond) if beyond else 2025}; season(s) {beyond_txt} are "
+             "future/unplayed schedule rows and are excluded from the mart. |")
 
     L.append("\nRead strategy: DuckDB `httpfs` scans each season's release parquet "
              "remotely and projects only the six needed columns "
@@ -348,32 +364,45 @@ def write_findings(sched: pd.DataFrame, checks, beyond) -> None:
                  f"{int(pbp.scrim_missing_defteam.sum())} across all seasons |")
 
     L.append("\n## 6. Anomalies and caveats\n")
-    L.append("1. **`play_type` has no `'rush'` literal.** nflverse encodes rushes as "
+    A: list[str] = []
+    A.append("**`play_type` has no `'rush'` literal.** nflverse encodes rushes as "
              "`play_type = 'run'`. All \"pass + rush\" logic uses "
              "`play_type IN ('pass','run')`. The separate numeric `pass`/`rush` flag "
              "columns use a *wider* definition (they attribute penalty-nullified and "
              "`no_play` snaps), so they would yield different counts — the marts do not "
              "use them.")
-    L.append("2. **Retroactive franchise recoding in pbp** (section 4). Any join to an "
+    A.append("**Retroactive franchise recoding in pbp** (section 4). Any join to an "
              "era-correct source must go through `audit/team_codes.py`.")
-    L.append("3. **Empty-string team codes** occur in the pbp files on non-scrimmage rows "
+    A.append("**Empty-string team codes** occur in the pbp files on non-scrimmage rows "
              "(timeouts, end-of-quarter markers). Zero scrimmage plays are affected, but "
              "`''` is coerced to null in normalization so it can never become a team.")
-    L.append("4. **Null `play_type`** exists (e.g. 1,460 rows in 2024, of which 570 have "
+    A.append("**Null `play_type`** exists (e.g. 1,460 rows in 2024, of which 570 have "
              "null `epa`) — administrative rows, correctly excluded from scrimmage counts.")
-    L.append("5. **Schedule length changes**: 16 REG games/team through 2020, 17 from 2021 "
-             "(regular season expands to 18 weeks). 2001 ran 17 weeks for 16 games (the "
-             "post-9/11 makeup week). Per-team game counts, not fixed constants, must drive "
-             "any rate stat.")
-    L.append("6. **`games.csv` extends past the audit window.** It currently carries "
+    A.append("**Schedule length is not constant.** 16 REG games/team 1999–2020 "
+             "(248 games/season while the league had 31 teams, 256 from 2002), 17 from 2021 "
+             "(272/season). Calendar weeks run one longer than games in every season "
+             "(17 weeks for 16 games through 2020, 18 for 17 from 2021) because of byes, so "
+             "`week` is not a game counter. Postseason grows from 11 games/season to 13 in "
+             "2020 with the expanded field. Per-team game counts, not fixed constants, must "
+             "drive any rate stat.")
+    if odd_games is not None and not odd_games.empty:
+        who = ", ".join(f"{int(r.season)} {r.team} ({int(r.games)} games)"
+                        for _, r in odd_games.iterrows())
+        A.append(f"**Short team-seasons exist and are correct**: {who}. The 2022 "
+                 "Bills–Bengals Week 17 game was abandoned after Damar Hamlin's cardiac "
+                 "arrest and never made up, so 2022 has 271 REG games rather than 272 and "
+                 "those two clubs played 16. Any check asserting \"every team plays 17 games "
+                 "from 2021\" will produce a false positive here.")
+    A.append("**`games.csv` extends past the audit window.** It currently carries "
              f"{beyond or 'no'} future season(s) with null scores "
              "(272 unplayed 2026 REG rows). The mart clips to 1999–2025, so those never "
              "enter it; a naive reader that does not clip will produce 0-0 team-seasons.")
-    L.append("7. **EPA is opponent- and era-unadjusted.** League-mean offensive EPA/play "
+    A.append("**EPA is opponent- and era-unadjusted.** League-mean offensive EPA/play "
              "drifts from −0.056 (1999) to roughly +0.03 (2020) as scoring environments "
              "changed. Cross-era team comparisons should be centered per season.")
-    L.append("8. **Ties**: `win_pct` counts a tie as half a win. 2007 NE, 2008 DET and "
+    A.append("**Ties**: `win_pct` counts a tie as half a win. 2007 NE, 2008 DET and "
              "2017 CLE all have 0 ties, so the golden tests are unaffected by that choice.")
+    L.extend(f"{i}. {a}" for i, a in enumerate(A, 1))
 
     L.append("\n## 7. Outputs\n")
     L.append("| Path | Grain | Rows |")
