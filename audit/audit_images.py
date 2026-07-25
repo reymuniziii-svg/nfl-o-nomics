@@ -187,6 +187,12 @@ def strip_html(s: str | None) -> str:
 # ------------------------------------------------------------------- client
 
 
+class WikiUnavailable(RuntimeError):
+    """A call exhausted its retries. NOT the same as 'this player has no photo'
+    -- conflating the two silently understates coverage, so it is raised and
+    recorded rather than swallowed as an empty result."""
+
+
 class Wiki:
     """Polite MediaWiki client: maxlag, spacing, exponential backoff on 429/503."""
 
@@ -196,6 +202,7 @@ class Wiki:
         self.spacing = spacing
         self.calls = 0
         self.retries = 0
+        self.failures = 0
         self._last = 0.0
         self.cache_path = cache_path
         self.cache: dict[str, dict] = {}
@@ -207,7 +214,7 @@ class Wiki:
             self.cache_path.parent.mkdir(parents=True, exist_ok=True)
             self.cache_path.write_text(json.dumps(self.cache))
 
-    def get(self, host: str, params: dict, attempts: int = 5) -> dict:
+    def get(self, host: str, params: dict, attempts: int = 7) -> dict:
         params = dict(params, format="json", formatversion="2", maxlag="5")
         key = host + "?" + "&".join(f"{k}={params[k]}" for k in sorted(params))
         if key in self.cache:
@@ -233,11 +240,12 @@ class Wiki:
             except Exception as exc:  # noqa: BLE001
                 self.retries += 1
                 if i == attempts - 1:
+                    self.failures += 1
                     print(f"    [give up] {host} {exc}", file=sys.stderr)
-                    return {}
+                    raise WikiUnavailable(f"{host}: {exc}") from exc
                 time.sleep(delay)
                 delay *= 2
-        return {}
+        raise WikiUnavailable(host)
 
 
 # --------------------------------------------------------------- population
@@ -746,9 +754,20 @@ def attribution_string(rec: dict) -> str:
 
 
 def audit_player(w: Wiki, res: Resolver, row) -> dict:
-    name, team = row.player, row.team
-    out = {
-        "player": name, "otc_id": row.otc_id, "team": team,
+    """One player. A transport failure is recorded as `api_error`, never as a
+    genuine 'no image' -- otherwise a flaky network deflates the hit rate."""
+    try:
+        return _audit_player(w, res, row)
+    except WikiUnavailable as exc:
+        out = _blank_row(row)
+        out["verification_method"] = "api_error"
+        out["notes"] = f"UNRESOLVED - Wikimedia call failed after retries: {exc}"
+        return out
+
+
+def _blank_row(row) -> dict:
+    return {
+        "player": row.player, "otc_id": row.otc_id, "team": row.team,
         "max_cap_season": row.max_cap_season,
         "position": row.position, "selection": row.selection,
         "cap_rank": row.cap_rank, "max_cap_usd": round(float(row.max_cap_usd), 0),
@@ -761,6 +780,11 @@ def audit_player(w: Wiki, res: Resolver, row) -> dict:
         "attribution_required": "", "restrictions": "", "wikidata_qid": "",
         "wikipedia_article": "",
     }
+
+
+def _audit_player(w: Wiki, res: Resolver, row) -> dict:
+    name, team = row.player, row.team
+    out = _blank_row(row)
 
     hit = res.resolve(name, team)
     if not hit:
@@ -913,11 +937,18 @@ def main() -> int:
     # ------------------------------------------------------------ summary
     n = len(out)
     hits = int(out["has_usable_image"].sum())
+    errs = int((out["verification_method"] == "api_error").sum())
+    resolved = n - errs
     print(f"\n== results ==")
     print(f"  population              : {n}")
     print(f"  usable image            : {hits} ({hits / n:.1%})")
-    print(f"  EXPECTED FALLBACK RATE  : {1 - hits / n:.1%}")
-    print(f"  api calls               : {w.calls} ({w.retries} retries)")
+    print(f"  genuine no-image        : {resolved - hits}")
+    print(f"  UNRESOLVED (api error)  : {errs}"
+          + ("  <-- re-run; these are NOT genuine misses" if errs else ""))
+    print(f"  EXPECTED FALLBACK RATE  : {1 - hits / resolved:.1%}"
+          f"  (of {resolved} resolved players)")
+    print(f"  api calls               : {w.calls} "
+          f"({w.retries} retries, {w.failures} exhausted)")
 
     qb = out["position"] == "QB"
     for label, mask in [("QB", qb), ("non-QB", ~qb)]:
