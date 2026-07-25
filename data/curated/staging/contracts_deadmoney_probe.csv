@@ -1,0 +1,13 @@
+route,result_count,verdict
+A: 2nd row for same player-season on the departed team,0,FAIL (no such rows exist)
+B: Wilson rows on DEN in 2024/2025,0,"FAIL (Wilson DEN rows only for [2022, 2023]; 2024=PIT, 2025=NYG)"
+C: explicit dead-money / termination field in schema,0,FAIL (no such field)
+D: any DEN 2024 row >= $40M (would be Wilson's dead charge),0,"FAIL (largest DEN 2024 charge is $20,800,000)"
+E: Matt Ryan 2022 (ATL dead money expected),0,"FAIL (rows only on ['IND'], not ATL)"
+E: Carson Wentz 2021 (PHI dead money expected),0,"FAIL (rows only on ['IND'], not PHI)"
+E: Trey Lance 2023 (SF dead money expected),0,"FAIL (rows only on ['DAL'], not SF)"
+E: Jimmy Garoppolo 2023 (SF dead money expected),0,"FAIL (rows only on ['LV'], not SF)"
+E: Baker Mayfield 2022 (CLE dead money expected),0,"FAIL (rows only on ['LA'], not CLE)"
+E: Kirk Cousins 2024 (MIN dead money expected),0,"FAIL (rows only on ['ATL'], not MIN)"
+E: Brock Osweiler 2017 (HOU dead money expected),0,"FAIL (rows only on ['DEN'], not HOU)"
+E: Aaron Rodgers 2025 (NYJ dead money expected),0,"FAIL (rows only on ['PIT'], not NYJ)"

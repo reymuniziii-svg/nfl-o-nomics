@@ -1,0 +1,5 @@
+check,expected_usd,pipeline_usd,delta_usd,team_in_data,note
+Mahomes KC 2023 cap number,37133824,37133824.0,0.0,KC,matches snapshot: September 2023 rework
+Russell Wilson SEA 2013 cap hit,681085,681085.0,0.0,SEA,exact
+Russell Wilson DEN 2024 dead money,53000000,0.0,-53000000.0,PIT,"NOT DERIVABLE -- only row is PIT $1,210,000"
+Russell Wilson DEN 2025 dead money,32000000,0.0,-32000000.0,NYG,"NOT DERIVABLE -- only row is NYG $11,029,412"

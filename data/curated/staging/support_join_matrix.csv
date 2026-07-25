@@ -1,0 +1,27 @@
+season,join,denominator,n,matched,rate,rate_pct
+2023,rosters -> players.parquet (gsis_id),roster player-seasons,3090,2928,0.9475728155339805,94.76
+2023,rosters -> players.otc_id (contracts spine),roster player-seasons,3090,2808,0.9087378640776699,90.87
+2023,rosters -> players.pfr_id,roster player-seasons,3090,2904,0.9398058252427185,93.98
+2023,rosters (status<>CUT/RET) -> players.parquet (gsis_id),roster player-seasons,2635,2626,0.996584440227704,99.66
+2023,"snap_counts REG -> rosters (pfr_id, DIRECT)",snap rows (REG),25329,18061,0.7130561806624818,71.31
+2023,snap_counts REG -> players -> rosters (BRIDGED on gsis_id),snap rows (REG),25329,25316,0.9994867543132377,99.95
+2023,"snap players -> rosters (pfr_id, DIRECT)",distinct snap players,2142,1484,0.6928104575163399,69.28
+2023,snap players -> players.parquet (pfr_id),distinct snap players,2142,2141,0.9995331465919701,99.95
+2023,draft class 2023 rows with gsis_id,draft picks,259,258,0.9961389961389961,99.61
+2012,rosters -> players.parquet (gsis_id),roster player-seasons,2120,2119,0.9995283018867924,99.95
+2012,rosters -> players.otc_id (contracts spine),roster player-seasons,2120,2067,0.975,97.5
+2012,rosters -> players.pfr_id,roster player-seasons,2120,2111,0.995754716981132,99.58
+2012,rosters (status<>CUT/RET) -> players.parquet (gsis_id),roster player-seasons,2038,2038,1.0,100.0
+2012,"snap_counts -> rosters (pfr_id, DIRECT)",EMPTY ASSET (0 rows),0,0,,
+2012,draft class 2012 rows with gsis_id,draft picks,253,252,0.9960474308300395,99.6
+2013,rosters -> players.parquet (gsis_id),roster player-seasons,2137,2136,0.9995320542817033,99.95
+2013,rosters -> players.otc_id (contracts spine),roster player-seasons,2137,2123,0.9934487599438465,99.34
+2013,rosters -> players.pfr_id,roster player-seasons,2137,2132,0.9976602714085167,99.77
+2013,rosters (status<>CUT/RET) -> players.parquet (gsis_id),roster player-seasons,2052,2052,1.0,100.0
+2013,"snap_counts REG -> rosters (pfr_id, DIRECT)",snap rows (REG),22821,7864,0.34459489067087334,34.46
+2013,snap_counts REG -> players -> rosters (BRIDGED on gsis_id),snap rows (REG),22821,22818,0.9998685421322466,99.99
+2013,"snap players -> rosters (pfr_id, DIRECT)",distinct snap players,1928,605,0.3137966804979253,31.38
+2013,snap players -> players.parquet (pfr_id),distinct snap players,1928,1926,0.9989626556016598,99.9
+2013,draft class 2013 rows with gsis_id,draft picks,254,251,0.9881889763779528,98.82
+2000-2025,draft picks with gsis_id (whole window),draft picks,6644,6359,0.9571041541240217,95.71
+2000-2025,draft (w/ gsis_id) -> players.parquet,draft picks with gsis_id,6359,6359,1.0,100.0
