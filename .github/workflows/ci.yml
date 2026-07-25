@@ -1,0 +1,52 @@
+name: CI
+
+# Golden + structural + contract tests, per ARCHITECTURE.md §12.
+#
+# These tests run against COMMITTED FILES ONLY — data/marts/, data/curated/ and
+# the audit receipts in audit/. There is no network access at test time and no
+# secret is required or read. A test that needs a remote fetch is a bug: it
+# would be testing nflverse's uptime, not this pipeline.
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  tests:
+    name: pytest (golden + structural + contracts)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pandas duckdb pyarrow pytest
+
+      - name: Show versions
+        run: |
+          python --version
+          python -c "import pandas, duckdb, pyarrow, pytest; print('pandas', pandas.__version__); print('duckdb', duckdb.__version__); print('pyarrow', pyarrow.__version__); print('pytest', pytest.__version__)"
+
+      - name: Run test suite
+        run: pytest tests/ -v
+
+      - name: Report skipped contracts
+        if: always()
+        run: pytest tests/test_contracts.py -q -rs --no-header
