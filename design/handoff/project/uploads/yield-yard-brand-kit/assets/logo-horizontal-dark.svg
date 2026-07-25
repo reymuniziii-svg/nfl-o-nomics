@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 250" role="img" aria-labelledby="title desc">
+  <title id="title">YIELD/YARD horizontal logo</title>
+  <desc id="desc">Dark green wordmark with lime slash and gold yard line details.</desc>
+  <rect width="1000" height="250" fill="#FFFFFF"></rect>
+  <g font-family="&#39;Bebas Neue&#39;,&#39;Arial Narrow&#39;,sans-serif" font-weight="700" letter-spacing="5">
+    <text x="42" y="145" font-size="132" fill="#071C16">YIELD</text>
+    <text x="391" y="145" font-size="142" fill="#A6E22E">/</text>
+    <text x="470" y="145" font-size="132" fill="#071C16">YARD</text>
+  </g>
+  <g stroke="#D4AF37" stroke-width="4" fill="none">
+    <path d="M45 185H185M815 185H955"></path>
+    <path d="M215 185v-15M245 185v-9M275 185v-15M305 185v-9M335 185v-15M365 185v-9M395 185v-15M425 185v-9M455 185v-15M485 185v-9M515 185v-15M545 185v-9M575 185v-15M605 185v-9M635 185v-15M665 185v-9M695 185v-15M725 185v-9M755 185v-15M785 185v-9"></path>
+  </g>
+  <text x="500" y="225" text-anchor="middle" font-family="Inter,Arial,sans-serif" font-size="25" font-weight="700" letter-spacing="8" fill="#B78317">DATA. INSIGHT. YIELD.</text>
+</svg>

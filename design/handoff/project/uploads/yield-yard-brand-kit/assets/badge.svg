@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 760" role="img" aria-labelledby="title desc">
+  <title id="title">YIELD/YARD badge</title>
+  <desc id="desc">Shield badge combining football yard marks and analytics bars.</desc>
+  <defs><linearGradient id="b" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#0B3D2E"></stop><stop offset="1" stop-color="#04110D"></stop></linearGradient></defs>
+  <path d="M380 40 660 135v270c0 152-104 255-280 315C204 660 100 557 100 405V135L380 40Z" fill="url(#b)" stroke="#071C16" stroke-width="28"></path>
+  <path d="M380 65 635 151v254c0 136-89 227-255 285-166-58-255-149-255-285V151L380 65Z" fill="none" stroke="#D4AF37" stroke-width="8"></path>
+  <g stroke="#FFFFFF" stroke-width="6" opacity=".7"><path d="M210 170h340"></path><path d="M245 145v50M300 155v30M355 145v50M410 155v30M465 145v50M520 155v30"></path></g>
+  <text x="380" y="187" text-anchor="middle" fill="#FFFFFF" font-family="Inter,Arial,sans-serif" font-size="34" font-weight="800" letter-spacing="12">10 | 50 | 10</text>
+  <rect x="72" y="250" width="616" height="160" rx="8" fill="#06130F" stroke="#D4AF37" stroke-width="7"></rect>
+  <g font-family="&#39;Bebas Neue&#39;,&#39;Arial Narrow&#39;,sans-serif" font-weight="700" letter-spacing="3" font-size="94">
+    <text x="107" y="360" fill="#FFFFFF">YIELD</text><text x="337" y="360" fill="#A6E22E">/</text><text x="390" y="360" fill="#FFFFFF">YARD</text>
+  </g>
+  <text x="380" y="455" text-anchor="middle" fill="#D4AF37" font-family="Inter,Arial,sans-serif" font-size="26" font-weight="800" letter-spacing="5">DATA. INSIGHT. YIELD.</text>
+  <g transform="translate(230 495)"><rect x="0" y="105" width="45" height="60" fill="#6C941B"></rect><rect x="65" y="80" width="45" height="85" fill="#7DAE20"></rect><rect x="130" y="45" width="45" height="120" fill="#8FC527"></rect><rect x="195" y="0" width="45" height="165" fill="#A6E22E"></rect><path d="M5 75 87 58 152 18 218-20" stroke="#FFFFFF" stroke-width="8" fill="none" stroke-linecap="round"></path></g>
+</svg>

@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="YIELD/YARD brand guidelines for an NFL statistics and data analytics application.">
+  <title>YIELD/YARD — Brand System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ink:#071c16; --forest:#0b3d2e; --black:#111416; --paper:#f5f6f2;
+      --white:#ffffff; --lime:#a6e22e; --gold:#d4af37; --muted:#a8b1ad;
+      --hairline:rgba(7,28,22,.15); --radius:22px;
+      --display:'Bebas Neue','Arial Narrow',sans-serif;
+      --athletic:'Squadron Black','Rajdhani','Arial Narrow',sans-serif;
+      --body:'Inter',Arial,sans-serif;
+    }
+    * { box-sizing:border-box; }
+    html { scroll-behavior:smooth; }
+    body { margin:0; color:var(--ink); background:var(--paper); font-family:var(--body); }
+    a { color:inherit; }
+    .page { min-height:100vh; overflow:hidden; }
+    .hero { position:relative; min-height:680px; padding:34px clamp(22px,5vw,80px) 60px; color:white; background:
+      linear-gradient(90deg,rgba(2,10,8,.98) 0%,rgba(4,19,15,.94) 52%,rgba(4,23,17,.58) 100%),
+      radial-gradient(circle at 88% 12%,rgba(166,226,46,.18),transparent 26%),
+      linear-gradient(135deg,#020806,#0b3d2e); }
+    .hero::before { content:""; position:absolute; inset:0; opacity:.28; background-image:
+      linear-gradient(rgba(255,255,255,.09) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(255,255,255,.09) 1px,transparent 1px); background-size:48px 48px; transform:perspective(800px) rotateX(58deg) scale(1.3) translateY(-22%); transform-origin:top; }
+    .hero::after { content:""; position:absolute; right:-8%; bottom:-32%; width:62%; aspect-ratio:1.4; border-radius:50%; border:1px solid rgba(166,226,46,.28); box-shadow:0 0 80px rgba(166,226,46,.12) inset; transform:rotate(-8deg); }
+    .nav,.hero-grid { position:relative; z-index:1; }
+    .nav { display:flex; align-items:center; justify-content:space-between; gap:24px; }
+    .mini-wordmark { display:flex; align-items:baseline; font-family:var(--display); font-size:30px; letter-spacing:2px; }
+    .mini-wordmark b { color:var(--lime); font-size:34px; padding:0 4px; }
+    .nav-links { display:flex; gap:28px; font-family:var(--athletic); font-weight:700; letter-spacing:1.4px; text-transform:uppercase; font-size:14px; }
+    .nav-links a { text-decoration:none; opacity:.75; }
+    .nav-links a:hover { opacity:1; color:var(--lime); }
+    .hero-grid { display:grid; grid-template-columns:minmax(0,1.1fr) minmax(380px,.9fr); gap:64px; align-items:end; margin-top:92px; }
+    .eyebrow { color:var(--lime); font-family:var(--athletic); text-transform:uppercase; letter-spacing:4px; font-weight:700; }
+    h1 { margin:12px 0 14px; font-family:var(--display); font-size:clamp(88px,12vw,178px); line-height:.82; letter-spacing:3px; font-weight:400; white-space:nowrap; }
+    h1 .slash { color:var(--lime); display:inline-block; transform:skew(-8deg); margin:0 .03em; }
+    .hero-copy { max-width:680px; color:#dce4e0; font-size:clamp(18px,2vw,24px); line-height:1.45; }
+    .hero-copy strong { color:white; }
+    .yard-rule { display:flex; align-items:end; gap:10px; margin:34px 0 0; width:min(640px,100%); color:var(--gold); }
+    .yard-rule::before,.yard-rule::after { content:""; height:2px; background:var(--gold); flex:1; }
+    .yard-rule span { width:11px; height:15px; border-left:2px solid currentColor; }
+    .value-card { align-self:center; background:linear-gradient(145deg,rgba(255,255,255,.1),rgba(255,255,255,.03)); border:1px solid rgba(255,255,255,.16); border-radius:28px; padding:30px; backdrop-filter:blur(9px); box-shadow:0 30px 90px rgba(0,0,0,.32); }
+    .value-card header { display:flex; justify-content:space-between; align-items:center; margin-bottom:26px; font-family:var(--athletic); letter-spacing:2px; text-transform:uppercase; }
+    .score { color:var(--lime); font-size:34px; font-weight:700; }
+    .chart { display:grid; grid-template-columns:repeat(9,1fr); align-items:end; gap:10px; height:210px; padding:14px 14px 28px; border-left:1px solid rgba(255,255,255,.26); border-bottom:1px solid rgba(255,255,255,.26); background:repeating-linear-gradient(to top,transparent 0 41px,rgba(255,255,255,.07) 42px); }
+    .bar { background:linear-gradient(to top,#4f7413,var(--lime)); border-radius:5px 5px 0 0; box-shadow:0 0 20px rgba(166,226,46,.12); }
+    .card-meta { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:22px; }
+    .metric { padding:14px; border:1px solid rgba(255,255,255,.11); border-radius:14px; }
+    .metric small { display:block; color:#aab6b1; text-transform:uppercase; letter-spacing:1.6px; font-size:10px; }
+    .metric b { display:block; margin-top:7px; font-family:var(--athletic); font-size:20px; }
+    main { padding:80px clamp(22px,5vw,80px) 110px; }
+    .section { max-width:1320px; margin:0 auto 96px; }
+    .section-head { display:grid; grid-template-columns:220px 1fr; gap:32px; align-items:start; margin-bottom:36px; }
+    .section-num { font-family:var(--display); color:var(--lime); font-size:70px; line-height:1; }
+    h2 { margin:0; font-family:var(--display); font-size:clamp(54px,7vw,92px); line-height:.95; letter-spacing:1px; font-weight:400; }
+    .section-intro { max-width:800px; font-size:18px; line-height:1.65; color:#46534f; }
+    .logo-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:18px; }
+    .logo-card { min-height:360px; padding:28px; border:1px solid var(--hairline); border-radius:var(--radius); background:white; display:flex; flex-direction:column; position:relative; overflow:hidden; }
+    .logo-card.dark { background:linear-gradient(140deg,#020806,#0b241b); color:white; }
+    .logo-card.app { background:#111416; }
+    .card-label { display:flex; justify-content:space-between; gap:20px; font-family:var(--athletic); text-transform:uppercase; letter-spacing:1.8px; font-weight:700; font-size:13px; }
+    .card-label span:last-child { color:#71807a; }
+    .logo-stage { flex:1; display:grid; place-items:center; padding:24px 8px 6px; }
+    .logo-stage img { max-width:100%; max-height:270px; }
+    .logo-stage.icon img { width:min(260px,72%); }
+    .rules-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:18px; }
+    .rule-card { background:white; border:1px solid var(--hairline); border-radius:var(--radius); padding:28px; min-height:270px; }
+    .rule-card h3,.type-card h3 { font-family:var(--athletic); text-transform:uppercase; letter-spacing:2px; font-size:19px; margin:0 0 18px; }
+    .clearspace { display:grid; place-items:center; height:150px; border:1px dashed #9da8a3; background:linear-gradient(90deg,transparent 49.6%,rgba(7,28,22,.08) 50%,transparent 50.4%),linear-gradient(transparent 49.6%,rgba(7,28,22,.08) 50%,transparent 50.4%); }
+    .clearspace strong { border:28px solid rgba(166,226,46,.18); padding:6px 14px; font-family:var(--display); font-size:34px; letter-spacing:2px; }
+    .donts { margin:0; padding-left:18px; line-height:1.8; color:#4d5b56; }
+    .palette { display:grid; grid-template-columns:repeat(5,1fr); gap:14px; }
+    .swatch { min-height:260px; border-radius:18px; padding:18px; display:flex; flex-direction:column; justify-content:end; border:1px solid rgba(0,0,0,.08); }
+    .swatch strong { font-family:var(--athletic); text-transform:uppercase; letter-spacing:1.5px; }
+    .swatch code { font-family:var(--body); font-size:13px; margin-top:4px; }
+    .swatch.forest { background:#0b3d2e;color:white; }.swatch.ink{background:#071c16;color:white}.swatch.black{background:#111416;color:white}.swatch.paper{background:#fff;color:#071c16}.swatch.lime{background:#a6e22e;color:#071c16}.swatch.gold{background:#d4af37;color:#071c16}
+    .type-grid { display:grid; grid-template-columns:1.2fr 1fr 1fr; gap:18px; }
+    .type-card { border-radius:var(--radius); padding:30px; min-height:310px; border:1px solid var(--hairline); background:white; }
+    .type-sample.display { font-family:var(--display); font-size:92px; line-height:.88; letter-spacing:2px; }
+    .type-sample.athletic { font-family:var(--athletic); font-weight:700; font-size:54px; line-height:.95; text-transform:uppercase; }
+    .type-sample.body { font-size:22px; line-height:1.5; }
+    .viz-grid { display:grid; grid-template-columns:1.1fr .9fr; gap:18px; }
+    .viz-panel { border-radius:var(--radius); padding:30px; color:white; background:linear-gradient(145deg,#071c16,#020806); min-height:410px; position:relative; overflow:hidden; }
+    .viz-panel::before { content:""; position:absolute; inset:0; opacity:.15; background:repeating-linear-gradient(to right,transparent 0 61px,#fff 62px),repeating-linear-gradient(to top,transparent 0 61px,#fff 62px); }
+    .viz-panel > * { position:relative; }
+    .viz-title { font-family:var(--athletic); text-transform:uppercase; letter-spacing:2px; color:#b8c3be; }
+    .viz-chart { height:260px; margin-top:26px; position:relative; border-left:1px solid rgba(255,255,255,.3); border-bottom:1px solid rgba(255,255,255,.3); }
+    .viz-line { position:absolute; inset:8% 4% 10% 7%; }
+    .viz-line svg { width:100%; height:100%; overflow:visible; }
+    .viz-notes { background:white; border:1px solid var(--hairline); border-radius:var(--radius); padding:30px; }
+    .viz-notes h3 { font-family:var(--athletic); text-transform:uppercase; letter-spacing:2px; }
+    .viz-notes ul { line-height:1.8; color:#4d5b56; padding-left:19px; }
+    .download { display:grid; grid-template-columns:1fr auto; gap:26px; align-items:center; background:#071c16; color:white; padding:38px; border-radius:var(--radius); }
+    .download h3 { margin:0; font-family:var(--display); font-size:54px; font-weight:400; }
+    .download p { margin:8px 0 0; color:#b4c0ba; }
+    .download a { display:inline-block; padding:15px 22px; color:#071c16; background:var(--lime); text-decoration:none; border-radius:8px; font-family:var(--athletic); font-weight:700; letter-spacing:1.4px; text-transform:uppercase; }
+    footer { padding:36px clamp(22px,5vw,80px); color:#84918b; background:#050a08; display:flex; justify-content:space-between; gap:20px; font-size:13px; }
+    @media (max-width:900px) {
+      .nav-links { display:none; }.hero{min-height:auto}.hero-grid{grid-template-columns:1fr;margin-top:70px}.value-card{max-width:620px}.section-head{grid-template-columns:1fr;gap:10px}.section-num{font-size:48px}.logo-grid,.rules-grid,.type-grid,.viz-grid{grid-template-columns:1fr}.palette{grid-template-columns:repeat(2,1fr)}.swatch{min-height:180px}.download{grid-template-columns:1fr}h1{white-space:normal}.hero-grid{gap:40px}
+    }
+    @media (max-width:560px) { .palette{grid-template-columns:1fr}.card-meta{grid-template-columns:1fr}.hero{padding-top:24px}.logo-card{min-height:290px}.type-sample.display{font-size:70px} }
+  </style>
+</head>
+<body>
+<div class="page">
+  <header class="hero">
+    <nav class="nav">
+      <div class="mini-wordmark">YIELD<b>/</b>YARD</div>
+      <div class="nav-links"><a href="#identity">Identity</a><a href="#color">Color</a><a href="#type">Typography</a><a href="#data">Data design</a></div>
+    </nav>
+    <div class="hero-grid">
+      <div>
+        <div class="eyebrow">NFL statistics &amp; data analytics</div>
+        <h1>YIELD<span class="slash">/</span>YARD</h1>
+        <p class="hero-copy"><strong>Smarter data. Stronger decisions. Higher yield.</strong><br>Football intelligence that turns contracts, performance and roster construction into an immediate visual advantage.</p>
+        <div class="yard-rule" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+      </div>
+      <aside class="value-card" aria-label="Sample product visualization">
+        <header><span>Value Index · QB</span><span class="score">87.4</span></header>
+        <div class="chart" aria-hidden="true">
+          <div class="bar" style="height:24%"></div><div class="bar" style="height:34%"></div><div class="bar" style="height:42%"></div><div class="bar" style="height:51%"></div><div class="bar" style="height:47%"></div><div class="bar" style="height:68%"></div><div class="bar" style="height:72%"></div><div class="bar" style="height:85%"></div><div class="bar" style="height:96%"></div>
+        </div>
+        <div class="card-meta"><div class="metric"><small>EPA / play</small><b>+0.19</b></div><div class="metric"><small>Cap efficiency</small><b>91st pct.</b></div><div class="metric"><small>Yield trend</small><b>▲ 8.2%</b></div></div>
+      </aside>
+    </div>
+  </header>
+
+  <main>
+    <section class="section" id="identity">
+      <div class="section-head"><div class="section-num">01</div><div><h2>Core identity</h2><p class="section-intro">The slash is the hinge of the system: part yard marker, part division sign, part upward trajectory. The wordmark should feel like football without looking like a fantasy-league logo.</p></div></div>
+      <div class="logo-grid">
+        <article class="logo-card"><div class="card-label"><span>Primary wordmark</span><span>Light surface</span></div><div class="logo-stage"><img src="assets/logo-horizontal-dark.svg" alt="YIELD/YARD primary horizontal logo"></div></article>
+        <article class="logo-card dark"><div class="card-label"><span>Reversed wordmark</span><span>Dark surface</span></div><div class="logo-stage"><img src="assets/logo-horizontal-light.svg" alt="YIELD/YARD reversed horizontal logo"></div></article>
+        <article class="logo-card"><div class="card-label"><span>Stacked lockup</span><span>Editorial</span></div><div class="logo-stage"><img src="assets/logo-stacked.svg" alt="YIELD/YARD stacked logo"></div></article>
+        <article class="logo-card"><div class="card-label"><span>Shield emblem</span><span>Secondary</span></div><div class="logo-stage icon"><img src="assets/badge.svg" alt="YIELD/YARD shield badge"></div></article>
+        <article class="logo-card"><div class="card-label"><span>YY monogram</span><span>Utility mark</span></div><div class="logo-stage icon"><img src="assets/monogram.svg" alt="YIELD/YARD monogram"></div></article>
+        <article class="logo-card app"><div class="card-label"><span>App icon</span><span>Premium</span></div><div class="logo-stage icon"><img src="assets/app-icon.svg" alt="YIELD/YARD mobile app icon"></div></article>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head"><div class="section-num">02</div><div><h2>Logo rules</h2><p class="section-intro">Consistency matters more than novelty. The logo can flex across product, editorial and social contexts, but its proportions, slash color and breathing room should remain fixed.</p></div></div>
+      <div class="rules-grid">
+        <article class="rule-card"><h3>Clear space</h3><div class="clearspace"><strong>YIELD<span style="color:#a6e22e">/</span>YARD</strong></div><p>Maintain clear space equal to the width of the slash on every side.</p></article>
+        <article class="rule-card"><h3>Minimum size</h3><p style="font-size:46px;font-family:var(--display);margin:30px 0 8px">YIELD<span style="color:#a6e22e">/</span>YARD</p><p><strong>Digital:</strong> 140 px wide<br><strong>Print:</strong> 1.4 in wide<br><strong>Monogram:</strong> 24 px minimum</p></article>
+        <article class="rule-card"><h3>Do not</h3><ul class="donts"><li>Change the slash to a team color.</li><li>Stretch, compress or italicize the wordmark.</li><li>Add footballs, helmets or league marks to the primary logo.</li><li>Use gold as the dominant wordmark color.</li><li>Place it on noisy photography without a dark scrim.</li></ul></article>
+      </div>
+    </section>
+
+    <section class="section" id="color">
+      <div class="section-head"><div class="section-num">03</div><div><h2>Color system</h2><p class="section-intro">Deep green carries the football equity. Lime signals live data and positive movement. Gold is a restrained premium accent—use it like punctuation, not wallpaper.</p></div></div>
+      <div class="palette">
+        <div class="swatch ink"><strong>End Zone</strong><code>#071C16</code></div>
+        <div class="swatch forest"><strong>Field Green</strong><code>#0B3D2E</code></div>
+        <div class="swatch black"><strong>Film Room</strong><code>#111416</code></div>
+        <div class="swatch paper"><strong>Chalk White</strong><code>#FFFFFF</code></div>
+        <div class="swatch lime"><strong>Yield Lime</strong><code>#A6E22E</code></div>
+        <div class="swatch gold"><strong>Premium Gold</strong><code>#D4AF37</code></div>
+      </div>
+    </section>
+
+    <section class="section" id="type">
+      <div class="section-head"><div class="section-num">04</div><div><h2>Typography</h2><p class="section-intro">Bebas Neue does the shouting. Squadron Black supplies the athletic utility layer. Inter handles every number, label and sentence that users actually need to read.</p></div></div>
+      <div class="type-grid">
+        <article class="type-card"><h3>Display · Bebas Neue</h3><div class="type-sample display">VALUE<br>STADIUM</div><p>Hero headlines, campaign titles and major section labels.</p></article>
+        <article class="type-card"><h3>Athletic · Squadron Black</h3><div class="type-sample athletic">Roster<br>Efficiency</div><p>Tabs, stat categories, compact callouts and secondary marks. Rajdhani is the web-safe substitute until Squadron is licensed.</p></article>
+        <article class="type-card"><h3>Utility · Inter</h3><div class="type-sample body"><strong>Josh Allen</strong><br>Contract yield ranks in the 92nd percentile among veteran quarterbacks.</div><p>Body copy, product UI, tables, tooltips and data labels.</p></article>
+      </div>
+    </section>
+
+    <section class="section" id="data">
+      <div class="section-head"><div class="section-num">05</div><div><h2>Data visualization</h2><p class="section-intro">Charts should borrow from the field, not cosplay as one. Use yard lines as structure, lime as emphasis and gold for benchmarks or value thresholds.</p></div></div>
+      <div class="viz-grid">
+        <article class="viz-panel"><div class="viz-title">Contract value trajectory · indexed</div><div class="viz-chart"><div class="viz-line"><svg viewBox="0 0 800 260" aria-label="Sample rising line chart"><polyline points="10,230 105,205 180,220 265,156 350,170 442,112 535,130 630,62 785,30" fill="none" stroke="#A6E22E" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/><polyline points="10,220 105,198 180,185 265,174 350,150 442,132 535,108 630,91 785,72" fill="none" stroke="#D4AF37" stroke-width="3" stroke-dasharray="12 10"/><g fill="#A6E22E" stroke="#071C16" stroke-width="6"><circle cx="10" cy="230" r="10"/><circle cx="105" cy="205" r="10"/><circle cx="180" cy="220" r="10"/><circle cx="265" cy="156" r="10"/><circle cx="350" cy="170" r="10"/><circle cx="442" cy="112" r="10"/><circle cx="535" cy="130" r="10"/><circle cx="630" cy="62" r="10"/><circle cx="785" cy="30" r="10"/></g></svg></div></div></article>
+        <aside class="viz-notes"><h3>Chart rules</h3><ul><li>Reserve lime for the selected team, player or primary series.</li><li>Use gold for league average, target value or historical benchmark.</li><li>Keep comparison series white, gray or muted green.</li><li>Use field ticks only when they aid scale comprehension.</li><li>Avoid gradients inside quantitative marks.</li><li>Label the insight directly; do not make users decode a legend maze.</li></ul></aside>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="download"><div><h3>Implementation notes</h3><p>The portable design tokens, usage rules and component guidance live in <code>design.md</code>.</p></div><a href="design.md">Open design.md</a></div>
+    </section>
+  </main>
+  <footer><span>YIELD/YARD brand system · v0.1</span><span>Independent football analytics product. No NFL affiliation implied.</span></footer>
+</div>
+</body>
+</html>

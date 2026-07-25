@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">YIELD/YARD app icon</title>
+  <desc id="desc">Premium dark green app icon with metallic rim, YY monogram and midfield marks.</desc>
+  <defs>
+    <linearGradient id="face" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#123F31"></stop><stop offset="0.55" stop-color="#071C16"></stop><stop offset="1" stop-color="#020908"></stop>
+    </linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#F3D47A"></stop><stop offset="0.48" stop-color="#A87514"></stop><stop offset="1" stop-color="#E2B84D"></stop></linearGradient>
+    <linearGradient id="silver" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#FFFFFF"></stop><stop offset="0.5" stop-color="#AEB6B3"></stop><stop offset="1" stop-color="#F5F7F6"></stop></linearGradient>
+    <filter id="shadow"><feDropShadow dx="0" dy="14" stdDeviation="12" flood-opacity=".5"></feDropShadow></filter>
+  </defs>
+  <rect x="25" y="25" width="462" height="462" rx="104" fill="url(#gold)" filter="url(#shadow)"></rect>
+  <rect x="39" y="39" width="434" height="434" rx="92" fill="#071C16" stroke="#FFF2C4" stroke-width="4"></rect>
+  <rect x="52" y="52" width="408" height="408" rx="80" fill="url(#face)"></rect>
+  <path d="M78 102h96l83 128 82-128h93L306 295v112h-98V295L78 102Z" fill="url(#silver)"></path>
+  <path d="M246 213h79l43 68 43-68h74l-78 121v73h-79v-73l-82-121Z" fill="#A6E22E"></path>
+  <g stroke="#EEF5EF" stroke-width="5" opacity=".75">
+    <path d="M106 430h300"></path><path d="M116 416v28M146 421v18M176 416v28M206 421v18M236 416v28M266 421v18M296 416v28M326 421v18M356 416v28M386 421v18"></path>
+  </g>
+  <text x="256" y="458" text-anchor="middle" fill="#FFFFFF" font-family="Inter,Arial,sans-serif" font-size="28" font-weight="800" letter-spacing="6">50</text>
+</svg>

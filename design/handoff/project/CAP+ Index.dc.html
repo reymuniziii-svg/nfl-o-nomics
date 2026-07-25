@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics><meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;500;600;700&family=Squada+One&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F5F6F2;font-family:Inter,system-ui,sans-serif}
+a{color:#4F7413}a:hover{color:#0B3D2E}
+.dv-turn{padding:44px 48px 36px;border-bottom:1px solid rgba(7,28,22,.1);scroll-margin-top:16px}
+.dv-thd{display:flex;align-items:baseline;gap:10px;margin:0 0 8px}
+.dv-tid{font:700 11px 'Rajdhani',sans-serif;letter-spacing:.08em;padding:3px 8px;background:#A6E22E;color:#071C16;border-radius:4px;text-decoration:none}
+.dv-tname{font:600 13px/1.2 Inter,system-ui,sans-serif;color:#071C16}
+.dv-opts{display:flex;flex-wrap:wrap;gap:36px;align-items:flex-start}
+.dv-opt{flex:none;display:flex;flex-direction:column;gap:10px;scroll-margin-top:16px}
+.dv-oid{font:700 11.5px 'Rajdhani',sans-serif;letter-spacing:.08em;padding:3px 8px;background:rgba(7,28,22,.07);color:#071C16;border-radius:5px;text-decoration:none}
+.dv-olabel{display:flex;align-items:baseline;gap:8px;font:400 11px/1.3 Inter,system-ui,sans-serif;color:rgba(7,28,22,.55)}
+.dv-card{max-width:100%;background:linear-gradient(160deg,#16191B,#0A0C0D);border:1px solid rgba(255,255,255,.12);border-radius:22px;overflow:hidden}
+.dv-opt:target .dv-oid{background:#A6E22E;color:#071C16}
+.dv-next{margin:26px 0 0;font:12px/1.6 Inter,system-ui,sans-serif;color:rgba(7,28,22,.55)}
+.brief{margin:0 0 26px;padding:20px 24px;border:1px solid rgba(7,28,22,.15);border-radius:22px;background:#fff;max-width:1080px}
+.brief h4{margin:0 0 10px;font:700 13px/1 'Rajdhani',sans-serif;letter-spacing:.16em;color:#4F7413;text-transform:uppercase}
+.brief p{margin:0 0 8px;font:400 13.5px/1.7 Inter,sans-serif;color:#46534F}
+.brief b{color:#071C16;font-weight:600}
+</style></helmet>
+
+<section class="dv-turn" id="t1">
+<div class="dv-thd"><a class="dv-tid" href="#t1">1</a><span class="dv-tname">YIELD/YARD — CAP+ Index applied to the brand system</span></div>
+<div class="brief">
+<h4>Assumptions &amp; reasoning</h4>
+<p><b>Brand applied.</b> Same information architecture, now on the YIELD/YARD system: Film Room black dark mode over Chalk/Paper editorial surfaces, Bebas Neue display, Rajdhani for athletic labels and metrics, Inter for prose. <b>Yield Lime is the subject and positive movement; Premium Gold marks benchmarks only</b> — league average, the efficiency frontier, the projected cap ceiling. Red is reserved for genuine risk (dead money, falling teams).</p>
+<p><b>Data is placeholder.</b> Plausible invented figures on real team names — swap in your numbers and the layouts hold. No team logos (marks are abstract wordmark chips).</p>
+<p><b>Desktop is not a stretched phone.</b> Wide editorial dashboard: one hero read, then large charts with room to breathe, scrolling. Mobile keeps the bottom-tab terminal.</p>
+<p><b>Held to the guide:</b> one lime series per chart, gold never used as a clickable control, gridlines under 15% opacity, no gradients inside quantitative bars. CAP+ = wins produced per dollar of cap spent, indexed so 100 = league average.</p>
+</div>
+<div class="dv-opts">
+
+<div class="dv-opt" id="1a">
+<div class="dv-olabel"><a class="dv-oid" href="#1a">1a</a>Mobile app — four screens, 390×844</div>
+<div style="display:flex;gap:22px">
+
+<div style="width:390px;height:844px;background:#0B0D0E;border:1px solid rgba(168,177,173,.3);border-radius:34px;overflow:hidden;display:flex;flex-direction:column;position:relative">
+<div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px 12px;background:linear-gradient(120deg,#191D1F,#0B0D0E);border-bottom:1px solid rgba(168,177,173,.18)">
+<div><div style="font:400 24px/1 'Bebas Neue','Arial Narrow',sans-serif;letter-spacing:.02em;color:#fff">YIELD<span style="color:#A6E22E">/</span>YARD</div><div style="font:500 9px/1.4 'Rajdhani',sans-serif;letter-spacing:.2em;color:#A8B1AD;margin-top:4px">CAP+ INDEX · ECONOMICS</div></div>
+<div style="display:flex;gap:8px;align-items:center"><div style="width:30px;height:30px;border-radius:16px;border:1px solid rgba(166,226,46,.35);display:flex;align-items:center;justify-content:center;font:600 11px 'Rajdhani',sans-serif;color:#A6E22E">W6</div><div style="width:30px;height:30px;border-radius:50%;background:#2A2F31"></div></div>
+</div>
+<div style="flex:1;overflow:hidden;padding:16px;display:flex;flex-direction:column;gap:14px">
+<div style="display:flex;align-items:baseline;justify-content:space-between"><div style="font:700 22px/1.1 'Bebas Neue','Arial Narrow',sans-serif;letter-spacing:.02em;color:#EAF1EC">YOUR TEAM</div><div style="font:500 10px 'Rajdhani',sans-serif;letter-spacing:.14em;color:#A6E22E">CIN · AFC NORTH</div></div>
+<div style="border:1px solid rgba(166,226,46,.3);border-radius:16px;background:linear-gradient(160deg,rgba(166,226,46,.09),rgba(3,20,39,0) 65%);padding:16px">
+<div style="display:flex;align-items:flex-end;gap:12px">
+<div style="font:600 64px/.85 'Rajdhani',sans-serif;letter-spacing:-.05em;color:#A6E22E">114</div>
+<div style="padding-bottom:6px"><div style="font:700 12px/1 'Bebas Neue','Arial Narrow',sans-serif;letter-spacing:.18em;color:#EAF1EC">CAP+</div><div style="font:400 10px/1.4 'Rajdhani',sans-serif;color:#A6E22E;margin-top:4px">▲ 3 pts vs W5</div></div>
+</div>
+<div style="font:400 11.5px/1.5 Inter,sans-serif;color:rgba(234,241,236,.6);margin-top:12px;padding-top:12px;border-top:1px solid rgba(168,177,173,.18)">14% more wins per cap dollar than league average. 2nd of 32.</div>
+</div>
+<div style="display:flex;gap:10px">
+<div style="flex:1;border:1px solid rgba(168,177,173,.22);border-radius:16px;background:linear-gradient(160deg,#181C1D,#0E1112);padding:11px 12px"><div style="font:500 9px/1 'Rajdhani',sans-serif;letter-spacing:.14em;color:#A8B1AD">COST / WIN</div><div style="font:600 21px/1 'Rajdhani',sans-serif;letter-spacing:-.03em;color:#EAF1EC;margin-top:8px">$19.4M</div></div>
+<div style="flex:1;border:1px solid rgba(168,177,173,.22);border-radius:16px;background:linear-gradient(160deg,#181C1D,#0E1112);padding:11px 12px"><div style="font:500 9px/1 'Rajdhani',sans-serif;letter-spacing:.14em;color:#A8B1AD">DEAD CAP</div><div style="font:600 21px/1 'Rajdhani',sans-serif;letter-spacing:-.03em;color:#E8A08D;margin-top:8px">$18.2M</div></div>
+</div>
+<div style="border:1px solid rgba(168,177,173,.22);border-radius:16px;background:linear-gradient(160deg,#181C1D,#0E1112);padding:13px 14px">
+<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px"><div style="font:700 13px/1 'Bebas Neue','Arial Narrow',sans-serif;letter-spacing:.14em;color:#EAF1EC">DIVISION</div><div style="font:500 9px 'Rajdhani',sans-serif;color:#A8B1AD">100 = LG AVG</div></div>
+<sc-for list="{{ divisionRows }}" as="d" hint-placeholder-count="4">
+<div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-top:1px solid rgba(168,177,173,.13)">
+<div style="width:34px;font:600 11px 'Rajdhani',sans-serif;color:#EAF1EC">{{ d.ab }}</div>
+<div style="flex:1;height:8px;background:rgba(168,177,173,.14);border-radius:2px;position:relative;overflow:hidden">
+<div style="position:absolute;left:0;top:0;bottom:0;border-radius:2px;width:{{ d.w }};background:{{ d.color }}"></div>
+<div style="position:absolute;left:50%;top:-3px;bottom:-3px;width:1px;background:rgba(212,175,55,.75)"></div>
+</div>
+<div style="width:34px;text-align:right;font:600 13px 'Rajdhani',sans-serif;color:{{ d.color }}">{{ d.idx }}</div>
+</div>
+</sc-for>
+</div>
+<div style="border:1px solid rgba(232,160,141,.28);border-radius:16px;background:rgba(217,80,60,.06);padding:12px 13px">
+<div style="font:500 9px/1 'Rajdhani',sans-serif;letter-spacing:.16em;color:#E8A08D">WEEKLY SWING</div>
+<div style="font:400 12.5px/1.55 Inter,sans-serif;color:rgba(234,241,236,.85);margin-top:8px">Cleveland fell <b style="color:#E8A08D">6 pts</b> — a 1-4 stretch on the league's 4th-largest payroll. Now 30th in cost-per-win.</div>
+</div>
+</div>
+<div style="display:flex;background:#111416;border-top:1px solid rgba(168,177,173,.18);padding:10px 0 22px">
+<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px"><div style="width:20px;height:20px;border-radius:4px;border:2px solid #A6E22E"></div><div style="font:500 9px 'Rajdhani',sans-serif;letter-spacing:.1em;color:#A6E22E">DASH</div></div>
+<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px"><div style="width:20px;height:20px;border-radius:4px;border:2px solid #6E8078"></div><div style="font:500 9px 'Rajdhani',sans-serif;letter-spacing:.1em;color:#6E8078">LEADER</div></div>
+<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px"><div style="width:20px;height:20px;border-radius:4px;border:2px solid #6E8078"></div><div style="font:500 9px 'Rajdhani',sans-serif;letter-spacing:.1em;color:#6E8078">TEAMS</div></div>
+<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px"><div style="width:20px;height:20px;border-radius:4px;border:2px solid #6E8078"></div><div style="font:500 9px 'Rajdhani',sans-serif;letter-spacing:.1em;color:#6E8078">VS</div></div>
+</div>
+</div>
+
+<div style="width:390px;height:844px;background:#0B0D0E;border:1px solid rgba(168,177,173,.3);border-radius:34px;overflow:hidden;display:flex;flex-direction:column">
+<div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px 12px;background:linear-gradient(120deg,#191D1F,#0B0D0E);border-bottom:1px solid rgba(168,177,173,.18)">
+<div><div style="font:400 24px/1 'Bebas Neue','Arial Narrow',sans-serif;letter-spacing:.02em;color:#fff">YIELD<span style="color:#A6E22E">/</span>YARD</div><div style="font:500 9px/1.4 'Rajdhani',sans-serif;letter-spacing:.2em;color:#A8B1AD;margin-top:4px">CAP+ INDEX · LEADERBOARD</div></div>
+<div style="font:500 10px 'Rajdhani',sans-serif;color:#A6E22E;border:1px solid rgba(166,226,46,.35);border-radius:12px;padding:5px 10px">SORT ▾</div>
+</div>
+<div style="flex:1;overflow:hidden;display:flex;flex-direction:column">
+<div style="display:flex;gap:6px;padding:12px 16px 10px">
+<div style="font:500 9.5px 'Rajdhani',sans-serif;letter-spacing:.1em;color:#071C16;background:#A6E22E;border-radius:11px;padding:5px 10px">CAP+</div>
+<div style="font:500 9.5px 'Rajdhani',sans-serif;letter-spacing:.1em;color:#A8B1AD;border:1px solid rgba(168,177,173,.3);border-radius:11px;padding:5px 10px">$/WIN</div>
+<div style="font:500 9.5px 'Rajdhani',sans-serif;letter-spacing:.1em;color:#A8B1AD;border:1px solid rgba(168,177,173,.3);border-radius:11px;padding:5px 10px">DEAD CAP</div>
+<div style="font:500 9.5px 'Rajdhani',sans-serif;letter-spacing:.1em;color:#A8B1AD;border:1px solid rgba(168,177,173,.3);border-radius:11px;padding:5px 10px">Δ 5Y</div>
+</div>
+<div style="display:flex;padding:0 16px 6px;font:500 9px 'Rajdhani',sans-serif;letter-spacing:.14em;color:#6E8078"><div style="width:26px">#</div><div style="flex:1">TEAM</div><div style="width:74px;text-align:right">SPEND→WINS</div><div style="width:52px;text-align:right">CAP+</div></div>
+<sc-for list="{{ boardRows }}" as="r" hint-placeholder-count="12">
+<div style="display:flex;align-items:center;gap:8px;padding:9px 16px;border-top:1px solid rgba(168,177,173,.12);background:{{ r.bg }}">
+<div style="width:26px;font:600 13px 'Rajdhani',sans-serif;color:{{ r.rankColor }}">{{ r.rank }}</div>
+<div style="flex:1;min-width:0">
+<div style="font:700 14px/1.1 'Bebas Neue','Arial Narrow',sans-serif;letter-spacing:.03em;color:#EAF1EC">{{ r.name }}</div>
+<div style="font:400 9.5px/1.3 'Rajdhani',sans-serif;color:#6E8078;margin-top:2px">{{ r.sub }}</div>
+</div>
+<div style="width:74px;display:flex;flex-direction:column;gap:3px;align-items:flex-end">
+<div style="width:100%;height:5px;background:rgba(168,177,173,.16);border-radius:2px;overflow:hidden"><div style="height:100%;width:{{ r.spendW }};background:#39423E"></div></div>
+<div style="width:100%;height:5px;background:rgba(168,177,173,.16);border-radius:2px;overflow:hidden"><div style="height:100%;width:{{ r.winW }};background:{{ r.color }}"></div></div>
+</div>
+<div style="width:52px;text-align:right;font:600 18px 'Rajdhani',sans-serif;letter-spacing:-.03em;color:{{ r.color }}">{{ r.idx }}</div>
+</div>
+</sc-for>
+</div>
+<div style="display:flex;background:#111416;border-top:1px solid rgba(168,177,173,.18);padding:10px 0 22px">
+<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px"><div style="width:20px;height:20px;border-radius:4px;border:2px solid #6E8078"></div><div style="font:500 9px 'Rajdhani',sans-serif;letter-spacing:.1em;color:#6E8078">DASH</div></div>
+<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px"><div style="width:20px;height:20px;border-radius:4px;border:2px solid #A6E22E"></div><div style="font:500 9px 'Rajdhani',sans-serif;letter-spacing:.1em;color:#A6E22E">LEADER</div></div>
+<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px"><div style="width:20px;height:20px;border-radius:4px;border:2px solid #6E8078"></div><div style="font:500 9px 'Rajdhani',sans-serif;letter-spacing:.1em;color:#6E8078">TEAMS</div></div>
+<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px"><div style="width:20px;height:20px;border-radius:4px;border:2px solid #6E8078"></div><div style="font:500 9px 'Rajdhani',sans-serif;letter-spacing:.1em;color:#6E8078">VS</div></div>
+</div>
+</div>
+
+<div style="width:390px;height:844px;background:#0B0D0E;border:1px solid rgba(168,177,173,.3);border-radius:34px;overflow:hidden;display:flex;flex-direction:column">
+<div style="padding:14px 16px 12px;background:linear-gradient(120deg,#191D1F,#0B0D0E);border-bottom:1px solid rgba(168,177,173,.18);display:flex;align-items:center;gap:10px">
+<div style="font:500 15px 'Rajdhani',sans-serif;color:#6E8078">‹</div>
+<div style="flex:1"><div style="font:700 19px/1 'Bebas Neue','Arial Narrow',sans-serif;letter-spacing:.02em;color:#fff">BENGALS</div><div style="font:500 9px/1.4 'Rajdhani',sans-serif;letter-spacing:.18em;color:#6E8078;margin-top:3px">CIN · AFC NORTH · 2ND OVR</div></div>
+<div style="text-align:right"><div style="font:600 30px/1 'Rajdhani',sans-serif;letter-spacing:-.04em;color:#A6E22E">114</div><div style="font:500 8px 'Rajdhani',sans-serif;letter-spacing:.16em;color:#6E8078;margin-top:3px">CAP+</div></div>
+</div>
+<div style="flex:1;overflow:hidden;padding:14px 16px;display:flex;flex-direction:column;gap:13px">
+<div style="border:1px solid rgba(168,177,173,.22);border-radius:16px;background:linear-gradient(160deg,#181C1D,#0E1112);padding:12px 13px">
+<div style="display:flex;justify-content:space-between;align-items:baseline"><div style="font:700 12px/1 'Bebas Neue','Arial Narrow',sans-serif;letter-spacing:.14em;color:#EAF1EC">CAP LEAK</div><div style="font:500 9px 'Rajdhani',sans-serif;color:#A8B1AD">WHERE $233M GOES</div></div>
+<div style="display:flex;height:34px;border-radius:4px;overflow:hidden;margin-top:11px">
+<sc-for list="{{ leakSegs }}" as="s" hint-placeholder-count="4"><div style="width:{{ s.w }};background:{{ s.color }};display:flex;align-items:center;justify-content:center;font:600 9px 'Rajdhani',sans-serif;color:{{ s.fg }}">{{ s.label }}</div></sc-for>
+</div>
+<div style="display:flex;flex-wrap:wrap;gap:10px 16px;margin-top:11px">
+<sc-for list="{{ leakSegs }}" as="s" hint-placeholder-count="4"><div style="display:flex;align-items:center;gap:6px"><div style="width:7px;height:7px;border-radius:2px;background:{{ s.color }}"></div><div style="font:400 10px 'Rajdhani',sans-serif;color:#A8B1AD">{{ s.name }} {{ s.amt }}</div></div></sc-for>
+</div>
+</div>
+<div style="border:1px solid rgba(168,177,173,.22);border-radius:16px;background:linear-gradient(160deg,#181C1D,#0E1112);padding:12px 13px;flex:1;min-height:0">
+<div style="display:flex;justify-content:space-between;align-items:baseline"><div style="font:700 12px/1 'Bebas Neue','Arial Narrow',sans-serif;letter-spacing:.14em;color:#EAF1EC">CONTRACT CLIFFS</div><div style="font:500 9px 'Rajdhani',sans-serif;color:#A8B1AD">CAP HIT BY YEAR</div></div>
+<div style="display:flex;gap:4px;margin-top:12px;padding-left:96px"><sc-for list="{{ years }}" as="y" hint-placeholder-count="6"><div style="flex:1;text-align:center;font:500 9px 'Rajdhani',sans-serif;color:#6E8078">{{ y }}</div></sc-for></div>
+<sc-for list="{{ ledger }}" as="p" hint-placeholder-count="8">
+<div style="display:flex;align-items:center;gap:4px;margin-top:5px">
+<div style="width:92px;display:flex;justify-content:space-between;align-items:baseline"><div style="font:400 10.5px 'Rajdhani',sans-serif;color:#EAF1EC">{{ p.name }}</div><div style="font:400 8.5px 'Rajdhani',sans-serif;color:#6E8078">{{ p.pos }}</div></div>
+<sc-for list="{{ p.cells }}" as="c" hint-placeholder-count="6"><div style="flex:1;height:18px;border-radius:2px;background:{{ c.bg }};border:{{ c.border }};display:flex;align-items:center;justify-content:center;font:500 8px 'Rajdhani',sans-serif;color:{{ c.fg }}">{{ c.label }}</div></sc-for>
+</div>
+</sc-for>
+<div style="display:flex;gap:14px;margin-top:12px;padding-top:10px;border-top:1px solid rgba(168,177,173,.15)">
+<div style="display:flex;align-items:center;gap:6px"><div style="width:16px;height:8px;border-radius:2px;background:rgba(166,226,46,.75)"></div><div style="font:400 9px 'Rajdhani',sans-serif;color:#A8B1AD">HIGH HIT</div></div>
+<div style="display:flex;align-items:center;gap:6px"><div style="width:16px;height:8px;border-radius:2px;border:1px dashed rgba(232,160,141,.9)"></div><div style="font:400 9px 'Rajdhani',sans-serif;color:#A8B1AD">VOID / DEAD</div></div>
+</div>
+</div>
+</div>
+<div style="display:flex;background:#111416;border-top:1px solid rgba(168,177,173,.18);padding:10px 0 22px">
+<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px"><div style="width:20px;height:20px;border-radius:4px;border:2px solid #6E8078"></div><div style="font:500 9px 'Rajdhani',sans-serif;letter-spacing:.1em;color:#6E8078">DASH</div></div>
+<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px"><div style="width:20px;height:20px;border-radius:4px;border:2px solid #6E8078"></div><div style="font:500 9px 'Rajdhani',sans-serif;letter-spacing:.1em;color:#6E8078">LEADER</div></div>
+<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px"><div style="width:20px;height:20px;border-radius:4px;border:2px solid #A6E22E"></div><div style="font:500 9px 'Rajdhani',sans-serif;letter-spacing:.1em;color:#A6E22E">TEAMS</div></div>
+<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px"><div style="width:20px;height:20px;border-radius:4px;border:2px solid #6E8078"></div><div style="font:500 9px 'Rajdhani',sans-serif;letter-spacing:.1em;color:#6E8078">VS</div></div>
+</div>
+</div>
+
+<div style="width:390px;height:844px;background:#0B0D0E;border:1px solid rgba(168,177,173,.3);border-radius:34px;overflow:hidden;display:flex;flex-direction:column">
+<div style="padding:14px 16px 12px;background:linear-gradient(120deg,#191D1F,#0B0D0E);border-bottom:1px solid rgba(168,177,173,.18)">
+<div style="font:500 9px/1.4 'Rajdhani',sans-serif;letter-spacing:.18em;color:#6E8078">ERA MATCHUP</div>
+<div style="font:700 21px/1.1 'Bebas Neue','Arial Narrow',sans-serif;letter-spacing:.02em;color:#fff;margin-top:5px">DYNASTY CLASH</div>
+</div>
+<div style="flex:1;overflow:hidden;padding:14px 16px;display:flex;flex-direction:column;gap:12px">
+<div style="display:flex;gap:10px">
+<div style="flex:1;border:1px solid rgba(232,160,141,.4);border-radius:16px;background:rgba(217,80,60,.05);padding:12px"><div style="font:500 9px 'Rajdhani',sans-serif;letter-spacing:.14em;color:#E8A08D">NE &rsquo;07</div><div style="font:600 40px/.9 'Rajdhani',sans-serif;letter-spacing:-.05em;color:#E8A08D;margin-top:8px">118</div><div style="font:400 10px/1.4 'Rajdhani',sans-serif;color:#A8B1AD;margin-top:8px">$109.0M cap<br>16&ndash;0 · $6.8M/win</div></div>
+<div style="flex:1;border:1px solid rgba(166,226,46,.4);border-radius:16px;background:rgba(166,226,46,.05);padding:12px"><div style="font:500 9px 'Rajdhani',sans-serif;letter-spacing:.14em;color:#A6E22E">KC &rsquo;24</div><div style="font:600 40px/.9 'Rajdhani',sans-serif;letter-spacing:-.05em;color:#A6E22E;margin-top:8px">112</div><div style="font:400 10px/1.4 'Rajdhani',sans-serif;color:#A8B1AD;margin-top:8px">$255.4M cap<br>15&ndash;2 · $17.0M/win</div></div>
+</div>
+<div style="border:1px solid rgba(168,177,173,.22);border-radius:16px;background:linear-gradient(160deg,#181C1D,#0E1112);padding:12px 13px">
+<div style="font:700 12px/1 'Bebas Neue','Arial Narrow',sans-serif;letter-spacing:.14em;color:#EAF1EC">POSITIONAL SPEND, INFLATION-ADJUSTED</div>
+<div style="display:flex;justify-content:space-between;font:500 9px 'Rajdhani',sans-serif;color:#6E8078;margin-top:12px"><div>◄ NE &rsquo;07</div><div>KC &rsquo;24 ►</div></div>
+<sc-for list="{{ h2hRows }}" as="h" hint-placeholder-count="6">
+<div style="margin-top:9px">
+<div style="display:flex;align-items:center;gap:6px">
+<div style="width:38px;text-align:right;font:600 10px 'Rajdhani',sans-serif;color:#E8A08D">{{ h.a }}</div>
+<div style="flex:1;display:flex;justify-content:flex-end;height:11px"><div style="height:100%;width:{{ h.aw }};background:rgba(232,160,141,.75);border-radius:2px 0 0 2px"></div></div>
+<div style="width:1px;height:15px;background:rgba(234,241,236,.3)"></div>
+<div style="flex:1;height:11px"><div style="height:100%;width:{{ h.bw }};background:rgba(166,226,46,.7);border-radius:0 2px 2px 0"></div></div>
+<div style="width:38px;font:600 10px 'Rajdhani',sans-serif;color:#A6E22E">{{ h.b }}</div>
+</div>
+<div style="text-align:center;font:400 9px 'Rajdhani',sans-serif;color:#6E8078;margin-top:3px">{{ h.pos }}</div>
+</div>
+</sc-for>
+</div>
+<div style="border:1px solid rgba(168,177,173,.22);border-radius:16px;background:linear-gradient(160deg,#181C1D,#0E1112);padding:12px 13px">
+<div style="font:500 9px 'Rajdhani',sans-serif;letter-spacing:.16em;color:#A6E22E">THE TAKE</div>
+<div style="font:400 12px/1.6 Inter,sans-serif;color:rgba(234,241,236,.8);margin-top:7px">Adjusted for a cap that grew 2.3&times;, New England bought wins <b style="color:#E8A08D">6 pts</b> cheaper — almost entirely by paying a quarterback 11.2% of cap instead of 14.5%.</div>
+</div>
+<div style="border:1px solid rgba(166,226,46,.4);border-radius:16px;padding:13px;text-align:center;font:600 11px 'Rajdhani',sans-serif;letter-spacing:.14em;color:#A6E22E">VIEW FULL LEDGER</div>
+</div>
+<div style="display:flex;background:#111416;border-top:1px solid rgba(168,177,173,.18);padding:10px 0 22px">
+<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px"><div style="width:20px;height:20px;border-radius:4px;border:2px solid #6E8078"></div><div style="font:500 9px 'Rajdhani',sans-serif;letter-spacing:.1em;color:#6E8078">DASH</div></div>
+<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px"><div style="width:20px;height:20px;border-radius:4px;border:2px solid #6E8078"></div><div style="font:500 9px 'Rajdhani',sans-serif;letter-spacing:.1em;color:#6E8078">LEADER</div></div>
+<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px"><div style="width:20px;height:20px;border-radius:4px;border:2px solid #6E8078"></div><div style="font:500 9px 'Rajdhani',sans-serif;letter-spacing:.1em;color:#6E8078">TEAMS</div></div>
+<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px"><div style="width:20px;height:20px;border-radius:4px;border:2px solid #A6E22E"></div><div style="font:500 9px 'Rajdhani',sans-serif;letter-spacing:.1em;color:#A6E22E">VS</div></div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div class="dv-opt" id="1b">
+<div class="dv-olabel"><a class="dv-oid" href="#1b">1b</a>Desktop terminal — 1440 wide, wide editorial</div>
+<div class="dv-card" style="width:1440px;background:#F5F6F2;border:1px solid rgba(7,28,22,.15)">
+<div style="display:flex;align-items:center;justify-content:space-between;padding:20px 48px;background:linear-gradient(120deg,#191D1F,#0B0D0E);border-bottom:1px solid rgba(7,28,22,.2)">
+<div style="display:flex;align-items:baseline;gap:28px">
+<div><div style="font:400 32px/1 'Bebas Neue','Arial Narrow',sans-serif;letter-spacing:.02em;color:#fff">YIELD<span style="color:#A6E22E">/</span>YARD</div><div style="font:500 9px/1.4 'Rajdhani',sans-serif;letter-spacing:.2em;color:#A8B1AD;margin-top:4px">CAP+ INDEX · NFL ECONOMICS</div></div>
+<div style="display:flex;gap:22px;font:500 11px 'Rajdhani',sans-serif;letter-spacing:.12em">
+<div style="color:#A6E22E;padding-bottom:3px;border-bottom:2px solid #A6E22E">LEAGUE</div>
+<div style="color:#A8B1AD">TEAMS</div><div style="color:#A8B1AD">PLAYERS</div><div style="color:#A8B1AD">COMPARE</div><div style="color:#A8B1AD">LEDGER</div>
+</div>
+</div>
+<div style="display:flex;align-items:center;gap:14px">
+<div style="font:400 10px 'Rajdhani',sans-serif;color:#6E8078;border:1px solid rgba(168,177,173,.28);border-radius:14px;padding:7px 14px">2025 · WEEK 6 ▾</div>
+<div style="width:34px;height:34px;border-radius:50%;background:#2A2F31"></div>
+</div>
+</div>
+
+<div style="padding:44px 48px 52px;background:#F5F6F2">
+<div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:8px">
+<div>
+<div style="font:400 76px/.92 'Bebas Neue','Arial Narrow',sans-serif;letter-spacing:.02em;color:#071C16">WHO BUYS WINS CHEAPEST</div>
+<div style="font:400 14px/1.6 Inter,sans-serif;color:#46534F;margin-top:12px;max-width:680px">CAP+ measures wins produced per dollar of cap spent, indexed so 100 is league average. Everything below is one season of active cap, dead money included.</div>
+</div>
+<div style="display:flex;gap:12px">
+<div style="font:500 10px 'Rajdhani',sans-serif;letter-spacing:.12em;color:#071C16;background:#A6E22E;border-radius:8px;padding:9px 16px">ALL 32</div>
+<div style="font:500 10px 'Rajdhani',sans-serif;letter-spacing:.12em;color:#46534F;border:1px solid rgba(7,28,22,.16);border-radius:8px;padding:9px 16px">AFC</div>
+<div style="font:500 10px 'Rajdhani',sans-serif;letter-spacing:.12em;color:#46534F;border:1px solid rgba(7,28,22,.16);border-radius:8px;padding:9px 16px">NFC</div>
+</div>
+</div>
+
+<div style="display:flex;gap:16px;margin-top:26px">
+<sc-for list="{{ kpis }}" as="k" hint-placeholder-count="4">
+<div style="flex:1;border:1px solid rgba(7,28,22,.15);border-radius:22px;background:#fff;padding:22px 24px">
+<div style="font:500 9.5px/1 'Rajdhani',sans-serif;letter-spacing:.16em;color:#71807A">{{ k.label }}</div>
+<div style="display:flex;align-items:baseline;gap:10px;margin-top:14px"><div style="font:600 34px/1 'Rajdhani',sans-serif;letter-spacing:-.04em;color:{{ k.ink }}">{{ k.value }}</div><div style="font:400 11px 'Rajdhani',sans-serif;color:#71807A">{{ k.unit }}</div></div>
+<div style="font:400 11.5px/1.5 Inter,sans-serif;color:#46534F;margin-top:10px">{{ k.note }}</div>
+</div>
+</sc-for>
+</div>
+
+<div style="display:flex;gap:16px;margin-top:16px;align-items:stretch">
+<div style="flex:1.9;border:1px solid rgba(255,255,255,.12);border-radius:22px;background:linear-gradient(160deg,#16191B,#0A0C0D);padding:26px 28px 20px;display:flex;flex-direction:column">
+<div style="display:flex;justify-content:space-between;align-items:baseline">
+<div><div style="font:700 20px/1 'Bebas Neue','Arial Narrow',sans-serif;letter-spacing:.1em;color:#EAF1EC">THE EFFICIENCY FRONTIER</div><div style="font:400 12px/1.5 Inter,sans-serif;color:rgba(234,241,236,.45);margin-top:6px">Cap spent vs. wins. The dashed line is league-average cost-per-win — above it you are buying wins at a discount.</div></div>
+<div style="display:flex;gap:14px;font:400 9.5px 'Rajdhani',sans-serif;color:#A8B1AD">
+<div style="display:flex;align-items:center;gap:5px"><div style="width:8px;height:8px;border-radius:50%;background:#A6E22E"></div>CAP+ 105&#43;</div>
+<div style="display:flex;align-items:center;gap:5px"><div style="width:8px;height:8px;border-radius:50%;background:#8FA39A"></div>95&ndash;104</div>
+<div style="display:flex;align-items:center;gap:5px"><div style="width:8px;height:8px;border-radius:50%;background:#D9503C"></div>&lt; 95</div>
+</div>
+</div>
+<div style="display:flex;gap:12px;margin-top:20px;flex:1;min-height:440px">
+<div style="display:flex;flex-direction:column;justify-content:space-between;align-items:flex-end;font:400 9.5px 'Rajdhani',sans-serif;color:#6E8078;padding-bottom:52px">
+<div>16 W</div><div>12 W</div><div>8 W</div><div>4 W</div>
+</div>
+<div style="flex:1;display:flex;flex-direction:column">
+<div style="position:relative;flex:1;border-left:1px solid rgba(168,177,173,.3);border-bottom:1px solid rgba(168,177,173,.3)">
+<sc-for list="{{ gridLines }}" as="g" hint-placeholder-count="4"><div style="position:absolute;left:0;right:0;top:{{ g }};height:1px;background:rgba(168,177,173,.1)"></div></sc-for>
+<div style="position:absolute;left:0;right:0;top:0;bottom:0;overflow:hidden">
+<div style="position:absolute;left:-4%;right:-4%;top:50%;height:1px;background:rgba(212,175,55,.5);border-top:1px dashed rgba(212,175,55,.65);transform:rotate(-18deg)"></div>
+</div>
+<sc-for list="{{ scatter }}" as="p" hint-placeholder-count="32">
+<div style="position:absolute;left:{{ p.x }};top:{{ p.y }};transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:4px">
+<div style="width:{{ p.size }};height:{{ p.size }};border-radius:50%;background:{{ p.fill }};border:1px solid {{ p.stroke }};box-shadow:{{ p.glow }}"></div>
+<div style="font:600 9.5px 'Rajdhani',sans-serif;color:{{ p.labelColor }};opacity:{{ p.labelOp }};white-space:nowrap">{{ p.ab }}</div>
+</div>
+</sc-for>
+<div style="position:absolute;right:12px;top:14px;font:400 9.5px/1.5 'Rajdhani',sans-serif;color:#A8B1AD;text-align:right">CHEAP WINS ▲<br>expensive wins ▼</div>
+</div>
+<div style="display:flex;justify-content:space-between;margin-top:8px;font:400 9.5px 'Rajdhani',sans-serif;color:#6E8078"><div>$218M</div><div>$228M</div><div>$238M</div><div>$248M</div><div>$258M</div></div>
+<div style="text-align:center;font:500 9px 'Rajdhani',sans-serif;letter-spacing:.16em;color:#6E8078;margin-top:8px">ACTIVE CAP SPEND</div>
+</div>
+</div>
+</div>
+
+<div style="flex:1;display:flex;flex-direction:column;gap:16px">
+<div style="border:1px solid rgba(7,28,22,.15);border-radius:22px;background:#fff;padding:24px 26px">
+<div style="font:700 17px/1 'Bebas Neue','Arial Narrow',sans-serif;letter-spacing:.06em;color:#071C16">MOVERS · WEEK 6</div>
+<sc-for list="{{ movers }}" as="m" hint-placeholder-count="6">
+<div style="display:flex;align-items:center;gap:12px;padding:11px 0;border-top:1px solid rgba(7,28,22,.1)">
+<div style="width:38px;font:700 13px 'Bebas Neue','Arial Narrow',sans-serif;letter-spacing:.06em;color:#071C16">{{ m.ab }}</div>
+<div style="flex:1;height:20px;position:relative">
+<div style="position:absolute;left:50%;top:0;bottom:0;width:1px;background:rgba(212,175,55,.7)"></div>
+<div style="position:absolute;top:6px;height:8px;border-radius:2px;left:{{ m.left }};width:{{ m.w }};background:{{ m.color }}"></div>
+</div>
+<div style="width:40px;text-align:right;font:600 13px 'Rajdhani',sans-serif;color:{{ m.ink }}">{{ m.delta }}</div>
+</div>
+</sc-for>
+</div>
+<div style="flex:1;border:1px solid rgba(7,28,22,.15);border-radius:22px;background:#fff;padding:24px 26px">
+<div style="font:700 17px/1 'Bebas Neue','Arial Narrow',sans-serif;letter-spacing:.06em;color:#071C16">SPEND MIX vs LEAGUE</div>
+<div style="font:400 11.5px/1.5 Inter,sans-serif;color:#46534F;margin-top:6px">Cincinnati, share of cap by position group.</div>
+<sc-for list="{{ diverge }}" as="d" hint-placeholder-count="7">
+<div style="display:flex;align-items:center;gap:10px;margin-top:13px">
+<div style="width:34px;font:500 10px 'Rajdhani',sans-serif;color:#71807A">{{ d.pos }}</div>
+<div style="flex:1;height:16px;position:relative;background:rgba(7,28,22,.06);border-radius:2px">
+<div style="position:absolute;left:50%;top:-3px;bottom:-3px;width:1px;background:rgba(234,241,236,.28)"></div>
+<div style="position:absolute;top:3px;height:10px;border-radius:2px;left:{{ d.left }};width:{{ d.w }};background:{{ d.color }}"></div>
+</div>
+<div style="width:44px;text-align:right;font:600 10.5px 'Rajdhani',sans-serif;color:{{ d.ink }}">{{ d.label }}</div>
+</div>
+</sc-for>
+<div style="font:400 11px/1.5 Inter,sans-serif;color:#46534F;margin-top:16px;padding-top:12px;border-top:1px solid rgba(7,28,22,.12)">Overweight at receiver by 3.6 pts of cap; underweight on the defensive line by 2.3.</div>
+</div>
+</div>
+</div>
+
+<div style="display:flex;gap:16px;margin-top:16px">
+<div style="flex:1;border:1px solid rgba(255,255,255,.12);border-radius:22px;background:linear-gradient(160deg,#16191B,#0A0C0D);padding:26px 28px">
+<div style="display:flex;justify-content:space-between;align-items:baseline"><div style="font:700 20px/1 'Bebas Neue','Arial Narrow',sans-serif;letter-spacing:.1em;color:#EAF1EC">25 SEASONS OF AFC NORTH</div><div style="font:400 10px 'Rajdhani',sans-serif;color:#6E8078">CAP+ · 2000&ndash;2025</div></div>
+<div style="position:relative;margin-top:18px;padding-left:26px">
+<div style="position:absolute;left:0;top:0;bottom:0;width:26px;font:400 9px 'Rajdhani',sans-serif;color:#6E8078"><div style="position:absolute;left:0;top:6px">124</div><div style="position:absolute;left:0;top:{{ baseY }}px;transform:translateY(-50%)">100</div><div style="position:absolute;left:0;bottom:2px">76</div></div>
+<svg viewBox="0 0 600 180" preserveAspectRatio="none" style="width:100%;height:180px;display:block">
+<line x1="0" y1="{{ baseY }}" x2="600" y2="{{ baseY }}" stroke="rgba(212,175,55,.6)" stroke-dasharray="3 4"></line>
+<sc-for list="{{ streams }}" as="s" hint-placeholder-count="4">
+<path d="{{ s.d }}" fill="none" stroke="{{ s.color }}" stroke-width="{{ s.width }}" stroke-linejoin="round" opacity="{{ s.op }}"></path>
+</sc-for>
+</svg>
+</div>
+<div style="display:flex;justify-content:space-between;margin-top:6px;padding-left:26px;font:400 9.5px 'Rajdhani',sans-serif;color:#6E8078"><div>&rsquo;00</div><div>&rsquo;06</div><div>&rsquo;12</div><div>&rsquo;18</div><div>&rsquo;25</div></div>
+<div style="display:flex;gap:18px;margin-top:14px">
+<sc-for list="{{ streams }}" as="s" hint-placeholder-count="4"><div style="display:flex;align-items:center;gap:6px"><div style="width:14px;height:3px;background:{{ s.color }}"></div><div style="font:500 10px 'Rajdhani',sans-serif;color:#A8B1AD">{{ s.ab }}</div></div></sc-for>
+</div>
+</div>
+<div style="flex:1;border:1px solid rgba(255,255,255,.12);border-radius:22px;background:linear-gradient(160deg,#16191B,#0A0C0D);padding:26px 28px">
+<div style="display:flex;justify-content:space-between;align-items:baseline"><div style="font:700 20px/1 'Bebas Neue','Arial Narrow',sans-serif;letter-spacing:.1em;color:#EAF1EC">PLAYER VALUE QUADRANT</div><div style="font:400 10px 'Rajdhani',sans-serif;color:#6E8078">CAP HIT vs PRODUCTION</div></div>
+<div style="position:relative;height:230px;margin-top:18px;border:1px solid rgba(168,177,173,.18);border-radius:4px;background:linear-gradient(90deg,rgba(166,226,46,.05),rgba(217,80,60,.05))">
+<div style="position:absolute;left:50%;top:0;bottom:0;width:1px;background:rgba(168,177,173,.2)"></div>
+<div style="position:absolute;top:50%;left:0;right:0;height:1px;background:rgba(168,177,173,.2)"></div>
+<div style="position:absolute;left:10px;top:9px;font:500 8.5px 'Rajdhani',sans-serif;letter-spacing:.12em;color:rgba(166,226,46,.6)">BARGAIN</div>
+<div style="position:absolute;right:10px;bottom:9px;font:500 8.5px 'Rajdhani',sans-serif;letter-spacing:.12em;color:rgba(217,80,60,.7)">ALBATROSS</div>
+<sc-for list="{{ quadrant }}" as="q" hint-placeholder-count="12">
+<div style="position:absolute;left:{{ q.x }};top:{{ q.y }};transform:translate(-50%,-50%);display:flex;align-items:center;gap:5px">
+<div style="width:9px;height:9px;border-radius:50%;background:{{ q.color }}"></div>
+<div style="font:500 9px 'Rajdhani',sans-serif;color:{{ q.labelColor }};white-space:nowrap">{{ q.name }}</div>
+</div>
+</sc-for>
+</div>
+<div style="display:flex;justify-content:space-between;margin-top:8px;font:400 9.5px 'Rajdhani',sans-serif;color:#6E8078"><div>◄ LOW CAP HIT</div><div>HIGH CAP HIT ►</div></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="dv-opt" id="1c">
+<div class="dv-olabel"><a class="dv-oid" href="#1c">1c</a>New data views — four concepts, standalone</div>
+<div style="display:flex;flex-direction:column;gap:20px;width:1180px">
+
+<div class="dv-card" style="padding:26px 28px">
+<div style="display:flex;justify-content:space-between;align-items:baseline"><div><div style="font:400 40px/.95 'Bebas Neue','Arial Narrow',sans-serif;letter-spacing:.02em;color:#fff">THE CAP WATERFALL</div><div style="font:400 12.5px/1.6 Inter,sans-serif;color:#B8C3BE;margin-top:10px">$279.2M cap → what is actually available to spend. The single clearest answer to "why can't they sign anyone?"</div></div><div style="font:500 10px 'Rajdhani',sans-serif;letter-spacing:.14em;color:#A6E22E">CIN · 2026</div></div>
+<div style="display:flex;align-items:flex-end;gap:2px;height:250px;margin-top:26px">
+<sc-for list="{{ waterfall }}" as="w" hint-placeholder-count="7">
+<div style="flex:1;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:8px">
+<div style="font:600 13px 'Rajdhani',sans-serif;color:{{ w.color }}">{{ w.amt }}</div>
+<div style="width:100%;position:relative;height:{{ w.track }}">
+<div style="position:absolute;left:-50%;width:100%;bottom:{{ w.connector }};height:1px;background:rgba(168,177,173,.35)"></div>
+<div style="position:absolute;left:6px;right:6px;bottom:{{ w.base }};height:{{ w.h }};background:{{ w.fill }};border:1px solid {{ w.color }};border-radius:2px"></div>
+</div>
+<div style="font:500 9px/1.4 'Rajdhani',sans-serif;letter-spacing:.1em;color:#A8B1AD;text-align:center;height:26px">{{ w.label }}</div>
+</div>
+</sc-for>
+</div>
+</div>
+
+<div style="display:flex;gap:20px">
+<div class="dv-card" style="flex:1;padding:26px 28px">
+<div style="font:400 40px/.95 'Bebas Neue','Arial Narrow',sans-serif;letter-spacing:.02em;color:#fff">LEAGUE HEATMAP</div>
+<div style="font:400 12.5px/1.6 Inter,sans-serif;color:#B8C3BE;margin-top:10px">Every team's cap share by position group, ranked against the league. Vertical scanning finds market-wide inflation; horizontal finds a roster's philosophy.</div>
+<div style="display:flex;gap:3px;margin-top:22px;padding-left:44px">
+<sc-for list="{{ heatCols }}" as="c" hint-placeholder-count="7"><div style="flex:1;text-align:center;font:500 9px 'Rajdhani',sans-serif;color:#6E8078">{{ c }}</div></sc-for>
+</div>
+<sc-for list="{{ heatRows }}" as="r" hint-placeholder-count="12">
+<div style="display:flex;align-items:center;gap:3px;margin-top:3px">
+<div style="width:41px;font:600 10px 'Rajdhani',sans-serif;color:#A8B1AD">{{ r.ab }}</div>
+<sc-for list="{{ r.cells }}" as="c" hint-placeholder-count="7"><div style="flex:1;height:22px;border-radius:2px;background:{{ c.bg }};display:flex;align-items:center;justify-content:center;font:500 8.5px 'Rajdhani',sans-serif;color:{{ c.fg }}">{{ c.v }}</div></sc-for>
+</div>
+</sc-for>
+<div style="display:flex;align-items:center;gap:10px;margin-top:16px"><div style="font:400 9px 'Rajdhani',sans-serif;color:#6E8078">UNDERSPEND</div><div style="flex:1;height:7px;border-radius:3px;background:linear-gradient(90deg,#D9503C,#191D1E,#A6E22E)"></div><div style="font:400 9px 'Rajdhani',sans-serif;color:#6E8078">OVERSPEND</div></div>
+</div>
+
+<div class="dv-card" style="width:430px;padding:26px 28px">
+<div style="font:400 40px/.95 'Bebas Neue','Arial Narrow',sans-serif;letter-spacing:.02em;color:#fff">COST-PER-WIN CLOCK</div>
+<div style="font:400 12.5px/1.6 Inter,sans-serif;color:#B8C3BE;margin-top:10px">One team's season as a radial: each spoke is a week, length is cumulative cost-per-win. Shorter is better — a tightening spiral means the roster is paying off.</div>
+<div style="display:flex;justify-content:center;margin-top:20px">
+<svg viewBox="0 0 320 320" style="width:320px;height:320px">
+<circle cx="160" cy="160" r="130" fill="none" stroke="rgba(168,177,173,.18)"></circle>
+<circle cx="160" cy="160" r="95" fill="none" stroke="rgba(168,177,173,.14)" stroke-dasharray="2 5"></circle>
+<circle cx="160" cy="160" r="60" fill="none" stroke="rgba(168,177,173,.14)" stroke-dasharray="2 5"></circle>
+<sc-for list="{{ clockSpokes }}" as="s" hint-placeholder-count="18">
+<line x1="160" y1="160" x2="{{ s.x }}" y2="{{ s.y }}" stroke="{{ s.color }}" stroke-width="7" stroke-linecap="round" opacity="{{ s.op }}"></line>
+</sc-for>
+<path d="{{ clockPath }}" fill="none" stroke="#EAF1EC" stroke-width="1.5" opacity=".55"></path>
+<circle cx="160" cy="160" r="34" fill="#0B0D0E" stroke="rgba(166,226,46,.4)"></circle>
+<text x="160" y="156" text-anchor="middle" fill="#A6E22E" style="font:600 21px 'Rajdhani',sans-serif">114</text>
+<text x="160" y="172" text-anchor="middle" fill="#6E8078" style="font:500 8px 'Rajdhani',sans-serif;letter-spacing:2px">CAP+</text>
+</svg>
+</div>
+<div style="display:flex;justify-content:space-between;font:400 9.5px 'Rajdhani',sans-serif;color:#6E8078;margin-top:6px"><div>W1 top · clockwise</div><div>$19.4M current</div></div>
+</div>
+</div>
+
+<div class="dv-card" style="padding:26px 28px">
+<div style="display:flex;justify-content:space-between;align-items:baseline"><div><div style="font:400 40px/.95 'Bebas Neue','Arial Narrow',sans-serif;letter-spacing:.02em;color:#fff">THE OBLIGATION HORIZON</div><div style="font:400 12.5px/1.6 Inter,sans-serif;color:#B8C3BE;margin-top:10px">Committed cap five years out, stacked by position group, against the projected cap ceiling. The gap is your roster's future freedom.</div></div><div style="display:flex;gap:16px">
+<sc-for list="{{ horizonLegend }}" as="l" hint-placeholder-count="5"><div style="display:flex;align-items:center;gap:6px"><div style="width:9px;height:9px;border-radius:2px;background:{{ l.color }}"></div><div style="font:400 10px 'Rajdhani',sans-serif;color:#A8B1AD">{{ l.name }}</div></div></sc-for>
+</div></div>
+<div style="display:flex;align-items:flex-end;gap:28px;height:260px;margin-top:26px;position:relative">
+<div style="position:absolute;left:0;right:0;top:14%;height:1px;background:rgba(212,175,55,.5);border-top:1px dashed rgba(212,175,55,.65)"></div>
+<div style="position:absolute;right:0;top:4%;font:500 9.5px 'Rajdhani',sans-serif;color:#D4AF37">PROJECTED CAP CEILING</div>
+<sc-for list="{{ horizon }}" as="h" hint-placeholder-count="5">
+<div style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:10px;height:100%">
+<div style="width:100%;display:flex;flex-direction:column;justify-content:flex-end;height:100%;gap:2px">
+<div style="font:600 12px 'Rajdhani',sans-serif;color:#EAF1EC;text-align:center;margin-bottom:6px">{{ h.total }}</div>
+<sc-for list="{{ h.segs }}" as="s" hint-placeholder-count="5"><div style="width:100%;height:{{ s.h }};background:{{ s.color }};border-radius:2px"></div></sc-for>
+</div>
+<div style="font:500 10px 'Rajdhani',sans-serif;letter-spacing:.12em;color:#A8B1AD">{{ h.year }}</div>
+</div>
+</sc-for>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<p class="dv-next">Try next: "build <a class="dv-oid" href="#1c">1c</a>'s waterfall into the desktop dashboard" · "make the mobile Dash interactive with real tab switching" · "new directions for the leaderboard"</p>
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;sortBy&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;index&quot;,&quot;cpw&quot;,&quot;spend&quot;],&quot;default&quot;:&quot;index&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Leaderboard&quot;},&quot;focusTeam&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;CIN&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Leaderboard&quot;}}">
+const CYAN='#A6E22E', ORANGE='#D9503C', SLATE='#8FA39A', TEXT='#EAF1EC';
+const RAW=`PHI|Eagles|241|14|115,CIN|Bengals|233|12|114,BUF|Bills|238|13|111,JAX|Jaguars|228|11|109,BAL|Ravens|244|13|108,KC|Chiefs|255|14|107,DET|Lions|236|12|106,GB|Packers|231|11|105,PIT|Steelers|240|11|105,HOU|Texans|226|10|104,TB|Buccaneers|234|10|103,LAR|Rams|243|11|102,SF|49ers|249|12|102,MIN|Vikings|237|10|101,SEA|Seahawks|232|9|100,LAC|Chargers|229|9|100,WAS|Commanders|235|9|99,ARI|Cardinals|224|8|98,NO|Saints|246|9|97,CHI|Bears|227|7|96,NYJ|Jets|239|7|95,ATL|Falcons|233|8|95,IND|Colts|230|8|94,CLE|Browns|242|6|92,DEN|Broncos|231|8|93,MIA|Dolphins|244|8|92,TEN|Titans|226|5|91,NE|Patriots|228|6|90,LV|Raiders|235|6|89,NYG|Giants|237|5|88,CAR|Panthers|233|5|87,DAL|Cowboys|253|6|85`;
+const INK={'#A6E22E':'#4F7413','#D9503C':'#B33A26','#8FA39A':'#5A6B63','#D4AF37':'#8A6D14','#EAF1EC':'#071C16'};
+const ink=c=>INK[c]||c;
+const idxColor=i=>i>=105?CYAN:(i>=95?SLATE:ORANGE);
+const lerp=(v,a,b,c,d)=>c+(Math.max(a,Math.min(b,v))-a)/(b-a)*(d-c);
+function seeded(n){let s=n;return()=>{s=(s*1664525+1013904223)%4294967296;return s/4294967296;};}
+function path(vals,w,h,pad,mn,mx){const r=(mx-mn)||1;return vals.map((v,i)=>`${i?'L':'M'}${(i/(vals.length-1)*w).toFixed(1)},${(h-pad-(v-mn)/r*(h-2*pad)).toFixed(1)}`).join(' ');}
+
+class Component extends DCLogic {
+  teams(){return RAW.split(',').map(r=>{const [ab,name,cap,wins,idx]=r.split('|');return{ab,name,cap:+cap,wins:+wins,idx:+idx};});}
+
+  renderVals(){
+    const sortBy=this.props.sortBy??'index';
+    const focus=this.props.focusTeam??'CIN';
+    const teams=this.teams();
+
+    const divisionRows=['BAL','CIN','PIT','CLE'].map(ab=>{const t=teams.find(x=>x.ab===ab);
+      return{ab,idx:t.idx,color:idxColor(t.idx),w:lerp(t.idx,80,125,4,100).toFixed(1)+'%'};});
+
+    const sorted=[...teams].sort((a,b)=>sortBy==='cpw'?(a.cap/a.wins)-(b.cap/b.wins):sortBy==='spend'?b.cap-a.cap:b.idx-a.idx);
+    const boardRows=sorted.slice(0,12).map((t,i)=>({rank:i+1,name:t.name.toUpperCase(),idx:t.idx,
+      sub:`${t.ab} · $${(t.cap/t.wins).toFixed(1)}M/WIN · ${t.wins}W`,
+      color:idxColor(t.idx),rankColor:i<3?CYAN:'#8FA39A',
+      bg:t.ab===focus?'rgba(166,226,46,.06)':'transparent',
+      spendW:lerp(t.cap,218,258,20,100).toFixed(0)+'%',
+      winW:lerp(t.wins,3,16,12,100).toFixed(0)+'%'}));
+
+    const leakRaw=[['ACTIVE','$181.4M',181.4,'#6FA22B','#071C16'],['DEAD','$18.2M',18.2,'#D9503C','#2A0B06'],['IR/PUP','$14.9M',14.9,'#39423E',TEXT],['SPACE','$18.5M',18.5,'#191D1E','#A8B1AD']];
+    const leakTotal=leakRaw.reduce((s,r)=>s+r[2],0);
+    const leakSegs=leakRaw.map(([name,amt,v,color,fg])=>({name,amt,color,fg,w:(v/leakTotal*100).toFixed(1)+'%',label:(v/leakTotal*100).toFixed(0)+'%'}));
+
+    const years=['\u201926','\u201927','\u201928','\u201929','\u201930','\u201931'];
+    const ledgerRaw=[['Burrow','QB',[29.5,46.2,55.1,58.4,61.0,0]],['Chase','WR',[21.8,34.6,38.2,41.0,0,0]],['Higgins','WR',[15.4,26.1,28.8,0,0,0]],['Hendrick.','DE',[32.2,18.6,0,0,0,0]],['Brown','OT',[19.1,21.4,23.0,24.2,0,0]],['Karras','C',[7.4,8.1,0,0,0,0]],['Hill','S',[6.9,7.6,8.0,0,0,0]],['Turner','DT',[4.1,5.2,6.4,7.9,9.1,0]]];
+    const ledger=ledgerRaw.map(([name,pos,hits])=>({name,pos,cells:hits.map((v,i)=>{
+      if(!v){const prior=hits[i-1];return{bg:'transparent',border:prior?'1px dashed rgba(232,160,141,.75)':'1px solid rgba(168,177,173,.12)',fg:'#A8B1AD',label:prior?'▼':''};}
+      return{bg:`rgba(166,226,46,${(0.08+v/61*0.62).toFixed(2)})`,border:'1px solid rgba(166,226,46,.25)',fg:v>32?'#071C16':TEXT,label:v.toFixed(0)};})}));
+
+    const h2hRaw=[['Quarterback',11.2,14.5],['Wide Rec.',15.4,9.8],['Off. Line',18.1,22.3],['Def. Line',14.9,19.1],['Secondary',12.5,11.2],['Linebacker',7.8,6.4]];
+    const h2hRows=h2hRaw.map(([pos,a,b])=>({pos,a:a.toFixed(1)+'%',b:b.toFixed(1)+'%',aw:(a/24*100).toFixed(0)+'%',bw:(b/24*100).toFixed(0)+'%'}));
+
+    const kpis=[
+      {label:'LEAGUE AVG COST / WIN',value:'$25.8M',unit:'per win',color:'#071C16',ink:'#071C16',note:'Up 9.4% year over year — the cap grew faster than wins.'},
+      {label:'MOST EFFICIENT',value:'115',unit:'PHI',color:'#4F7413',ink:'#4F7413',note:'$17.2M per win on a top-five payroll. The frontier team.'},
+      {label:'LEAGUE DEAD CAP',value:'$1.42B',unit:'total',color:'#B33A26',ink:'#B33A26',note:'11.4% of all cap spent on players no longer on rosters.'},
+      {label:'SPREAD, 1ST TO 32ND',value:'30',unit:'pts',color:'#071C16',ink:'#071C16',note:'Widest since 2019. Cap discipline is separating the league.'}];
+
+    const scatter=teams.map(t=>{
+      const cheap=t.idx>=105;
+      return{ab:t.ab,
+        x:lerp(t.cap,218,258,5,95).toFixed(1)+'%',
+        y:(100-lerp(t.wins,3,16,6,92)).toFixed(1)+'%',
+        size:(t.idx>=105||t.idx<92?14:10)+'px',
+        fill:idxColor(t.idx),stroke:cheap?'rgba(166,226,46,.5)':'rgba(3,20,39,.6)',
+        glow:cheap?'0 0 12px rgba(166,226,46,.55)':'none',
+        labelColor:cheap?CYAN:(t.idx<95?ORANGE:'#8FA39A'),
+        labelOp:(t.idx>=104||t.idx<=93)?'1':'.45'};});
+
+    const gridLines=['12.5%','37.5%','62.5%','87.5%'];
+
+    const moversRaw=[['CLE',-6],['NYJ',-4],['JAX',5],['HOU',3],['DAL',-3],['GB',4]];
+    const movers=moversRaw.map(([ab,d])=>({ab,delta:(d>0?'+':'')+d,color:d>0?CYAN:ORANGE,ink:d>0?'#4F7413':'#B33A26',
+      left:d>0?'50%':(50-Math.abs(d)*6)+'%',w:(Math.abs(d)*6)+'%'}));
+
+    const divRaw=[['QB',14.5,12.1],['WR',15.4,11.8],['OL',18.1,19.4],['DL',14.9,17.2],['LB',6.2,7.5],['DB',12.5,13.9],['ST',3.1,3.4]];
+    const diverge=divRaw.map(([pos,a,b])=>{const d=a-b;return{pos,label:(d>0?'+':'')+d.toFixed(1),color:d>0?CYAN:ORANGE,ink:d>0?'#4F7413':'#B33A26',
+      left:d>0?'50%':(50-Math.abs(d)*7).toFixed(1)+'%',w:(Math.abs(d)*7).toFixed(1)+'%'};});
+
+    const streamDefs=[['CIN',CYAN,3,'1',7],['BAL','#8FA39A',1.6,'.85',3],['PIT','#D4AF37',1.6,'.8',11],['CLE',ORANGE,1.6,'.8',23]];
+    const streams=streamDefs.map(([ab,color,width,op,seed])=>{const r=seeded(seed*997);let v=100;
+      const vals=Array.from({length:26},()=>{v=v+(r()-0.5)*13;v=Math.max(76,Math.min(124,v));return v;});
+      if(ab==='CIN'){vals[25]=114;}if(ab==='CLE'){vals[25]=92;}
+      return{ab,color,width,op,d:path(vals,600,180,14,76,124)};});
+    const baseY=(180-14-(100-76)/48*(180-28)).toFixed(1);
+
+    const quadRaw=[['Burrow',88,86],['Chase',62,92],['Higgins',48,71],['Hendrickson',74,80],['Brown',58,52],['Karras',26,58],['Hill',22,66],['Turner',14,74],['Smith',34,30],['Volson',18,26],['Sample',30,18],['Taylor-B.',44,38]];
+    const quadrant=quadRaw.map(([name,hit,prod])=>{const good=prod-hit>10;const bad=hit-prod>10;
+      return{name,x:lerp(hit,10,92,8,92).toFixed(1)+'%',y:(100-lerp(prod,14,94,10,90)).toFixed(1)+'%',
+        color:good?CYAN:(bad?ORANGE:SLATE),labelColor:good?'rgba(166,226,46,.9)':(bad?'rgba(217,80,60,.9)':'rgba(234,241,236,.55)')};});
+
+    const wfRaw=[['CAP CEILING',279.2,'total','#39423E'],['CARRYOVER',12.4,'step',CYAN],['SIGNED (51)',-181.4,'step','#39423E'],['DEAD MONEY',-18.2,'step',ORANGE],['IR / PUP',-14.9,'step','#39423E'],['DRAFT POOL',-9.8,'step','#39423E'],['USABLE SPACE',67.3,'total',CYAN]];
+    const wfMax=300;
+    let run=0;
+    const waterfall=wfRaw.map(([label,v,kind,color])=>{
+      let start,end;
+      if(kind==='total'){start=0;end=v;run=v;}else{start=run;end=run+v;run=end;}
+      const lo=Math.min(start,end),hi=Math.max(start,end),mag=Math.abs(v);
+      return{label,amt:(v<0?'\u2212$':'$')+mag.toFixed(1)+'M',color,
+        fill:color===ORANGE?'rgba(217,80,60,.18)':(color===CYAN?'rgba(166,226,46,.18)':'rgba(57,66,62,.35)'),
+        track:'100%',base:Math.max(0,lo/wfMax*100).toFixed(1)+'%',h:Math.max(0.8,(hi-lo)/wfMax*100).toFixed(1)+'%',
+        connector:Math.max(0,hi/wfMax*100).toFixed(1)+'%'};});
+
+    const heatCols=['QB','WR','RB','OL','DL','LB','DB'];
+    const heatRows=sorted.slice(0,12).map((t,ri)=>{const r=seeded((ri+3)*4133);
+      return{ab:t.ab,cells:heatCols.map(()=>{const z=(r()-0.5)*2;
+        const bg=z>0?`rgba(166,226,46,${(0.08+z*0.55).toFixed(2)})`:`rgba(217,80,60,${(0.08+Math.abs(z)*0.5).toFixed(2)})`;
+        return{v:(z>0?'+':'')+(z*6).toFixed(1),bg,fg:Math.abs(z)>0.6?(z>0?'#071C16':'#2A0B06'):'rgba(234,241,236,.75)'};})};});
+
+    const clockVals=Array.from({length:18},(_,i)=>{const r=seeded(i*613)();return 34+r*22-i*0.4;});
+    const clockSpokes=clockVals.map((v,i)=>{const a=(i/18)*Math.PI*2-Math.PI/2;const rad=lerp(v,20,58,52,130);
+      return{x:(160+Math.cos(a)*rad).toFixed(1),y:(160+Math.sin(a)*rad).toFixed(1),
+        color:v<40?CYAN:(v>50?ORANGE:SLATE),op:(0.35+i/18*0.6).toFixed(2)};});
+    const clockPath=clockVals.map((v,i)=>{const a=(i/18)*Math.PI*2-Math.PI/2;const rad=lerp(v,20,58,52,130);
+      return`${i?'L':'M'}${(160+Math.cos(a)*rad).toFixed(1)},${(160+Math.sin(a)*rad).toFixed(1)}`;}).join(' ')+' Z';
+
+    const hzGroups=[['QB','#A6E22E'],['WR','#6FA22B'],['OL','#A8B1AD'],['DL','#4A6B58'],['DB','#2F4A3D']];
+    const horizonLegend=hzGroups.map(([name,color])=>({name,color}));
+    const hzData=[['2026',[29.5,37.2,44.6,38.1,26.4]],['2027',[46.2,48.9,46.0,29.3,24.8]],['2028',[55.1,52.4,41.2,18.4,19.6]],['2029',[58.4,41.0,32.8,12.1,14.2]],['2030',[61.0,18.6,21.4,7.9,9.4]]];
+    const hzMax=210;
+    const horizon=hzData.map(([year,vals])=>({year,total:'$'+vals.reduce((a,b)=>a+b,0).toFixed(0)+'M',
+      segs:vals.map((v,i)=>({h:(v/hzMax*100).toFixed(1)+'%',color:hzGroups[i][1]}))}));
+
+    return{baseY,divisionRows,boardRows,leakSegs,years,ledger,h2hRows,kpis,scatter,gridLines,movers,diverge,
+      streams,quadrant,waterfall,heatCols,heatRows,clockSpokes,clockPath,horizon,horizonLegend};
+  }
+}
+</script>
+</body>
+</html>

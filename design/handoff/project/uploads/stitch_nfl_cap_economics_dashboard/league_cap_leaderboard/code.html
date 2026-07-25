@@ -1,0 +1,149 @@
+<html class="dark" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><link href="https://fonts.googleapis.com/css2?family=Archivo+Narrow:wght@400;500;700&amp;family=Inter:wght@400;500;700&amp;family=Jetbrains+Mono:wght@400;500;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = {darkMode: "class", theme: {extend: {colors: {error: "#ffb4ab", "secondary-fixed": "#7df4ff", "surface-container-low": "#0b1c30", "on-secondary-container": "#00686f", "on-secondary-fixed-variant": "#004f54", "primary-fixed": "#e2e2e5", "on-tertiary-fixed-variant": "#802a00", "tertiary-fixed-dim": "#ffb59a", secondary: "#d3fbff", "primary-container": "#0f1113", "on-secondary": "#00363a", "on-background": "#d3e4fe", tertiary: "#ffb59a", "surface-container-high": "#1b2b3f", "tertiary-container": "#250700", "error-container": "#93000a", "on-tertiary": "#5a1b00", "on-secondary-fixed": "#002022", "surface-container-highest": "#26364a", outline: "#8f9194", background: "#031427", "on-tertiary-fixed": "#370e00", "surface-tint": "#c6c6c9", "inverse-surface": "#d3e4fe", "surface-container": "#102034", "on-error": "#690005", "tertiary-fixed": "#ffdbce", "on-tertiary-container": "#da4e00", "on-error-container": "#ffdad6", "primary-fixed-dim": "#c6c6c9", "on-primary": "#2f3133", surface: "#031427", "on-primary-container": "#7b7d7f", "surface-container-lowest": "#000f21", primary: "#c6c6c9", "on-primary-fixed-variant": "#454749", "on-surface": "#d3e4fe", "on-primary-fixed": "#1a1c1e", "surface-variant": "#26364a", "secondary-container": "#00eefc", "secondary-fixed-dim": "#00dbe9", "inverse-on-surface": "#213145", "on-surface-variant": "#c5c6ca", "surface-bright": "#2a3a4f", "inverse-primary": "#5d5e61", "surface-dim": "#031427", "outline-variant": "#45474a"}, borderRadius: {DEFAULT: "0.5rem", lg: "1rem", xl: "1.5rem", full: "9999px"}, spacing: {"margin-desktop": "48px", unit: "4px", gutter: "16px", "max-width": "1440px", "margin-mobile": "16px"}, fontFamily: {"body-md": ["Inter"], "display-lg": ["Archivo Narrow"], "headline-lg": ["Archivo Narrow"], "label-mono": ["JetBrains Mono"], "data-lg": ["JetBrains Mono"], "headline-lg-mobile": ["Archivo Narrow"], headline: ["Archivo Narrow"], display: ["Archivo Narrow"], body: ["Inter"], label: ["Jetbrains Mono"]}, fontSize: {"body-md": ["16px", {lineHeight: "1.6", fontWeight: "400"}], "display-lg": ["48px", {lineHeight: "1.1", letterSpacing: "-0.02em", fontWeight: "700"}], "headline-lg": ["32px", {lineHeight: "1.2", letterSpacing: "0.02em", fontWeight: "700"}], "label-mono": ["12px", {lineHeight: "1.4", fontWeight: "500"}], "data-lg": ["24px", {lineHeight: "1", letterSpacing: "-0.04em", fontWeight: "600"}], "headline-lg-mobile": ["24px", {lineHeight: "1.2", fontWeight: "700"}]}}}};</script><style>@layer base { body { background-color: #031427; color: #d3e4fe; -webkit-font-smoothing: antialiased; } .pb-safe { padding-bottom: env(safe-area-inset-bottom); } .pt-safe { padding-top: env(safe-area-inset-top); } } .glass { background: rgba(16, 32, 52, 0.8); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }</style><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="min-h-screen flex flex-col font-body-md text-body-md"><header class="fixed top-0 w-full z-50 pt-safe glass shadow-[0_1px_8px_rgba(0,0,0,0.2)]"><div class="h-14 px-margin-mobile flex items-center justify-between"><div class="flex flex-col"><span class="font-headline-lg-mobile text-headline-lg-mobile tracking-tighter uppercase text-secondary leading-none">CAP+ INDEX</span><span class="font-label-mono text-[10px] uppercase tracking-widest text-outline">NFL Economics Terminal</span></div><div class="flex items-center gap-4"><button class="w-8 h-8 flex items-center justify-center text-on-surface"><span class="material-symbols-outlined text-[20px]">analytics</span></button><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="flex-1 pt-14 pb-24 bg-surface"><div class="flex flex-col w-full bg-background min-h-full">
+<div class="px-margin-mobile py-6">
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface uppercase tracking-tighter mb-2">League Efficiency Ranking</h1>
+<p class="font-label-mono text-label-mono text-outline uppercase tracking-widest">Cap+ Index / All Teams / Current Season</p>
+</div>
+<div class="px-margin-mobile flex items-center justify-between py-3 border-b border-surface-variant">
+<div class="flex items-center gap-4">
+<span class="font-label-mono text-[10px] text-outline uppercase w-6 text-center">Rnk</span>
+<span class="font-label-mono text-[10px] text-outline uppercase">Team</span>
+</div>
+<div class="flex items-center gap-6">
+<span class="font-label-mono text-[10px] text-outline uppercase text-right w-16">Trend (5Y)</span>
+<span class="font-label-mono text-[10px] text-outline uppercase text-right w-12">Cap+</span>
+</div>
+</div>
+<div class="flex flex-col pb-6">
+<!-- Rank 1 -->
+<div class="px-margin-mobile flex items-center justify-between py-4 border-b border-surface-variant/50 relative overflow-hidden group">
+<div class="absolute inset-0 bg-secondary/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+<div class="flex items-center gap-4 relative z-10">
+<span class="font-data-lg text-data-lg text-secondary w-6 text-center">1</span>
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center border border-surface-variant overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Minimalist abstract geometric logo resembling a fierce eagle head in midnight green and white, set against a dark background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCikShbGkJLvGXXNAb2-9jWgKEKHpkz7z448tW9Y1RbcH14WfVZuRqEkZLQMyrZmVgebC5Cn1nqo9UJ4p8zVuv1-mYqNhpQvgbH9BHnRT5LgNLJg1BNNNVRomDE4cRS6IgN_uY9EIYme34rC_1lnytyAzw6XQNO3yiFJs_hFWDkNXBjEPt_46tD3N07VUdvn30i-Y09WVHVRg1Yu1N-7ERKLw8sgu0G6KfPoIfkqT7uCDmunQiNL80NaHqwKtQ6EiYpX7ODISv1SYAg"/>
+</div>
+<div class="flex flex-col">
+<span class="font-headline-lg-mobile text-[16px] text-on-surface uppercase tracking-tight leading-none mb-1">Eagles</span>
+<span class="font-label-mono text-[10px] text-outline uppercase">PHI</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-6 relative z-10">
+<div class="w-16 h-6 flex items-center">
+<svg class="w-full h-full overflow-visible" preserveaspectratio="none" viewbox="0 0 100 20">
+<path d="M0,15 L25,10 L50,12 L75,5 L100,2" fill="none" stroke="#00eefc" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></path>
+</svg>
+</div>
+<span class="font-data-lg text-data-lg text-on-surface w-12 text-right">115</span>
+</div>
+</div>
+<!-- Rank 2 -->
+<div class="px-margin-mobile flex items-center justify-between py-4 border-b border-surface-variant/50 relative overflow-hidden group">
+<div class="absolute inset-0 bg-secondary/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+<div class="flex items-center gap-4 relative z-10">
+<span class="font-data-lg text-data-lg text-on-surface w-6 text-center">2</span>
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center border border-surface-variant overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Minimalist abstract geometric logo resembling a stylized tiger head in bright orange and black, set against a dark background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB9f_EQoAjmTkGQrHVWeQtxatfwLBnpS9Ckv0_1gBGjIXRZGLSgUC1R9-SQrInOt1uvNSloY3ei49DacUQojbcWVkRpNW_UXpl4ovzn0nrcme6eKCM7jHHbS2xnG39P4ZrO4lVwD8Qwv7JP11sfqhJfqONKJ83uiikdmkkgdti1LxHBJahJKV9B0aOrEx5_D5rWysIXmBkIC6qDUmOQfRr0C1j4B9jVA7mdaXpVhIIwyCcuk-bzErp_Nlu18gArGNKVxJXZX2-duq6Q"/>
+</div>
+<div class="flex flex-col">
+<span class="font-headline-lg-mobile text-[16px] text-on-surface uppercase tracking-tight leading-none mb-1">Bengals</span>
+<span class="font-label-mono text-[10px] text-outline uppercase">CIN</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-6 relative z-10">
+<div class="w-16 h-6 flex items-center">
+<svg class="w-full h-full overflow-visible" preserveaspectratio="none" viewbox="0 0 100 20">
+<path d="M0,18 L25,15 L50,8 L75,10 L100,4" fill="none" stroke="#00eefc" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></path>
+</svg>
+</div>
+<span class="font-data-lg text-data-lg text-on-surface w-12 text-right">114</span>
+</div>
+</div>
+<!-- Rank 3 -->
+<div class="px-margin-mobile flex items-center justify-between py-4 border-b border-surface-variant/50 relative overflow-hidden group">
+<div class="absolute inset-0 bg-secondary/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+<div class="flex items-center gap-4 relative z-10">
+<span class="font-data-lg text-data-lg text-on-surface w-6 text-center">3</span>
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center border border-surface-variant overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Minimalist abstract geometric logo resembling a charging bull or buffalo in red, white and blue, set against a dark background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAep4fIHTGPPng2GvQvVmYEEAq_qMBO0TtM0ESkSoi-za4_fLAXfLkAiUlWcfX4fUgDAwheZUFMG1av2sOzjVHoENTVo39Qz5iB9Jd9tvcdIosBK5lcuI7Rq134AHaI-NTDKfMyFXVbVlM7cSo2WmyxKGdZD_EthJOEXKr8-Ac_6N3SEsKsnyT4fvdsgT9xAUg14JVEDkKORn_zJGynOr_4xNgUMyg7znFdhRweWWFrJeEOCZ0noaR-D4vg3TBvgrFilTF9jIeZXio1"/>
+</div>
+<div class="flex flex-col">
+<span class="font-headline-lg-mobile text-[16px] text-on-surface uppercase tracking-tight leading-none mb-1">Bills</span>
+<span class="font-label-mono text-[10px] text-outline uppercase">BUF</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-6 relative z-10">
+<div class="w-16 h-6 flex items-center">
+<svg class="w-full h-full overflow-visible" preserveaspectratio="none" viewbox="0 0 100 20">
+<path d="M0,12 L25,14 L50,8 L75,6 L100,5" fill="none" stroke="#00eefc" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></path>
+</svg>
+</div>
+<span class="font-data-lg text-data-lg text-on-surface w-12 text-right">111</span>
+</div>
+</div>
+<!-- Rank 4 -->
+<div class="px-margin-mobile flex items-center justify-between py-4 border-b border-surface-variant/50 relative overflow-hidden group">
+<div class="absolute inset-0 bg-secondary/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+<div class="flex items-center gap-4 relative z-10">
+<span class="font-data-lg text-data-lg text-on-surface w-6 text-center">4</span>
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center border border-surface-variant overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Minimalist abstract geometric logo resembling a stylized jaguar head in teal and gold, set against a dark background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCFqZ2knUvVnnr6wi4rMg5OhX4mX19XxxsJtadDGuzVIJulLk19F0U6N8fP9D2-0ZQigsEq6xxeAzT1rtm2YxVcifKvp9812kdqOVE7XLnt5N5fsQLuVPfhPpcKEqQOb5Bu9o-Ty0lWe8kjohjIfBTYAc9KKyZHSgfGQuFI__KLb8hIOIpIKJFjstgsWXiPRX1FHcFfyMlVioDgPKHyXyAG5JVJKTNwuKPXo4dh03amtnR35ihSfcLRQ1mykGR5TDgB5W78IL2fr2gd"/>
+</div>
+<div class="flex flex-col">
+<span class="font-headline-lg-mobile text-[16px] text-on-surface uppercase tracking-tight leading-none mb-1">Jaguars</span>
+<span class="font-label-mono text-[10px] text-outline uppercase">JAX</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-6 relative z-10">
+<div class="w-16 h-6 flex items-center">
+<svg class="w-full h-full overflow-visible" preserveaspectratio="none" viewbox="0 0 100 20">
+<path d="M0,16 L25,12 L50,15 L75,8 L100,6" fill="none" stroke="#00eefc" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></path>
+</svg>
+</div>
+<span class="font-data-lg text-data-lg text-on-surface w-12 text-right">109</span>
+</div>
+</div>
+<!-- Rank 5 -->
+<div class="px-margin-mobile flex items-center justify-between py-4 border-b border-surface-variant/50 relative overflow-hidden group bg-error-container/10">
+<div class="absolute inset-0 bg-error/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+<div class="flex items-center gap-4 relative z-10">
+<span class="font-data-lg text-data-lg text-error w-6 text-center">32</span>
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center border border-error/30 overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Minimalist abstract geometric logo resembling a star in navy and silver, set against a dark background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAM0V2jJqauoo-cJUaUrzPkGH7uc7hCNKxxiwhyzq4pBiqF1A2-jaz7KRRpGEcKWp6vWelEKClX2JfRz1ECrlSQ-wjhVL4dmcJFyTofflAxnG6WalgJNuo697lCqpFsm-QJRLCErgy6LtRNT0v912dV-ZLSafchEPOId2TPTAljaeZYKy-ny7rHx8R1XzSDXtwZZSe_jiHtss18I-otPXFqPuOvBJuwOpsXQrhyqwSxOxWrZS-SC3ELNEdO9-7zHUPwE8_gzPhLsuHW"/>
+</div>
+<div class="flex flex-col">
+<span class="font-headline-lg-mobile text-[16px] text-on-surface uppercase tracking-tight leading-none mb-1">Cowboys</span>
+<span class="font-label-mono text-[10px] text-error uppercase">DAL • LOW EFFICIENCY</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-6 relative z-10">
+<div class="w-16 h-6 flex items-center">
+<svg class="w-full h-full overflow-visible" preserveaspectratio="none" viewbox="0 0 100 20">
+<path d="M0,5 L25,8 L50,12 L75,15 L100,18" fill="none" stroke="#ffb4ab" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></path>
+</svg>
+</div>
+<span class="font-data-lg text-data-lg text-error w-12 text-right">88</span>
+</div>
+</div>
+</div>
+</div></main><nav class="fixed bottom-0 w-full z-50 pb-safe glass" data-active-classes="text-secondary-container bg-surface-container-highest/30"><div class="flex justify-between items-center h-16 px-4"><a class="flex flex-col items-center justify-center w-1/4 h-12 gap-1 text-on-surface-variant transition-colors" data-path="dashboard" href="#"><span class="material-symbols-outlined">dashboard</span><span class="font-label-mono text-[10px] uppercase">Dash</span></a><a aria-current="page" class="flex flex-col items-center justify-center w-1/4 h-12 gap-1 transition-colors text-secondary-container bg-surface-container-highest/30" data-path="leaderboard" href="#"><span class="material-symbols-outlined">leaderboard</span><span class="font-label-mono text-[10px] uppercase">Leader</span></a><a class="flex flex-col items-center justify-center w-1/4 h-12 gap-1 text-on-surface-variant transition-colors" data-path="team-analysis" href="#"><span class="material-symbols-outlined">query_stats</span><span class="font-label-mono text-[10px] uppercase">Teams</span></a><a class="flex flex-col items-center justify-center w-1/4 h-12 gap-1 text-on-surface-variant transition-colors" data-path="comparison" href="#"><span class="material-symbols-outlined">compare_arrows</span><span class="font-label-mono text-[10px] uppercase">VS</span></a></div></nav></body></html>
