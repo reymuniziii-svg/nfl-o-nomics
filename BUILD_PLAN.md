@@ -21,7 +21,10 @@ predecessor's exit criteria are met. The dates are the commitment.
 
 ## Approval gates
 
-Three gates sit across this plan. Two are Rey's; one is legal's.
+Four gates sit across this plan — the four the product brief defines, and only those four: the
+**Cap+ formula**, **anything that costs money**, the **IP/asset posture**, and the **production
+launch**. Gates 1, 2 and 4 are Rey's; gate 3 is Rey's and legal's together. Nothing else on this
+plan is an approval gate.
 
 > ### GATE #1 — Cap+ formula
 > **Blocks: any Cap+ value rendering anywhere.** Rey approves the formula in
@@ -38,7 +41,23 @@ Three gates sit across this plan. Two are Rey's; one is legal's.
 > `*.vercel.app` URL is acceptable but a public push is not. Font can land any time before
 > Phase 5; Rajdhani substitutes until it does and the swap is one token value.
 
-> ### LEGAL — dead-money REVIEW tier
+> ### GATE #3 — IP/asset posture
+> **The brief's third gate — any change to the IP or asset posture.** It carries three open
+> instances: the two image decisions, and the dead-money REVIEW-tier sign-off folded in below.
+>
+> **Instances 1 and 2 — the image decisions (Rey; decision 2 needs legal input).**
+> **Blocks: the PlayerMark treatment implementation and the resolution-floor branch.** Rey
+> settles **OPEN DECISION 1 — image resolution floor** (no floor → 97.2% coverage / 2.8%
+> fallback; 300px floor → 93.6% / 6.4%; 600px floor → 77.3% / 22.7%) and **OPEN DECISION 2 —
+> ShareAlike derivative works** (48.0% of usable photos, 117 of 244, are CC BY-SA; option (a)
+> CSS-filter-only keeps 97.2%, (b) CC BY/PD/CC0 only collapses to 50.6%, (c) accept CC BY-SA
+> keeps 97.2%). Both are stated in `SPEC.md` §5.2 and `DATA_AUDIT.md` §5.
+> **Needed by: start of Phase 3 (Aug 22)**, when the treatment step is implemented
+> (`ARCHITECTURE.md` §5). Neither blocks Phases 1–2: `IMAGE_MIN_WIDTH_PX` is a config constant
+> and the treatment is written as a configuration branch, so either answer is a one-line change
+> (`DECISIONS.md` 49).
+>
+> **Instance 3 — dead-money REVIEW tier (legal).**
 > **Blocks: Phase 3 shipping dead-money views for recent seasons.** Without sign-off on the
 > REVIEW tier, full-32 dead-money coverage survives for **2014 and 2015 only**; 2017, 2024 and
 > 2025 drop to **zero** teams, 2018 to 3, 2019 to 14, 2022 to 3, 2023 to 2. Seven of the nine
@@ -47,6 +66,12 @@ Three gates sit across this plan. Two are Rey's; one is legal's.
 > project; see `RISKS.md` risk 1 for the fallback rendering plan.
 > **Start the legal conversation this week.** It is the only item on this plan whose lead time
 > is outside our control.
+
+> ### GATE #4 — production launch
+> **Blocks: the Phase 5 public push (Monday Sep 7).** Rey gives the go. It does **not** block
+> the Phase 4 soft launch, which ships to the feedback circle only — real domain under gate #2,
+> no public posting, no social, no press.
+> **Needed by: Sep 7.** The deliberate Sep 8–9 slack sits between the push and the opener.
 
 ---
 
@@ -90,8 +115,8 @@ the schema is enough to start against).
 
 1. **Scaffold** Next.js App Router + TypeScript on Vercel; local, preview and prod
    environments per `ARCHITECTURE.md` §8.
-2. **URL schema implemented in full on day one** (`SPEC.md` §6) — all seven route shapes, the
-   861 + 251 + 8 static params, the legacy-code 301s, and the era-correct identity resolution
+2. **URL schema implemented in full on day one** (`SPEC.md` §6) — all eight route shapes, the
+   861 + 251 + 32 + 8 static params, the legacy-code 301s, and the era-correct identity resolution
    for moved franchises. **These URLs are permanent; getting them right now is cheaper than a
    redirect table later.**
 3. **Data layer** — Drizzle queries behind a typed `Metric<T>` API (`SPEC.md` §1.2). Every
@@ -180,7 +205,7 @@ new baseline.
    confuse; does the hero card survive being screenshotted into a group chat.
 4. Fix copy first, code second. Most soft-launch feedback on a product like this is a labelling
    problem, not a bug.
-5. Load and Web Vitals check on the real domain. 1,123 static pages should be trivial; confirm
+5. Load and Web Vitals check on the real domain. ~1,155 static pages should be trivial; confirm
    rather than assume.
 
 **Exit criteria.** No reader in the feedback circle misinterprets a coverage boundary or the

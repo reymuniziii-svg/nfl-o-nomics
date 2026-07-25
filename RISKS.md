@@ -273,7 +273,7 @@ the price is unreasonable, Rajdhani ships and nothing is lost but a little chara
 
 ### 12. Single-maintainer bus factor
 
-One person holds the entire model of this system — the four team-code conventions, the twelve
+One person holds the entire model of this system — the four team-code conventions, the thirteen
 traps, the tier boundaries, the reasons behind each curated row.
 
 **Mitigation: these documents are the mitigation.** `DATA_AUDIT.md` is the gate and the
@@ -289,7 +289,7 @@ Phase 1.**
 
 ## Traps register
 
-**Every engineer touching this data reads `DATA_AUDIT.md` §6 before writing a query.** Twelve
+**Every engineer touching this data reads `DATA_AUDIT.md` §6 before writing a query.** Thirteen
 numbered traps, each of which fails silently and plausibly, in dollars that look real. The
 highest-severity one — the `cols` replication trap — inflates every team total 3–7× without
 raising a single error. That register is required reading and is not summarised here, because a
@@ -306,6 +306,9 @@ Recorded rather than silently resolved.
    rejection is not in the traps register at all. The substance is correct and lives in
    `audit/findings_deadmoney_sourcing.md` Appendix D — only the cross-reference is wrong.
    (The neighbouring "§6, trap 11" citation for `cap_used_total` *is* correct.)
+   **RESOLVED 2026-07-25 — trap 13.** The derivation rejection is now its own entry in the
+   `DATA_AUDIT.md` §6 register (trap 13); §1 and §3.1 both cite it. Trap 12 is unchanged and
+   still the Mahomes trap, so `ARCHITECTURE.md`'s "§6, trap 12" citation stays correct.
 2. **Two different failure counts are easy to conflate.** The **8-of-8** figure is eight
    high-profile separations returning zero rows via five inference routes; the **7-case**
    figure is the scoring set for the rejected derivation prototype (3 of 7 inside ±15%). They
@@ -317,10 +320,19 @@ Recorded rather than silently resolved.
    existence); the memo's compression reads as though no SAFE rows exist elsewhere. Use the
    `DATA_AUDIT.md` table when reasoning about the fallback, and note that 2022/2023 retain
    SAFE-tier season-final rows that the memo's phrasing would hide.
+   **RESOLVED 2026-07-25 — memo.** `CAPPLUS_MEMO.md` §5 now reads "only 2014 and 2015 reach
+   full-32 coverage from SAFE-tier rows alone" and names the eight other seasons carrying
+   SAFE rows. The recommendation, the conditions and every figure are unchanged.
 4. **`CAPPLUS_MEMO.md` §3.3 flags its own source conflict** and it is carried here: the
    backtest's §7.1 says seven marquee sniff cases are unscoreable, while its own table marks
    2013 OAK unscoreable too — the correct count is **eight**.
+   **RESOLVED 2026-07-25 — backtest.** `audit/findings_capplus_backtest.md` §7.1 and §7.2 now
+   say eight and list 2013 OAK, each with a parenthetical recording the correction. The memo's
+   own flag is left standing above as the historical record of who caught it.
 5. **`audit/findings_deadmoney_sourcing.md` §6 contains superseded text** ("team-level figures
    before 2020 are not published by any clean-terms source", and the 2013–19 degrade plan),
    explicitly overridden by the REVISION note in that file. It must never be quoted; the live
    coverage statement is `DATA_AUDIT.md` §5.
+   **RESOLVED 2026-07-25 — banner.** §6 now opens with a SUPERSEDED banner naming the
+   2013–2019 press sweep and the curation pass, and directing readers to the Appendices and
+   `data/curated/*`. The superseded text is preserved beneath it, not deleted.

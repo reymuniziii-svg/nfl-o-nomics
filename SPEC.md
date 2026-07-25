@@ -35,7 +35,7 @@ cash spending (annual, per player and per team); cost-per-win and related econom
 contract rows are a biased sample of notable deals (43 players/team in 2012, under 15% of a
 team's cap by 2004), usable only for top-of-market questions, never for team totals.
 
-Special cases (dead money, snap counts, player images) are specified in §2.3, §2.9 and §6.2
+Special cases (dead money, snap counts, player images) are specified in §2.1, §2.9 and §5.2
 of this document; their coverage statements come from `DATA_AUDIT.md` §5 unchanged.
 
 ### 1.2 The never-silently-partial UI rule
@@ -73,7 +73,7 @@ Definitions are written so an implementer can code from them without asking a qu
 ### 2.1 The three money lenses
 
 The product never says "spending" without saying which lens. All three are rendered as a
-labelled trio on the team page (§5.2) and all three are Tier 2 (2013–2025).
+labelled trio on the team page (§3.2) and all three are Tier 2 (2013–2025).
 
 **Lens 1 — Cap hit.** Source: OTC `cap_number`, summed per team-season into
 `team_season_cap.cap_used_total`. **Season-final snapshot semantics: every figure in this
@@ -94,7 +94,7 @@ on the lens: **cash paid to players released during the year is not included** �
 to players on the roster.
 
 **Lens 3 — Dead money.** Source: `data/curated/dead_money_team_season.csv` — curated, dated
-press snapshots with a `source_url` on every row. Not derived, not derivable (see §2.3).
+press snapshots with a `source_url` on every row. Not derived, not derivable (see §7.3).
 
 Definition rendered on the methodology page and in the dead-money card's info panel, **quoted
 verbatim with credit to Dan Graziano, ESPN**:
@@ -209,7 +209,7 @@ places. No sniff-table verdict changes under any weighting. The three inputs cor
 
 EPA is opponent- and era-unadjusted; league-mean offensive EPA/play drifts from −0.0561 (1999)
 to +0.0314 (2020). Within-season z-scoring is what makes cross-era comparison legitimate, and
-that is the sentence the head-to-head view prints (§5.4).
+that is the sentence the head-to-head view prints (§3.4).
 
 ### 2.5 Cost per win / point / EPA-point
 
@@ -397,7 +397,7 @@ blended into a single invented score:
 | `w_av` | 91.2% | weighted approximate value — the primary return measure |
 | `seasons_started` | 100% | |
 | `probowls`, `allpro` | 100% | secondary, count-based |
-| snaps | **2013+ only** | via the `players.parquet` bridge, §7.3 |
+| snaps | **2013+ only** | via the `players.parquet` bridge, §7.9 |
 
 **`car_av` is 100% null — a dead column that looks live.** It is excluded from the schema
 entirely so no one can read it by accident. A structural test asserts it is absent from the
@@ -444,7 +444,7 @@ season with complete data (2025 at launch).
 
 ### 3.2 Team — `/team/{abbr}/{season}`
 
-1. **Header.** TeamMark (§6.1) + era-correct franchise name for that season + record + index
+1. **Header.** TeamMark (§5.1) + era-correct franchise name for that season + record + index
    badge (Cap+ where covered, Team Rating where not, each under its own name and styling).
 2. **25-season history.** The franchise's full 1999–2025 arc. **Hard visual break at 2013.**
    **Both lines plotted on the 2014–2025 overlap** — Team Rating and Cap+ — per
@@ -466,7 +466,7 @@ season with complete data (2025 at launch).
 ### 3.3 Player — `/player/{id}`
 
 1. **Search** — name search over the v1 player population (§8.4), typeahead, no filters.
-2. **Identity chip** — PlayerMark (§6.2) + name + position + team + attribution credit line
+2. **Identity chip** — PlayerMark (§5.2) + name + position + team + attribution credit line
    rendered visibly, not behind a hover (91.4% of assets legally require it).
 3. **Contract card** — terms from the top-level contract columns: value, APY, guaranteed,
    APY as % of cap, years, year signed. Available back to 1994 for players who have a
@@ -482,6 +482,8 @@ season with complete data (2025 at launch).
 7. **NO VALUE GRADE. EVER.** The player view never renders a composite player rating, a letter
    grade, a "worth it / not worth it" verdict, a star count, or any invented per-player score.
    This is a product commitment, published in `METHODOLOGY.md`, and it is enforced in review.
+8. **CSV export**, per §8.1 — the contract card, the cap-vs-cash series and the availability
+   table are tabular surfaces and carry it like every other.
 
 ### 3.4 Head-to-head — `/compare?a={abbr}-{season}&b={abbr}-{season}`
 
@@ -601,7 +603,7 @@ non-skill-position players. **Plan the fallback card for trench players, not for
 stars.**
 
 **Per-asset licence metadata schema** — implemented as specified in
-`audit/findings_image_audit.md` §6, stored per asset in the `player_images` mart (§8.10).
+`audit/findings_image_audit.md` §6, stored per asset in the `player_images` mart (§7.10).
 Two fields that audit only implied and that must exist: **`share_alike`** (derived from
 `license_machine`) and **`last_verified_at`** (Commons files get renamed, relicensed and
 deleted; a cached asset without a re-verification timestamp silently rots).
@@ -1006,6 +1008,6 @@ that set and says so. Expanding the population is a v2 task that requires re-run
 pipeline and re-auditing collisions.
 
 **8.5 Traps.** Every engineer touching this data reads **`DATA_AUDIT.md` §6, the known traps
-register** — 12 numbered traps, each of which fails silently and plausibly. The `cols`
+register** — 13 numbered traps, each of which fails silently and plausibly. The `cols`
 replication trap alone inflates team totals 3–7× in dollars that look real. `RISKS.md` carries
 the pointer.

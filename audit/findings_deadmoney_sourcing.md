@@ -104,6 +104,10 @@ Structural conclusion: dead money is a derived quantity only OTC and Spotrac com
 
 ## 6. Recommendation
 
+> **SUPERSEDED (2026-07-25): coverage and recommendations below predate the 2013–2019
+> press-sweep upgrade and the curation pass; current state lives in Appendices and
+> data/curated/*. Do not quote §6 figures.**
+
 Ship: (A) marquee ledger — strongest asset, RMS provenance, ship top-20 + top-5 team-seasons with is_actual flags; (B) per-team-season 2022–25 with as-of date rendered next to the figure, and no connecting line in time-series charts — these are four differently-timed snapshots, not a series; (C) definitions page using the Graziano quote verbatim.
 
 Degrade: 2020–21 → 5-row "biggest hits" leaderboard, never a 32-team view with 27 blanks. 2013–19 → no per-team view at all; show era anchors (Dareus, Suh, Romo, Brown) plus an honest note that pre-2020 charges were an order of magnitude smaller and untracked. League-wide → only the $9.73B aggregate with its 7-year framing intact.

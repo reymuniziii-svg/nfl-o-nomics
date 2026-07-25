@@ -22,7 +22,7 @@ contains zero rows — an empty-file trap that a naive existence probe reports a
 contracts at 43 players/team or fewer, not a roster, and cannot carry a team-level
 denominator); and **dead money is not derivable from nflverse in any form** — it is absent,
 unflagged and uninferable, and an in-house derivation prototype was built, scored against
-seven known cases and rejected (§6, trap 12). That gap is closed instead by two curated,
+seven known cases and rejected (§6, trap 13). That gap is closed instead by two curated,
 press-sourced datasets with per-row citations and dated-snapshot semantics. The one check
 that fails on its original route — Wilson's $85M Denver dead money against nflverse —
 passes exactly against the curated ledger, and the audit reports both results rather than
@@ -102,7 +102,7 @@ including eight further high-profile separations (Ryan, Wentz, Lance, Garoppolo,
 Cousins, Osweiler, Rodgers) — **8 of 8 fail**. There is no field, flag or residual that
 recovers it. A three-estimator in-house derivation was then built and scored against seven
 known charges: best model 15.3% median absolute error, but with a distribution running
-−38.5% to **+171.3%** and only 3 of 7 cases inside ±15%. It was rejected (`audit/findings_deadmoney_sourcing.md` Appendix D).
+−38.5% to **+171.3%** and only 3 of 7 cases inside ±15%. It was rejected (§6, trap 13; `audit/findings_deadmoney_sourcing.md` Appendix D).
 
 **Independent cross-check on the curated figures.** Wilson's ledger charges must be
 components of Denver's team totals, and they are: DEN 2024 team dead money is **$85,210,000**
@@ -330,6 +330,17 @@ Required reading for every engineer touching this data. One line each.
     $37,133,824 — the September rework — not the $49.293M scheduled number or the ~$39.7M
     March restructure. Every figure in this dataset is an end-of-league-year restatement;
     **no "as of week N" cap view is possible.**
+13. **Dead money cannot be derived in-house — the prototype was built and rejected; do not
+    rebuild it.** A three-estimator prototype (`audit/derive_deadmoney.py`) scored against
+    seven known charges returned a best-model **15.3% median absolute error**, but with a
+    distribution running **−38.5% to +171.3%** and only **3 of 7** cases inside ±15%; the two
+    team-season totals agree only because large per-player errors cancel. Separately, five
+    inference routes returned zero rows on **8 of 8** high-profile separations. The blockers
+    are properties of the source, not the estimator: the departed team's future schedule is
+    **overwritten** when the player signs elsewhere, restructures are invisible and
+    unattributable, and there are no transaction dates, so post-June-1 splits are
+    unrecoverable. Dead money comes from the curated press snapshots or it does not come at
+    all (`audit/findings_deadmoney_sourcing.md` Appendix D).
 
 ---
 
