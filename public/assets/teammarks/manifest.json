@@ -1,0 +1,616 @@
+{
+  "asset_set": "teammarks",
+  "generated_by": "assets/fetch_teammarks.py",
+  "generated_at": "2026-07-25T23:54:59Z",
+  "source_dataset": "nflverse teams_colors_logos",
+  "source_dataset_url": "https://raw.githubusercontent.com/nflverse/nflfastR-data/master/teams_colors_logos.csv",
+  "source_dataset_staged": "data/curated/staging/teams_colors_logos.csv",
+  "primary_variant": "team_logo_espn",
+  "hotlinked": false,
+  "teams_expected": 32,
+  "teams_ok": 32,
+  "teams_fetch_failed": 0,
+  "total_bytes": 1696662,
+  "killswitch": false,
+  "killswitch_detail": {
+    "app_flag": "TEAM_LOGOS_ENABLED",
+    "app_flag_location": "etl/config.py",
+    "app_flag_note": "This manifest does NOT control rendering. Flipping the app flag to false is step 1 of the RISKS.md risk 2 runbook; this manifest is the machine-readable inventory step 2 purges.",
+    "purge_targets": [
+      "public/assets/teammarks/*.png",
+      "public/assets/teammarks/*.svg"
+    ],
+    "purge_keep": [
+      "public/assets/teammarks/manifest.json",
+      "public/assets/teammarks/chipdata.json"
+    ],
+    "cdn_invalidate_paths": [
+      "/assets/teammarks/*"
+    ],
+    "fallback_source": "public/assets/teammarks/chipdata.json",
+    "fallback_behaviour": "Every TeamMark renders the typographic chip: team abbreviation on the team's primary colour, glyph colour computed black-or-white by relative luminance. No redesign, no page breaks.",
+    "runbook": "RISKS.md risk 2 -- transcribed verbatim in assets/README.md"
+  },
+  "colour_cross_check": {
+    "against": "data/curated/staging/support_team_colors.csv",
+    "mismatches": []
+  },
+  "teams": {
+    "ARI": {
+      "abbr": "ARI",
+      "team_name": "Arizona Cardinals",
+      "file": "ARI.png",
+      "source_url": "https://a.espncdn.com/i/teamlogos/nfl/500/ari.png",
+      "source_column": "team_logo_espn",
+      "content_type": "image/png",
+      "bytes": 41994,
+      "sha256": "f870b58b43585a5b7717d578dd433b0b1e0c462d64ef4bea2aeb8c03f4ae7854",
+      "fetched_at": "2026-07-25T23:35:05Z",
+      "status": "ok",
+      "variants_available": {
+        "team_logo_squared": "https://raw.githubusercontent.com/nflverse/nflverse-pbp/master/squared_logos/ARI.png",
+        "team_wordmark": "https://raw.githubusercontent.com/nflverse/nflverse-pbp/master/wordmarks/ARI.png",
+        "team_logo_wikipedia": "https://upload.wikimedia.org/wikipedia/en/thumb/7/72/Arizona_Cardinals_logo.svg/179px-Arizona_Cardinals_logo.svg.png"
+      },
+      "fetched_note": "Self-hosted from the nflverse teams_colors_logos source URL, served untransformed from our own origin. Never hotlinked. Variants listed under variants_available are recorded, not fetched."
+    },
+    "ATL": {
+      "abbr": "ATL",
+      "team_name": "Atlanta Falcons",
+      "file": "ATL.png",
+      "source_url": "https://a.espncdn.com/i/teamlogos/nfl/500/atl.png",
+      "source_column": "team_logo_espn",
+      "content_type": "image/png",
+      "bytes": 51781,
+      "sha256": "fe566e9da6f7986b2bac321571bd751247ff93af15c51ae555486fb1bee90c91",
+      "fetched_at": "2026-07-25T23:35:05Z",
+      "status": "ok",
+      "variants_available": {
+        "team_logo_squared": "https://raw.githubusercontent.com/nflverse/nflverse-pbp/master/squared_logos/ATL.png",
+        "team_wordmark": "https://raw.githubusercontent.com/nflverse/nflverse-pbp/master/wordmarks/ATL.png",
+        "team_logo_wikipedia": "https://upload.wikimedia.org/wikipedia/en/thumb/c/c5/Atlanta_Falcons_logo.svg/192px-Atlanta_Falcons_logo.svg.png"
+      },
+      "fetched_note": "Self-hosted from the nflverse teams_colors_logos source URL, served untransformed from our own origin. Never hotlinked. Variants listed under variants_available are recorded, not fetched."
+    },
+    "BAL": {
+      "abbr": "BAL",
+      "team_name": "Baltimore Ravens",
+      "file": "BAL.png",
+      "source_url": "https://a.espncdn.com/i/teamlogos/nfl/500/bal.png",
+      "source_column": "team_logo_espn",
+      "content_type": "image/png",
+      "bytes": 55985,
+      "sha256": "67796023c172c9aeab5bcdac9204823d3590097246ad1cb92971134b5f26dcc0",
+      "fetched_at": "2026-07-25T23:35:06Z",
+      "status": "ok",
+      "variants_available": {
+        "team_logo_squared": "https://raw.githubusercontent.com/nflverse/nflverse-pbp/master/squared_logos/BAL.png",
+        "team_wordmark": "https://raw.githubusercontent.com/nflverse/nflverse-pbp/master/wordmarks/BAL.png",
+        "team_logo_wikipedia": "https://upload.wikimedia.org/wikipedia/en/thumb/1/16/Baltimore_Ravens_logo.svg/193px-Baltimore_Ravens_logo.svg.png"
+      },
+      "fetched_note": "Self-hosted from the nflverse teams_colors_logos source URL, served untransformed from our own origin. Never hotlinked. Variants listed under variants_available are recorded, not fetched."
+    },
+    "BUF": {
+      "abbr": "BUF",
+      "team_name": "Buffalo Bills",
+      "file": "BUF.png",
+      "source_url": "https://a.espncdn.com/i/teamlogos/nfl/500/buf.png",
+      "source_column": "team_logo_espn",
+      "content_type": "image/png",
+      "bytes": 38004,
+      "sha256": "79b71e2f536ee29f9d23834e89828883af2d95bf6968cbd07a505444229cdd20",
+      "fetched_at": "2026-07-25T23:35:06Z",
+      "status": "ok",
+      "variants_available": {
+        "team_logo_squared": "https://raw.githubusercontent.com/nflverse/nflverse-pbp/master/squared_logos/BUF.png",
+        "team_wordmark": "https://raw.githubusercontent.com/nflverse/nflverse-pbp/master/wordmarks/BUF.png",
+        "team_logo_wikipedia": "https://upload.wikimedia.org/wikipedia/en/thumb/7/77/Buffalo_Bills_logo.svg/189px-Buffalo_Bills_logo.svg.png"
+      },
+      "fetched_note": "Self-hosted from the nflverse teams_colors_logos source URL, served untransformed from our own origin. Never hotlinked. Variants listed under variants_available are recorded, not fetched."
+    },
+    "CAR": {
+      "abbr": "CAR",
+      "team_name": "Carolina Panthers",
+      "file": "CAR.png",
+      "source_url": "https://a.espncdn.com/i/teamlogos/nfl/500-dark/car.png",
+      "source_column": "team_logo_espn",
+      "content_type": "image/png",
+      "bytes": 36636,
+      "sha256": "2cebc1bbdcfd89f28c1578b397f440d229d93fa9a30bfa1193cc286482c82298",
+      "fetched_at": "2026-07-25T23:35:06Z",
+      "status": "ok",
+      "variants_available": {
+        "team_logo_squared": "https://raw.githubusercontent.com/nflverse/nflverse-pbp/master/squared_logos/CAR.png",
+        "team_wordmark": "https://raw.githubusercontent.com/nflverse/nflverse-pbp/master/wordmarks/CAR.png",
+        "team_logo_wikipedia": "https://upload.wikimedia.org/wikipedia/en/thumb/1/1c/Carolina_Panthers_logo.svg/100px-Carolina_Panthers_logo.svg.png"
+      },
+      "fetched_note": "Self-hosted from the nflverse teams_colors_logos source URL, served untransformed from our own origin. Never hotlinked. Variants listed under variants_available are recorded, not fetched."
+    },
+    "CHI": {
+      "abbr": "CHI",
+      "team_name": "Chicago Bears",
+      "file": "CHI.png",
+      "source_url": "https://a.espncdn.com/i/teamlogos/nfl/500/chi.png",
+      "source_column": "team_logo_espn",
+      "content_type": "image/png",
+      "bytes": 93593,
+      "sha256": "fd7b5a207b9ad443f950b384d43dba6cb367c5737ad50a51a15e3893fa31753b",
+      "fetched_at": "2026-07-25T23:35:06Z",
+      "status": "ok",
+      "variants_available": {
+        "team_logo_squared": "https://raw.githubusercontent.com/nflverse/nflverse-pbp/master/squared_logos/CHI.png",
+        "team_wordmark": "https://raw.githubusercontent.com/nflverse/nflverse-pbp/master/wordmarks/CHI.png",
+        "team_logo_wikipedia": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Chicago_Bears_logo.svg/100px-Chicago_Bears_logo.svg.png"
+      },
+      "fetched_note": "Self-hosted from the nflverse teams_colors_logos source URL, served untransformed from our own origin. Never hotlinked. Variants listed under variants_available are recorded, not fetched."
+    },
+    "CIN": {
+      "abbr": "CIN",
+      "team_name": "Cincinnati Bengals",
+      "file": "CIN.png",
+      "source_url": "https://a.espncdn.com/i/teamlogos/nfl/500/cin.png",
+      "source_column": "team_logo_espn",
+      "content_type": "image/png",
+      "bytes": 26628,
+      "sha256": "8e549c0ecac92453140370b2aef3e4a140139b50d16e92507532e8ee49930d4e",
+      "fetched_at": "2026-07-25T23:35:06Z",
+      "status": "ok",
+      "variants_available": {
+        "team_logo_squared": "https://raw.githubusercontent.com/nflverse/nflverse-pbp/master/squared_logos/CIN.png",
+        "team_wordmark": "https://raw.githubusercontent.com/nflverse/nflverse-pbp/master/wordmarks/CIN.png",
+        "team_logo_wikipedia": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/81/Cincinnati_Bengals_logo.svg/100px-Cincinnati_Bengals_logo.svg.png"
+      },
+      "fetched_note": "Self-hosted from the nflverse teams_colors_logos source URL, served untransformed from our own origin. Never hotlinked. Variants listed under variants_available are recorded, not fetched."
+    },
+    "CLE": {
+      "abbr": "CLE",
+      "team_name": "Cleveland Browns",
+      "file": "CLE.png",
+      "source_url": "https://a.espncdn.com/i/teamlogos/nfl/500/cle.png",
+      "source_column": "team_logo_espn",
+      "content_type": "image/png",
+      "bytes": 94482,
+      "sha256": "9b286fc4286dc39b1b5a6a08aab042b456ba5fdce99e45e49a4d1e2672411fa2",
+      "fetched_at": "2026-07-25T23:35:06Z",
+      "status": "ok",
+      "variants_available": {
+        "team_logo_squared": "https://raw.githubusercontent.com/nflverse/nflverse-pbp/master/squared_logos/CLE.png",
+        "team_wordmark": "https://raw.githubusercontent.com/nflverse/nflverse-pbp/master/wordmarks/CLE.png",
+        "team_logo_wikipedia": "https://upload.wikimedia.org/wikipedia/en/thumb/d/d9/Cleveland_Browns_logo.svg/100px-Cleveland_Browns_logo.svg.png"
+      },
+      "fetched_note": "Self-hosted from the nflverse teams_colors_logos source URL, served untransformed from our own origin. Never hotlinked. Variants listed under variants_available are recorded, not fetched."
+    },
+    "DAL": {
+      "abbr": "DAL",
+      "team_name": "Dallas Cowboys",
+      "file": "DAL.png",
+      "source_url": "https://a.espncdn.com/i/teamlogos/nfl/500/dal.png",
+      "source_column": "team_logo_espn",
+      "content_type": "image/png",
+      "bytes": 32372,
+      "sha256": "f4ea9a2ec7d7d500f08db94c8c6f1b23f75361ffe39c4d4b480a684a511ce61e",
+      "fetched_at": "2026-07-25T23:35:06Z",
+      "status": "ok",
+      "variants_available": {
+        "team_logo_squared": "https://raw.githubusercontent.com/nflverse/nflverse-pbp/master/squared_logos/DAL.png",
+        "team_wordmark": "https://raw.githubusercontent.com/nflverse/nflverse-pbp/master/wordmarks/DAL.png",
+        "team_logo_wikipedia": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/15/Dallas_Cowboys.svg/100px-Dallas_Cowboys.svg.png"
+      },
+      "fetched_note": "Self-hosted from the nflverse teams_colors_logos source URL, served untransformed from our own origin. Never hotlinked. Variants listed under variants_available are recorded, not fetched."
+    },
+    "DEN": {
+      "abbr": "DEN",
+      "team_name": "Denver Broncos",
+      "file": "DEN.png",
+      "source_url": "https://a.espncdn.com/i/teamlogos/nfl/500/den.png",
+      "source_column": "team_logo_espn",
+      "content_type": "image/png",
+      "bytes": 40948,
+      "sha256": "c98bec2be32e27b19f79f5da86ac6ef133c78d75ab78aadb28ef36696c3213e8",
+      "fetched_at": "2026-07-25T23:35:06Z",
+      "status": "ok",
+      "variants_available": {
+        "team_logo_squared": "https://raw.githubusercontent.com/nflverse/nflverse-pbp/master/squared_logos/DEN.png",
+        "team_wordmark": "https://raw.githubusercontent.com/nflverse/nflverse-pbp/master/wordmarks/DEN.png",
+        "team_logo_wikipedia": "https://upload.wikimedia.org/wikipedia/en/thumb/4/44/Denver_Broncos_logo.svg/100px-Denver_Broncos_logo.svg.png"
+      },
+      "fetched_note": "Self-hosted from the nflverse teams_colors_logos source URL, served untransformed from our own origin. Never hotlinked. Variants listed under variants_available are recorded, not fetched."
+    },
+    "DET": {
+      "abbr": "DET",
+      "team_name": "Detroit Lions",
+      "file": "DET.png",
+      "source_url": "https://a.espncdn.com/i/teamlogos/nfl/500/det.png",
+      "source_column": "team_logo_espn",
+      "content_type": "image/png",
+      "bytes": 57465,
+      "sha256": "9776b567ebab0bd3640165e915d948d8e736e35967dfc19ce62b967cfe7b4eb1",
+      "fetched_at": "2026-07-25T23:35:06Z",
+      "status": "ok",
+      "variants_available": {
+        "team_logo_squared": "https://raw.githubusercontent.com/nflverse/nflverse-pbp/master/squared_logos/DET.png",
+        "team_wordmark": "https://raw.githubusercontent.com/nflverse/nflverse-pbp/master/wordmarks/DET.png",
+        "team_logo_wikipedia": "https://upload.wikimedia.org/wikipedia/en/thumb/7/71/Detroit_Lions_logo.svg/100px-Detroit_Lions_logo.svg.png"
+      },
+      "fetched_note": "Self-hosted from the nflverse teams_colors_logos source URL, served untransformed from our own origin. Never hotlinked. Variants listed under variants_available are recorded, not fetched."
+    },
+    "GB": {
+      "abbr": "GB",
+      "team_name": "Green Bay Packers",
+      "file": "GB.png",
+      "source_url": "https://a.espncdn.com/i/teamlogos/nfl/500/gb.png",
+      "source_column": "team_logo_espn",
+      "content_type": "image/png",
+      "bytes": 39188,
+      "sha256": "7ea8154cdbff5db84d248f235c1f1c78a1a8b4cb8c14335b5886ec10ee20b00e",
+      "fetched_at": "2026-07-25T23:35:06Z",
+      "status": "ok",
+      "variants_available": {
+        "team_logo_squared": "https://raw.githubusercontent.com/nflverse/nflverse-pbp/master/squared_logos/GB.png",
+        "team_wordmark": "https://raw.githubusercontent.com/nflverse/nflverse-pbp/master/wordmarks/GB.png",
+        "team_logo_wikipedia": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/50/Green_Bay_Packers_logo.svg/100px-Green_Bay_Packers_logo.svg.png"
+      },
+      "fetched_note": "Self-hosted from the nflverse teams_colors_logos source URL, served untransformed from our own origin. Never hotlinked. Variants listed under variants_available are recorded, not fetched."
+    },
+    "HOU": {
+      "abbr": "HOU",
+      "team_name": "Houston Texans",
+      "file": "HOU.png",
+      "source_url": "https://a.espncdn.com/i/teamlogos/nfl/500/hou.png",
+      "source_column": "team_logo_espn",
+      "content_type": "image/png",
+      "bytes": 35767,
+      "sha256": "54b0fe559761860e4953851c197d995b2f9c0c4e278164edda7b608ffd64f39b",
+      "fetched_at": "2026-07-25T23:35:06Z",
+      "status": "ok",
+      "variants_available": {
+        "team_logo_squared": "https://raw.githubusercontent.com/nflverse/nflverse-pbp/master/squared_logos/HOU.png",
+        "team_wordmark": "https://raw.githubusercontent.com/nflverse/nflverse-pbp/master/wordmarks/HOU.png",
+        "team_logo_wikipedia": "https://upload.wikimedia.org/wikipedia/en/thumb/2/28/Houston_Texans_logo.svg/100px-Houston_Texans_logo.svg.png"
+      },
+      "fetched_note": "Self-hosted from the nflverse teams_colors_logos source URL, served untransformed from our own origin. Never hotlinked. Variants listed under variants_available are recorded, not fetched."
+    },
+    "IND": {
+      "abbr": "IND",
+      "team_name": "Indianapolis Colts",
+      "file": "IND.png",
+      "source_url": "https://a.espncdn.com/i/teamlogos/nfl/500/ind.png",
+      "source_column": "team_logo_espn",
+      "content_type": "image/png",
+      "bytes": 42083,
+      "sha256": "f1f5222a876f810956aa8d4e75d4e6b47bcb3a6d11f876642b674010233c8a97",
+      "fetched_at": "2026-07-25T23:35:07Z",
+      "status": "ok",
+      "variants_available": {
+        "team_logo_squared": "https://raw.githubusercontent.com/nflverse/nflverse-pbp/master/squared_logos/IND.png",
+        "team_wordmark": "https://raw.githubusercontent.com/nflverse/nflverse-pbp/master/wordmarks/IND.png",
+        "team_logo_wikipedia": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/Indianapolis_Colts_logo.svg/100px-Indianapolis_Colts_logo.svg.png"
+      },
+      "fetched_note": "Self-hosted from the nflverse teams_colors_logos source URL, served untransformed from our own origin. Never hotlinked. Variants listed under variants_available are recorded, not fetched."
+    },
+    "JAX": {
+      "abbr": "JAX",
+      "team_name": "Jacksonville Jaguars",
+      "file": "JAX.png",
+      "source_url": "https://a.espncdn.com/i/teamlogos/nfl/500/jax.png",
+      "source_column": "team_logo_espn",
+      "content_type": "image/png",
+      "bytes": 78814,
+      "sha256": "15cb9a1c77ebfaea885d0d3a34f33dabc4e6a00eb7d5462148fceed641d49397",
+      "fetched_at": "2026-07-25T23:35:07Z",
+      "status": "ok",
+      "variants_available": {
+        "team_logo_squared": "https://raw.githubusercontent.com/nflverse/nflverse-pbp/master/squared_logos/JAX.png",
+        "team_wordmark": "https://raw.githubusercontent.com/nflverse/nflverse-pbp/master/wordmarks/JAX.png",
+        "team_logo_wikipedia": "https://upload.wikimedia.org/wikipedia/en/thumb/7/74/Jacksonville_Jaguars_logo.svg/100px-Jacksonville_Jaguars_logo.svg.png"
+      },
+      "fetched_note": "Self-hosted from the nflverse teams_colors_logos source URL, served untransformed from our own origin. Never hotlinked. Variants listed under variants_available are recorded, not fetched."
+    },
+    "KC": {
+      "abbr": "KC",
+      "team_name": "Kansas City Chiefs",
+      "file": "KC.png",
+      "source_url": "https://a.espncdn.com/i/teamlogos/nfl/500/kc.png",
+      "source_column": "team_logo_espn",
+      "content_type": "image/png",
+      "bytes": 40228,
+      "sha256": "3d77958dc6373768919bb2681cbe1b143f56c07a1f013460def665a5026a7f3d",
+      "fetched_at": "2026-07-25T23:35:07Z",
+      "status": "ok",
+      "variants_available": {
+        "team_logo_squared": "https://raw.githubusercontent.com/nflverse/nflverse-pbp/master/squared_logos/KC.png",
+        "team_wordmark": "https://raw.githubusercontent.com/nflverse/nflverse-pbp/master/wordmarks/KC.png",
+        "team_logo_wikipedia": "https://upload.wikimedia.org/wikipedia/en/thumb/e/e1/Kansas_City_Chiefs_logo.svg/100px-Kansas_City_Chiefs_logo.svg.png"
+      },
+      "fetched_note": "Self-hosted from the nflverse teams_colors_logos source URL, served untransformed from our own origin. Never hotlinked. Variants listed under variants_available are recorded, not fetched."
+    },
+    "LA": {
+      "abbr": "LA",
+      "team_name": "Los Angeles Rams",
+      "file": "LA.png",
+      "source_url": "https://a.espncdn.com/i/teamlogos/nfl/500/lar.png",
+      "source_column": "team_logo_espn",
+      "content_type": "image/png",
+      "bytes": 38707,
+      "sha256": "e289b738a5e1259cccea921bee02eec881d35b4241761a8c4e12fe5964cab75c",
+      "fetched_at": "2026-07-25T23:35:07Z",
+      "status": "ok",
+      "variants_available": {
+        "team_logo_squared": "https://raw.githubusercontent.com/nflverse/nflverse-pbp/master/squared_logos/LA.png",
+        "team_wordmark": "https://raw.githubusercontent.com/nflverse/nflverse-pbp/master/wordmarks/LA.png",
+        "team_logo_wikipedia": "https://upload.wikimedia.org/wikipedia/en/thumb/8/8a/Los_Angeles_Rams_logo.svg/100px-Los_Angeles_Rams_logo.svg.png"
+      },
+      "fetched_note": "Self-hosted from the nflverse teams_colors_logos source URL, served untransformed from our own origin. Never hotlinked. Variants listed under variants_available are recorded, not fetched."
+    },
+    "LAC": {
+      "abbr": "LAC",
+      "team_name": "Los Angeles Chargers",
+      "file": "LAC.png",
+      "source_url": "https://a.espncdn.com/i/teamlogos/nfl/500/lac.png",
+      "source_column": "team_logo_espn",
+      "content_type": "image/png",
+      "bytes": 32850,
+      "sha256": "5400f85bd93129c056717a771da57a97225e15f39c0022107ce89ef993f15bb0",
+      "fetched_at": "2026-07-25T23:35:07Z",
+      "status": "ok",
+      "variants_available": {
+        "team_logo_squared": "https://raw.githubusercontent.com/nflverse/nflverse-pbp/master/squared_logos/LAC.png",
+        "team_wordmark": "https://raw.githubusercontent.com/nflverse/nflverse-pbp/master/wordmarks/LAC.png",
+        "team_logo_wikipedia": "https://upload.wikimedia.org/wikipedia/en/thumb/7/72/NFL_Chargers_logo.svg/100px-NFL_Chargers_logo.svg.png"
+      },
+      "fetched_note": "Self-hosted from the nflverse teams_colors_logos source URL, served untransformed from our own origin. Never hotlinked. Variants listed under variants_available are recorded, not fetched."
+    },
+    "LV": {
+      "abbr": "LV",
+      "team_name": "Las Vegas Raiders",
+      "file": "LV.png",
+      "source_url": "https://a.espncdn.com/i/teamlogos/nfl/500/lv.png",
+      "source_column": "team_logo_espn",
+      "content_type": "image/png",
+      "bytes": 77766,
+      "sha256": "25fbb03e972ae872fa024026b73c7b63ef9f23c2f2c51f87d1614d800dcee6e7",
+      "fetched_at": "2026-07-25T23:35:07Z",
+      "status": "ok",
+      "variants_available": {
+        "team_logo_squared": "https://raw.githubusercontent.com/nflverse/nflverse-pbp/master/squared_logos/LV.png",
+        "team_wordmark": "https://raw.githubusercontent.com/nflverse/nflverse-pbp/master/wordmarks/LV.png",
+        "team_logo_wikipedia": "https://upload.wikimedia.org/wikipedia/en/thumb/4/48/Las_Vegas_Raiders_logo.svg/100px-Las_Vegas_Raiders_logo.svg.png"
+      },
+      "fetched_note": "Self-hosted from the nflverse teams_colors_logos source URL, served untransformed from our own origin. Never hotlinked. Variants listed under variants_available are recorded, not fetched."
+    },
+    "MIA": {
+      "abbr": "MIA",
+      "team_name": "Miami Dolphins",
+      "file": "MIA.png",
+      "source_url": "https://a.espncdn.com/i/teamlogos/nfl/500/mia.png",
+      "source_column": "team_logo_espn",
+      "content_type": "image/png",
+      "bytes": 64408,
+      "sha256": "b9631269a82abda39bd748afc82390679ca67bfc167bc3581665e237407de8e0",
+      "fetched_at": "2026-07-25T23:35:07Z",
+      "status": "ok",
+      "variants_available": {
+        "team_logo_squared": "https://raw.githubusercontent.com/nflverse/nflverse-pbp/master/squared_logos/MIA.png",
+        "team_wordmark": "https://raw.githubusercontent.com/nflverse/nflverse-pbp/master/wordmarks/MIA.png",
+        "team_logo_wikipedia": "https://upload.wikimedia.org/wikipedia/en/thumb/3/37/Miami_Dolphins_logo.svg/100px-Miami_Dolphins_logo.svg.png"
+      },
+      "fetched_note": "Self-hosted from the nflverse teams_colors_logos source URL, served untransformed from our own origin. Never hotlinked. Variants listed under variants_available are recorded, not fetched."
+    },
+    "MIN": {
+      "abbr": "MIN",
+      "team_name": "Minnesota Vikings",
+      "file": "MIN.png",
+      "source_url": "https://a.espncdn.com/i/teamlogos/nfl/500/min.png",
+      "source_column": "team_logo_espn",
+      "content_type": "image/png",
+      "bytes": 69686,
+      "sha256": "72759956b149bc1c9496ea6ebb9a6ae34093dfed371cc6abb425c13f14f53448",
+      "fetched_at": "2026-07-25T23:35:07Z",
+      "status": "ok",
+      "variants_available": {
+        "team_logo_squared": "https://raw.githubusercontent.com/nflverse/nflverse-pbp/master/squared_logos/MIN.png",
+        "team_wordmark": "https://raw.githubusercontent.com/nflverse/nflverse-pbp/master/wordmarks/MIN.png",
+        "team_logo_wikipedia": "https://upload.wikimedia.org/wikipedia/en/thumb/4/48/Minnesota_Vikings_logo.svg/98px-Minnesota_Vikings_logo.svg.png"
+      },
+      "fetched_note": "Self-hosted from the nflverse teams_colors_logos source URL, served untransformed from our own origin. Never hotlinked. Variants listed under variants_available are recorded, not fetched."
+    },
+    "NE": {
+      "abbr": "NE",
+      "team_name": "New England Patriots",
+      "file": "NE.png",
+      "source_url": "https://a.espncdn.com/i/teamlogos/nfl/500/ne.png",
+      "source_column": "team_logo_espn",
+      "content_type": "image/png",
+      "bytes": 32083,
+      "sha256": "dac19aa9a573dcf9075e2422bee3e35a4955b9ab494bb3191ab3bacfd3609729",
+      "fetched_at": "2026-07-25T23:35:07Z",
+      "status": "ok",
+      "variants_available": {
+        "team_logo_squared": "https://raw.githubusercontent.com/nflverse/nflverse-pbp/master/squared_logos/NE.png",
+        "team_wordmark": "https://raw.githubusercontent.com/nflverse/nflverse-pbp/master/wordmarks/NE.png",
+        "team_logo_wikipedia": "https://upload.wikimedia.org/wikipedia/en/thumb/b/b9/New_England_Patriots_logo.svg/100px-New_England_Patriots_logo.svg.png"
+      },
+      "fetched_note": "Self-hosted from the nflverse teams_colors_logos source URL, served untransformed from our own origin. Never hotlinked. Variants listed under variants_available are recorded, not fetched."
+    },
+    "NO": {
+      "abbr": "NO",
+      "team_name": "New Orleans Saints",
+      "file": "NO.png",
+      "source_url": "https://a.espncdn.com/i/teamlogos/nfl/500/no.png",
+      "source_column": "team_logo_espn",
+      "content_type": "image/png",
+      "bytes": 52016,
+      "sha256": "68ddfdf1d7ee8317f1af083a0c6d59142a11e8af4dad73c3c50bbafc338e0a94",
+      "fetched_at": "2026-07-25T23:35:08Z",
+      "status": "ok",
+      "variants_available": {
+        "team_logo_squared": "https://raw.githubusercontent.com/nflverse/nflverse-pbp/master/squared_logos/NO.png",
+        "team_wordmark": "https://raw.githubusercontent.com/nflverse/nflverse-pbp/master/wordmarks/NO.png",
+        "team_logo_wikipedia": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/50/New_Orleans_Saints_logo.svg/98px-New_Orleans_Saints_logo.svg.png"
+      },
+      "fetched_note": "Self-hosted from the nflverse teams_colors_logos source URL, served untransformed from our own origin. Never hotlinked. Variants listed under variants_available are recorded, not fetched."
+    },
+    "NYG": {
+      "abbr": "NYG",
+      "team_name": "New York Giants",
+      "file": "NYG.png",
+      "source_url": "https://a.espncdn.com/i/teamlogos/nfl/500/nyg.png",
+      "source_column": "team_logo_espn",
+      "content_type": "image/png",
+      "bytes": 7574,
+      "sha256": "62e361850e7ba3a50dfd09cbb38429e994d1c23b0f999c74421f10e37c7067e7",
+      "fetched_at": "2026-07-25T23:35:08Z",
+      "status": "ok",
+      "variants_available": {
+        "team_logo_squared": "https://raw.githubusercontent.com/nflverse/nflverse-pbp/master/squared_logos/NYG.png",
+        "team_wordmark": "https://raw.githubusercontent.com/nflverse/nflverse-pbp/master/wordmarks/NYG.png",
+        "team_logo_wikipedia": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/60/New_York_Giants_logo.svg/100px-New_York_Giants_logo.svg.png"
+      },
+      "fetched_note": "Self-hosted from the nflverse teams_colors_logos source URL, served untransformed from our own origin. Never hotlinked. Variants listed under variants_available are recorded, not fetched."
+    },
+    "NYJ": {
+      "abbr": "NYJ",
+      "team_name": "New York Jets",
+      "file": "NYJ.png",
+      "source_url": "https://a.espncdn.com/i/teamlogos/nfl/500/nyj.png",
+      "source_column": "team_logo_espn",
+      "content_type": "image/png",
+      "bytes": 130614,
+      "sha256": "5de8d029f3602c97ffe02bd636eb2630e55d019d1a37cf819d3b9e39a219487b",
+      "fetched_at": "2026-07-25T23:35:08Z",
+      "status": "ok",
+      "variants_available": {
+        "team_logo_squared": "https://raw.githubusercontent.com/nflverse/nflverse-pbp/master/squared_logos/NYJ.png",
+        "team_wordmark": "https://raw.githubusercontent.com/nflverse/nflverse-pbp/master/wordmarks/NYJ.png",
+        "team_logo_wikipedia": "https://upload.wikimedia.org/wikipedia/en/thumb/6/6b/New_York_Jets_logo.svg/100px-New_York_Jets_logo.svg.png"
+      },
+      "fetched_note": "Self-hosted from the nflverse teams_colors_logos source URL, served untransformed from our own origin. Never hotlinked. Variants listed under variants_available are recorded, not fetched."
+    },
+    "PHI": {
+      "abbr": "PHI",
+      "team_name": "Philadelphia Eagles",
+      "file": "PHI.png",
+      "source_url": "https://a.espncdn.com/i/teamlogos/nfl/500/phi.png",
+      "source_column": "team_logo_espn",
+      "content_type": "image/png",
+      "bytes": 70332,
+      "sha256": "2875f50f8b756ed5ea3866105b4683f5c603aa542e2c7f7870287e1d3d006100",
+      "fetched_at": "2026-07-25T23:35:08Z",
+      "status": "ok",
+      "variants_available": {
+        "team_logo_squared": "https://raw.githubusercontent.com/nflverse/nflverse-pbp/master/squared_logos/PHI.png",
+        "team_wordmark": "https://raw.githubusercontent.com/nflverse/nflverse-pbp/master/wordmarks/PHI.png",
+        "team_logo_wikipedia": "https://upload.wikimedia.org/wikipedia/en/thumb/8/8e/Philadelphia_Eagles_logo.svg/100px-Philadelphia_Eagles_logo.svg.png"
+      },
+      "fetched_note": "Self-hosted from the nflverse teams_colors_logos source URL, served untransformed from our own origin. Never hotlinked. Variants listed under variants_available are recorded, not fetched."
+    },
+    "PIT": {
+      "abbr": "PIT",
+      "team_name": "Pittsburgh Steelers",
+      "file": "PIT.png",
+      "source_url": "https://a.espncdn.com/i/teamlogos/nfl/500/pit.png",
+      "source_column": "team_logo_espn",
+      "content_type": "image/png",
+      "bytes": 56620,
+      "sha256": "806bcb72e75ed184a99bea34df458e6cd87145fc9a863945f3356b01122aeb6f",
+      "fetched_at": "2026-07-25T23:35:08Z",
+      "status": "ok",
+      "variants_available": {
+        "team_logo_squared": "https://raw.githubusercontent.com/nflverse/nflverse-pbp/master/squared_logos/PIT.png",
+        "team_wordmark": "https://raw.githubusercontent.com/nflverse/nflverse-pbp/master/wordmarks/PIT.png",
+        "team_logo_wikipedia": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/de/Pittsburgh_Steelers_logo.svg/100px-Pittsburgh_Steelers_logo.svg.png"
+      },
+      "fetched_note": "Self-hosted from the nflverse teams_colors_logos source URL, served untransformed from our own origin. Never hotlinked. Variants listed under variants_available are recorded, not fetched."
+    },
+    "SEA": {
+      "abbr": "SEA",
+      "team_name": "Seattle Seahawks",
+      "file": "SEA.png",
+      "source_url": "https://a.espncdn.com/i/teamlogos/nfl/500/sea.png",
+      "source_column": "team_logo_espn",
+      "content_type": "image/png",
+      "bytes": 32081,
+      "sha256": "2546b1d4fe5cf6c2d75cda53d3fb56bbc4dd43c6b00200586dab5a85df8fa492",
+      "fetched_at": "2026-07-25T23:35:08Z",
+      "status": "ok",
+      "variants_available": {
+        "team_logo_squared": "https://raw.githubusercontent.com/nflverse/nflverse-pbp/master/squared_logos/SEA.png",
+        "team_wordmark": "https://raw.githubusercontent.com/nflverse/nflverse-pbp/master/wordmarks/SEA.png",
+        "team_logo_wikipedia": "https://upload.wikimedia.org/wikipedia/en/thumb/8/8e/Seattle_Seahawks_logo.svg/100px-Seattle_Seahawks_logo.svg.png"
+      },
+      "fetched_note": "Self-hosted from the nflverse teams_colors_logos source URL, served untransformed from our own origin. Never hotlinked. Variants listed under variants_available are recorded, not fetched."
+    },
+    "SF": {
+      "abbr": "SF",
+      "team_name": "San Francisco 49ers",
+      "file": "SF.png",
+      "source_url": "https://a.espncdn.com/i/teamlogos/nfl/500/sf.png",
+      "source_column": "team_logo_espn",
+      "content_type": "image/png",
+      "bytes": 48699,
+      "sha256": "82ae812f6c15718ce5abdd402863e8b4553fa9971e4baa5d45ff585c52948a45",
+      "fetched_at": "2026-07-25T23:35:08Z",
+      "status": "ok",
+      "variants_available": {
+        "team_logo_squared": "https://raw.githubusercontent.com/nflverse/nflverse-pbp/master/squared_logos/SF.png",
+        "team_wordmark": "https://raw.githubusercontent.com/nflverse/nflverse-pbp/master/wordmarks/SF.png",
+        "team_logo_wikipedia": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/San_Francisco_49ers_logo.svg/100px-San_Francisco_49ers_logo.svg.png"
+      },
+      "fetched_note": "Self-hosted from the nflverse teams_colors_logos source URL, served untransformed from our own origin. Never hotlinked. Variants listed under variants_available are recorded, not fetched."
+    },
+    "TB": {
+      "abbr": "TB",
+      "team_name": "Tampa Bay Buccaneers",
+      "file": "TB.png",
+      "source_url": "https://a.espncdn.com/i/teamlogos/nfl/500/tb.png",
+      "source_column": "team_logo_espn",
+      "content_type": "image/png",
+      "bytes": 96110,
+      "sha256": "bcc5d267024650938c9f35558077fe00a31913b89c61768d4ebb63d1ea31fbfd",
+      "fetched_at": "2026-07-25T23:35:08Z",
+      "status": "ok",
+      "variants_available": {
+        "team_logo_squared": "https://raw.githubusercontent.com/nflverse/nflverse-pbp/master/squared_logos/TB.png",
+        "team_wordmark": "https://raw.githubusercontent.com/nflverse/nflverse-pbp/master/wordmarks/TB.png",
+        "team_logo_wikipedia": "https://upload.wikimedia.org/wikipedia/en/thumb/a/a2/Tampa_Bay_Buccaneers_logo.svg/100px-Tampa_Bay_Buccaneers_logo.svg.png"
+      },
+      "fetched_note": "Self-hosted from the nflverse teams_colors_logos source URL, served untransformed from our own origin. Never hotlinked. Variants listed under variants_available are recorded, not fetched."
+    },
+    "TEN": {
+      "abbr": "TEN",
+      "team_name": "Tennessee Titans",
+      "file": "TEN.png",
+      "source_url": "https://a.espncdn.com/i/teamlogos/nfl/500/ten.png",
+      "source_column": "team_logo_espn",
+      "content_type": "image/png",
+      "bytes": 50732,
+      "sha256": "27cf283fca5b2e9e1c5e995a465a54223424c157d2013b603a6491f99333cf45",
+      "fetched_at": "2026-07-25T23:35:08Z",
+      "status": "ok",
+      "variants_available": {
+        "team_logo_squared": "https://raw.githubusercontent.com/nflverse/nflverse-pbp/master/squared_logos/TEN.png",
+        "team_wordmark": "https://raw.githubusercontent.com/nflverse/nflverse-pbp/master/wordmarks/TEN.png",
+        "team_logo_wikipedia": "https://upload.wikimedia.org/wikipedia/en/thumb/5/53/Tennessee_Titans_Logo_2026.svg/250px-Tennessee_Titans_Logo_2026.svg.png"
+      },
+      "fetched_note": "Self-hosted from the nflverse teams_colors_logos source URL, served untransformed from our own origin. Never hotlinked. Variants listed under variants_available are recorded, not fetched."
+    },
+    "WAS": {
+      "abbr": "WAS",
+      "team_name": "Washington Commanders",
+      "file": "WAS.png",
+      "source_url": "https://a.espncdn.com/i/teamlogos/nfl/500/wsh.png",
+      "source_column": "team_logo_espn",
+      "content_type": "image/png",
+      "bytes": 30416,
+      "sha256": "2f67805ef9e385a4c67adb0a9320706bd481a52e3aa0e0faea995dad2b501112",
+      "fetched_at": "2026-07-25T23:35:08Z",
+      "status": "ok",
+      "variants_available": {
+        "team_logo_squared": "https://raw.githubusercontent.com/nflverse/nflverse-pbp/master/squared_logos/WAS.png",
+        "team_wordmark": "https://raw.githubusercontent.com/nflverse/nflverse-pbp/master/wordmarks/WAS.png",
+        "team_logo_wikipedia": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e2/Washington_commanders.svg/100px-Washington_commanders.svg.png"
+      },
+      "fetched_note": "Self-hosted from the nflverse teams_colors_logos source URL, served untransformed from our own origin. Never hotlinked. Variants listed under variants_available are recorded, not fetched."
+    }
+  }
+}
