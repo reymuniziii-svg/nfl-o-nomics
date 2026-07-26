@@ -11,8 +11,12 @@ network.** CI has no secrets and no outbound access; a golden test that re-pulls
 remote asset is testing nflverse's uptime, not this pipeline. If you need a fact
 that only exists remotely, commit the receipt and score against that.
 
-Current state: **92 passed, 77 skipped**. Every skip means one thing — *the mart
-has not been built yet*. There are no "not applicable" skips.
+Current state (2026-07-26): **182 passed, 0 skipped.** Every mart is built, so
+every declared contract now validates for real.
+
+Historically the count was 92 passed / 77 skipped, and a skip meant one thing —
+*the mart has not been built yet.* There are still no "not applicable" skips, and
+a skip reappearing means a mart went missing.
 
 ---
 
@@ -43,11 +47,13 @@ Three tests hold this down: the two-season absence, the exact-value presence in
 the curated ledger, and the breadth check that all five inference routes and 8 of
 8 further separations still return zero rows.
 
-**Tests 17 (Brady draft position) and 18 (Tomlinson snaps) currently score
-against a committed audit receipt**, `audit/findings_support_datasets.md`, because
-the draft and snap marts do not exist yet and `data/raw/` is empty by design. Both
-tests call `find_mart()` first and **switch to the real mart automatically** the
-moment `draft_pick` or `player_season_availability` lands — no edit needed.
+**Tests 17 (Brady draft position) and 18 (Tomlinson snaps) now score against the
+real marts** — `draft_pick` and `player_season_availability` landed 2026-07-26 and
+both tests switched automatically, because each calls `find_mart()` first and only
+falls back to the committed audit receipt (`audit/findings_support_datasets.md`)
+when the mart is absent. **No edit was needed**, which was the point of the shape.
+Keep the fallback: it is what lets a golden test exist before its mart does, and
+`data/raw/` stays empty by design.
 
 ### `test_structural.py`
 
@@ -76,22 +82,23 @@ A registry of 18 mart specs — exact column set, dtype coercibility, nullabilit
 coverage-flag vocabularies, grain uniqueness, row count, season window, forbidden
 columns.
 
-**Auto-discovery.** Contracts are declared for the marts still being built
-(`capplus_official`, `team_rating`, `team_season_stability`, `regime_events`,
-`draft_pick`, `draft_class_summary`, `player_season_cap`,
-`player_season_availability`, `player_images`, `position_allocation`,
-`dead_money_display`). Each resolves through `find_mart()`, which tries `.csv`
-then `.parquet`, in `data/marts/` then `data/curated/`, under both the SPEC name
-and the BUILD_PLAN alias (`stability_index`, `draft_capital`,
+**Auto-discovery.** Every declared contract now resolves — the eleven marts that
+were still being built when this was written (`capplus_official`, `team_rating`,
+`team_season_stability`, `regime_events`, `draft_pick`, `draft_class_summary`,
+`player_season_cap`, `player_season_availability`, `player_images`,
+`position_allocation`, `dead_money_display`) **all landed 2026-07-26 and validate
+in full.** The mechanism stays, because it is how the next mart gets a contract
+before it exists: each resolves through `find_mart()`, which tries `.csv` then
+`.parquet`, in `data/marts/` then `data/curated/`, under both the SPEC name and
+the BUILD_PLAN alias (`stability_index`, `draft_capital`,
 `positional_allocation`). Absent → `pytest.skip` with a reason naming the SPEC
 section. Present → the full contract validates on the next run, **no edit here**.
 
-Two columns are **PENDING**: SPEC §7 requires them and ETL has not added them yet
-(BUILD_PLAN Phase 1 item 4) — `license_tier` on `dead_money_team_season` and
-`stint` on `coaching_staff`. They are excluded from the exact-column-set check and
-covered by `test_pending_spec_columns`, which skips while absent and validates
-fully once present. `license_tier` additionally has its DATA_AUDIT §5 tier
-distribution pinned (69 / 45 / 64 / 192) — that count is the mechanism the
+Two columns were **PENDING** — `license_tier` on `dead_money_team_season` and
+`stint` on `coaching_staff` (SPEC §7, BUILD_PLAN Phase 1 item 4). **Both shipped
+2026-07-26** and `test_pending_spec_columns` now validates them fully rather than
+skipping. `license_tier` additionally has its DATA_AUDIT §5 tier distribution
+pinned (69 / 45 / 64 / 192) — that count is the mechanism the
 `DEAD_MONEY_TIER=SAFE_ONLY` legal contingency depends on.
 
 ---
@@ -150,6 +157,17 @@ prefer `full32`, then take the latest `asof_date`, and record which was chosen).
 The test pins the ambiguity to exactly the one group where it exists today; a
 *new* ambiguous group appearing anywhere fails the build, because it would
 silently change which snapshot Cap+ resolves to.
+
+**RESOLVED 2026-07-26 — the tie-break is pinned, and it is the one guessed above**
+(`DECISIONS.md` 97, `etl/README.md`): filter to the broadest coverage class present
+(`full32` > `partial` > `top5`), then take the latest `asof_date`; a season whose
+best class is not `full32` does not resolve and blanks whole-season. The choice is
+**emitted as data** — one row per season in the `dead_money_snapshot_resolution`
+mart — so the tests assert against the recorded decision rather than against
+behaviour buried in a function, and `deadmoney.assert_pinned_resolution` holds the
+per-season outcomes. Under this rule 2018 and 2019 resolve by the *same* rule
+rather than by opposite date rules: 2019's May reading is `partial` (14 teams) and
+loses at step 1, not step 2. The ambiguity pin above stays exactly as it is.
 
 ---
 

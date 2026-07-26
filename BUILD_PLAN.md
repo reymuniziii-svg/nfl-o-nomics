@@ -9,13 +9,49 @@
    │  PHASE 1        │   PHASE 2        │ P3      │  PHASE 4  │  PHASE 5 │        │
    │  ETL + marts    │   app + views    │ design  │  soft     │  fixes + │        │
    │  + Neon seed    │   (neutral)      │ applied │  launch   │  public  │      OPENER
+   │  COMPLETE       │   COMPLETE       │ DONE    │           │          │        │
                                         ▲
                               DESIGN INTEGRATION POINT
-                              ← currently BLOCKED (owner: Rey)
+                              ← PASSED 2026-07-26
 ```
 
 Everything is dependency-ordered. A phase does not start on its date; it starts when its
 predecessor's exit criteria are met. The dates are the commitment.
+
+---
+
+## Status — 2026-07-26
+
+**Phases 1, 2 and 3 are complete, roughly a month ahead of the schedule above.** The dates in
+this document are left exactly as written on 2026-07-25; they are the commitment that was made,
+and the record of a plan is worth more than a plan retconned to match its outcome.
+
+| Milestone | Status |
+|---|---|
+| **PHASE 1** — ETL + marts + seed | **COMPLETE 2026-07-26** |
+| **PHASE 2** — app + four views | **COMPLETE 2026-07-26** |
+| **DESIGN INTEGRATION POINT** | **PASSED** — Phase B delivered *and applied* |
+| **PHASE 3** — design application, a11y AA, screenshot variants | **COMPLETE 2026-07-26** |
+| **PHASE 4** — soft launch | not started — gated on Rey-side items below |
+| **PHASE 5** — fixes + public push | not started — gated on gate #4 |
+
+**Everything remaining before Phase 4 is Rey-side.** Nothing on this list is engineering work,
+and nothing engineering can do unblocks any of it:
+
+1. **Neon provisioning + `DATABASE_URL`.** The schema, the seed program and the query layer are
+   built and running; the swap is one environment variable (`web/README.md`).
+2. **Vercel project + deploy.** The app builds locally to 1,168 static units; no project exists
+   to deploy it to.
+3. **Domain purchase — gate #2.** ~$15/yr, and now that gate's **only** spend: the font line
+   went to $0 (`DECISIONS.md` 89).
+4. **The dead-money licensing conversation — gate #3, instance 3.** Owner: Rey. **The Aug 22
+   checkpoint stands.**
+5. **The soft-launch feedback circle.** Assembling it is Rey's.
+6. **Gate #4** for the public push.
+
+**Local verification stands in for deploy verification until a Vercel project exists** — the
+production build, both themes, both canvases and the Playwright assertion suite all run against
+the local build (`web/README.md`), and the first deploy re-runs them against the real origin.
 
 ---
 
@@ -93,6 +129,11 @@ plan is an approval gate.
 ## PHASE 1 — ETL hardening, marts finalisation, Neon seed
 **Jul 26 → Aug 7 (2 weeks).** No dependencies. Starts immediately.
 
+> **COMPLETE 2026-07-26.** All items below shipped. 20 marts built by `etl/`, byte-stable across
+> two independent cold runs; 182 tests green (golden + structural + contract); `capplus_official`
+> promoted. **Neon is the one exception and it is Rey's** — the seed program is built and runs
+> against PGlite locally, and provisioning is the `DATABASE_URL` swap in the Status block above.
+
 1. **Stand up `etl/`** by promoting the audit scripts per `ARCHITECTURE.md` §4. `audit/` stays
    as the evidence record and is not deleted.
 2. **`etl/team_codes.py` as the single shared normalizer**, with `PFR_DRAFT_TEAM_MAP` and
@@ -128,6 +169,10 @@ query the four views need. **Gate #1 cleared 2026-07-25**, ahead of the Aug 3 re
 **Aug 8 → Aug 21 (2 weeks).** Depends on Phase 1 marts (not on Phase 1 being fully polished —
 the schema is enough to start against).
 
+> **COMPLETE 2026-07-26.** All eight route shapes live, all four views rendering real data with
+> real coverage behaviour, `Metric<T>` data layer, CSV export on every tabular surface, chart
+> primitives built. **1,168 static units**; `npm run lint` and `tsc --noEmit` both clean.
+
 1. **Scaffold** Next.js App Router + TypeScript on Vercel; local, preview and prod
    environments per `ARCHITECTURE.md` §8.
 2. **URL schema implemented in full on day one** (`SPEC.md` §6) — all eight route shapes, the
@@ -153,8 +198,16 @@ all live and testable; the app is deployable to preview. It will look plain. Tha
 
 ---
 
-## ⛔ DESIGN INTEGRATION POINT — **currently BLOCKED**
+## ✅ DESIGN INTEGRATION POINT — **PASSED 2026-07-26**
 **Needed by: Aug 22 (start of Phase 3). Owner: Rey.**
+
+> **PASSED 2026-07-26.** Both artefacts landed via a direct file drop into `design/` and were
+> **applied**, not merely received: `design/system/tokens.css` + `tokens.json` (241 token names,
+> 352 declarations, mirror generated and asserted by `verify_tokens.py`), plus the component and
+> chart anatomy specs (`COMPONENTS.md`, `CHART_ANATOMY.md`, `TYPE.md`, `MOBILE_PATTERNS.md`,
+> `SCREENSHOT_VARIANTS.md`, `CAPPLUS_LOCKUP.md`). Every divergence, open question and conflict is
+> ruled in `design/system/RESOLUTIONS.md`; the seven NEEDS-REY items are accepted at
+> `DECISIONS.md` 89–95. **The text below is the record as written on 2026-07-25, unedited.**
 
 Phase 3 cannot start without two artefacts from the parallel design track:
 
@@ -181,6 +234,14 @@ phase on the plan.
 ## PHASE 3 — Design application, chart anatomy, motion, accessibility, screenshot variants
 **Aug 22 → Aug 28 (1 week).** Depends on the DESIGN INTEGRATION POINT and on the legal decision
 for dead-money views.
+
+> **COMPLETE 2026-07-26.** Real tokens applied, chart anatomy across every chart, **both
+> field-literal surfaces built** (`DECISIONS.md` 98), Value Stadium, motion with
+> `prefers-reduced-motion` redefining the duration tokens themselves, **WCAG AA in both themes**,
+> the screenshot variants shipped as dedicated `/share/*` routes rather than a render mode, and a
+> designed light mode. Dead-money views ship on the full REVIEW tier per gate #3 instance 3, with
+> `DEAD_MONEY_TIER=safe` exercised and measured (`etl/README.md`). Verified by a 4-lens pass;
+> all 30 findings fixed.
 
 1. **Apply the real tokens.** If Phase 2 was disciplined, this is a theme-file swap plus
    corrections — not a re-skin.

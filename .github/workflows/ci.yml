@@ -1,11 +1,12 @@
 name: CI
 
-# Golden + structural + contract tests, per ARCHITECTURE.md §12.
+# Golden + structural + contract tests, per ARCHITECTURE.md §12, plus the
+# design-token mirror assert required by SPEC.md §4 (DECISIONS.md 88).
 #
-# These tests run against COMMITTED FILES ONLY — data/marts/, data/curated/ and
-# the audit receipts in audit/. There is no network access at test time and no
-# secret is required or read. A test that needs a remote fetch is a bug: it
-# would be testing nflverse's uptime, not this pipeline.
+# These tests run against COMMITTED FILES ONLY — data/marts/, data/curated/,
+# design/system/ and the audit receipts in audit/. There is no network access at
+# test time and no secret is required or read. A test that needs a remote fetch
+# is a bug: it would be testing nflverse's uptime, not this pipeline.
 
 on:
   push:
@@ -20,7 +21,7 @@ concurrency:
 
 jobs:
   tests:
-    name: pytest (golden + structural + contracts)
+    name: pytest (golden + structural + contracts) + token mirror
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
@@ -43,6 +44,15 @@ jobs:
         run: |
           python --version
           python -c "import pandas, duckdb, pyarrow, pytest; print('pandas', pandas.__version__); print('duckdb', duckdb.__version__); print('pyarrow', pyarrow.__version__); print('pytest', pytest.__version__)"
+
+      # SPEC.md §4 requires tokens.json to be a mirror of tokens.css and a build
+      # step that asserts it; DECISIONS.md 88 makes that assert CI's job. The
+      # script is stdlib-only and reads two committed files. It runs BEFORE
+      # pytest because a drifted mirror is a five-second failure and the marts
+      # suite is not — and because tokens.json is generated, so drift means
+      # someone hand-edited it. Fix with `--write`, never by hand.
+      - name: Assert design-token mirror (tokens.css == tokens.json)
+        run: python3 design/system/verify_tokens.py
 
       - name: Run test suite
         run: pytest tests/ -v

@@ -19,11 +19,12 @@ move it.
 | 5 | Timeline compression | **High** | Medium | Rey |
 | 6 | nflverse schema drift / release timing | Medium | Medium | Engineering |
 | 7 | Vercel Hobby non-commercial term | Low | Medium | Rey |
-| 8 | Design-track file access blocked | **High (live now)** | High | **Rey** |
+| 8 | Design-track file access blocked | ~~High (live now)~~ **CLEARED 2026-07-26** | High | **Rey** |
 | 9 | Coaching name-string join fragility | Medium | Medium | Engineering |
 | 10 | As-of snapshot misuse in future features | Medium | High | Engineering |
-| 11 | Squadron Black licence cost unknown | Medium | Low | Design track |
+| 11 | Squadron Black licence cost unknown | ~~Medium~~ **CLOSED 2026-07-26** | Low | Design track |
 | 12 | Single-maintainer bus factor | Medium | Medium | Rey |
+| 13 | Wikimedia thumbnail-bucket dependency | Low | **Low** | Engineering |
 
 ---
 
@@ -44,6 +45,15 @@ of the nine Cap+ seasons — including both most recent seasons — depend on RE
 instance 3 ruled: build with full REVIEW-tier data, `DEAD_MONEY_TIER` stays wired so a reversal
 is a config flip, Rey owns the legal conversation, Aug 22 checkpoint stands. **The Medium /
 Critical rating is unchanged and stands until licensing concludes.**
+
+**Status 2026-07-26 — UNCHANGED. Medium / Critical stands; the Aug 22 checkpoint stands.**
+Nothing about this risk moved: the licensing conversation is Rey's and has not concluded. What
+did change is that the contingency is no longer a plan — the `safe` reversal has been
+**exercised and measured** end to end (`etl/README.md`): `dead_money_team_season` 370 → 114 rows,
+full-32 seasons 9 → 2 (2014, 2015), `capplus_official` 288 → 64, `dead_money_display` 316 → 114,
+`team_rating` 861 rows unchanged. The tier-independent invariants run under both settings; the
+288-row assertion and the memo sniff checks run on the full tier only. **This is the mitigation
+demonstrated, not the risk reduced.**
 
 **Mitigation, in order:**
 
@@ -94,6 +104,16 @@ secondary colour — worst case 4.66, all ≥ WCAG AA.
 Rehearse it once in Phase 3: flip the flag in preview, confirm every route still renders, flip
 it back.
 
+**Status 2026-07-26 — the kill-switch is implemented and the rehearsal is done, end to end.**
+`TEAMMARK_KILLSWITCH` reads env var → `etl/config.py` bridge → literal default and surfaces in
+the app as `TEAM_LOGOS_ENABLED` (`web/lib/flags.ts`), with the single branch in `web/lib/marks.ts`
+returning the typographic fallback chip for every TeamMark call site — there is no second code
+path to forget. Flipped it, rendered the routes, flipped it back: **no route breaks and no layout
+moves**, because the chip occupies the mark's box. The steps 2–4 of the response plan (purge,
+invalidate, chips) are unchanged and unrehearsable until an origin and a CDN exist, which is
+Rey's Vercel item. `DECISIONS.md` 80's test — *any list that still reads with
+`TEAM_LOGOS_ENABLED = false` is correctly designed* — is what the rehearsal actually confirmed.
+
 ---
 
 ### 3. ShareAlike photo derivative-work question
@@ -120,6 +140,17 @@ stands until licensing concludes.** The three options as they were put to him:
   unacceptable.
 - **(c) Accept and honour CC BY-SA on treated assets** — keeps 97.2%, with licence obligations
   attached to served assets and a compliance surface to maintain forever.
+
+**Status 2026-07-26 — option (a) is implemented, and the treatment is CSS-filter-only in the
+built app.** The pipeline stores and serves the Commons bytes untransformed; the entire treatment
+is four `filter:` declarations in `web/components/marks.module.css` (grayscale · contrast ·
+brightness · sepia · hue-rotate, one variant per theme plus a reduced-motion/forced-colors path),
+applied by the browser at render time. **No fixed derivative work is created or distributed
+anywhere in the build**, so the ShareAlike obligation on derivatives is never triggered. There is
+no compositing, no baked masking and no per-asset retouching in the codebase — the design cost
+named above was paid, not deferred. `IMAGE_TREATMENT_MODE` remains the one-line reversal to
+`baked` (option (c)) per `DECISIONS.md` 63. **Owner and rating unchanged: Rey (licensing),
+Medium / High, standing until licensing concludes.**
 
 **Independent of the choice:** attribution is required on **223 of 244 (91.4%)** assets, and it
 is legally load-bearing. Hiding credits behind a hover or an "info" affordance is a licence
@@ -168,6 +199,13 @@ opener.
 
 The single highest-leverage act available today is unblocking risk 8.
 
+**Status 2026-07-26.** Risk 8 was unblocked and Phases 1–3 are complete, roughly a month ahead of
+the dates above. The failure mode described here did not occur. **The risk is not closed** — it
+now points forward rather than back: the ordered cut lines stand, and the deliberate Sep 8–9
+slack stands, because the remaining path to launch runs through Rey-side items (Neon, Vercel,
+domain, licensing, the feedback circle) whose lead times are not ours. The highest-leverage act
+available today is provisioning the deploy target.
+
 ---
 
 ### 6. nflverse schema drift / release timing
@@ -201,7 +239,15 @@ newsletter), the upgrade happens first. No revenue-bearing surface goes live on 
 
 ---
 
-### 8. Design-track file access — **blocked right now**
+### 8. Design-track file access — **CLEARED 2026-07-26**
+
+**Status 2026-07-26 — cleared.** The files landed by direct file drop into `design/` at repo
+root, which is the second of the two unblock routes named below. Both artefacts arrived and were
+**applied**: the `--yy-*` token set with its JSON mirror, and the component + chart anatomy specs.
+Phase 3 ran and completed on them. The mitigation below worked exactly as designed — the
+integration was a theme swap plus corrections, not a re-skin — and it was never drawn down,
+because the files arrived 27 days inside the Aug 22 shelf life. **The text below is the record as
+written on 2026-07-25.**
 
 **This is the only risk on the register that is already happening.** Phase 3 needs two artefacts
 from the parallel design track — the `--yy-*` token set plus JSON mirror, and the component +
@@ -276,6 +322,13 @@ clears, the substitution is a single token value, and no layout depends on Squad
 It sits inside approval gate #2 alongside the domain, against a $200 ceiling with $0 spent. If
 the price is unreasonable, Rajdhani ships and nothing is lost but a little character.
 
+**Status 2026-07-26 — closed.** Rajdhani is no longer a substitute; it is **formally the athletic
+face** (`DECISIONS.md` 89, a brand amendment). Squadron Black is installed nowhere and has drawn
+nothing in this product, and the product's athletic layer runs a three-weight ladder that a face
+named for one weight cannot serve. **Gate #2's font line goes to $0** and the domain becomes that
+gate's only spend; the $200 ceiling is untouched at $0 spent. If Squadron is ever licensed, the
+three re-qualification checks in `TYPE.md` §2 apply and the token value is unchanged either way.
+
 ---
 
 ### 12. Single-maintainer bus factor
@@ -291,6 +344,27 @@ carries a `source_url`; every ETL script is idempotent and re-runnable; every go
 an external citation. **The test of this mitigation is whether a new engineer can rebuild the
 marts from scratch without asking a question — and that test is worth actually running in
 Phase 1.**
+
+---
+
+### 13. Wikimedia thumbnail-bucket dependency — **new 2026-07-26**
+
+PlayerMark renditions are served from the Commons **500px thumbnail bucket** (`DECISIONS.md` 96).
+Commons publishes a fixed bucket set — 250 · 330 · 500 · 960 · 1280 · 2560 — and snaps a request
+**up** to the next one; there is no 600px rendition, which is how a 600px ask silently became the
+960 bucket and 75 MB of repo weight. That bucket set is Wikimedia's configuration, not an API
+contract, and it can change.
+
+**Impact is low and bounded.** The 235 rendered files are committed and self-hosted, so nothing
+in the shipped product breaks if the bucket set changes upstream — the exposure is that a *future
+re-run* resolves to a different width than the one the layout was measured against.
+
+**Mitigation:** the width is a single config constant (`RENDITION_WIDTH_PX` in
+`assets/fetch_playermarks.py`); recovery is re-running the asset pipeline, which is idempotent and
+resumable. The pipeline already **reads the bucket actually served off the thumbnail URL** rather
+than trusting `imageinfo.thumbwidth`, which echoes the width you asked for — so a changed bucket
+shows up as a recorded fact, not as a silent substitution. `RENDITION_WIDTH_PX = None` stores
+originals if the bucket service is ever withdrawn entirely.
 
 ---
 
