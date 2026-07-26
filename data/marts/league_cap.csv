@@ -1,0 +1,33 @@
+year,cap_usd,note,source_url,secondary_source_url
+1994,34608000,first cap year; planned at $32M but raised after new TV rights deals,https://en.wikipedia.org/wiki/NFL_salary_cap,https://www.profootballnetwork.com/nfl-salary-cap-history/
+1995,37100000,exact announced figure,https://www.profootballnetwork.com/nfl-salary-cap-history/,
+1996,40753000,exact announced figure,https://www.profootballnetwork.com/nfl-salary-cap-history/,
+1997,41454000,exact announced figure,https://www.profootballnetwork.com/nfl-salary-cap-history/,
+1998,52388000,final figure; preliminary number announced Feb 1998 was $51.507M before new TV money was fully accounted,https://www.profootballnetwork.com/nfl-salary-cap-history/,https://www.spokesman.com/stories/1998/feb/11/nfl-budget-grows/
+1999,57288000,exact announced figure,https://www.profootballnetwork.com/nfl-salary-cap-history/,
+2000,62172000,"exact announced figure; NFL Football Operations table rounds this to $63.2M, which conflicts with all other sources",https://www.profootballnetwork.com/nfl-salary-cap-history/,https://en.wikipedia.org/wiki/NFL_salary_cap
+2001,67405000,exact announced figure,https://www.profootballnetwork.com/nfl-salary-cap-history/,
+2002,71101000,exact announced figure,https://www.profootballnetwork.com/nfl-salary-cap-history/,
+2003,75007000,exact announced figure,https://www.profootballnetwork.com/nfl-salary-cap-history/,
+2004,80582000,exact announced figure,https://www.profootballnetwork.com/nfl-salary-cap-history/,
+2005,85500000,last year of the pre-2006 CBA structure; sources report a round $85.5M,https://www.profootballnetwork.com/nfl-salary-cap-history/,https://operations.nfl.com/inside-football-ops/nfl-operations/nfl-free-agency/nfl-salary-cap
+2006,102000000,first year of the 2006 CBA extension; reported as a round $102M,https://operations.nfl.com/inside-football-ops/nfl-operations/nfl-free-agency/nfl-salary-cap,
+2007,109000000,reported as a round $109M,https://www.espn.com/nfl/news/story?id=2689784,
+2008,116000000,reported as a round $116M; teams informed at the annual labor seminar,https://www.espn.com/nfl/news/story?id=2689784,
+2009,128000000,base CBA cap was $123M; CBA cash-adjustment mechanisms added ~$5M to bring the final per-team limit to $128M. Some trackers list 2009 as $123M for this reason,https://www.nfl.com/news/nfl-salary-cap-increases-12-million-over-2008-figure-to-128-mil-09000d5d81056683,https://operations.nfl.com/inside-football-ops/nfl-operations/nfl-free-agency/nfl-salary-cap
+2010,,uncapped year - no salary cap in the Final League Year after owners opted out of the 2006 CBA in 2008; also no minimum team salary,https://www.nbcsports.com/nfl/profootballtalk/rumor-mill/news/20-questions-about-the-uncapped-year,
+2011,120375000,first year of the 2011 CBA after the lockout; often rounded to $120M in contemporaneous reports,https://www.profootballnetwork.com/nfl-salary-cap-history/,https://x.com/TomPelissero/status/1761087291181732081
+2012,120600000,exact announced figure,https://www.nfl.com/news/salary-cap-rise-to-133-million-shows-how-new-cba-is-working-0ap2000000331237,
+2013,123000000,exact announced figure; some outlets initially reported $123.9M,http://www.espn.com/nfl/story/_/id/9000718/sources-nfl-salary-cap-increases-123-million,
+2014,133000000,exact announced figure,https://www.nfl.com/news/salary-cap-rise-to-133-million-shows-how-new-cba-is-working-0ap2000000331237,
+2015,143280000,exact announced figure,https://time.com/3728820/nfl-salary-cap-2015/,
+2016,155270000,exact announced figure,https://www.espn.com/nfl/story/_/id/14854900/nfl-players-union-agree-2016-salary-cap-slightly-155m,
+2017,167000000,exact announced figure,https://www.cbssports.com/nfl/news/nfl-salary-cap-jumps-more-than-10-million-to-167m-per-team-for-2017/,
+2018,177200000,exact announced figure,https://www.nfl.com/news/nfl-salary-cap-for-2018-season-set-at-177-2-million-0ap3000000919680,
+2019,188200000,exact announced figure,https://www.cbssports.com/nfl/news/nfl-salary-cap-rises-to-188-2-million-for-2019-the-sixth-straight-year-with-a-10-million-increase,
+2020,198200000,first year of the 2020 CBA; player costs per club $242.9M including $44.7M benefits,https://www.nfl.com/news/nfl-salary-cap-will-increase-to-198-2m-in-2020-0ap3000001106260,https://www.nbcsports.com/nfl/profootballtalk/rumor-mill/news/nfl-sets-2020-salary-cap-at-198-2-million
+2021,182500000,cap declined ~8% due to COVID-19 revenue losses; only the second decline in cap history,https://www.espn.com/nfl/story/_/id/31037926/sources-nfl-cap-1825m-8-percent,
+2022,208200000,exact announced figure,https://www.nfl.com/news/nfl-informs-clubs-2022-salary-cap-projected-to-be-208-2-million,
+2023,224800000,exact announced figure,https://www.cbssports.com/nfl/news/nfl-informs-teams-2023-salary-cap-will-be-224-8-million-an-increase-of-more-than-16-million,
+2024,255400000,record $30.6M jump on COVID deferral repayment plus new media deals,https://www.espn.com/nfl/story/_/id/39584679/nfl-salary-cap-rises-306-million-record-2554-million-per-team,https://www.nfl.com/news/nfl-salary-cap-set-at-255-4m-per-team-for-2024-regular-season
+2025,279200000,record high; up $23.8M from 2024; total projected player costs $362.48M per club including benefits,https://www.espn.com/nfl/story/_/id/44041070/nfl-sets-2025-salary-cap-record-2792-million-per-team,https://operations.nfl.com/updates/football-ops/nfl-announces-2025-salary-cap/index.html

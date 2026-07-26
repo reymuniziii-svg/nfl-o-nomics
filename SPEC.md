@@ -784,6 +784,12 @@ interface CapPlusOfficial {
 }
 ```
 
+> **ETL implementation note (Phase 1).** `dm_asof` lands in the CSV flattened as
+> `dm_asof_date` + `dm_asof_stage`; the seed reassembles the `AsOf`. The mart also
+> carries `league_median_dead_money_usd` (the memo's day-one disclosure publishes
+> the median beside the value) and `license_tier` (so the `DEAD_MONEY_TIER` filter
+> reaches this mart without re-joining §7.5).
+
 Companion `team_rating` covers all 861 team-seasons:
 ```ts
 interface TeamRating { season: Season; team: TeamAbbr; perf_index: number; P: number;
@@ -820,6 +826,17 @@ Multiple rows exist per `(season, team)` — 370 rows over 316 distinct team-sea
 selects one snapshot per season by the same-stage resolution used by Cap+ and **shows the
 others as alternate readings on request**, never averaged, never merged.
 
+> **ETL implementation note (Phase 1).** The resolution is pinned and emitted, not implied.
+> `dead_money_snapshot_resolution` records the chosen `asof_date`/`asof_stage` **per season**
+> under one rule — *broadest coverage class present (`full32`), then latest `asof_date`* —
+> which is what settles the two 2018 tables that are both `full32` **and** both `preseason`
+> (2018-03-01 vs 2018-07-14, 2.25× apart, so `asof_stage` cannot break the tie). It is also
+> where the whole-season blank sentence lives, once per season.
+> `dead_money_display` is the resolved view: **316 rows, grain `(season, team)`** — the 288
+> team-seasons of the nine covered seasons plus the 28 published leaders of the four blank
+> ones, each labelled `season_coverage = 'leaders_only'`. Blank seasons have **no team rows**
+> beyond those leaders; the data layer synthesises the blank, exactly as it does for §7.4.
+
 ### 7.6 `dead_money_ledger` — 21 rows
 
 ```ts
@@ -846,6 +863,13 @@ interface CoachingStaffRow {
 }
 ```
 This is a **curated source**, so it preserves era codes. The derived mart normalizes.
+
+> **ETL implementation note (Phase 1).** The mart adds `stint` (the grain's fourth key),
+> `coach_id` (the surrogate §2.8 step 8 requires) and `team_current` (the normalized
+> franchise code beside the era-correct `team`, so no consumer re-implements the normalizer).
+> In `regime_events`, `dm_next1`/`dm_next2` land as flat column groups —
+> `_state` is the discriminant, `_usd`/`_asof_date`/`_asof_stage`/`_league_median_usd`
+> populate the value arm, `_blank_reason` the blank arm.
 
 Derived: `team_season_stability` — 830 rows, grain `(season, team)`, per §2.8:
 
@@ -909,6 +933,16 @@ interface DraftClassSummary {
 }
 ```
 
+> **ETL implementation note (Phase 1).** `college` is **nullable**: 4 of the 6,644 picks in
+> the window have none because the player never attended one (Boehringer 2016, Mailata 2018,
+> Stiggers 2024, Clayton 2024). `draft_pick` adds `value_basis`, which separates a published
+> F–S chart value from the labelled flat extension past pick 256 — 25 picks reach 257–262 via
+> compensatory selections and the chart stops at 256, so without it an extrapolation would be
+> indistinguishable from a published value. `draft_class_summary` adds `return_probowls` /
+> `return_allpro` (the §2.9 secondary measures), the three `*_per_1000_capital` return-per-
+> capital ratios, and `dollar_framing_available` + its boundary sentence (decision 41).
+> `draft_class_summary` is **830 rows, not 832** — Houston did not draft in 2000 or 2001.
+
 ### 7.9 Player-season marts
 
 ```ts
@@ -937,6 +971,18 @@ Snap joins go **through `players.parquet` on `gsis_id`, then `pfr_id`** — neve
 `pfr_id` join to rosters, which matches 34.5% in 2013 and 71.3% in 2023 against 99.99% / 99.95%
 bridged. Snap rows filter `game_type = 'REG'`; the postseason uses `WC/DIV/CON/SB` and there is
 no `POST` literal.
+
+> **ETL implementation note (Phase 1).** `position_at_signing` and `position_group` are
+> **nullable**: 502 of the 32,105 player-seasons (1.6%, carrying the 0.375% of cap §2.6 calls
+> unmapped) have no recorded signing position. They keep `null` rather than a tenth `UNK`
+> bucket, because §2.6 drops unmapped cap rather than bucketing it — and the drop happens in
+> §7.12. Every player-season still ships: the Tier 2 promise is a roster, not a filtered
+> sample. `player_season_cap` also carries `player`, the `contract_*` block §3.3 point 3
+> specifies verbatim, and the `dm_ledger_*` markers of §3.3 point 4 (`dm_ledger_team` is the
+> team that **ate** the charge, which is not the team on the player's row that year).
+> `player_season_availability` adds `player` (golden test 18 selects by name) and
+> `pfr_player_id` (the only key snaps carry, kept so the bridge stays auditable);
+> its window is 2013–2025, where the snap boundary and the Tier 2 boundary coincide.
 
 ### 7.10 `player_images` — licence metadata, one row per player
 
@@ -967,6 +1013,18 @@ interface PlayerImage {
 
 Any non-zero `api_error` count in a refresh run is a **re-run signal, not a result** — a failed
 call is never a miss.
+
+> **ETL implementation note (Phase 1).** `player_id` **is** the `otc_id` — §7.9 types that
+> `number` and §6 renders it as the route string; the CSV carries the integer. The licence
+> block (`author`, `license`, `license_machine`, `attribution`, `file_title`, `file_url`,
+> `width`, `height`) is nullable **only** for the 7 players with no usable Commons photo, and
+> a test asserts it is complete for all 244 that have one. The mart adds `meets_min_width` and
+> `renders_photo`, because the resolution floor is a different fact from Commons coverage —
+> keeping them apart is what makes both published numbers derivable (244/251 = 97.2% coverage,
+> 235/251 = 93.6% rendered at `IMAGE_MIN_WIDTH_PX = 300`, 6.4% designed-card fallback) — plus
+> the self-hosted rendition block (`asset_file`, `rendition`, `rendition_width/height`,
+> `rendition_sha256`, `rendition_bytes`). **Nothing is ever hotlinked**: `file_url` is a fetch
+> source, `asset_file` is what we serve.
 
 ### 7.11 `league_cap` — 32 rows, 1994–2025
 

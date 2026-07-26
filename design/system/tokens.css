@@ -1,0 +1,575 @@
+/* ============================================================================
+   YIELD/YARD — DESIGN TOKENS
+   Phase B. The engineering API. `tokens.json` is a byte-checked mirror of this
+   file; `verify_tokens.py` asserts it. Never edit one without the other.
+
+   CONTRACT (SPEC.md §4): extend-never-rename. The 15 published brand tokens
+   below carry their published names AND their published values, verbatim.
+   Nothing here renames or repurposes them.
+
+   PROVENANCE. Every value is one of:
+     [BRAND]   design/handoff/project/uploads/yield-yard-brand-kit/design.md
+     [MOCKUP]  design/handoff/project/"CAP+ Index.dc.html" (+ its logic block)
+     [PHASE-A] design/PHASE_A_TOKENS.md §10 (itself extracted from the mockup)
+     [STUDY]   design/studies/hero-cpw-{A,C}-*.html
+     [RULED]   originated in Phase B; the ruling and its rationale are in
+               design/system/RESOLUTIONS.md, cited by divergence ID.
+
+   THEME. Dark is the flagship and is the `:root` default. Light is a designed
+   theme, not an inversion — see the LIGHT block and RESOLUTIONS D7.
+   Consumers bind to the SEMANTIC layer (`--yy-bg`, `--yy-fg-1`, …), never to a
+   raw palette token, or they will not theme.
+   ========================================================================= */
+
+:root {
+
+  /* ─────────────────────────────────────────────────────────────────────────
+     1. PUBLISHED BRAND TOKENS — 15, verbatim, never renamed        [BRAND]
+     ───────────────────────────────────────────────────────────────────── */
+  --yy-end-zone: #071C16;
+  --yy-field-green: #0B3D2E;
+  --yy-film-room: #111416;
+  --yy-chalk-white: #FFFFFF;
+  --yy-yield-lime: #A6E22E;
+  --yy-premium-gold: #D4AF37;
+  --yy-muted: #A8B1AD;
+  --yy-paper: #F5F6F2;
+  --yy-font-display: "Bebas Neue", "Arial Narrow", sans-serif;
+  --yy-font-athletic: "Squadron Black", "Rajdhani", "Arial Narrow", sans-serif;
+  --yy-font-body: "Inter", Arial, sans-serif;
+  --yy-radius-card: 22px;
+  --yy-radius-control: 8px;
+  --yy-border: 1px solid rgba(7, 28, 22, 0.15);
+  --yy-shadow: 0 24px 70px rgba(2, 9, 7, 0.18);
+
+  /* ─────────────────────────────────────────────────────────────────────────
+     2. FONT STACKS — the athletic layer is routed, never hardcoded  [RULED D2]
+     `--yy-font-num` is the tabular stack. It is Inter because the brand's own
+     Product UI guidance says "Default tables use Inter with tabular numerals"
+     and because Rajdhani's `tnum` support is unverified. One-token reversal.
+     ───────────────────────────────────────────────────────────────────── */
+  --yy-font-num: "Inter", Arial, sans-serif;
+
+  /* ─────────────────────────────────────────────────────────────────────────
+     3. DARK SURFACES — the flagship theme                         [MOCKUP]
+     ───────────────────────────────────────────────────────────────────── */
+  --yy-surface-app: #0B0D0E;
+  --yy-surface-chrome: linear-gradient(120deg, #191D1F, #0B0D0E);
+  --yy-surface-chrome-flat: #191D1F;
+  --yy-surface-card: linear-gradient(160deg, #181C1D, #0E1112);
+  --yy-surface-card-lg: linear-gradient(160deg, #16191B, #0A0C0D);
+  --yy-surface-card-flat: #181C1D;
+  /* the brand's "dark cards may use a subtle green gradient", given the one job
+     where it means something: the SUBJECT card. Stitch leak rgba(3,20,39,0)
+     replaced with End Zone at 0. [BRAND + RULED D4/D15] */
+  --yy-surface-card-accent: linear-gradient(160deg, rgba(166, 226, 46, 0.09), rgba(7, 28, 22, 0) 65%);
+  --yy-surface-card-alert: rgba(217, 80, 60, 0.06);
+  --yy-surface-tabbar: #111416;
+  --yy-surface-menu: #1E2325;
+  --yy-surface-track: #39423E;
+  --yy-surface-empty: #191D1E;
+  --yy-surface-hover: rgba(234, 241, 236, 0.04);
+
+  /* ─────────────────────────────────────────────────────────────────────────
+     4. LIGHT SURFACES — the ladder the brand leaves implicit      [RULED D7]
+     Anchored on the two published light tokens; every step below them is End
+     Zone at an alpha the mockup already uses on light surfaces.
+     ───────────────────────────────────────────────────────────────────── */
+  --yy-surface-app-light: #F5F6F2;
+  --yy-surface-card-light: #FFFFFF;
+  --yy-surface-card-lg-light: #FFFFFF;
+  --yy-surface-card-flat-light: #FFFFFF;
+  --yy-surface-card-accent-light: linear-gradient(160deg, rgba(166, 226, 46, 0.16), rgba(255, 255, 255, 0) 65%);
+  --yy-surface-card-alert-light: rgba(217, 80, 60, 0.05);
+  --yy-surface-menu-light: #FFFFFF;
+  --yy-surface-track-light: rgba(7, 28, 22, 0.10);
+  --yy-surface-sunken-light: rgba(7, 28, 22, 0.06);
+  --yy-surface-empty-light: rgba(7, 28, 22, 0.03);
+  --yy-surface-hover-light: rgba(7, 28, 22, 0.04);
+
+  /* ─────────────────────────────────────────────────────────────────────────
+     5. FOREGROUND LADDERS
+     `-3` values are AA fixes: the mockup's #6E8078 measures 4.11:1 on the
+     mobile card and #71807A measures 3.82:1 on paper — both below 4.5:1 for
+     text at every size the product uses them. The originals survive under
+     `-dim` for NON-TEXT use only (≥3:1 graphical objects). [RULED D1-AA]
+     ───────────────────────────────────────────────────────────────────── */
+  --yy-ink-dark-1: #EAF1EC;
+  --yy-ink-dark-2: #A8B1AD;
+  --yy-ink-dark-3: #849489;
+  --yy-ink-dark-mid: #8FA39A;
+  --yy-ink-dark-dim: #6E8078;
+
+  --yy-ink-light-1: #071C16;
+  --yy-ink-light-2: #46534F;
+  --yy-ink-light-3: #616E69;
+  --yy-ink-light-mid: #5A6B63;
+  --yy-ink-light-dim: #71807A;
+
+  /* ─────────────────────────────────────────────────────────────────────────
+     6. LIGHT-SURFACE INK PAIRS — the mockup's own INK map          [MOCKUP]
+     const INK={'#A6E22E':'#4F7413','#D9503C':'#B33A26','#8FA39A':'#5A6B63',
+                '#D4AF37':'#8A6D14','#EAF1EC':'#071C16'}
+     ───────────────────────────────────────────────────────────────────── */
+  --yy-lime-ink: #4F7413;
+  --yy-red-ink: #B33A26;
+  --yy-gold-ink: #8A6D14;
+  --yy-slate-ink: #5A6B63;
+
+  /* ─────────────────────────────────────────────────────────────────────────
+     7. THE NEGATIVE FAMILY — split by role, not by shade          [RULED D3]
+     `--yy-negative` is 4.22:1 on the dark card: legal as a FILL (graphical
+     object, ≥3:1), illegal as TEXT. `--yy-negative-soft` is 8.05:1 and is the
+     text weight on dark. Neither ever carries a comparison series.
+     ───────────────────────────────────────────────────────────────────── */
+  --yy-negative: #D9503C;
+  --yy-negative-soft: #E8A08D;
+  --yy-negative-ink: #B33A26;
+  --yy-on-negative: #2A0B06;
+
+  /* ─────────────────────────────────────────────────────────────────────────
+     8. INDEX BANDS — the product's core colour-encoding rule       [MOCKUP]
+     idxColor(): >=105 lime · 95-104 slate · <95 red
+     ───────────────────────────────────────────────────────────────────── */
+  --yy-band-above: #A6E22E;
+  --yy-band-mid: #8FA39A;
+  --yy-band-below: #D9503C;
+  --yy-band-above-ink: #4F7413;
+  --yy-band-mid-ink: #5A6B63;
+  --yy-band-below-ink: #B33A26;
+
+  /* ─────────────────────────────────────────────────────────────────────────
+     9. POSITION-GROUP RAMP — 5 steps, HARD CAP 5 CATEGORIES        [MOCKUP]
+     Nine groups cannot be separated in one hue family (best achievable
+     all-pairs ΔL* ≈ 2). Nine-group surfaces encode by position + label +
+     magnitude, never by colour. See RESOLUTIONS "32-team / position palette".
+     ───────────────────────────────────────────────────────────────────── */
+  --yy-pos-1: #A6E22E;
+  --yy-pos-2: #6FA22B;
+  --yy-pos-3: #A8B1AD;
+  --yy-pos-4: #4A6B58;
+  --yy-pos-5: #2F4A3D;
+
+  /* ─────────────────────────────────────────────────────────────────────────
+     10. SERIES SEMANTICS — one meaning per surface              [RULED D3/Q1]
+     ───────────────────────────────────────────────────────────────────── */
+  --yy-series-subject: #A6E22E;
+  --yy-series-compare: #8FA39A;
+  --yy-series-compare-light: #5A6B63;
+  --yy-series-benchmark: #D4AF37;
+  --yy-series-neutral: #A8B1AD;
+  --yy-series-neutral-light: #46534F;
+
+  /* ─────────────────────────────────────────────────────────────────────────
+     11. PRODUCT STATE SEMANTICS                                   [RULED]
+     ───────────────────────────────────────────────────────────────────── */
+  --yy-selected-bg: #A6E22E;
+  --yy-selected-fg: #071C16;
+  --yy-selected-tint: rgba(166, 226, 46, 0.06);
+  --yy-selected-tint-light: rgba(79, 116, 19, 0.08);
+  --yy-selected-rule: 2px solid #A6E22E;
+
+  --yy-benchmark-fg: #D4AF37;
+  --yy-benchmark-fg-light: #8A6D14;
+  --yy-benchmark-line: rgba(212, 175, 55, 0.65);
+  --yy-benchmark-line-under: rgba(212, 175, 55, 0.50);
+  --yy-benchmark-tick: rgba(212, 175, 55, 0.75);
+
+  /* absence vs void: "this does not exist" is NOT a negative and must not read
+     as one. The mockup's dashed salmon is retained for the case where it IS a
+     negative (a void year that becomes dead money). [RULED D3/coverage] */
+  --yy-absence-rule: rgba(168, 177, 173, 0.55);
+  --yy-absence-rule-light: rgba(7, 28, 22, 0.32);
+  --yy-absence-fill: transparent;
+  --yy-void-rule: rgba(232, 160, 141, 0.75);
+  --yy-partial-hatch: rgba(168, 177, 173, 0.28);
+  --yy-partial-hatch-light: rgba(7, 28, 22, 0.18);
+  --yy-suppressed-fg: #EAF1EC;
+  --yy-suppressed-fg-light: #071C16;
+
+  --yy-provisional-fg: #D4AF37;
+  --yy-provisional-fg-light: #8A6D14;
+  --yy-provisional-stroke: rgba(212, 175, 55, 0.55);
+  --yy-asof-fg: #849489;
+  --yy-asof-fg-light: #616E69;
+  --yy-verified-fg: #A6E22E;
+  --yy-verified-fg-light: #4F7413;
+
+  /* ─────────────────────────────────────────────────────────────────────────
+     12. LINES, RULES, BORDERS
+     ───────────────────────────────────────────────────────────────────── */
+  --yy-line-card-dark: rgba(168, 177, 173, 0.22);
+  --yy-line-card-dark-lg: rgba(255, 255, 255, 0.12);
+  --yy-line-hairline-dark: rgba(168, 177, 173, 0.18);
+  --yy-line-divider-dark: rgba(168, 177, 173, 0.13);
+  --yy-line-card-light: rgba(7, 28, 22, 0.15);
+  --yy-line-hairline-light: rgba(7, 28, 22, 0.15);
+  --yy-line-divider-light: rgba(7, 28, 22, 0.10);
+  --yy-gridline-dark: rgba(168, 177, 173, 0.10);
+  --yy-gridline-light: rgba(7, 28, 22, 0.10);
+  --yy-axis-dark: rgba(168, 177, 173, 0.30);
+  --yy-axis-light: rgba(7, 28, 22, 0.30);
+
+  /* THE FEED FIX. Applies to EVERY screenshot variant regardless of direction:
+     the in-product .22 border vanishes on a white feed and merges with
+     #111416 on a dark one. [STUDY C5/C6] */
+  --yy-card-border-export: rgba(168, 177, 173, 0.42);
+  --yy-card-border-export-light: rgba(7, 28, 22, 0.28);
+
+  /* focus. Lime is 1.55:1 on white — it CANNOT be the light-mode focus ring. */
+  --yy-focus-ring-dark: #A6E22E;
+  --yy-focus-ring-light: #4F7413;
+  --yy-focus-width: 2px;
+  --yy-focus-offset: 2px;
+
+  /* ─────────────────────────────────────────────────────────────────────────
+     13. ELEVATION — cards are border + gradient, never shadow      [MOCKUP]
+     `--yy-shadow` (published, unused in the mockup) is scoped to exactly one
+     job: transient overlays that float above the page in LIGHT mode.
+     ───────────────────────────────────────────────────────────────────── */
+  --yy-shadow-menu: 0 12px 32px rgba(2, 9, 7, 0.24);
+  --yy-shadow-none: none;
+  --yy-glow-lime: 0 0 12px rgba(166, 226, 46, 0.55);
+
+  /* ─────────────────────────────────────────────────────────────────────────
+     14. RADII — 5 steps + a pill                          [RULED D8 / MOCKUP]
+     The mockup's 11 / 12 / 14px are all attempts at a full pill on a 22-28px
+     control; they collapse to one token. The mobile card moves 16 -> 18 to
+     meet the brand's stated 18-24 floor.
+     ───────────────────────────────────────────────────────────────────── */
+  --yy-radius-mark: 2px;
+  --yy-radius-chip: 4px;
+  --yy-radius-card-sm: 18px;
+  --yy-radius-pill: 999px;
+
+  /* ─────────────────────────────────────────────────────────────────────────
+     15. SPACING — 4px base, one documented half-step             [RULED D5]
+     `--yy-space-0h` is legal ONLY inside a data mark (bar inset, cell gap).
+     ───────────────────────────────────────────────────────────────────── */
+  --yy-space-0h: 2px;
+  --yy-space-1: 4px;
+  --yy-space-2: 8px;
+  --yy-space-3: 12px;
+  --yy-space-4: 16px;
+  --yy-space-5: 20px;
+  --yy-space-6: 24px;
+  --yy-space-7: 28px;
+  --yy-space-8: 32px;
+  --yy-space-9: 48px;
+  --yy-space-10: 64px;
+  --yy-space-11: 96px;
+
+  /* ─────────────────────────────────────────────────────────────────────────
+     16. TYPE SIZES — mobile values. Desktop overrides in §21.    [RULED D1]
+     The utility floor is 11px. `--yy-size-micro` (10px) is the single
+     exception and is legal ONLY as tracked all-caps inside a data mark.
+     Six mockup sizes (8 / 8.5 / 9 / 9.5 / 10 / 10.5) collapse into two.
+     ───────────────────────────────────────────────────────────────────── */
+  --yy-size-micro: 10px;
+  --yy-size-label: 11px;
+  --yy-size-label-lg: 13px;
+
+  --yy-size-caption: 13px;
+  --yy-size-body: 16px;
+  --yy-size-body-lg: 18px;
+
+  --yy-size-display-xs: 14px;
+  --yy-size-display-sm: 22px;
+  --yy-size-display-md: 28px;
+  --yy-size-display-lg: 40px;
+  --yy-size-wordmark: 24px;
+  --yy-size-mark: 13px;
+
+  --yy-size-metric-xs: 18px;
+  --yy-size-metric-sm: 22px;
+  --yy-size-metric: 30px;
+  --yy-size-metric-lg: 40px;
+  --yy-size-metric-hero: 64px;
+
+  /* ─────────────────────────────────────────────────────────────────────────
+     17. LINE HEIGHTS — 13 observed values collapse to 5
+     ───────────────────────────────────────────────────────────────────── */
+  --yy-lh-metric: 0.85;
+  --yy-lh-display: 0.9;
+  --yy-lh-tight: 1.1;
+  --yy-lh-label: 1.3;
+  --yy-lh-body: 1.6;
+
+  /* ─────────────────────────────────────────────────────────────────────────
+     18. TRACKING — 14 observed values collapse to 6
+     ───────────────────────────────────────────────────────────────────── */
+  --yy-track-metric-hero: -0.05em;
+  --yy-track-metric: -0.03em;
+  --yy-track-display: 0.02em;
+  --yy-track-display-wide: 0.1em;
+  --yy-track-label: 0.12em;
+  --yy-track-label-wide: 0.16em;
+
+  /* ─────────────────────────────────────────────────────────────────────────
+     19. WEIGHTS — Bebas is 400, always. No synthetic bold.       [RULED D11]
+     ───────────────────────────────────────────────────────────────────── */
+  --yy-weight-display: 400;
+  --yy-weight-body: 400;
+  --yy-weight-label: 500;
+  --yy-weight-metric: 600;
+  --yy-weight-strong: 600;
+
+  /* ─────────────────────────────────────────────────────────────────────────
+     20. CHART GEOMETRY                          [MOCKUP + RULED D10]
+     ───────────────────────────────────────────────────────────────────── */
+  --yy-stroke-primary: 3px;
+  --yy-stroke-compare: 2px;
+  --yy-stroke-benchmark: 1px;
+  --yy-stroke-icon: 2px;
+  --yy-dash-benchmark: 3 4;
+  --yy-dash-compare: 6 3;
+  --yy-dash-absence: 2 3;
+  --yy-dot: 10px;
+  --yy-dot-lg: 14px;
+  --yy-bar-h: 8px;
+  --yy-bar-h-sm: 5px;
+  --yy-bar-h-lg: 10px;
+  --yy-track-h: 16px;
+  --yy-gridline-max-opacity: 0.15;
+
+  /* ─────────────────────────────────────────────────────────────────────────
+     21. MOTION — originated. Nothing to extract from either source. [RULED D14]
+     Redefined to 1ms under prefers-reduced-motion in §24, so every consumer
+     inherits the reduction without writing a query.
+     ───────────────────────────────────────────────────────────────────── */
+  --yy-dur-instant: 90ms;
+  --yy-dur-fast: 140ms;
+  --yy-dur-base: 200ms;
+  --yy-dur-chart: 260ms;
+  --yy-dur-slow: 320ms;
+  --yy-ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --yy-ease-exit: cubic-bezier(0.4, 0, 1, 1);
+  --yy-ease-snap: cubic-bezier(0.34, 0.8, 0.24, 1);
+  --yy-stagger: 20ms;
+  --yy-stagger-max: 8;
+
+  /* ─────────────────────────────────────────────────────────────────────────
+     22. CANVASES & MEASURE                                        [MOCKUP]
+     ───────────────────────────────────────────────────────────────────── */
+  --yy-canvas-mobile: 390px;
+  --yy-canvas-square: 400px;
+  --yy-canvas-wide: 1040px;
+  --yy-canvas-desktop: 1440px;
+  --yy-bp-desktop: 1024px;
+  --yy-measure: 680px;
+  --yy-tap-target: 44px;
+  --yy-safe-bottom: env(safe-area-inset-bottom, 24px);
+
+  /* ═════════════════════════════════════════════════════════════════════════
+     23. SEMANTIC LAYER — DARK (default, flagship)
+     Components bind HERE. A component that references a raw token above will
+     not theme and fails review.
+     ═══════════════════════════════════════════════════════════════════════ */
+  --yy-bg: #0B0D0E;
+  --yy-bg-card: linear-gradient(160deg, #181C1D, #0E1112);
+  --yy-bg-card-lg: linear-gradient(160deg, #16191B, #0A0C0D);
+  --yy-bg-card-flat: #181C1D;
+  --yy-bg-card-accent: linear-gradient(160deg, rgba(166, 226, 46, 0.09), rgba(7, 28, 22, 0) 65%);
+  --yy-bg-card-alert: rgba(217, 80, 60, 0.06);
+  --yy-bg-chrome: linear-gradient(120deg, #191D1F, #0B0D0E);
+  --yy-bg-tabbar: #111416;
+  --yy-bg-menu: #1E2325;
+  --yy-bg-track: #39423E;
+  --yy-bg-sunken: rgba(168, 177, 173, 0.14);
+  --yy-bg-empty: #191D1E;
+  --yy-bg-hover: rgba(234, 241, 236, 0.04);
+
+  --yy-fg-1: #EAF1EC;
+  --yy-fg-2: #A8B1AD;
+  --yy-fg-3: #849489;
+  --yy-fg-mid: #8FA39A;
+  --yy-fg-dim: #6E8078;
+  --yy-fg-on-accent: #071C16;
+
+  --yy-line-card: rgba(168, 177, 173, 0.22);
+  --yy-line-hairline: rgba(168, 177, 173, 0.18);
+  --yy-line-divider: rgba(168, 177, 173, 0.13);
+  --yy-gridline: rgba(168, 177, 173, 0.10);
+  --yy-axis: rgba(168, 177, 173, 0.30);
+
+  --yy-accent: #A6E22E;
+  --yy-benchmark: #D4AF37;
+  --yy-negative-fill: #D9503C;
+  --yy-negative-text: #E8A08D;
+  --yy-compare: #8FA39A;
+  --yy-tint-selected: rgba(166, 226, 46, 0.06);
+  --yy-focus-ring: #A6E22E;
+  --yy-absence: rgba(168, 177, 173, 0.55);
+  --yy-partial: rgba(168, 177, 173, 0.28);
+  --yy-suppressed: #EAF1EC;
+  --yy-provisional: #D4AF37;
+  --yy-asof: #849489;
+  --yy-verified: #A6E22E;
+  --yy-elevation-menu: none;
+  --yy-border-export: rgba(168, 177, 173, 0.42);
+  --yy-feed-check: #111416;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   24. SEMANTIC LAYER — LIGHT
+   A designed theme, not an inversion. Three things change kind, not just
+   value: (1) card elevation becomes a shadow because a light card on a light
+   page has no gradient to separate it; (2) the selected tint is built from
+   `--yy-lime-ink`, because lime at 6% on white is invisible; (3) chrome stays
+   dark in both themes — it is the brand's End Zone band.   [RULED D7, D12, D13]
+   ═════════════════════════════════════════════════════════════════════════ */
+[data-theme="light"] {
+  --yy-bg: #F5F6F2;
+  --yy-bg-card: #FFFFFF;
+  --yy-bg-card-lg: #FFFFFF;
+  --yy-bg-card-flat: #FFFFFF;
+  --yy-bg-card-accent: linear-gradient(160deg, rgba(166, 226, 46, 0.16), rgba(255, 255, 255, 0) 65%);
+  --yy-bg-card-alert: rgba(217, 80, 60, 0.05);
+  --yy-bg-chrome: linear-gradient(120deg, #191D1F, #0B0D0E);
+  --yy-bg-tabbar: #111416;
+  --yy-bg-menu: #FFFFFF;
+  --yy-bg-track: rgba(7, 28, 22, 0.10);
+  --yy-bg-sunken: rgba(7, 28, 22, 0.06);
+  --yy-bg-empty: rgba(7, 28, 22, 0.03);
+  --yy-bg-hover: rgba(7, 28, 22, 0.04);
+
+  --yy-fg-1: #071C16;
+  --yy-fg-2: #46534F;
+  --yy-fg-3: #616E69;
+  --yy-fg-mid: #5A6B63;
+  --yy-fg-dim: #71807A;
+  --yy-fg-on-accent: #071C16;
+
+  --yy-line-card: rgba(7, 28, 22, 0.15);
+  --yy-line-hairline: rgba(7, 28, 22, 0.15);
+  --yy-line-divider: rgba(7, 28, 22, 0.10);
+  --yy-gridline: rgba(7, 28, 22, 0.10);
+  --yy-axis: rgba(7, 28, 22, 0.30);
+
+  --yy-accent: #4F7413;
+  --yy-benchmark: #8A6D14;
+  --yy-negative-fill: #D9503C;
+  --yy-negative-text: #B33A26;
+  --yy-compare: #5A6B63;
+  --yy-tint-selected: rgba(79, 116, 19, 0.08);
+  --yy-focus-ring: #4F7413;
+  --yy-absence: rgba(7, 28, 22, 0.32);
+  --yy-partial: rgba(7, 28, 22, 0.18);
+  --yy-suppressed: #071C16;
+  --yy-provisional: #8A6D14;
+  --yy-asof: #616E69;
+  --yy-verified: #4F7413;
+  --yy-elevation-menu: 0 12px 32px rgba(2, 9, 7, 0.24);
+  --yy-border-export: rgba(7, 28, 22, 0.28);
+  --yy-feed-check: #FFFFFF;
+}
+
+/* System preference, unless an explicit theme is pinned. Values are identical
+   to the [data-theme="light"] block above by construction. */
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]):not([data-theme="light"]) {
+    --yy-bg: #F5F6F2;
+    --yy-bg-card: #FFFFFF;
+    --yy-bg-card-lg: #FFFFFF;
+    --yy-bg-card-flat: #FFFFFF;
+    --yy-bg-card-accent: linear-gradient(160deg, rgba(166, 226, 46, 0.16), rgba(255, 255, 255, 0) 65%);
+    --yy-bg-card-alert: rgba(217, 80, 60, 0.05);
+    --yy-bg-chrome: linear-gradient(120deg, #191D1F, #0B0D0E);
+    --yy-bg-tabbar: #111416;
+    --yy-bg-menu: #FFFFFF;
+    --yy-bg-track: rgba(7, 28, 22, 0.10);
+    --yy-bg-sunken: rgba(7, 28, 22, 0.06);
+    --yy-bg-empty: rgba(7, 28, 22, 0.03);
+    --yy-bg-hover: rgba(7, 28, 22, 0.04);
+    --yy-fg-1: #071C16;
+    --yy-fg-2: #46534F;
+    --yy-fg-3: #616E69;
+    --yy-fg-mid: #5A6B63;
+    --yy-fg-dim: #71807A;
+    --yy-fg-on-accent: #071C16;
+    --yy-line-card: rgba(7, 28, 22, 0.15);
+    --yy-line-hairline: rgba(7, 28, 22, 0.15);
+    --yy-line-divider: rgba(7, 28, 22, 0.10);
+    --yy-gridline: rgba(7, 28, 22, 0.10);
+    --yy-axis: rgba(7, 28, 22, 0.30);
+    --yy-accent: #4F7413;
+    --yy-benchmark: #8A6D14;
+    --yy-negative-fill: #D9503C;
+    --yy-negative-text: #B33A26;
+    --yy-compare: #5A6B63;
+    --yy-tint-selected: rgba(79, 116, 19, 0.08);
+    --yy-focus-ring: #4F7413;
+    --yy-absence: rgba(7, 28, 22, 0.32);
+    --yy-partial: rgba(7, 28, 22, 0.18);
+    --yy-suppressed: #071C16;
+    --yy-provisional: #8A6D14;
+    --yy-asof: #616E69;
+    --yy-verified: #4F7413;
+    --yy-elevation-menu: 0 12px 32px rgba(2, 9, 7, 0.24);
+    --yy-border-export: rgba(7, 28, 22, 0.28);
+    --yy-feed-check: #FFFFFF;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   25. DESKTOP TYPE SCALE
+   Desktop is not a stretched phone (mockup brief). Only type sizes move; the
+   utility floor does not — an 11px label is 11px on a 27" monitor too, because
+   the reader's distance grows with the screen.
+   ═════════════════════════════════════════════════════════════════════════ */
+@media (min-width: 1024px) {
+  :root {
+    --yy-size-label-lg: 14px;
+    --yy-size-body-lg: 20px;
+    --yy-size-display-xs: 18px;
+    --yy-size-display-sm: 28px;
+    --yy-size-display-md: 44px;
+    --yy-size-display-lg: 76px;
+    --yy-size-wordmark: 32px;
+    --yy-size-mark: 15px;
+    --yy-size-metric-xs: 20px;
+    --yy-size-metric-sm: 24px;
+    --yy-size-metric: 34px;
+    --yy-size-metric-lg: 48px;
+    --yy-size-metric-hero: 76px;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   26. REDUCED MOTION (SPEC §4, §8.3)
+   The tokens themselves collapse, so no component has to opt in.
+   ═════════════════════════════════════════════════════════════════════════ */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --yy-dur-instant: 1ms;
+    --yy-dur-fast: 1ms;
+    --yy-dur-base: 1ms;
+    --yy-dur-chart: 1ms;
+    --yy-dur-slow: 1ms;
+    --yy-stagger: 0ms;
+    --yy-stagger-max: 0;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   27. EXPORT SCOPE
+   Applied by the screenshot renderer to the card root. Independent of the
+   Receipt direction — every screenshot variant of every card gets it.
+   See SCREENSHOT_VARIANTS.md.
+   ═════════════════════════════════════════════════════════════════════════ */
+.yy-export {
+  --yy-line-card: rgba(168, 177, 173, 0.42);
+  --yy-bg-card: #181C1D;
+  --yy-bg-card-lg: #16191B;
+  --yy-dur-instant: 1ms;
+  --yy-dur-fast: 1ms;
+  --yy-dur-base: 1ms;
+  --yy-dur-chart: 1ms;
+  --yy-dur-slow: 1ms;
+}
+
+[data-theme="light"] .yy-export {
+  --yy-line-card: rgba(7, 28, 22, 0.28);
+  --yy-bg-card: #FFFFFF;
+  --yy-bg-card-lg: #FFFFFF;
+}

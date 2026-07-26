@@ -3,18 +3,28 @@
 Every mart the app reads is declared here: exact column set, dtype coercibility,
 nullability rules, coverage-flag vocabularies, grain uniqueness and row count.
 
-AUTO-DISCOVERY. The registry covers every mart in SPEC §7, including the six
-still being built in parallel (`capplus_official`, `team_season_stability`,
-`draft_class_summary`, `player_season_cap`, `position_allocation`,
-`dead_money_display`). A mart that has not landed yet SKIPS with a reason naming
-its SPEC section — it never fails on absence. The moment the file appears in
-data/marts/ (as .csv or .parquet, under either its SPEC name or its BUILD_PLAN
-alias) its contract validates on the next CI run with no edit here.
+AUTO-DISCOVERY. The registry covers every mart in SPEC §7. A mart that has not
+landed yet SKIPS with a reason naming its SPEC section — it never fails on
+absence. The moment the file appears in data/marts/ (as .csv or .parquet, under
+either its SPEC name or its BUILD_PLAN alias) its contract validates on the next
+CI run with no edit here.
 
-Two columns are declared PENDING because SPEC §7 requires them and ETL has not
-added them yet (BUILD_PLAN Phase 1 item 4): `license_tier` on
-dead_money_team_season, and `stint` on coaching_staff. They are excluded from
-the exact-column-set check and validated by a dedicated skip-when-absent test.
+**As of ETL Phase 1 every mart in the registry has landed and nothing skips.**
+Both formerly-PENDING columns are present — `license_tier` on
+dead_money_team_season and `stint` on coaching_staff — so
+`test_pending_spec_columns` and `test_license_tier_row_counts_when_present` now
+validate rather than skip. The `pending` mechanism is retained for the next
+column SPEC requires ahead of ETL.
+
+Where a mart carries columns beyond its SPEC §7 interface, each is declared here
+with an inline "ETL implementation note" giving the governing clause, and the
+same note is recorded in the SPEC §7 section it affects. Three shapes recur:
+nested TS types flattened into flat column groups (`dm_asof`, `dm_next1/2`);
+nullability corrected against observed data where SPEC asserted NOT NULL before
+the mart existed (§7's own preamble says nullability is "what was actually
+observed"); and columns other SPEC sections require that §7's interface omits
+(`coach_id` from §2.8 step 8, the contract card from §3.3, the dead-money markers
+from §3.4).
 """
 
 from __future__ import annotations
@@ -144,6 +154,16 @@ REGISTRY: tuple[Mart, ...] = (
             "dead_money_rec": Col("float"),
             "badge": Col("str", REQUIRED, frozenset(CAPPLUS_BADGES)),
             "season_rank": Col("int"),
+            # ETL implementation note (SPEC §7.4). Two columns the memo's own
+            # conditions require to travel with the value:
+            #   league_median_dead_money_usd — CAPPLUS_MEMO §7 day-one disclosure
+            #     "2024 Denver is a non-event and that is correct: publish the
+            #     league median beside it" ($85.2M against a $50.3M median).
+            #   license_tier — dead_money_rec is a licensed reading, so the
+            #     DEAD_MONEY_TIER seed filter (SPEC §7.5) must be able to see its
+            #     tier without re-joining the source.
+            "league_median_dead_money_usd": Col("number"),
+            "license_tier": Col("str", REQUIRED, frozenset(LICENSE_TIERS)),
         },
         # `dm_asof: AsOf` is nested in TS; a flat file must carry the pair.
         one_of=(("dm_asof_date", "dm_asof_stage"), ("dm_asof",)),
@@ -205,6 +225,16 @@ REGISTRY: tuple[Mart, ...] = (
             "coach_name": Col("str"),
             "note": Col("str", NULLABLE),
             "source_url": Col("str"),
+            # ETL implementation note (SPEC §7.7).
+            #   coach_id — SPEC §2.8 step 8 REQUIRES it: "build a surrogate
+            #     coach_id by dense-ranking the distinct coach_name strings in
+            #     the curated file exactly as delivered". coach_name is not a
+            #     safe join key (Jim E. Mora vs Jim L. Mora).
+            #   team_current — the normalized franchise code beside the
+            #     era-correct `team`. Without it every TS consumer re-implements
+            #     normalize_team, which is exactly what DECISIONS 3 forbids.
+            "coach_id": Col("int"),
+            "team_current": Col("str", REQUIRED, frozenset(TEAM_ABBRS)),
         },
         pending={"stint": Col("int", REQUIRED)},
         rows=2612, seasons=(2000, 2025),
@@ -239,9 +269,27 @@ REGISTRY: tuple[Mart, ...] = (
             "kind": Col("str", REQUIRED, frozenset({"offseason", "in_season"})),
             "outgoing_hc": Col("str"), "incoming_hc": Col("str"),
             "regime_id": Col("str"),
+            # ETL implementation note (SPEC §7.7). `dm_next1`/`dm_next2` are
+            # Metric<T> unions in TS; a flat file carries them as a column group
+            # per SPEC §1.2's discriminated union — `_state` is the discriminant,
+            # `_usd`/`_asof_*`/`_league_median_usd` populate the `value` arm and
+            # `_blank_reason` the `blank` arm. The two readings are NEVER
+            # connected: they are a pair of independently dated chips.
+            **{
+                f"dm_next{k}{suffix}": col
+                for k in (1, 2)
+                for suffix, col in (
+                    ("_season", Col("int")),
+                    ("_state", Col("str", REQUIRED, frozenset({"value", "blank"}))),
+                    ("_usd", Col("number", NULLABLE)),
+                    ("_asof_date", Col("date", NULLABLE)),
+                    ("_asof_stage", Col("str", NULLABLE, frozenset(ASOF_STAGES))),
+                    ("_league_median_usd", Col("number", NULLABLE)),
+                    ("_blank_reason", Col("str", NULLABLE)),
+                )
+            },
         },
-        note="dm_next1/dm_next2 are Metric unions; their flat encoding is not "
-             "constrained here beyond the columns above.",
+        note="dm_next1/dm_next2 are Metric unions carried as flat column groups.",
     ),
     Mart(
         key="draft_pick",
@@ -253,8 +301,23 @@ REGISTRY: tuple[Mart, ...] = (
             "player_name": Col("str"),
             "gsis_id": Col("str", NULLABLE), "pfr_player_id": Col("str", NULLABLE),
             "position": Col("str"), "side": Col("str", NULLABLE),
-            "college": Col("str"),
+            # ETL implementation note (SPEC §7.8). `college` is NULLABLE against
+            # observed data: 4 of 6,644 picks in the window have no college
+            # because the player never attended one — Moritz Boehringer (2016
+            # MIN, German amateur), Jordan Mailata (2018 PHI, Australian rugby
+            # league), Qwan'tez Stiggers (2024 NYJ, CFL) and Travis Clayton
+            # (2024 BUF, International Player Pathway). SPEC §7's preamble says
+            # nullability is "what was actually observed"; this mart did not
+            # exist when §7.8 was written.
+            "college": Col("str", NULLABLE),
             "chart_value": Col("number"),
+            # `value_basis` distinguishes a PUBLISHED chart value from the
+            # labelled flat extension past pick 256 (25 picks reach 257-262 via
+            # compensatory selections). Without it an extrapolation is
+            # indistinguishable from a published value — the exact failure mode
+            # SPEC §1.2 forbids.
+            "value_basis": Col("str", REQUIRED,
+                               frozenset({"published", "extended_flat_from_pick_256"})),
             "games": Col("number", NULLABLE), "w_av": Col("number", NULLABLE),
             "seasons_started": Col("int"),
             "probowls": Col("int"), "allpro": Col("int"), "hof": Col("bool"),
@@ -278,6 +341,23 @@ REGISTRY: tuple[Mart, ...] = (
             "return_seasons_started": Col("number"),
             "n_excluded_no_gsis": Col("int"),
             "snaps_available": Col("bool"),
+            # ETL implementation note (SPEC §7.8).
+            #   return_probowls / return_allpro — SPEC §2.9's realized-return
+            #     table lists `probowls` and `allpro` as secondary, count-based
+            #     measures at 100% coverage. Class-level sums of the same.
+            #   *_per_1000_capital — "return per capital", the ROI framing of
+            #     §2.9. Reported as three independently-sourced ratios, never
+            #     blended into a single invented score.
+            #   dollar_framing_* — DECISIONS 41: capital and return are Tier 1
+            #     for 2000-2025, but any DOLLAR framing of a class is Tier 2 and
+            #     renders 2013+ only. The flag plus the approved boundary
+            #     sentence keep the card from getting it wrong.
+            "return_probowls": Col("number"), "return_allpro": Col("number"),
+            "w_av_per_1000_capital": Col("number"),
+            "games_per_1000_capital": Col("number"),
+            "seasons_started_per_1000_capital": Col("number"),
+            "dollar_framing_available": Col("bool"),
+            "dollar_framing_blank_reason": Col("str", NULLABLE),
         },
         grain=("season", "team"), seasons=(2000, 2025),
         note="`snaps_available` must be true exactly when season >= 2013.",
@@ -290,14 +370,49 @@ REGISTRY: tuple[Mart, ...] = (
             "otc_id": Col("int"),
             "gsis_id": Col("str", NULLABLE),
             "season": SEASON, "team": _team(),
-            "position_at_signing": Col("str"),
-            "position_group": Col("str", REQUIRED, frozenset(POSITION_GROUPS)),
+            # ETL implementation note (SPEC §7.9). Both are NULLABLE against
+            # observed data: 502 of 32,105 player-seasons (1.6%, carrying the
+            # 0.375% of cap SPEC §2.6 calls "unmapped") have no recorded signing
+            # position. They keep NULL rather than a tenth `UNK` bucket, because
+            # §2.6 says unmapped cap is DROPPED, not bucketed into "other" — and
+            # the drop happens in position_allocation. Every player-season still
+            # ships here: the 32,105-row Tier 2 promise is a roster, not a
+            # filtered sample. The nine-value vocabulary still holds on non-null.
+            "position_at_signing": Col("str", NULLABLE),
+            "position_group": Col("str", NULLABLE, frozenset(POSITION_GROUPS)),
             "cap_number": Col("number"), "cash_paid": Col("number"),
             "base_salary": Col("number", NULLABLE),
             "prorated_bonus": Col("number", NULLABLE),
             "roster_bonus": Col("number", NULLABLE),
             "guaranteed_salary": Col("number", NULLABLE),
             "cap_percent": Col("number", NULLABLE),
+            # ETL implementation note (SPEC §7.9).
+            #   player — the name. SPEC §3.3 renders it and §8.4's 251-player
+            #     search needs it; joining every view back to a name table would
+            #     be a needless second lookup.
+            #   contract_* — SPEC §3.3 point 3 specifies the contract card
+            #     verbatim: "value, APY, guaranteed, APY as % of cap, years,
+            #     year signed", carried from the deal in force for that season.
+            #   dm_ledger_* — SPEC §3.3 point 4: dead-money markers where a
+            #     ledger charge attaches to this player. `dm_ledger_team` is the
+            #     team that ATE the charge, which is NOT the team on the
+            #     player's row for that year — the source follows the player,
+            #     the charge does not. `dm_ledger_split_established` is false
+            #     for Dareus/BUF, whose per-season split was never guessed.
+            "player": Col("str"),
+            "contract_year_signed": Col("number", NULLABLE),
+            "contract_years": Col("number", NULLABLE),
+            "contract_value": Col("number", NULLABLE),
+            "contract_apy": Col("number", NULLABLE),
+            "contract_guaranteed": Col("number", NULLABLE),
+            "contract_apy_cap_pct": Col("number", NULLABLE),
+            "dm_ledger_charge": Col("bool"),
+            "dm_ledger_team": Col("str", NULLABLE, frozenset(TEAM_ABBRS)),
+            "dm_ledger_usd": Col("number", NULLABLE),
+            "dm_ledger_total_usd": Col("number", NULLABLE),
+            "dm_ledger_seasons": Col("str", NULLABLE),
+            "dm_ledger_split_established": Col("bool"),
+            "dm_ledger_source_url": Col("str", NULLABLE),
         },
         grain=("otc_id", "season"), rows=32105, seasons=(2013, 2025),
         note="Source is $ millions — ETL converts to USD. `cash_paid` is ANNUAL, "
@@ -315,7 +430,17 @@ REGISTRY: tuple[Mart, ...] = (
             "def_snaps": Col("number", NULLABLE),
             "st_snaps": Col("number", NULLABLE),
             "off_pct": Col("number", NULLABLE),
+            # ETL implementation note (SPEC §7.9).
+            #   player — golden test 18 selects Laken Tomlinson by name, and the
+            #     player view labels the availability table.
+            #   pfr_player_id — the ONLY key snap counts carry. Keeping it makes
+            #     the bridge auditable: gsis_id here was resolved THROUGH
+            #     players.parquet, never by a direct pfr_id join to rosters
+            #     (34.5% in 2013 vs 99.99% bridged, DECISIONS 38).
+            "player": Col("str"),
+            "pfr_player_id": Col("str"),
         },
+        seasons=(2013, 2025),
         grain=("gsis_id", "season", "team"),
         note="`off_pct` is a 0-1 FRACTION, not 0-100. Snap rows filter "
              "game_type='REG'; the postseason uses WC/DIV/CON/SB.",
@@ -325,14 +450,26 @@ REGISTRY: tuple[Mart, ...] = (
         spec_ref="SPEC §7.10",
         candidates=("player_images",),
         columns={
-            "player_id": Col("str"),
+            # ETL implementation note (SPEC §7.10). `player_id` IS the `otc_id`,
+            # which SPEC §7.9 types as `number` and §6 renders as a string in the
+            # /player/{id} route. The CSV carries the integer; the TS layer types
+            # it as the route string. Declared `number` here so the two SPEC
+            # sections stop disagreeing about one identifier.
+            "player_id": Col("number"),
             "has_usable_image": Col("bool"),
             "file_title": Col("str", NULLABLE), "file_url": Col("str", NULLABLE),
             "width": Col("number", NULLABLE), "height": Col("number", NULLABLE),
-            "author": Col("str"),
-            "license": Col("str"), "license_machine": Col("str"),
+            # ETL implementation note (SPEC §7.10). The licence block is NULLABLE
+            # for the 7 players with no usable Commons photo — there is no
+            # author, licence or credit line for a photo that does not exist, and
+            # SPEC's own comment concedes `author` is "non-null only via Artist →
+            # Credit → uploader fallback". Every row that HAS an image carries
+            # the full block; that is asserted separately below.
+            "author": Col("str", NULLABLE),
+            "license": Col("str", NULLABLE),
+            "license_machine": Col("str", NULLABLE),
             "license_url": Col("str", NULLABLE),  # NULL for all 14 PD files
-            "attribution": Col("str"),
+            "attribution": Col("str", NULLABLE),
             "attribution_required": Col("bool"), "share_alike": Col("bool"),
             "restrictions": Col("str", NULLABLE),
             "verification_method": Col("str", REQUIRED, frozenset(VERIFICATION_METHODS)),
@@ -340,9 +477,28 @@ REGISTRY: tuple[Mart, ...] = (
             "wikipedia_article": Col("str", NULLABLE),
             "notes": Col("str", NULLABLE),
             "last_verified_at": Col("date"),
+            # ETL implementation note (SPEC §5.2 / §7.10 + ARCHITECTURE §5).
+            # The resolution floor is a DIFFERENT FACT from Commons coverage:
+            # the designed card fires when has_usable_image is false OR the asset
+            # is below IMAGE_MIN_WIDTH_PX. Keeping them separate is what makes
+            # both published numbers derivable from the mart — 244/251 = 97.2%
+            # Commons coverage, 235/251 = 93.6% rendered at the 300px floor with
+            # the 6.4% fallback gate #3 signed off.
+            "meets_min_width": Col("bool"),
+            "renders_photo": Col("bool"),
+            # The self-hosted rendition. NOTHING IS EVER HOTLINKED: `file_url` is
+            # a FETCH source, `asset_file` is what we serve from our own origin.
+            # `rendition_sha256` is the takedown/re-verify handle.
+            "asset_file": Col("str", NULLABLE),
+            "rendition": Col("str", NULLABLE),
+            "rendition_width": Col("number", NULLABLE),
+            "rendition_height": Col("number", NULLABLE),
+            "rendition_sha256": Col("str", NULLABLE),
+            "rendition_bytes": Col("number", NULLABLE),
         },
-        grain=("player_id",),
-        note="license_url must NOT be NOT NULL — it is null for all 14 PD files.",
+        grain=("player_id",), rows=251,
+        note="license_url must NOT be NOT NULL — it is null for all 14 PD files. "
+             "Population is the 251 audited players (SPEC §8.4, DECISIONS 53).",
     ),
     Mart(
         key="league_cap",
@@ -384,8 +540,44 @@ REGISTRY: tuple[Mart, ...] = (
             "asof_date": Col("date"),
             "asof_stage": Col("str", REQUIRED, frozenset(ASOF_STAGES)),
             "coverage": Col("str", REQUIRED, frozenset(COVERAGE_FLAGS)),
+            # ETL implementation note (SPEC §7.5 + §2.1 + §2.7).
+            #   license_tier / source_url / note — every row that carries a
+            #     reading declares its licensing tier and its per-row citation,
+            #     so the DEAD_MONEY_TIER filter works on this mart directly.
+            #   season_coverage — 'full32' or 'leaders_only'. This is what makes
+            #     §2.1's rule structural: the 28 rows from 2013/2016/2020/2021
+            #     are a "biggest hits" leaderboard LABELLED AS SUCH, never a
+            #     32-team view with 22+ silent gaps. The whole-season blank
+            #     statement lives once per season in
+            #     dead_money_snapshot_resolution, not duplicated onto team rows.
+            #   badge — provisional/preseason/in_season for the resolved season.
+            #   n_alternate_readings — how many OTHER dated snapshots exist for
+            #     this team-season; the UI shows them on request, never averaged.
+            #   burden_* + both denominators — SPEC §2.7 makes burden divide by
+            #     the implied adjusted cap, with the league-cap version as a
+            #     labelled secondary readout. Carrying both denominators makes
+            #     every burden figure checkable from its own row.
+            #   ledger_* — the §7.6 marquee charges attaching to this
+            #     team-season; `ledger_split_all_established` is false wherever
+            #     Dareus/BUF's unguessed split is involved.
+            "license_tier": Col("str", REQUIRED, frozenset(LICENSE_TIERS)),
+            "season_coverage": Col("str", REQUIRED,
+                                   frozenset({"full32", "leaders_only"})),
+            "badge": Col("str", NULLABLE, frozenset(CAPPLUS_BADGES)),
+            "n_alternate_readings": Col("int"),
+            "league_median_usd": Col("number", NULLABLE),
+            "team_adjusted_cap_implied": Col("number"),
+            "league_cap": Col("number"),
+            "burden_of_adjusted_cap": Col("number"),
+            "burden_of_league_cap": Col("number"),
+            "ledger_n_charges": Col("int"),
+            "ledger_players": Col("str", NULLABLE),
+            "ledger_usd_attributed": Col("number", NULLABLE),
+            "ledger_split_all_established": Col("bool"),
+            "source_url": Col("str"),
+            "note": Col("str", NULLABLE),
         },
-        grain=("season", "team"),
+        grain=("season", "team"), rows=316, seasons=(2013, 2025),
         note="The resolved one-snapshot-per-team-season view. Grain MUST be unique "
              "on (season, team) — that is the whole point of the resolution — and "
              "every row still carries its as-of date, because these values are never "
@@ -798,6 +990,68 @@ def test_dead_money_display_resolves_to_one_row_per_team_season():
         "a resolved row does not correspond to any dated source reading — snapshots "
         "are individually dated readings and must never be averaged or merged"
     )
+
+
+def test_player_images_licence_block_complete_where_a_photo_exists():
+    """SPEC §7.10 / §5.2 — the licence block is nullable ONLY for the players
+    with no usable Commons photo.
+
+    Attribution is the default, not the exception: 91.4% of usable assets require
+    it, and a served asset without an author or a credit line is a licence
+    violation, not a null. This is the assertion that keeps the nullable
+    declaration honest.
+    """
+    mart = REGISTRY_BY_KEY["player_images"]
+    path, df = resolve(mart)
+    have = df[df.has_usable_image.astype(bool)]
+    for col in ("author", "license", "license_machine", "attribution",
+                "file_title", "file_url", "width", "height"):
+        n_null = int(have[col].isna().sum())
+        assert n_null == 0, (
+            f"{rel(path)}::{col}: {n_null} usable-image row(s) have no {col} — the "
+            "licence block is nullable only where there is no photo at all"
+        )
+    # ...and the 7 without a photo carry no fabricated licence.
+    none = df[~df.has_usable_image.astype(bool)]
+    assert none.author.isna().all(), "a player with no photo has an author"
+    assert (~none.renders_photo.astype(bool)).all()
+    # SPEC §5.2 coverage facts, both derivable from this mart.
+    assert int(df.has_usable_image.astype(bool).sum()) == 244, "97.2% Commons coverage"
+    assert int(df.renders_photo.astype(bool).sum()) == 235, "93.6% at the 300px floor"
+    # license_url is genuinely null somewhere — public-domain files have none.
+    assert df.license_url.isna().any(), (
+        "license_url is NULL for public-domain files; a mart where it is never "
+        "null means a URL was fabricated"
+    )
+
+
+def test_dead_money_display_labels_the_leaders_only_seasons():
+    """SPEC §2.1 — the four seasons without a league-wide table render a
+    'biggest hits' leaderboard LABELLED AS SUCH, never a 32-team view with 22+
+    silent gaps.
+
+    The label is `season_coverage`, and it must be exactly the four blank seasons
+    that carry it. The whole-season blank sentence itself lives once per season
+    in dead_money_snapshot_resolution, not duplicated onto team rows.
+    """
+    mart = REGISTRY_BY_KEY["dead_money_display"]
+    path, df = resolve(mart)
+    leaders = df[df.season_coverage == "leaders_only"]
+    assert sorted(leaders.season.unique()) == [2013, 2016, 2020, 2021], (
+        f"{rel(path)}: leaders_only must mark exactly the four blank seasons, "
+        f"found {sorted(leaders.season.unique())}"
+    )
+    assert leaders.groupby("season").size().to_dict() == {
+        2013: 5, 2016: 8, 2020: 5, 2021: 10
+    }, "the published leader counts per blank season changed"
+    full = df[df.season_coverage == "full32"]
+    assert set(full.groupby("season").team.nunique()) == {32}
+    assert sorted(full.season.unique()) == [
+        2014, 2015, 2017, 2018, 2019, 2022, 2023, 2024, 2025
+    ]
+    # Every leaders-only row keeps the source's own partial-coverage label.
+    assert set(leaders.coverage.unique()) <= {"top5", "partial"}
+    assert set(full.coverage.unique()) == {"full32"}
 
 
 def test_team_season_cap_dead_money_columns_stay_null(cap):

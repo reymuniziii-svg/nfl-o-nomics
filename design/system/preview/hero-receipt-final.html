@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<!--
+  YIELD/YARD — THE RECEIPT, FINAL SPEC.  Rey's round-1 review artifact.
+  Direction locked 2026-07-26: Study A.
+
+  This is the hero card rebuilt to the Phase-B spec:
+    · D1-resolved type   — 11px utility floor, one 10px in-mark exception (TYPE.md §3)
+    · Solved cash caveat — always-visible short form + in-card disclosure,
+                           force-expanded in export (COMPONENTS.md §1.8)
+    · Export border      — --yy-card-border-export at .42 (SCREENSHOT_VARIANTS.md §1)
+    · AA fixes           — #6E8078 -> #849489 dark, #71807A -> #616E69 light
+    · Neutral zero-win   — absence is not a negative (RESOLUTIONS D3)
+
+  Three sizes x two themes, from one composition.  Sample data.
+  The card is driven by ../tokens.css.  An inline fallback subset precedes the
+  link so the page still renders if a browser blocks the file:// stylesheet.
+-->
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>YIELD/YARD — The Receipt, final spec</title>
+
+<style>
+/* ── inline fallback: a verbatim subset of ../tokens.css, in case file:// blocks
+      the stylesheet below.  The <link> that follows overrides all of it. ────── */
+:root{
+  --yy-end-zone:#071C16;--yy-film-room:#111416;--yy-chalk-white:#FFFFFF;
+  --yy-yield-lime:#A6E22E;--yy-premium-gold:#D4AF37;--yy-muted:#A8B1AD;--yy-paper:#F5F6F2;
+  --yy-font-display:"Bebas Neue","Arial Narrow",sans-serif;
+  --yy-font-athletic:"Squadron Black","Rajdhani","Arial Narrow",sans-serif;
+  --yy-font-body:"Inter",Arial,sans-serif;--yy-font-num:"Inter",Arial,sans-serif;
+  --yy-radius-card:22px;--yy-radius-control:8px;--yy-radius-mark:2px;--yy-radius-chip:4px;
+  --yy-radius-card-sm:18px;--yy-radius-pill:999px;
+  --yy-space-0h:2px;--yy-space-1:4px;--yy-space-2:8px;--yy-space-3:12px;--yy-space-4:16px;
+  --yy-space-5:20px;--yy-space-6:24px;--yy-space-7:28px;--yy-space-8:32px;--yy-space-9:48px;
+  --yy-size-micro:10px;--yy-size-label:11px;--yy-size-label-lg:13px;--yy-size-caption:13px;
+  --yy-size-body:16px;--yy-size-display-xs:14px;--yy-size-display-sm:22px;--yy-size-display-md:28px;
+  --yy-size-display-lg:40px;--yy-size-mark:13px;--yy-size-metric-xs:18px;--yy-size-metric-sm:22px;
+  --yy-size-metric:30px;
+  --yy-lh-metric:.85;--yy-lh-display:.9;--yy-lh-tight:1.1;--yy-lh-label:1.3;--yy-lh-body:1.6;
+  --yy-track-metric-hero:-.05em;--yy-track-metric:-.03em;--yy-track-display:.02em;
+  --yy-track-display-wide:.1em;--yy-track-label:.12em;--yy-track-label-wide:.16em;
+  --yy-weight-display:400;--yy-weight-body:400;--yy-weight-label:500;--yy-weight-metric:600;
+  --yy-bar-h:8px;--yy-bar-h-lg:10px;--yy-tap-target:44px;--yy-measure:680px;
+  --yy-dur-instant:90ms;--yy-dur-fast:140ms;--yy-dur-base:200ms;--yy-dur-chart:260ms;--yy-dur-slow:320ms;
+  --yy-ease-standard:cubic-bezier(.2,0,0,1);--yy-ease-exit:cubic-bezier(.4,0,1,1);
+  --yy-ease-snap:cubic-bezier(.34,.8,.24,1);
+  --yy-benchmark-tick:rgba(212,175,55,.75);
+  --yy-bg:#0B0D0E;--yy-bg-card:linear-gradient(160deg,#181C1D,#0E1112);
+  --yy-bg-card-lg:linear-gradient(160deg,#16191B,#0A0C0D);--yy-bg-card-flat:#181C1D;
+  --yy-bg-sunken:rgba(168,177,173,.14);--yy-bg-hover:rgba(234,241,236,.04);
+  --yy-fg-1:#EAF1EC;--yy-fg-2:#A8B1AD;--yy-fg-3:#849489;--yy-fg-mid:#8FA39A;--yy-fg-dim:#6E8078;
+  --yy-fg-on-accent:#071C16;
+  --yy-line-card:rgba(168,177,173,.22);--yy-line-hairline:rgba(168,177,173,.18);
+  --yy-line-divider:rgba(168,177,173,.13);
+  --yy-accent:#A6E22E;--yy-benchmark:#D4AF37;--yy-negative-fill:#D9503C;--yy-negative-text:#E8A08D;
+  --yy-compare:#8FA39A;--yy-tint-selected:rgba(166,226,46,.06);--yy-focus-ring:#A6E22E;
+  --yy-absence:rgba(168,177,173,.55);--yy-suppressed:#EAF1EC;--yy-asof:#849489;
+  --yy-border-export:rgba(168,177,173,.42);--yy-feed-check:#111416;
+  /* preview-local: the product mark's 55% ink (COMPONENTS.md §1.9), expressed as
+     a colour rather than an opacity so the lime slash stays at full strength */
+  --mark-ink:rgba(234,241,236,.55);
+  --sample-edge:rgba(232,160,141,.40);
+}
+[data-theme="light"]{
+  --mark-ink:rgba(7,28,22,.55);
+  --sample-edge:rgba(179,58,38,.40);
+  --yy-bg:#F5F6F2;--yy-bg-card:#FFFFFF;--yy-bg-card-lg:#FFFFFF;--yy-bg-card-flat:#FFFFFF;
+  --yy-bg-sunken:rgba(7,28,22,.06);--yy-bg-hover:rgba(7,28,22,.04);
+  --yy-fg-1:#071C16;--yy-fg-2:#46534F;--yy-fg-3:#616E69;--yy-fg-mid:#5A6B63;--yy-fg-dim:#71807A;
+  --yy-fg-on-accent:#071C16;
+  --yy-line-card:rgba(7,28,22,.15);--yy-line-hairline:rgba(7,28,22,.15);
+  --yy-line-divider:rgba(7,28,22,.10);
+  --yy-accent:#4F7413;--yy-benchmark:#8A6D14;--yy-negative-fill:#D9503C;--yy-negative-text:#B33A26;
+  --yy-compare:#5A6B63;--yy-tint-selected:rgba(79,116,19,.08);--yy-focus-ring:#4F7413;
+  --yy-absence:rgba(7,28,22,.32);--yy-suppressed:#071C16;--yy-asof:#616E69;
+  --yy-border-export:rgba(7,28,22,.28);--yy-feed-check:#FFFFFF;
+}
+</style>
+<link rel="stylesheet" href="../tokens.css">
+
+<style>
+/* ── faces ──────────────────────────────────────────────────────────────────
+   Bebas Neue is the only face shipped in the handoff kit and loads relatively.
+   Rajdhani and Inter are Google-Fonts-only in the handoff (PHASE_A_TOKENS §12,
+   NEEDS-REY #7: they must be self-hosted before launch).  Offline they resolve
+   through the token stacks to system fallbacks — which is itself the finding. */
+@font-face{
+  font-family:'Bebas Neue';
+  src:url("../../handoff/project/uploads/Bebas_Neue,DM_Serif_Display,Squada_One/Bebas_Neue/BebasNeue-Regular.ttf") format("truetype");
+  font-weight:400; font-style:normal; font-display:swap;
+}
+
+*{box-sizing:border-box}
+html{background:var(--yy-bg)}
+body{
+  margin:0;background:var(--yy-bg);color:var(--yy-fg-1);
+  font-family:var(--yy-font-body);
+  transition:background-color var(--yy-dur-base) var(--yy-ease-standard);
+}
+
+/* ── review chrome (not part of the card) ──────────────────────────────────── */
+.rev{padding:var(--yy-space-9) var(--yy-space-9) 96px;max-width:1240px}
+.rev__hd{display:flex;align-items:flex-start;justify-content:space-between;gap:var(--yy-space-6);
+  margin-bottom:var(--yy-space-8);flex-wrap:wrap}
+.rev__eyebrow{font-family:var(--yy-font-athletic);font-weight:var(--yy-weight-label);
+  font-size:var(--yy-size-label);letter-spacing:var(--yy-track-label-wide);text-transform:uppercase;
+  color:var(--yy-accent)}
+.rev h1{margin:var(--yy-space-2) 0 0;font-family:var(--yy-font-display);
+  font-weight:var(--yy-weight-display);font-size:var(--yy-size-display-lg);
+  line-height:var(--yy-lh-display);letter-spacing:var(--yy-track-display);color:var(--yy-fg-1)}
+.rev p{margin:var(--yy-space-3) 0 0;font-size:var(--yy-size-caption);line-height:var(--yy-lh-body);
+  color:var(--yy-fg-2);max-width:var(--yy-measure)}
+.rev code{font:11px ui-monospace,SFMono-Regular,Menlo,monospace;background:var(--yy-bg-sunken);
+  padding:1px 5px;border-radius:3px;color:var(--yy-fg-1)}
+.rev h2{margin:var(--yy-space-9) 0 var(--yy-space-4);font-family:var(--yy-font-display);
+  font-weight:var(--yy-weight-display);font-size:var(--yy-size-display-md);
+  letter-spacing:var(--yy-track-display);color:var(--yy-fg-1)}
+.stage{display:flex;flex-wrap:wrap;gap:var(--yy-space-9);align-items:flex-start}
+.slot{display:flex;flex-direction:column;gap:var(--yy-space-3)}
+.slot__cap{font-size:var(--yy-size-caption);line-height:var(--yy-lh-body);color:var(--yy-fg-2);
+  max-width:420px}
+.slot__cap b{font-family:var(--yy-font-athletic);font-weight:var(--yy-weight-metric);
+  font-size:var(--yy-size-label);letter-spacing:var(--yy-track-label);text-transform:uppercase;
+  background:var(--yy-bg-sunken);border-radius:5px;padding:3px 8px;margin-right:var(--yy-space-2);
+  color:var(--yy-fg-1)}
+.themer{display:flex;gap:var(--yy-space-1);flex:none}
+.themer button{font-family:var(--yy-font-athletic);font-weight:var(--yy-weight-label);
+  font-size:var(--yy-size-label);letter-spacing:var(--yy-track-label);text-transform:uppercase;
+  padding:var(--yy-space-2) var(--yy-space-4);border-radius:var(--yy-radius-pill);cursor:pointer;
+  min-height:var(--yy-tap-target);
+  background:transparent;color:var(--yy-fg-2);border:1px solid var(--yy-line-card)}
+.themer button[aria-pressed="true"]{background:var(--yy-accent);color:var(--yy-fg-on-accent);
+  border-color:var(--yy-accent)}
+:focus-visible{outline:2px solid var(--yy-focus-ring);outline-offset:2px}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   THE CARD — CostPerWinCard.  COMPONENTS.md §1.
+   ═══════════════════════════════════════════════════════════════════════════ */
+.cpw{
+  background:var(--yy-bg-card);
+  border:1px solid var(--yy-line-card);
+  border-radius:var(--yy-radius-card-sm);
+  color:var(--yy-fg-1);
+  font-variant-numeric:tabular-nums;          /* D6 — set once, on the root */
+  display:flex;flex-direction:column;
+}
+.cpw--wide{border-radius:var(--yy-radius-card);background:var(--yy-bg-card-lg)}
+
+/* HEAD ─────────────────────────────────────────────────────────────────────── */
+.cpw__head{display:flex;align-items:flex-start;justify-content:space-between;gap:var(--yy-space-3)}
+.cpw__eyebrow{
+  font-family:var(--yy-font-athletic);font-weight:var(--yy-weight-label);
+  font-size:var(--yy-size-label);line-height:var(--yy-lh-label);
+  letter-spacing:var(--yy-track-label-wide);text-transform:uppercase;color:var(--yy-fg-3);
+}
+.cpw__title{
+  font-family:var(--yy-font-display);font-weight:var(--yy-weight-display);
+  font-size:var(--yy-size-display-sm);line-height:var(--yy-lh-display);
+  letter-spacing:var(--yy-track-display);color:var(--yy-fg-1);margin-top:var(--yy-space-1);
+}
+
+/* TOGGLE ───────────────────────────────────────────────────────────────────── */
+.cpw__toggle{display:flex;gap:var(--yy-space-1);flex:none}
+.cpw__toggle button{
+  font-family:var(--yy-font-athletic);font-weight:var(--yy-weight-label);
+  font-size:var(--yy-size-label);letter-spacing:var(--yy-track-label);text-transform:uppercase;
+  padding:var(--yy-space-1) var(--yy-space-3);border-radius:var(--yy-radius-pill);cursor:pointer;
+  color:var(--yy-fg-2);background:transparent;border:1px solid var(--yy-line-card);
+  transition:background-color var(--yy-dur-fast) var(--yy-ease-snap),
+             color var(--yy-dur-fast) var(--yy-ease-snap),
+             border-color var(--yy-dur-fast) var(--yy-ease-snap);
+}
+.cpw__toggle button[aria-checked="true"]{
+  background:var(--yy-accent);color:var(--yy-fg-on-accent);border-color:var(--yy-accent);
+}
+
+/* SAMPLE CHIP ──────────────────────────────────────────────────────────────── */
+.cpw__sample{
+  font-family:var(--yy-font-athletic);font-weight:var(--yy-weight-metric);
+  font-size:var(--yy-size-micro);line-height:1;letter-spacing:var(--yy-track-label);
+  text-transform:uppercase;color:var(--yy-negative-text);
+  border:1px solid var(--sample-edge);
+  border-radius:var(--yy-radius-chip);padding:var(--yy-space-1) var(--yy-space-2);flex:none;
+}
+
+/* ROWS ─────────────────────────────────────────────────────────────────────── */
+.cpw__rows{margin-top:var(--yy-space-4)}
+.row{display:flex;align-items:center;gap:var(--yy-space-3);padding:var(--yy-space-3) 0;
+  border-top:1px solid var(--yy-line-divider)}
+.row:first-child{border-top:0}
+
+.row__rank{width:14px;flex:none;
+  font-family:var(--yy-font-athletic);font-weight:var(--yy-weight-label);
+  font-size:var(--yy-size-label);letter-spacing:var(--yy-track-label);color:var(--yy-fg-3)}
+.is-cheap .row__rank{color:var(--yy-accent)}
+
+.row__team{width:84px;flex:none}
+.row__ab{font-family:var(--yy-font-display);font-weight:var(--yy-weight-display);
+  font-size:var(--yy-size-display-sm);line-height:var(--yy-lh-tight);
+  letter-spacing:var(--yy-track-display);color:var(--yy-fg-1)}
+.row__sub{font-family:var(--yy-font-athletic);font-weight:var(--yy-weight-label);
+  font-size:var(--yy-size-label);line-height:var(--yy-lh-label);
+  letter-spacing:var(--yy-track-label);text-transform:uppercase;color:var(--yy-fg-3);
+  margin-top:var(--yy-space-0h)}
+
+.row__bar{flex:1;height:var(--yy-bar-h);background:var(--yy-bg-sunken);
+  border-radius:var(--yy-radius-mark);position:relative;overflow:visible}
+.row__fill{position:absolute;left:0;top:0;bottom:0;border-radius:var(--yy-radius-mark);
+  transition:width var(--yy-dur-chart) var(--yy-ease-standard)}
+.row__tick{position:absolute;top:-4px;bottom:-4px;width:1px;background:var(--yy-benchmark-tick)}
+
+.row__val{width:78px;flex:none;text-align:right}
+.row__num{font-family:var(--yy-font-num);font-weight:var(--yy-weight-metric);
+  font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1,"ss01" 1;
+  font-size:var(--yy-size-metric-sm);line-height:var(--yy-lh-tight);
+  letter-spacing:var(--yy-track-metric);padding-right:.03em}
+.row__delta{font-family:var(--yy-font-athletic);font-weight:var(--yy-weight-label);
+  font-size:var(--yy-size-label);line-height:var(--yy-lh-label);
+  letter-spacing:var(--yy-track-label);text-transform:uppercase;color:var(--yy-fg-3);
+  margin-top:var(--yy-space-0h)}
+
+/* colour meaning — BENCHMARK MODE (no subject).  COMPONENTS.md §1.3 */
+.is-cheap .row__num{color:var(--yy-accent)}
+.is-cheap .row__fill{background:var(--yy-accent)}
+.is-mid   .row__num{color:var(--yy-fg-1)}
+.is-mid   .row__fill{background:var(--yy-fg-mid)}
+.is-dear  .row__num{color:var(--yy-negative-text)}   /* text weight: 8.05:1 */
+.is-dear  .row__fill{background:var(--yy-negative-fill)} /* fill weight: 4.22:1, >=3:1 */
+
+/* colour meaning — SUBJECT MODE.  Lime = the subject, whatever it costs. */
+.cpw--subject .row__num{color:var(--yy-fg-1)}
+.cpw--subject .row__fill{background:var(--yy-fg-2)}
+.cpw--subject .row__rank{color:var(--yy-fg-3)}
+.cpw--subject .is-subject .row__num{color:var(--yy-accent)}
+.cpw--subject .is-subject .row__fill{background:var(--yy-accent)}
+
+/* ZERO-WIN ROW — SPEC §2.5.  Neutral absence, not the red family. */
+.row--zero .row__rank{color:var(--yy-fg-3)}
+.row--zero .row__bar{background:transparent;border:1px dashed var(--yy-absence)}
+.row--zero .row__num{font-size:var(--yy-size-metric-xs);letter-spacing:0;
+  color:var(--yy-suppressed);white-space:nowrap}
+.row--zero .row__delta{color:var(--yy-fg-3)}
+
+/* LENS LINE + DISCLOSURE — COMPONENTS.md §1.8, the solved caveat ───────────── */
+.cpw__lens{margin-top:var(--yy-space-3);padding-top:var(--yy-space-2);
+  border-top:1px solid var(--yy-line-divider)}
+.cpw__lensbtn{display:flex;width:100%;align-items:center;justify-content:space-between;
+  gap:var(--yy-space-2);background:none;border:0;padding:var(--yy-space-1) 0;cursor:pointer;
+  text-align:left;min-height:var(--yy-tap-target);
+  font-family:var(--yy-font-athletic);font-weight:var(--yy-weight-label);
+  font-size:var(--yy-size-label);letter-spacing:var(--yy-track-label);text-transform:uppercase;
+  color:var(--yy-fg-2)}
+.cpw__i{width:16px;height:16px;flex:none;border-radius:50%;
+  border:2px solid var(--yy-fg-3);display:grid;place-items:center;
+  font-family:var(--yy-font-body);font-size:9px;font-weight:600;color:var(--yy-fg-3);
+  font-style:normal;line-height:1;
+  transition:border-color var(--yy-dur-fast) var(--yy-ease-standard),
+             color var(--yy-dur-fast) var(--yy-ease-standard)}
+.cpw__lensbtn[aria-expanded="true"] .cpw__i{border-color:var(--yy-fg-1);color:var(--yy-fg-1)}
+.cpw__disclose{display:grid;grid-template-rows:0fr;
+  transition:grid-template-rows var(--yy-dur-base) var(--yy-ease-standard)}
+.cpw__lensbtn[aria-expanded="true"] + .cpw__disclose{grid-template-rows:1fr}
+.cpw__disclose > div{overflow:hidden}
+.cpw__disclose p{margin:0;padding-top:var(--yy-space-2);
+  font-size:var(--yy-size-caption);line-height:var(--yy-lh-body);color:var(--yy-fg-2)}
+/* export / wide: no control, no collapsed state — the sentence is simply there */
+.cpw--static .cpw__lensbtn{pointer-events:none;min-height:0}
+.cpw--static .cpw__i{display:none}
+.cpw--static .cpw__disclose{grid-template-rows:1fr}
+
+/* STRAP ────────────────────────────────────────────────────────────────────── */
+.cpw__strap{display:flex;align-items:baseline;justify-content:space-between;gap:var(--yy-space-3);
+  margin-top:var(--yy-space-3);padding-top:var(--yy-space-3);
+  border-top:1px solid var(--yy-line-hairline)}
+.cpw__bench{font-family:var(--yy-font-athletic);font-weight:var(--yy-weight-label);
+  font-size:var(--yy-size-label);line-height:var(--yy-lh-label);
+  letter-spacing:var(--yy-track-label);text-transform:uppercase;color:var(--yy-fg-2)}
+.cpw__bench i{font-style:normal;color:var(--yy-benchmark)}
+.cpw__mark{flex:none;font-family:var(--yy-font-display);font-weight:var(--yy-weight-display);
+  font-size:var(--yy-size-mark);line-height:1;letter-spacing:var(--yy-track-display);
+  color:var(--mark-ink)}
+.cpw__mark .sl{color:var(--yy-accent)}
+
+/* SIZES — one composition, three size props.  COMPONENTS.md §1.4 ───────────────
+   Each size PINS its own type scale.  tokens.css moves 13 size tokens at
+   min-width:1024px, and this review page is wider than that — without the pin, a
+   390px card shown on a desktop review page would render at the desktop scale
+   and the mobile composition could not be judged.  In the product each size prop
+   is used at its own canvas and the media query does the same job. */
+.size-mobile,.size-square{
+  --yy-size-label-lg:13px;--yy-size-display-xs:14px;--yy-size-display-sm:22px;
+  --yy-size-display-md:28px;--yy-size-mark:13px;--yy-size-metric-xs:18px;
+  --yy-size-metric-sm:22px;--yy-size-metric:30px;
+}
+.size-wide{
+  --yy-size-label-lg:14px;--yy-size-display-xs:18px;--yy-size-display-sm:28px;
+  --yy-size-display-md:44px;--yy-size-mark:15px;--yy-size-metric-xs:20px;
+  --yy-size-metric-sm:24px;--yy-size-metric:34px;
+}
+.size-mobile{width:390px;padding:var(--yy-space-4)}
+
+.size-square{width:400px;height:400px;padding:var(--yy-space-5);justify-content:space-between}
+.size-square .row{padding:var(--yy-space-2) 0}
+.size-square .row__rank{display:none}
+.size-square .row__delta{display:none}
+.size-square .row__team{width:76px}
+.size-square .row__val{width:60px}
+.size-square .cpw__rows{margin-top:var(--yy-space-3)}
+.size-square .cpw__lensbtn{min-height:0;padding:0}
+
+.size-wide{width:1040px;padding:var(--yy-space-7);border-radius:var(--yy-radius-card)}
+.size-wide .cpw__title{font-size:var(--yy-size-display-md)}
+.size-wide .row{padding:var(--yy-space-4) 0;gap:var(--yy-space-4)}
+.size-wide .row__rank{width:20px}
+.size-wide .row__team{width:180px}
+.size-wide .row__ab{font-size:var(--yy-size-display-sm)}
+.size-wide .row__val{width:194px}
+.size-wide .row__num{font-size:var(--yy-size-metric)}
+.size-wide .row__bar{height:var(--yy-bar-h-lg)}
+/* the zero-win row's value is a sentence, not a ratio — it gets the width it needs */
+.size-wide .row--zero .row__val{width:300px}
+
+/* EXPORT SCOPE — tokens.css §27.  Every screenshot variant, every card. ─────── */
+.yy-export{
+  --yy-line-card:rgba(168,177,173,.42);
+  --yy-bg-card:#181C1D;--yy-bg-card-lg:#16191B;
+  --yy-dur-instant:1ms;--yy-dur-fast:1ms;--yy-dur-base:1ms;--yy-dur-chart:1ms;--yy-dur-slow:1ms;
+}
+[data-theme="light"] .yy-export{
+  --yy-line-card:rgba(7,28,22,.28);--yy-bg-card:#FFFFFF;--yy-bg-card-lg:#FFFFFF;
+}
+
+/* FEED RIG — SCREENSHOT_VARIANTS.md §2 ─────────────────────────────────────── */
+.feed{border-radius:18px;padding:18px;width:444px}
+.feed--light{background:#FFFFFF;border:1px solid rgba(7,28,22,.12)}
+.feed--dark{background:#111416;border:1px solid rgba(255,255,255,.10)}
+.feed__hdr{display:flex;align-items:center;gap:9px;margin-bottom:var(--yy-space-3)}
+.feed__av{width:26px;height:26px;border-radius:50%;background:#2A2F31;flex:none}
+.feed__nm{font-family:var(--yy-font-body);font-weight:600;font-size:12px}
+.feed--light .feed__nm{color:#071C16}
+.feed--dark .feed__nm{color:#EAF1EC}
+.feed__sub{font-family:var(--yy-font-body);font-size:11px;color:#849489}
+.feed .size-square{width:404px;height:404px}
+.feed .size-square .row__team{width:74px}
+
+@media (prefers-reduced-motion: reduce){
+  *{transition-duration:1ms !important;animation-duration:1ms !important}
+}
+</style>
+</head>
+
+<body>
+<div class="rev">
+
+  <div class="rev__hd">
+    <div>
+      <div class="rev__eyebrow">Phase B · round 1 · direction locked 2026-07-26</div>
+      <h1>THE RECEIPT — FINAL SPEC</h1>
+      <p>The hero card rebuilt to the Phase-B system. Three differences from the Phase-A study, and
+      they are the three things the study left open: <b>D1-resolved type</b> (11px utility floor,
+      one 10px in-mark exception), <b>the cash caveat solved at 390px</b> (always-visible short form
+      + in-card disclosure, force-expanded in every export), and <b>the export border</b> at
+      <code>.42</code>. Plus two AA fixes the study inherited from the mockup, and a neutral
+      zero-win row.</p>
+      <p>Sample data, shaped from the mockup's own placeholder league. Every value on this page is a
+      token from <code>../tokens.css</code>.</p>
+    </div>
+    <div class="themer" role="group" aria-label="Theme">
+      <button type="button" data-set-theme="dark" aria-pressed="true">Dark</button>
+      <button type="button" data-set-theme="light" aria-pressed="false">Light</button>
+    </div>
+  </div>
+
+  <h2>A1 · MOBILE 390 — canonical</h2>
+  <div class="stage">
+    <div class="slot">
+      <div class="cpw size-mobile">
+        <div class="cpw__head">
+          <div>
+            <div class="cpw__eyebrow">Cost per win · 2025</div>
+            <div class="cpw__title">AFC EAST</div>
+          </div>
+          <div class="cpw__toggle" role="radiogroup" aria-label="Numerator">
+            <button type="button" role="radio" aria-checked="true">Cash</button>
+            <button type="button" role="radio" aria-checked="false">Cap</button>
+          </div>
+        </div>
+
+        <div class="cpw__rows">
+          <div class="row is-cheap">
+            <div class="row__rank">1</div>
+            <div class="row__team"><div class="row__ab">BUF</div><div class="row__sub">Bills · 13–4</div></div>
+            <div class="row__bar"><div class="row__fill" style="width:45.8%"></div><div class="row__tick" style="left:64.5%"></div></div>
+            <div class="row__val"><div class="row__num">$18.3M</div><div class="row__delta">−$7.5M</div></div>
+          </div>
+          <div class="row is-dear">
+            <div class="row__rank">2</div>
+            <div class="row__team"><div class="row__ab">MIA</div><div class="row__sub">Dolphins · 8–9</div></div>
+            <div class="row__bar"><div class="row__fill" style="width:76.3%"></div><div class="row__tick" style="left:64.5%"></div></div>
+            <div class="row__val"><div class="row__num">$30.5M</div><div class="row__delta">+$4.7M</div></div>
+          </div>
+          <div class="row is-dear">
+            <div class="row__rank">3</div>
+            <div class="row__team"><div class="row__ab">NYJ</div><div class="row__sub">Jets · 7–10</div></div>
+            <div class="row__bar"><div class="row__fill" style="width:85.3%"></div><div class="row__tick" style="left:64.5%"></div></div>
+            <div class="row__val"><div class="row__num">$34.1M</div><div class="row__delta">+$8.3M</div></div>
+          </div>
+          <div class="row is-dear">
+            <div class="row__rank">4</div>
+            <div class="row__team"><div class="row__ab">NE</div><div class="row__sub">Patriots · 6–11</div></div>
+            <div class="row__bar"><div class="row__fill" style="width:95%"></div><div class="row__tick" style="left:64.5%"></div></div>
+            <div class="row__val"><div class="row__num">$38.0M</div><div class="row__delta">+$12.2M</div></div>
+          </div>
+        </div>
+
+        <div class="cpw__lens">
+          <button class="cpw__lensbtn" type="button" aria-expanded="false" data-disclose>
+            <span>Cash · roster only</span><i class="cpw__i" aria-hidden="true">i</i>
+          </button>
+          <div class="cpw__disclose"><div><p>Cash to players on the roster. Cash paid to players
+          released in-year is not included.</p></div></div>
+        </div>
+
+        <div class="cpw__strap">
+          <div class="cpw__bench"><i>▮</i> League avg $25.8M / win</div>
+          <div class="cpw__mark">YIELD<span class="sl">/</span>YARD</div>
+        </div>
+      </div>
+      <div class="slot__cap"><b>A1</b>Tap the lens line. The caveat expands <i>in</i> the card and
+      pushes the strap down — not a tooltip, not a hover, not a modal. The card grows 371 → 413px on
+      an 844px canvas. Columns: rank 14 · team 84 · bar 146 · value 78, gap 12, = 358.</div>
+    </div>
+
+    <div class="slot">
+      <div class="cpw size-mobile cpw--subject">
+        <div class="cpw__head">
+          <div>
+            <div class="cpw__eyebrow">Cost per win · 2025</div>
+            <div class="cpw__title">AFC EAST</div>
+          </div>
+          <div class="cpw__toggle" role="radiogroup" aria-label="Numerator">
+            <button type="button" role="radio" aria-checked="true">Cash</button>
+            <button type="button" role="radio" aria-checked="false">Cap</button>
+          </div>
+        </div>
+        <div class="cpw__rows">
+          <div class="row is-subject">
+            <div class="row__rank">3</div>
+            <div class="row__team"><div class="row__ab">NYJ</div><div class="row__sub">Jets · 7–10</div></div>
+            <div class="row__bar"><div class="row__fill" style="width:85.3%"></div><div class="row__tick" style="left:64.5%"></div></div>
+            <div class="row__val"><div class="row__num">$34.1M</div><div class="row__delta">+$8.3M</div></div>
+          </div>
+          <div class="row">
+            <div class="row__rank">1</div>
+            <div class="row__team"><div class="row__ab">BUF</div><div class="row__sub">Bills · 13–4</div></div>
+            <div class="row__bar"><div class="row__fill" style="width:45.8%"></div><div class="row__tick" style="left:64.5%"></div></div>
+            <div class="row__val"><div class="row__num">$18.3M</div><div class="row__delta">−$7.5M</div></div>
+          </div>
+          <div class="row">
+            <div class="row__rank">2</div>
+            <div class="row__team"><div class="row__ab">MIA</div><div class="row__sub">Dolphins · 8–9</div></div>
+            <div class="row__bar"><div class="row__fill" style="width:76.3%"></div><div class="row__tick" style="left:64.5%"></div></div>
+            <div class="row__val"><div class="row__num">$30.5M</div><div class="row__delta">+$4.7M</div></div>
+          </div>
+          <div class="row">
+            <div class="row__rank">4</div>
+            <div class="row__team"><div class="row__ab">NE</div><div class="row__sub">Patriots · 6–11</div></div>
+            <div class="row__bar"><div class="row__fill" style="width:95%"></div><div class="row__tick" style="left:64.5%"></div></div>
+            <div class="row__val"><div class="row__num">$38.0M</div><div class="row__delta">+$12.2M</div></div>
+          </div>
+        </div>
+        <div class="cpw__lens">
+          <button class="cpw__lensbtn" type="button" aria-expanded="false" data-disclose>
+            <span>Cash · roster only</span><i class="cpw__i" aria-hidden="true">i</i>
+          </button>
+          <div class="cpw__disclose"><div><p>Cash to players on the roster. Cash paid to players
+          released in-year is not included.</p></div></div>
+        </div>
+        <div class="cpw__strap">
+          <div class="cpw__bench"><i>▮</i> NYJ vs league avg $25.8M / win</div>
+          <div class="cpw__mark">YIELD<span class="sl">/</span>YARD</div>
+        </div>
+      </div>
+      <div class="slot__cap"><b>A1-S</b><strong>Subject mode</strong> — the same component on
+      <code>/team/nyj/2025</code>. Lime is the subject, not "cheap", so the Jets are lime while being
+      third. The subject pins first and keeps its true rank. The strap says which mode it is in
+      (<code>NYJ vs league avg</code>), so a screenshot still reads correctly. <b>NEEDS-REY #2.</b></div>
+    </div>
+  </div>
+
+  <h2>A2 · SQUARE 400 — feed / OG</h2>
+  <div class="stage">
+    <div class="slot">
+      <div class="cpw size-square cpw--static yy-export">
+        <div>
+          <div class="cpw__head">
+            <div>
+              <div class="cpw__eyebrow">Cost per win · cash · 2025</div>
+              <div class="cpw__title">AFC EAST</div>
+            </div>
+            <div class="cpw__sample">Sample</div>
+          </div>
+          <div class="cpw__rows">
+            <div class="row is-cheap">
+              <div class="row__team"><div class="row__ab">BUF</div><div class="row__sub">13–4</div></div>
+              <div class="row__bar"><div class="row__fill" style="width:45.8%"></div><div class="row__tick" style="left:64.5%"></div></div>
+              <div class="row__val"><div class="row__num">$18.3M</div></div>
+            </div>
+            <div class="row is-dear">
+              <div class="row__team"><div class="row__ab">MIA</div><div class="row__sub">8–9</div></div>
+              <div class="row__bar"><div class="row__fill" style="width:76.3%"></div><div class="row__tick" style="left:64.5%"></div></div>
+              <div class="row__val"><div class="row__num">$30.5M</div></div>
+            </div>
+            <div class="row is-dear">
+              <div class="row__team"><div class="row__ab">NYJ</div><div class="row__sub">7–10</div></div>
+              <div class="row__bar"><div class="row__fill" style="width:85.3%"></div><div class="row__tick" style="left:64.5%"></div></div>
+              <div class="row__val"><div class="row__num">$34.1M</div></div>
+            </div>
+            <div class="row is-dear">
+              <div class="row__team"><div class="row__ab">NE</div><div class="row__sub">6–11</div></div>
+              <div class="row__bar"><div class="row__fill" style="width:95%"></div><div class="row__tick" style="left:64.5%"></div></div>
+              <div class="row__val"><div class="row__num">$38.0M</div></div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="cpw__lens">
+            <button class="cpw__lensbtn" type="button" aria-expanded="true" tabindex="-1">
+              <span>Cash · roster only</span>
+            </button>
+            <div class="cpw__disclose"><div><p>Cash to players on the roster. Cash paid to players
+            released in-year is not included.</p></div></div>
+          </div>
+          <div class="cpw__strap">
+            <div class="cpw__bench"><i>▮</i> League avg $25.8M / win</div>
+            <div class="cpw__mark">YIELD<span class="sl">/</span>YARD</div>
+          </div>
+        </div>
+      </div>
+      <div class="slot__cap"><b>A2</b>Export scope. The disclosure is <strong>force-expanded</strong>
+      — no button, no collapsed state, the full sentence simply rendered. A screenshot cannot be
+      tapped, so a screenshot never hides a caveat. Dropped at square: rank digits, the delta line,
+      the nickname, the toggle. The selected lens moves into the eyebrow. Nothing shrinks below the
+      11px floor.</div>
+    </div>
+
+    <div class="slot">
+      <div class="feed feed--light">
+        <div class="feed__hdr"><div class="feed__av"></div><div><div class="feed__nm">@yieldyard</div><div class="feed__sub">2m · sample</div></div></div>
+        <div class="cpw size-square cpw--static yy-export">
+          <div>
+            <div class="cpw__head">
+              <div><div class="cpw__eyebrow">Cost per win · cash · 2025</div><div class="cpw__title">AFC EAST</div></div>
+              <div class="cpw__sample">Sample</div>
+            </div>
+            <div class="cpw__rows">
+              <div class="row is-cheap"><div class="row__team"><div class="row__ab">BUF</div><div class="row__sub">13–4</div></div><div class="row__bar"><div class="row__fill" style="width:45.8%"></div><div class="row__tick" style="left:64.5%"></div></div><div class="row__val"><div class="row__num">$18.3M</div></div></div>
+              <div class="row is-dear"><div class="row__team"><div class="row__ab">MIA</div><div class="row__sub">8–9</div></div><div class="row__bar"><div class="row__fill" style="width:76.3%"></div><div class="row__tick" style="left:64.5%"></div></div><div class="row__val"><div class="row__num">$30.5M</div></div></div>
+              <div class="row is-dear"><div class="row__team"><div class="row__ab">NYJ</div><div class="row__sub">7–10</div></div><div class="row__bar"><div class="row__fill" style="width:85.3%"></div><div class="row__tick" style="left:64.5%"></div></div><div class="row__val"><div class="row__num">$34.1M</div></div></div>
+              <div class="row is-dear"><div class="row__team"><div class="row__ab">NE</div><div class="row__sub">6–11</div></div><div class="row__bar"><div class="row__fill" style="width:95%"></div><div class="row__tick" style="left:64.5%"></div></div><div class="row__val"><div class="row__num">$38.0M</div></div></div>
+            </div>
+          </div>
+          <div>
+            <div class="cpw__lens">
+              <button class="cpw__lensbtn" type="button" aria-expanded="true" tabindex="-1"><span>Cash · roster only</span></button>
+              <div class="cpw__disclose"><div><p>Cash to players on the roster. Cash paid to players released in-year is not included.</p></div></div>
+            </div>
+            <div class="cpw__strap">
+              <div class="cpw__bench"><i>▮</i> League avg $25.8M / win</div>
+              <div class="cpw__mark">YIELD<span class="sl">/</span>YARD</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="slot__cap"><b>C5</b>Dropped into a <strong>light</strong> feed. The in-product
+      border (<code>.22</code>) vanishes on white and the corners read as cut off; the export scope
+      raises it to <code>.42</code>. One token, one condition.</div>
+    </div>
+
+    <div class="slot">
+      <div class="feed feed--dark">
+        <div class="feed__hdr"><div class="feed__av"></div><div><div class="feed__nm">@yieldyard</div><div class="feed__sub">2m · sample</div></div></div>
+        <div class="cpw size-square cpw--static yy-export">
+          <div>
+            <div class="cpw__head">
+              <div><div class="cpw__eyebrow">Cost per win · cash · 2025</div><div class="cpw__title">AFC EAST</div></div>
+              <div class="cpw__sample">Sample</div>
+            </div>
+            <div class="cpw__rows">
+              <div class="row is-cheap"><div class="row__team"><div class="row__ab">BUF</div><div class="row__sub">13–4</div></div><div class="row__bar"><div class="row__fill" style="width:45.8%"></div><div class="row__tick" style="left:64.5%"></div></div><div class="row__val"><div class="row__num">$18.3M</div></div></div>
+              <div class="row is-dear"><div class="row__team"><div class="row__ab">MIA</div><div class="row__sub">8–9</div></div><div class="row__bar"><div class="row__fill" style="width:76.3%"></div><div class="row__tick" style="left:64.5%"></div></div><div class="row__val"><div class="row__num">$30.5M</div></div></div>
+              <div class="row is-dear"><div class="row__team"><div class="row__ab">NYJ</div><div class="row__sub">7–10</div></div><div class="row__bar"><div class="row__fill" style="width:85.3%"></div><div class="row__tick" style="left:64.5%"></div></div><div class="row__val"><div class="row__num">$34.1M</div></div></div>
+              <div class="row is-dear"><div class="row__team"><div class="row__ab">NE</div><div class="row__sub">6–11</div></div><div class="row__bar"><div class="row__fill" style="width:95%"></div><div class="row__tick" style="left:64.5%"></div></div><div class="row__val"><div class="row__num">$38.0M</div></div></div>
+            </div>
+          </div>
+          <div>
+            <div class="cpw__lens">
+              <button class="cpw__lensbtn" type="button" aria-expanded="true" tabindex="-1"><span>Cash · roster only</span></button>
+              <div class="cpw__disclose"><div><p>Cash to players on the roster. Cash paid to players released in-year is not included.</p></div></div>
+            </div>
+            <div class="cpw__strap">
+              <div class="cpw__bench"><i>▮</i> League avg $25.8M / win</div>
+              <div class="cpw__mark">YIELD<span class="sl">/</span>YARD</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="slot__cap"><b>C6</b>Dropped into a <strong>dark</strong> feed on
+      <code>#111416</code> — the brand's own Film Room. The harder of the two cases, and the one the
+      flagship theme guarantees. Same <code>.42</code> border does both.</div>
+    </div>
+  </div>
+
+  <h2>A3 · WIDE 1040 — desktop, same component</h2>
+  <div class="stage">
+    <div class="slot">
+      <div class="cpw size-wide cpw--wide cpw--static">
+        <div class="cpw__head">
+          <div>
+            <div class="cpw__eyebrow">Cost per win · 2025 · cash numerator</div>
+            <div class="cpw__title">AFC EAST — WHAT A WIN COSTS</div>
+          </div>
+          <div class="cpw__toggle" role="radiogroup" aria-label="Numerator">
+            <button type="button" role="radio" aria-checked="true">Cash</button>
+            <button type="button" role="radio" aria-checked="false">Cap</button>
+          </div>
+        </div>
+        <div class="cpw__rows">
+          <div class="row is-cheap">
+            <div class="row__rank">1</div>
+            <div class="row__team"><div class="row__ab">BUF</div><div class="row__sub">Buffalo Bills · 13–4</div></div>
+            <div class="row__bar"><div class="row__fill" style="width:45.8%"></div><div class="row__tick" style="left:64.5%"></div></div>
+            <div class="row__val"><div class="row__num">$18.3M</div><div class="row__delta">29% below league</div></div>
+          </div>
+          <div class="row is-dear">
+            <div class="row__rank">2</div>
+            <div class="row__team"><div class="row__ab">MIA</div><div class="row__sub">Miami Dolphins · 8–9</div></div>
+            <div class="row__bar"><div class="row__fill" style="width:76.3%"></div><div class="row__tick" style="left:64.5%"></div></div>
+            <div class="row__val"><div class="row__num">$30.5M</div><div class="row__delta">18% above league</div></div>
+          </div>
+          <div class="row is-dear">
+            <div class="row__rank">3</div>
+            <div class="row__team"><div class="row__ab">NYJ</div><div class="row__sub">New York Jets · 7–10</div></div>
+            <div class="row__bar"><div class="row__fill" style="width:85.3%"></div><div class="row__tick" style="left:64.5%"></div></div>
+            <div class="row__val"><div class="row__num">$34.1M</div><div class="row__delta">32% above league</div></div>
+          </div>
+          <div class="row is-dear">
+            <div class="row__rank">4</div>
+            <div class="row__team"><div class="row__ab">NE</div><div class="row__sub">New England Patriots · 6–11</div></div>
+            <div class="row__bar"><div class="row__fill" style="width:95%"></div><div class="row__tick" style="left:64.5%"></div></div>
+            <div class="row__val"><div class="row__num">$38.0M</div><div class="row__delta">47% above league</div></div>
+          </div>
+
+          <!-- ZERO-WIN RULE, SPEC §2.5 — a live state, neutral, never a negative -->
+          <div class="row row--zero">
+            <div class="row__rank">—</div>
+            <div class="row__team"><div class="row__ab">CLE</div><div class="row__sub">2017 · 0–16</div></div>
+            <div class="row__bar"></div>
+            <div class="row__val"><div class="row__num">$151.1M spent · 0 wins</div><div class="row__delta">Ratio suppressed · excluded from ranking</div></div>
+          </div>
+        </div>
+
+        <div class="cpw__lens">
+          <button class="cpw__lensbtn" type="button" aria-expanded="true" tabindex="-1">
+            <span>Cash · roster only</span>
+          </button>
+          <div class="cpw__disclose"><div><p>Cash to players on the roster. Cash paid to players
+          released in-year is not included.</p></div></div>
+        </div>
+
+        <div class="cpw__strap">
+          <div class="cpw__bench"><i>▮</i> League avg $25.8M / win · 100 = league average</div>
+          <div class="cpw__mark">YIELD<span class="sl">/</span>YARD</div>
+        </div>
+      </div>
+      <div class="slot__cap"><b>A3</b>At wide the disclosure does not exist — the caveat is simply
+      rendered. The zero-win row (<code>SPEC §2.5</code>) uses the <strong>neutral</strong> absence
+      rule and neutral ink, not the salmon void grammar: a suppressed ratio is an absence, not a
+      negative, and §2.5's whole point is to not editorialise a divide-by-zero.</div>
+    </div>
+  </div>
+
+  <h2>What changed from the Phase-A study</h2>
+  <div class="stage">
+    <div class="slot slot__cap" style="max-width:var(--yy-measure)">
+      <p style="margin:0 0 var(--yy-space-3)"><b>D1</b>Utility type 8.5–9px → <strong>11px</strong>
+      (one 10px in-mark exception, used here only by the SAMPLE chip). Team column 74 → 84, value
+      column 74 → 78, bar 166 → 146, gap 10 → 12. The delta drops the words <code>vs LG</code> —
+      the strap names the benchmark and the gold tick sits on every bar, so it was said three times.
+      Card height 360 → 371px.</p>
+      <p style="margin:0 0 var(--yy-space-3)"><b>AA</b>Tertiary ink <code>#6E8078</code> →
+      <code>#849489</code> on dark (4.11:1 → 5.38:1) and <code>#71807A</code> →
+      <code>#616E69</code> on light (3.82:1 → 4.91:1 on paper). The mockup's utility layer did not
+      pass AA at any size it was used at. The originals survive as <code>--yy-*-dim</code> for
+      non-text use only.</p>
+      <p style="margin:0 0 var(--yy-space-3)"><b>D3</b>Red splits by role, not by shade: the fill is
+      <code>#D9503C</code> (4.22:1, legal as a graphical object), the figure is
+      <code>#E8A08D</code> (8.05:1, legal as text). Absence goes neutral — the salmon void grammar
+      means "void / dead", which is a negative, and a suppressed ratio is not one.</p>
+      <p style="margin:0 0 var(--yy-space-3)"><b>D6</b>Figures in a column are Inter 600 with
+      <code>tnum</code>; standalone figures stay Rajdhani. Both are set from
+      <code>--yy-font-num</code> / <code>--yy-font-athletic</code>, so a one-token change moves the
+      whole product if Rajdhani is verified for tabular figures.</p>
+      <p style="margin:0"><b>Q1</b>The <code>subject</code> prop selects what lime means, and the
+      strap discloses which mode the card is in. Both modes are shown above.
+      <strong>NEEDS-REY.</strong></p>
+    </div>
+  </div>
+
+</div>
+
+<script>
+(function(){
+  document.querySelectorAll('[data-disclose]').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var open = btn.getAttribute('aria-expanded') === 'true';
+      btn.setAttribute('aria-expanded', String(!open));
+    });
+  });
+  document.querySelectorAll('.cpw__toggle button').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      btn.parentNode.querySelectorAll('button').forEach(function(b){
+        b.setAttribute('aria-checked', String(b === btn));
+      });
+    });
+  });
+  document.querySelectorAll('[data-set-theme]').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var t = btn.getAttribute('data-set-theme');
+      document.documentElement.setAttribute('data-theme', t);
+      document.querySelectorAll('[data-set-theme]').forEach(function(b){
+        b.setAttribute('aria-pressed', String(b === btn));
+      });
+    });
+  });
+})();
+</script>
+</body>
+</html>
