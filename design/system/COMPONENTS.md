@@ -962,6 +962,63 @@ The Tier 2 boundary block. `SPEC.md` §1.2, §3.2.3.
 Absence is a fact about the data, not a failure of the team or of the product. It is styled with the
 same care as a value.
 
+### 13.4 DRAFT+ PRESENTATION — the second family member, and the rules that keep it one
+
+`SPEC.md` §2.9, `CAPPLUS_LOCKUP.md` §4. Draft+ is the only other member of the `+` family and its v1
+scope is **the summary only**. It is presented here because a family member that arrives without a
+presentation rule arrives as a second Cap+, which is the one thing the family grammar exists to prevent.
+
+**Its own caption, and it is not Cap+'s.**
+
+| Property | Value |
+|---|---|
+| Text | **`100 = LEAGUE-AVERAGE DRAFT RETURN`** — spelled out, all-caps in UI |
+| Type | `.yy-label` (11px), `--yy-fg-3` |
+| Position | The `CAPPLUS_LOCKUP.md` §3.5 treatment exactly: right-aligned in the card's header row, baseline-aligned with the title; at export it moves to the strap so it survives the crop |
+| When | **Every surface where Draft+ leads**, and every export of one |
+| Short form | There is none. If it does not fit, the container is wrong. |
+
+`100 = LEAGUE AVERAGE` is Cap+'s caption and **is never borrowed for Draft+**. The two indexes are
+scored over different populations against different denominators, and a caption that named neither would
+tell the reader they are the same measure.
+
+**Rendered as a `MetricText` number in the family lockup grammar.**
+
+| Property | Value |
+|---|---|
+| Component | `MetricText` — a `value` renders through `format`, a `partial` renders the value plus `⟨n/N⟩`, a `blank` renders its reason. There is no fourth branch and no empty cell (`SPEC.md` §1.2). |
+| Name | `DRAFT+`, `--yy-track-label-wide`, `--yy-fg-3` when it labels the number; `--yy-fg-1` when it is the subject. `DRAFT+ INDEX` as a heading (`CAPPLUS_LOCKUP.md` §4.3). |
+| The `+` | **Never coloured** (`CAPPLUS_LOCKUP.md` §2, `DECISIONS.md` 84). At `--yy-size-display-sm` and above in Bebas: 0.82em, raised 0.06em. |
+| Figure | `.yy-num` in a column, `.yy-metric` standalone (`DECISIONS.md` 68), `--yy-fg-1` |
+| Scales | The five scales of `CAPPLUS_LOCKUP.md` §3, unchanged. A family member that needs its own type treatment is not a family member. |
+
+**Never the Cap+ badge.** `IndexBadge` with `metricName === 'capplus'` is Cap+'s badge and Draft+ never
+renders in it, never shares one with it, and never sits beside a Cap+ figure in the same lockup. The
+index bands (`≥105` lime / `95–104` slate / `<95` red) are a **Cap+ encoding over the Cap+ population**,
+and **the Draft+ figure is never band-coloured** — it takes `--yy-fg-1`. This is `DECISIONS.md` 18 and 83
+applied to the one metric most likely to be mistaken for Cap+ at a glance, because it shares the glyph.
+
+**Never the field bands.** No red zone, no safety, no yard lines, no `150 − index` position. The
+field-literal metaphor lives on **exactly two surfaces** — the league Field and the team Drive
+(`SPEC.md` §4, `DECISIONS.md` 43, 98) — and Draft+ is not one of them and does not become one by having
+a `+`.
+
+**The right-censoring caveat, and it is not optional.**
+
+> **Scored against same-year classes only.** The most recent classes are right-censored — those players
+> have not finished producing, so their realised return is incomplete by construction, not low.
+
+| Property | Value |
+|---|---|
+| Type | `.yy-caption` `--yy-fg-2` |
+| Visibility | **Always visible.** Never a disclosure, never a tooltip, never a footnote, never behind an `(i)`. |
+| Required words | The phrase **"scored against same-year classes only"** appears verbatim |
+| Scope | Every surface carrying a Draft+ figure, and every export of one |
+
+A Draft+ figure without that line does not ship. It is the same class of rule as the dead-money as-of
+stamp (§8.1): the number is not wrong, but a reader who does not know what it was scored against will
+read a young class as a bad one.
+
 ---
 
 ## 14. CSV EXPORT AFFORDANCE (`CsvExport`)
@@ -1044,3 +1101,237 @@ The mockup ships placeholders (20px squares with 2px borders). Drawing the eight
 production task; the geometry above is the whole spec. `stroke: currentColor`,
 `stroke-width: var(--yy-stroke-icon)`, `stroke-linecap: round`, `fill: none`, `viewBox="0 0 24 24"`.
 **Never mix filled sports clip art with the line set.** `[BRAND]`
+
+---
+
+## 16. VALUE STADIUM (`ValueStadium`)
+
+`SPEC.md` §4 **design reconciliation #1**, `DECISIONS.md` 44, `SPEC.md` §2.6, §7.12. The brand's
+allocation visual, re-pointed at the thing the reconciliation settled: **the Value Stadium is money
+allocation, not performance.** Sections are position groups sized by cap share, the gold ring is the
+league average, dead money renders as unlit seats.
+
+`RESOLUTIONS.md` N5 recorded the colour ruling and parked the surface as "not a v1 row". **The deferral
+is withdrawn** (`DECISIONS.md` 103); N5's ruling stands and is implemented below. Chart-side anatomy —
+axes, gridlines, label policy, motion — is `CHART_ANATOMY.md` §10; this section is the build.
+
+### 16.1 API
+
+```ts
+type StadiumSize = 'mobile' | 'wide' | 'og';   // there is no square — SEE 16.10
+
+interface ValueStadiumProps {
+  size: StadiumSize;
+  team: TeamAbbr;
+  season: number;                                 // 2013+ — SEE 16.8
+  groups: Metric<StadiumGroup[]>;                 // the NINE, in §7.12 order, always
+  rosteredCap: Metric<number>;                    // the bowl's centre figure, dollars
+  deadMoney: Metric<{ usd: number; asofDate: string; asofStage: string }>;
+  selectedGroup?: PositionGroup;                  // the only lime on the card
+  onSelectGroup?: (g: PositionGroup) => void;     // absent => static (export)
+  export?: boolean;
+  coverage: Coverage;
+}
+
+interface StadiumGroup {
+  group: PositionGroup;            // 'QB'|'RB'|'WR'|'TE'|'OL'|'DL'|'LB'|'DB'|'ST'
+  capUsd: number;
+  shareOfRosteredCap: number;      // NOT "share of cap" — DECISIONS 28
+  leagueShare: number;             // the same group's league mean, same season
+  ratio: number;                   // shareOfRosteredCap / leagueShare
+}
+```
+
+**Order is the `SPEC.md` §2.6 order and is never sorted by value** — the same rule as §7.1. A bowl whose
+sections reorder between teams cannot be compared across teams, and comparison is the entire job.
+
+### 16.2 What the two dimensions encode — read this before drawing anything
+
+The bowl carries two quantities and they are **not** the same quantity twice:
+
+| Dimension | Encodes | Why it is that one |
+|---|---|---|
+| **Angle** (a section's angular size) | The group's **share of the team's cap** | Settled: `SPEC.md` §4, `DECISIONS.md` 44. It is the quantity the metaphor is *about* — a bigger section is a bigger slice of the money. |
+| **Radius** (a section's depth from the inner edge outward) | `shareOfRosteredCap ÷ leagueShare` for that group — **the ratio against the league average** | It is what makes a **single constant-radius ring** mean something. A ring is one radius; a benchmark drawn as a ring must therefore live on the radial axis, and the one benchmark this surface owns is the league-average allocation per group. |
+
+So: **the gold ring sits at ratio = 1.00, and every one of the nine sections is measured against the same
+ring.** A section that reaches past the ring is allocated above the league average for its group; one
+that stops short is below. Nine comparisons, one benchmark, no legend lookup.
+
+**Neither dimension is carried by hue** (`RESOLUTIONS.md` N4/N5), and **both are named in words on the
+card** (16.9) — `CHART_ANATOMY.md` §4: a benchmark with no words is a decoration.
+
+### 16.3 Geometry — measured
+
+One intrinsic `viewBox`, scaled by `<ParentSize>`. **There is no second geometry at any size**; the sizes
+differ in the layout around the bowl, not in the bowl.
+
+| Item | Value |
+|---|---|
+| `viewBox` | `0 0 400 264` |
+| Centre `C` | `(200, 236)` |
+| Sweep | **180°**, west → east, drawn above the baseline |
+| Angle convention | `θ` in degrees from due west. `P(r, θ) = (200 − r·cos θ, 236 − r·sin θ)` — `θ=0` west, `θ=90` apex, `θ=180` east |
+| `r_inner` (ratio 0) | **88** |
+| `r_ring` (ratio 1.00 — the gold ring) | **148** |
+| `r_clamp` (ratio 2.00 — hard ceiling) | **208** |
+| Radius function | `r(ratio) = 88 + 60 × clamp(ratio, 0, 2)` |
+| Label arc | **218**, upright, `text-anchor: middle` |
+| Section gap | **1.2°**, taken from the section's own allotment |
+| Dead-money gap | **4°** — wider, because it separates a different *kind* of thing (16.5) |
+| Minimum painted section | **3°** (16.8) |
+| Section corners | none. Squared ends; the 1.2° gap is the separation. `--yy-radius-mark` is a bar radius and does not apply to an arc. |
+| Strokes | ring `--yy-stroke-benchmark` (1px) · leader lines 1px · unlit rule 1px · clamp cap 2px |
+
+**Angular budget.** Let `D = deadMoney ÷ (rosteredCap + deadMoney)` — the dead-money share of **total cap
+consumed**. The unlit block takes `180 × D` at the east end; the nine live groups share
+`180 × (1 − D)` in proportion to `shareOfRosteredCap`.
+
+**Section path** (annular sector, `θ1 → θ2`, inner `a`, outer `b`):
+
+```
+M P(a,θ1) L P(b,θ1) A b b 0 0 1 P(b,θ2) L P(a,θ2) A a a 0 0 0 P(a,θ1) Z
+```
+
+`large-arc-flag` is `0` for every section — none reaches 180°. Outer arc `sweep-flag: 1`, inner return
+`sweep-flag: 0`.
+
+**Sizes** — the bowl is intrinsic; only its box and what sits beside it change:
+
+| | content width | bowl box | AllocationBars |
+|---|---:|---:|---|
+| `mobile` (390) | 358 | 358 wide, `aspect-ratio: 400 / 264` | stacked beneath, full width |
+| `wide` (1040) | 984 | 480 wide | beside it, **472** wide, `--yy-space-8` (32) gap — 480 + 32 + 472 = 984 |
+| `og` (600 × 315) | 544 | 260 wide | beside it, **260** wide, `--yy-space-6` (24) gap — 260 + 24 + 260 = 544. SEE 16.10 |
+
+The arithmetic closes against `--yy-space-7` (28) padding on both sides at wide and OG, and
+`--yy-space-4` (16) at mobile. A bowl that does not leave its bars a whole column is the wrong size for
+its canvas, not a bowl that needs a scrollbar.
+
+### 16.4 Paint — a token for every mark
+
+| Mark | Paint |
+|---|---|
+| Section fill | `--yy-series-neutral` — **SEE THE N5 NOTE BELOW** |
+| Unfilled depth (`r(ratio)` → `r_clamp`) | `--yy-bg-sunken`. It is the bowl's track, and it is what makes a short section read as short rather than as absent. |
+| **Selected group** | `--yy-accent`. **The only lime on the card**, and when nothing is selected there is no lime on the card at all. |
+| Gold ring | `1px` dashed `--yy-benchmark-line`, `stroke-dasharray: var(--yy-dash-benchmark)` — the **Ring** form of `CHART_ANATOMY.md` §4, adopted verbatim. `fill: none`. |
+| Ring terminus label | `1.00×` in `.yy-label`, `--yy-benchmark`, at the west end of the ring, outside `r_clamp` |
+| Unlit seats (dead money) | fill `--yy-bg-empty` + `1px` dashed `--yy-absence` (16.5) |
+| Clamp cap | `2px` arc in `--yy-fg-2` at `r_clamp` (16.8) |
+| Zero stub | `1px` arc in `--yy-fg-3` at `r_inner` (16.8) |
+| Leader line | `1px`, `--yy-fg-3` |
+| Group label | `.yy-label` — 11px, the floor |
+| Centre figure | `.yy-num` at `--yy-size-metric-sm`, `--yy-fg-1`, over `.yy-label` `--yy-fg-3` reading `ROSTERED CAP · {season}` |
+
+> **THE N5 REFINEMENT, RECORDED SO IT IS NOT READ AS DRIFT.** `RESOLUTIONS.md` N5 assigns sections
+> `--yy-bg-track`. `--yy-bg-track` (`#39423E`) measures **1.65:1** against `--yy-bg-card-flat`
+> (`#181C1D`) and **cannot carry data** — SC 1.4.11 requires 3:1 of a graphical object the reader needs
+> in order to understand the content, and here the section *is* the content. Sections therefore take
+> `--yy-series-neutral`: **7.81:1** on the dark card, **8.04:1** on the light one, and the same fill the
+> allocation bars already use, so the bowl and the bars are visibly one fact rather than two charts.
+> **N5's actual ruling is untouched: sections are not colour-coded by position group, and lime appears
+> only on the selected group.** This is the same correction the system already made once, for the
+> `--yy-series-*` family in `tokens.css` §24. `[RULED — AA]`
+
+### 16.5 Dead money = unlit seats
+
+| Property | Value |
+|---|---|
+| Size | Angular share `D = deadMoney ÷ (rosteredCap + deadMoney)` of the full 180° — **the dead-money share of total cap consumed**, which is the only denominator on which unlit seats and lit seats are the same unit |
+| Position | The **east end**, after `ST`, behind a **4°** gap |
+| Depth | Full bowl, `r_inner → r_clamp` |
+| Paint | `--yy-bg-empty` fill + `1px` dashed `--yy-absence` — the absence grammar (`CHART_ANATOMY.md` §5.1: "does not exist", *not* the void/salmon family). This money bought no seats that anyone sits in. |
+| Ring | **None.** The gold ring terminates at the unlit block's start angle. Dead money has no league-average counterpart to be measured against, and `CHART_ANATOMY.md` §4 is explicit: a benchmark that is not known is not drawn. |
+| Label | `DEAD` at the label arc, `.yy-label` `--yy-fg-3` |
+| **The figure** | Rendered through **`<AsOf>`** (§8.1), beside the bowl, on one line, in one block: `$85.2M · as of 2024-11-27 · late season` |
+
+**The as-of discipline applies in full and is not softened by the metaphor.** The date is never inside
+the arc, never in a tooltip, never behind a disclosure, never truncated. If the stamp does not fit beside
+the bowl, **the container is wrong**, not the stamp. A `ValueStadium` that receives a dead-money value
+without an `asofDate` is a build-time failure, exactly as everywhere else (`SPEC.md` §2.1 rule 1,
+`DECISIONS.md` 74).
+
+`deadMoney` at `state:'blank'` ⇒ **no unlit block is drawn and no share is inferred**; the blank reason
+renders beside the bowl in `.yy-label` `--yy-fg-3`, and the nine groups take the full 180°.
+
+### 16.6 Labels
+
+| Rule | Value |
+|---|---|
+| Content | The group abbreviation, at the section's **mid-angle**, on the label arc (`r = 218`) |
+| Orientation | **Upright, always.** Never rotated to follow the arc — `CHART_ANATOMY.md` §8: never rotate a data label. |
+| Type | `.yy-label` (11px). **`.yy-micro` is not legal here** — the 10px tier is for tracked all-caps *inside* a data mark, and this label sits outside the mark. |
+| Small sections | Below **8°**, the label keeps its place on the arc and gains a `1px` `--yy-fg-3` leader from `r_clamp + 4` to `r_label − 6` |
+| Collision | One pass along the label arc enforcing a **7° minimum separation**, pushing outward from the apex; leaders bend to follow. |
+| Never | A section without a label. All nine are labelled at every size, in every crop, in every state — including the zero and blank states. |
+| Values | **On demand** (`CHART_ANATOMY.md` §10) — hover, focus or selection. This is safe *only* because AllocationBars beneath carries every number at all times: the bowl never holds the only copy of a figure, and no caveat, date or coverage reason lives here alone. |
+
+### 16.7 AllocationBars is retained beneath
+
+**§7 renders unchanged, below the bowl, always.** It is the accessible and detail view:
+
+- nine rows, `SPEC.md` §2.6 order, signed values, neutral fills, the **gold zero axis**;
+- §7.3's denominator caveat, which is the caveat for **both** views and is not repeated twice;
+- the `<svg role="img">` + `aria-label` of the bowl (`DECISIONS.md` 99a) describes the shape; the bars
+  are what a screen reader actually reads, and the CSV (§14) is the tabular equivalent.
+
+**The stadium is the argument; the bars are the evidence.** A surface that shipped the bowl alone would
+have put nine numbers behind a hover, which is the thing this system does not do.
+
+### 16.8 Coverage, and every degenerate state
+
+Position data begins in 2013 (`SPEC.md` §7.12). Every state below is drawn, never omitted
+(`CHART_ANATOMY.md` §5).
+
+| State | Rendering |
+|---|---|
+| **Pre-2013** | The whole component is replaced by `BoundaryMessage` (§13.3). Not an empty bowl, not zeros, not a disabled control. |
+| **`groups` blank** (covered season, no data) | The **bowl outline only**: the full 180° annulus `r_inner → r_clamp` in `--yy-absence-fill` with `1px` dashed `--yy-absence` — **same box, same position, same size as a live bowl** — and the `reason` string rendered at the centre in `.yy-label` `--yy-fg-3`. Legend: `⊟ NOT COVERED`. |
+| **`partial`** (fewer than nine groups) | Present groups render normally **plus** a 45° 2px `--yy-partial` hatch over the whole bowl; absent groups keep their slots at the 3° minimum in the absence grammar with their reason. Legend: `▨ PARTIAL — n of 9`. |
+| **A group at 0%** | A **3° stub** at `r_inner` — a 1px `--yy-fg-3` arc — labelled with its abbreviation. **Never dropped.** A missing section reads as a group that does not exist, and every team has a special-teams cap number even when it rounds to nothing. |
+| **`ratio` > 2.0** | Clamped at `r_clamp`, with the 2px `--yy-fg-2` cap arc **and the true ratio printed** in the label. A clamp is never silent. |
+| **`ratio` = 0 with a non-zero share** | Impossible by construction (`leagueShare` > 0 for all nine groups in every covered season); if it arrives, it is a `blank`, not a zero. |
+| **`rosteredCap` blank** | The centre figure renders its reason; the bowl still draws — the shares are shares regardless of the total. |
+
+**The 3° visibility floor is stated, not hidden.** Where a section's true allotment is below 3°, it
+paints 3° and the deficit is taken proportionally from the sections above 12°. **Any section sitting on
+the floor carries its true value in its label**, and the bars beneath are exact. A floor that silently
+inflates a small number would be the same class of error as zero-filling a blank.
+
+### 16.9 Both themes, no motion, and the words on the card
+
+**Themes.** Every paint above is a semantic token; there is no per-theme branch in the component. The
+ring's *line* keeps the gold hue in both themes and the ring's *label* takes `--yy-benchmark`, which is
+already `--yy-gold-ink` in light (`SCREENSHOT_VARIANTS.md` §8).
+
+**Motion: none.** `CHART_ANATOMY.md` §10 — **nothing on this surface animates.** No entry, no arc growth,
+no sweep, no rotation, no travel on selection; the selected fill commits instantly. It is a static SVG,
+and `SPEC.md` §4's "no chart-entry choreography" is at its most tempting on a shape like this one.
+
+**The strap, always rendered, at every size:**
+
+```
+◠ RING = LEAGUE-AVERAGE ALLOCATION · SECTION WIDTH = SHARE OF ROSTERED CAP        YIELD/YARD
+```
+
+`.yy-label` `--yy-fg-2`, the `◠` glyph in `--yy-benchmark`, the product mark per §1.9. Both encodings
+named in words, on the surface, in every crop.
+
+### 16.10 Export variant — and why there is no square
+
+`.yy-export`; sizes **`wide` and `og` only**.
+
+**There is no square Value Stadium.** A 180° bowl plus its nine detail rows does not fit 400 × 400
+without dropping the rows, and the rows are where the values live — dropping them would put nine figures
+behind a hover in the one artifact that cannot be hovered. `SCREENSHOT_VARIANTS.md` §3 already rules
+this class of case: *a card with no honest square is not given one.*
+
+| In export | Value |
+|---|---|
+| Values | Always visible — the bars are in the crop at both export sizes, so nothing is "on demand" and nothing needs force-expanding |
+| Dead money | The `<AsOf>` line renders in full, dated, beside the bowl |
+| Caveat | §7.3's denominator caveat renders in full, never truncated |
+| Selection | No selected group in an export unless the export was requested for one; with none, **no lime appears** |
+| Coverage | Every blank reason, hatch legend and clamp label renders as drawn — an export never resolves a coverage state into a value |
+| Criteria | The eight of `SCREENSHOT_VARIANTS.md` §2, both feed backgrounds |

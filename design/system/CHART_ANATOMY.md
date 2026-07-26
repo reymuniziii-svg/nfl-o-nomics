@@ -178,6 +178,7 @@ either dataset. Cross-fading says "this is a different chart", which it is.
 | Dot plot (dead money) | `opacity` only | `--yy-dur-fast` | Position. Each dot is a separate dated reading; moving one implies it is the same reading over time. |
 | Matrix / heat | Cell `background-color` on metric change | `--yy-dur-chart` / `--yy-ease-standard`, no stagger | Cell size. |
 | Sparkline | nothing | — | everything |
+| **Value Stadium** | nothing | — | **everything.** No entry, no arc growth, no sweep, no rotation; the selected fill commits instantly. §10. |
 
 ### 6.3 What never animates, anywhere
 
@@ -221,12 +222,16 @@ task.
 | Mark | The team's position is a TeamMark at `xs` (or its fallback chip) on a 1px `--yy-fg-2` stem to the field line. |
 | Coverage | A team with `blank` Cap+ is **off the field**, in a labelled group beneath it headed `NOT COVERED — {reason}`. It is never placed at the goal line, which would read as Cap+ 150 or 50. |
 
-**The Value Stadium** (`DECISIONS.md` 44 — money allocation; sections are position groups by cap
-share, gold ring is the league average, dead money is unlit seats) is **not a v1 row**. Its semantics
-are settled and one anatomy note belongs here so it is not designed wrongly later:
-**stadium sections are not colour-coded by position group.** Nine categories cannot be separated in
-one hue family (§9). Sections take `--yy-bg-track` with a single `--yy-accent` highlight on the
-selected group; the gold ring, the unlit seats and the direct labels carry the rest.
+**The Value Stadium is not one of these two surfaces.** It is a third field-literal shape and it is
+governed separately: **anatomy in §10, build in `COMPONENTS.md` §16.** The "not a v1 row" deferral this
+section carried is withdrawn (`DECISIONS.md` 103).
+
+The ruling that was recorded here survives verbatim and is the reason §10 exists at all: **stadium
+sections are not colour-coded by position group.** Nine categories cannot be separated in one hue family
+(§9). One neutral fill for all nine, a single `--yy-accent` highlight on the selected group, and the gold
+ring, the unlit seats and the direct labels carry the rest. The fill token itself moved from
+`--yy-bg-track` to `--yy-series-neutral` on an AA measurement — `COMPONENTS.md` §16.4 carries the
+measurement and the reasoning.
 
 ---
 
@@ -288,3 +293,81 @@ one series per chart. There is no ninth hue available, and there should not be.
    printed in every cell in `.yy-micro`. **Check this one against "one lime series per chart"** —
    a diverging ramp using lime as an end is the one place the mockup arguably strains the rule, and
    it passes only because the cell values are printed and the ramp is a scale, not a series.
+
+---
+
+## 10. THE VALUE STADIUM — anatomy
+
+`SPEC.md` §4 reconciliation #1, `DECISIONS.md` 44 and 103. The build spec — API, measured geometry,
+paint, states, export — is `COMPONENTS.md` §16 and is not restated here. This section is what the
+**chart system** contributes: what this surface has instead of the furniture every other chart carries.
+
+### 10.1 Axes: none. The ring **is** the benchmark.
+
+There is no axis line, no tick, no axis title, and no value axis anywhere on the bowl.
+
+A chart earns an axis when a reader has to convert a position into a quantity. Here the only quantity a
+reader must recover from the radial dimension is **"is this section past the ring or short of it"**, and
+the ring answers that at every angle simultaneously. An axis drawn beside a 180° arc would be a straight
+ruler for a curved measurement — readable at exactly one angle and misleading at the other 179.
+
+This is the **one exception** to §2's rule that every Cap+ chart carries a Cap+ axis, and it costs
+nothing, because **the Value Stadium is not a Cap+ chart.** It plots allocation shares against
+league-average allocation shares. No Cap+ value appears on it, so no Cap+ axis is owed.
+
+**What replaces the axis** — and it is a replacement, not an omission:
+
+| Instead of | The bowl carries |
+|---|---|
+| A value axis | The **gold ring** at ratio 1.00, dashed 1px `--yy-benchmark-line` (§4's *Ring* form), naming the league average for all nine groups at one radius |
+| An axis title | The **strap**, always rendered: `◠ RING = LEAGUE-AVERAGE ALLOCATION · SECTION WIDTH = SHARE OF ROSTERED CAP`. Both encodings, in words, in every crop — §4's rule that a benchmark is always named in words |
+| Tick labels | The **direct label** on every section, and the nine exact figures in AllocationBars directly beneath |
+
+### 10.2 Gridlines: none
+
+No concentric rings, no radial spokes, no ratio ladder at 0.5 / 1.5. §3's rule that *the benchmark's own
+position gets no gridline* taken to its conclusion: on a surface whose entire radial axis exists to
+support **one** reference, a second set of rings would read as more references, and a reader would have
+to work out which of them was the league average.
+
+The only arc on the radial axis is gold, and gold is the benchmark and nothing else.
+
+### 10.3 Labels
+
+| Rule | Value |
+|---|---|
+| Group labels | The abbreviation at each section's **mid-angle**, on the label arc, **upright** — never rotated to follow the arc (§8: never rotate a data label). `.yy-label`, 11px, the utility floor. |
+| Every section | Labelled. At every size, in every crop, in every state — including a zero stub and a blanked bowl. There is no density rule that drops one. |
+| Collision | Leaders below 8°, then one spreading pass at a 7° minimum separation (`COMPONENTS.md` §16.6). The mockup's opacity-based density rule (§8) does **not** apply here: the nine groups are a fixed, complete set, and fading one is dropping it. |
+| Values | **On demand** — hover, focus, selection. Permitted here *only* because AllocationBars renders beneath at all times with every figure, every sign and the denominator caveat. The bowl never holds the only copy of a number, a date or a coverage reason, which is the §8 tooltip rule stated for a surface that has no tooltips. |
+| Dead money | `DEAD` on the label arc; the **figure and its as-of stamp beside the bowl**, through `<AsOf>`, never inside the arc (`COMPONENTS.md` §8.1, §16.5) |
+
+### 10.4 Empty and partial states
+
+The §5 vocabulary, applied to an arc. Nothing here is a new grammar:
+
+| State | Drawn as |
+|---|---|
+| Pre-2013 | `BoundaryMessage` replaces the component. Position data begins in 2013 (`SPEC.md` §7.12) and an empty bowl would imply a team that allocated nothing. |
+| `blank` | The bowl outline at **full sweep, same box, same position, same size** — `--yy-absence-fill` with `1px` dashed `--yy-absence` — and the reason string rendered at the centre. §5.2's rule that a blank keeps the live mark's geometry is what makes the absence legible as absence. |
+| `partial` | 45° 2px `--yy-partial` hatch over the whole bowl; missing groups keep their slots at the 3° minimum in the absence grammar. Legend `▨ PARTIAL — n of 9`. |
+| A 0% group | A 3° stub at the inner radius, labelled. Never dropped — §5.5: a blank is never rendered as nothing. |
+| A clamped ratio | Capped at `r_clamp` with a 2px cap arc **and the true ratio printed**. A clamp is a truncation of the drawing, never of the fact. |
+| Dead money `blank` | No unlit block, no inferred share, reason rendered beside the bowl |
+
+**The visibility floor is disclosed on the card** (`COMPONENTS.md` §16.8). A 3° minimum inflates a
+sub-3° section geometrically; the label carries the true value and the bars beneath are exact. An
+undisclosed floor would be the same error as zero-filling a blank, one dimension over.
+
+### 10.5 Motion: none. Static SVG.
+
+Added to §6.2 as its own row. Nothing on this surface animates — not on entry, not on data change, not on
+selection, not on theme flip. No arc grows, no bowl sweeps open, no section travels to a new angle.
+
+The reason is §6.1's domain rule at full strength: **every input to this shape's geometry changes at
+once** when the team or season changes — the angular budget, all nine ratios, the dead-money share. There
+is no stable domain to animate against, so §6.1 says cross-fade, and a cross-fade of a shape this large
+is indistinguishable from a repaint. So it repaints.
+
+And a bowl that fills in on load is precisely the "chart-entry choreography" `SPEC.md` §4 forbids by
+name. It is the most tempting shape in the product to animate, which is the reason this row exists.

@@ -353,6 +353,12 @@
      ───────────────────────────────────────────────────────────────────── */
   --yy-canvas-mobile: 390px;
   --yy-canvas-square: 400px;
+  /* THE OG CANVAS. The card renders at 600 × 315 CSS px and is captured at
+     dpr 2 → 1200 × 630. Only the WIDTH is tokenised: 1200 × 630 is 40:21, so the
+     height is `calc(var(--yy-canvas-og) * 21 / 40)` and a second token would be a
+     second source of truth for one ratio. OG is DARK ONLY —
+     SCREENSHOT_VARIANTS.md §3.1, §8. [RULED] */
+  --yy-canvas-og: 600px;
   --yy-canvas-wide: 1040px;
   --yy-canvas-desktop: 1440px;
   --yy-bp-desktop: 1024px;
@@ -590,6 +596,12 @@
   --yy-dur-base: 1ms;
   --yy-dur-chart: 1ms;
   --yy-dur-slow: 1ms;
+  /* An export can never stagger. The durations above stop a rasteriser catching a
+     card mid-transition; these stop it catching a LIST mid-stagger, which is the
+     same failure one level up. Independent of `prefers-reduced-motion` (§26) —
+     the export is not the reader's preference, it is a still frame. */
+  --yy-stagger: 0ms;
+  --yy-stagger-max: 0;
 }
 
 [data-theme="light"] .yy-export {
