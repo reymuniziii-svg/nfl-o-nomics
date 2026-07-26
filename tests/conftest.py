@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import ast
 import functools
+import json
 import re
 from pathlib import Path
 
@@ -245,6 +246,31 @@ def dm_team_season() -> pd.DataFrame:
 def coaching() -> pd.DataFrame:
     """data/curated/coaching_staff.csv — 2,612 rows over 830 team-seasons."""
     return load("data/curated/coaching_staff.csv")
+
+
+@pytest.fixture(scope="session")
+def production() -> pd.DataFrame:
+    """data/marts/player_season_production.csv — 1,944 player-seasons, REG only."""
+    return load("data/marts/player_season_production.csv")
+
+
+@pytest.fixture(scope="session")
+def player_images() -> pd.DataFrame:
+    """data/marts/player_images.csv — the 251-player v1 population (SPEC §8.4)."""
+    return load("data/marts/player_images.csv")
+
+
+@pytest.fixture(scope="session")
+def manifest() -> dict:
+    """data/marts/manifest.json — committed, and carries no wall clock.
+
+    The ETL records its own coverage measurements under `checks`; a structural
+    test scores them from here rather than recomputing from the network.
+    """
+    p = MARTS / "manifest.json"
+    if not p.exists():
+        raise FileNotFoundError("required committed file missing: data/marts/manifest.json")
+    return json.loads(p.read_text(encoding="utf-8"))
 
 
 @pytest.fixture(scope="session")

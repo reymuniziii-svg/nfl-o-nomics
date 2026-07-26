@@ -49,6 +49,27 @@ ASSETS = {
         "projected": "season, season_type, posteam, defteam, play_type, epa",
         "note": "372 columns in the file; we read six. One file per season.",
     },
+    "pbp_production": {
+        "url": config.PBP_URL,
+        "projected": "season, season_type, week, play_type, posteam, defteam, "
+                     "two_point_attempt, passer_player_id, rusher_player_id, "
+                     "receiver_player_id, pass_attempt, complete_pass, "
+                     "passing_yards, pass_touchdown, interception, sack, "
+                     "rush_attempt, rushing_yards, rush_touchdown, "
+                     "receiving_yards, sack_player_id, half_sack_1_player_id, "
+                     "half_sack_2_player_id, interception_player_id, "
+                     "solo_tackle_1_player_id, solo_tackle_1_team, "
+                     "solo_tackle_2_player_id, solo_tackle_2_team, "
+                     "assist_tackle_1_player_id, assist_tackle_1_team, "
+                     "assist_tackle_2_player_id, assist_tackle_2_team, "
+                     "assist_tackle_3_player_id, assist_tackle_3_team, "
+                     "assist_tackle_4_player_id, assist_tackle_4_team",
+        "note": "THE SAME per-season asset as [assets.pbp], scanned a second time "
+                "with a wider projection for player_season_production. Pinned "
+                "separately because what this file pins is the exact projected "
+                "column set per scan (RISKS 6, schema drift) — folding two "
+                "different projections into one entry would pin neither.",
+    },
     "contracts": {
         "url": config.CONTRACTS_URL,
         "projected": "* (the nested `cols` list is unnested and deduped in DuckDB)",

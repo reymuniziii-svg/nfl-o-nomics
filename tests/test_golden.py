@@ -402,6 +402,131 @@ def test_g18_tomlinson_2023_nyj_offensive_snaps():
 
 
 # ==========================================================================
+# 19-21 — player_season_production, EXACT
+#
+# Three externally verified regular-season lines, scored straight out of
+# player_season_production (SPEC §7.13). These are NOT part of the DATA_AUDIT §3
+# eighteen — that list was fixed at Phase 0, before this mart existed — so they
+# are numbered onward rather than renumbering the audit's register.
+#
+# Every figure below was verified from press and reference coverage before it was
+# pinned, with two independent sources each; the URLs are in the docstrings.
+# Pro-Football-Reference was NOT usable as a source: it serves a Cloudflare bot
+# challenge (HTTP 403) to any non-browser client, so NFL.com (official),
+# Wikipedia, Steelers.com and StatMuse carry the verification instead.
+#
+# THE GOLDENS ARE SACKS, INTERCEPTIONS AND YARDS — NEVER TACKLES. Play-by-play
+# tackle attribution diverges from official gamebook counts (Watt's 2021 is 58 on
+# this route against the 64 combined every box score prints), which is exactly
+# what the mart's `tackles_basis = 'pbp'` column exists to disclose. Writing a
+# golden on a figure whose basis we have already labelled as divergent would pin
+# a number we do not claim to reproduce.
+# ==========================================================================
+
+
+def _production_row(production, gsis_id: str, season: int, label: str):
+    sel = production[
+        (production.gsis_id == gsis_id) & (production.season == season)
+    ]
+    assert len(sel) == 1, f"{label}: expected exactly 1 row, found {len(sel)}"
+    return sel.iloc[0]
+
+
+def test_g19_mahomes_2023_passing_yards(production):
+    """#19  Patrick Mahomes 2023 REG passing yards — external 4,183.
+
+    Verified 401/597, 4,183 yards, 27 TD, 14 INT over 16 games (KC had locked the
+    3-seed and rested him in Week 18). Sources:
+      https://www.nfl.com/players/patrick-mahomes/stats/career
+      https://en.wikipedia.org/wiki/Patrick_Mahomes
+
+    The attempt count is the load-bearing one: nflverse's `pass_attempt` is 1 on
+    a sack, so the un-filtered aggregate is 624 and the official figure is 597.
+    Asserting it here is what keeps that filter from being "simplified" away.
+    """
+    r = _production_row(production, "00-0033873", 2023, "#19 Mahomes 2023")
+    assert_exact(int(r.pass_yards), 4183, "#19 Mahomes 2023 REG passing yards")
+    assert_exact(int(r.pass_attempts), 597, "#19 Mahomes 2023 REG attempts (sacks excluded)")
+    assert_exact(int(r.pass_completions), 401, "#19 Mahomes 2023 REG completions")
+    assert_exact(int(r.pass_td), 27, "#19 Mahomes 2023 REG passing TD")
+    assert_exact(int(r.pass_int), 14, "#19 Mahomes 2023 REG interceptions thrown")
+    assert_exact(str(r.teams), "KC", "#19 Mahomes 2023 team")
+
+
+def test_g20_tj_watt_2021_sacks(production):
+    """#20  T.J. Watt 2021 REG sacks — external 22.5.
+
+    Verified 22.5 over 15 games, tying Michael Strahan's 2001 record (set in a
+    16-game season). Sources:
+      https://www.steelers.com/news/watt-ties-nfl-single-season-sack-record
+      https://www.nfl.com/news/steelers-t-j-watt-hall-of-famer-michael-strahan-sack-record
+      https://en.wikipedia.org/wiki/T._J._Watt
+
+    Two things this figure is deliberately robust to. Pittsburgh asked Elias to
+    credit Watt an additional sack on the Week 18 errant-snap play; the appeal was
+    DENIED and the official total stands at 22.5. And Myles Garrett broke the
+    record with 23 in 2025 — Watt's 22.5 is no longer the record, but it is
+    unchanged as a fact, which is the only thing a golden test pins.
+
+    The half is the point: 22.5 only reproduces if full sacks (`sack_player_id`,
+    1.0) and split sacks (`half_sack_1/2_player_id`, 0.5 each) are summed as the
+    partition they are. Rounding to whole sacks, or double-counting a split,
+    both fail here.
+    """
+    r = _production_row(production, "00-0033886", 2021, "#20 Watt 2021")
+    assert_exact(float(r.def_sacks), 22.5, "#20 T.J. Watt 2021 REG sacks")
+    assert_exact(int(r.def_interceptions), 0, "#20 T.J. Watt 2021 REG interceptions")
+    assert_exact(str(r.teams), "PIT", "#20 T.J. Watt 2021 team")
+    # NOT a golden: the pbp tackle count (58) diverges from the official combined
+    # 64. Asserted only as the disclosure that the divergence is still labelled.
+    assert r.tackles_basis == "pbp", (
+        "#20 the tackle figure beside these sacks is pbp-derived and diverges from "
+        "the official gamebook count — it must stay labelled (SPEC §7.13)"
+    )
+
+
+def test_g21_justin_jefferson_2022_receiving_yards(production):
+    """#21  Justin Jefferson 2022 REG receiving yards — external 1,809.
+
+    Verified 128 receptions on 184 targets for 1,809 yards and 8 receiving TDs
+    over all 17 games; he led the league in receptions and receiving yards and
+    won AP Offensive Player of the Year. Sources:
+      https://www.nfl.com/players/justin-jefferson/stats/career
+      https://en.wikipedia.org/wiki/Justin_Jefferson
+
+    Watch the touchdown figure: several outlets print "9 TDs" for 2022, which is
+    8 receiving plus 1 rushing. The receiving figure is 8, and this mart splits
+    them, so the two never merge into one number.
+    """
+    r = _production_row(production, "00-0036322", 2022, "#21 Jefferson 2022")
+    assert_exact(int(r.rec_yards), 1809, "#21 Jefferson 2022 REG receiving yards")
+    assert_exact(int(r.receptions), 128, "#21 Jefferson 2022 REG receptions")
+    assert_exact(int(r.rec_targets), 184, "#21 Jefferson 2022 REG targets")
+    assert_exact(int(r.rec_td), 8, "#21 Jefferson 2022 REG RECEIVING TD (not the 9 total)")
+    assert_exact(int(r.rush_td), 1, "#21 Jefferson 2022 REG rushing TD — the 9th score")
+    assert_exact(str(r.teams), "MIN", "#21 Jefferson 2022 team")
+
+
+def test_g19_to_g21_two_point_conversions_are_excluded(production):
+    """Guard for #19-#21: two-point conversions are not official statistics.
+
+    They carry a passer, a rusher and a receiver, so leaving them in inflates
+    ATTEMPT and TARGET counts while leaving yardage untouched — an error that
+    hides in exactly the columns the three goldens above do not all assert.
+    Derrick Henry's 2020 is the calibration case: 378 official carries for 2,027
+    yards, and 380 carries if conversions are counted.
+      https://www.nfl.com/players/derrick-henry/stats/career
+
+    This is a golden in its own right and it is the one that would catch the
+    filter being dropped.
+    """
+    r = _production_row(production, "00-0032764", 2020, "Henry 2020")
+    assert_exact(int(r.rush_attempts), 378, "Henry 2020 REG carries (2-pt excluded)")
+    assert_exact(int(r.rush_yards), 2027, "Henry 2020 REG rushing yards")
+    assert_exact(int(r.rush_td), 17, "Henry 2020 REG rushing TD")
+
+
+# ==========================================================================
 # §3.2 — hand-computed cost-per-win, recomputed from the marts
 # ==========================================================================
 

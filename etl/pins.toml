@@ -55,6 +55,15 @@ window = "1999-2025 REG pass+run"
 consumed_by = ["team_season_epa"]
 note = "372 columns in the file; we read six. One file per season."
 
+[assets.pbp_production]
+tag = "pbp"
+url = "https://github.com/nflverse/nflverse-data/releases/download/pbp/play_by_play_{year}.parquet"
+projected_columns = "season, season_type, week, play_type, posteam, defteam, two_point_attempt, passer_player_id, rusher_player_id, receiver_player_id, pass_attempt, complete_pass, passing_yards, pass_touchdown, interception, sack, rush_attempt, rushing_yards, rush_touchdown, receiving_yards, sack_player_id, half_sack_1_player_id, half_sack_2_player_id, interception_player_id, solo_tackle_1_player_id, solo_tackle_1_team, solo_tackle_2_player_id, solo_tackle_2_team, assist_tackle_1_player_id, assist_tackle_1_team, assist_tackle_2_player_id, assist_tackle_2_team, assist_tackle_3_player_id, assist_tackle_3_team, assist_tackle_4_player_id, assist_tackle_4_team"
+observed_rows_consumed = 1225182
+window = "1999-2025 REG"
+consumed_by = ["player_season_production"]
+note = "THE SAME per-season asset as [assets.pbp], scanned a second time with a wider projection for player_season_production. Pinned separately because what this file pins is the exact projected column set per scan (RISKS 6, schema drift) — folding two different projections into one entry would pin neither."
+
 [assets.players]
 tag = "players"
 url = "https://github.com/nflverse/nflverse-data/releases/download/players/players.parquet"

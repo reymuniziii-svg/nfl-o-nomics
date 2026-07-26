@@ -344,6 +344,57 @@
       "team_seasons": 416,
       "unmapped_position_rows": 502
     },
+    "player_season_production": {
+      "attribution": {
+        "interception_attribution_rate": 1.0,
+        "sack_attribution_rate": 0.991675,
+        "scrimmage_attribution_rate": 0.999998
+      },
+      "attribution_floors": {
+        "interception_attribution_rate": 0.99,
+        "sack_attribution_rate": 0.95,
+        "scrimmage_attribution_rate": 0.97
+      },
+      "bridged": 251,
+      "bridged_via_player_season_cap": 251,
+      "bridged_via_players_parquet_fallback": 0,
+      "dropped_events": {
+        "interception_events": 12772,
+        "interception_unattributed": 0,
+        "sack_events": 32432,
+        "sack_unattributed": 270,
+        "scrimmage_plays": 870221,
+        "scrimmage_unattributed": 2
+      },
+      "golden": [
+        {
+          "check": "Mahomes 2023 REG passing yards",
+          "delta": 0.0,
+          "expected": 4183,
+          "got": 4183.0
+        },
+        {
+          "check": "T.J. Watt 2021 REG sacks",
+          "delta": 0.0,
+          "expected": 22.5,
+          "got": 22.5
+        },
+        {
+          "check": "Justin Jefferson 2022 REG receiving yards",
+          "delta": 0.0,
+          "expected": 1809,
+          "got": 1809.0
+        }
+      ],
+      "multi_team_seasons": 29,
+      "players_with_production": 249,
+      "players_without_any_production": 2,
+      "population": 251,
+      "reg_rows_consumed": 1225182,
+      "rows": 1944,
+      "tackles_basis": "pbp",
+      "window": "1999-2025"
+    },
     "position_allocation": {
       "league_2023": {
         "DB": 0.1618,
@@ -846,6 +897,49 @@
           "rows": 32105,
           "source": "nflverse historical_contracts.parquet + players.parquet",
           "window": "2013-2025"
+        }
+      ]
+    },
+    "player_season_production": {
+      "columns": [
+        "player_id",
+        "gsis_id",
+        "season",
+        "player",
+        "teams",
+        "pass_attempts",
+        "pass_completions",
+        "pass_yards",
+        "pass_td",
+        "pass_int",
+        "rush_attempts",
+        "rush_yards",
+        "rush_td",
+        "rec_targets",
+        "receptions",
+        "rec_yards",
+        "rec_td",
+        "def_sacks",
+        "def_interceptions",
+        "def_tackles",
+        "tackles_basis"
+      ],
+      "contract": "SPEC §7.13 — per-player REG production 1999-2025, pbp-derived; tackles_basis='pbp'",
+      "file": "data/marts/player_season_production.csv",
+      "md5": "34e4ddd7787d0196ab221b5bd945ec92",
+      "n_columns": 21,
+      "rows": 1944,
+      "source_data": [
+        {
+          "asset": "pbp_production",
+          "asset_rows": 1225182,
+          "rows": 1944,
+          "source": "nflverse play_by_play_{year}.parquet (30-column projection)",
+          "window": "1999-2025 REG"
+        },
+        {
+          "rows": 251,
+          "source": "data/marts/player_images.csv + player_season_cap.csv (otc_id -> gsis_id bridge)"
         }
       ]
     },

@@ -24,13 +24,18 @@ python -m etl.pipeline --download         # fallback when httpfs can't follow
                                           # GitHub's signed release redirects
 ```
 
-A full cold run is **~70 seconds**, almost all of it the 27 remote play-by-play
-scans. `--mart` takes BUILD_PLAN aliases as well as mart names: `stability_index`,
-`draft_capital`, `positional_allocation`, `capplus`, `fs_chart`, `regimes`,
-`snapshot_resolution`, `player_cap`.
+A full cold run is **~3.5 minutes**, almost all of it the **54** remote
+play-by-play scans — the 27 seasons are read twice, once at six columns for
+`team_season_epa` and once at 36 for `player_season_production`. The two are
+deliberately not merged: widening the EPA scan to serve both would change the
+projected column set `etl/pins.toml` records for a mart that is final and
+re-emits byte-identically. `--mart` takes BUILD_PLAN aliases as well as mart
+names: `stability_index`, `draft_capital`, `positional_allocation`, `capplus`,
+`fs_chart`, `regimes`, `snapshot_resolution`, `player_cap`, `production`.
 
 **`data/raw/` is empty at rest and the pipeline asserts it** (`DECISIONS.md` 7).
-The pbp files carry 372 columns and we read six; nothing needs to land on disk.
+The pbp files carry 372 columns and we read six of them for EPA and 36 for
+production; nothing needs to land on disk.
 TLS verification stays on — `ARCHITECTURE.md` §4.1 says that is not
 re-litigated.
 
@@ -55,6 +60,7 @@ verification, which degrades to a warning rather than failing the build).
 | `coaching.py` | new, per `SPEC.md` §2.8 | `coaching_staff`, `team_season_stability`, `regime_events` |
 | `draft.py` | `audit_support.py` | the F-S chart, `draft_pick`, `draft_class_summary` |
 | `availability.py` | `audit_support.py` (snaps) | `player_season_availability` |
+| `production.py` | new, per `SPEC.md` §3.3.6 | `player_season_production` |
 | `images.py` | `audit_images.py` + the asset pipeline | `player_images` |
 | `curated.py` | new | `league_cap` passthrough |
 | `pins.py` | new | `etl/pins.toml`, derived from the manifest |
@@ -75,6 +81,7 @@ Row counts are the shipping (`DEAD_MONEY_TIER=full`) build.
 | `player_season_cap` | 32,105 | 27 | SPEC §7.9 — player-season detail + marquee dead-money markers |
 | `player_season_availability` | 28,190 | 10 | SPEC §7.9 — games + snaps, 2013–2025, REG only |
 | `player_images` | 251 | 27 | SPEC §7.10 — licence, attribution, self-hosted rendition |
+| `player_season_production` | 1,944 | 21 | SPEC §7.13 — REG production 1999–2025, the 251-player population |
 | `position_allocation` | 3,744 | 7 | SPEC §7.12 / §2.6 — 13 × 32 × 9 groups |
 | `dead_money_team_season` | 370 | 9 | SPEC §7.5 — dated snapshots + the derived `license_tier` |
 | `dead_money_ledger` | 21 | 9 | SPEC §7.6 — verified individual charges |
@@ -311,6 +318,17 @@ Structural:
   Tomlinson 2023 NYJ, **1,101 REG offensive snaps over 17 games, `off_pct`
   1.000** (a 0-1 fraction). The 2012 snap asset is asserted still empty rather
   than the 2013 boundary being trusted.
+* `player_season_production` bridges **251/251** of the audited population from
+  `otc_id` to `gsis_id` (all 251 from `player_season_cap`'s resolved pairs; the
+  `players.parquet` crosswalk is the fallback and did not need to fire) and
+  fails the build on anything less — a partial bridge would ship a player page
+  whose production line is silently empty. Three goldens re-score from the mart
+  at **exact** tolerance: Mahomes 2023 4,183 passing yards on 401/597, Watt 2021
+  **22.5** sacks, Jefferson 2022 1,809 receiving yards on 128/184. League-wide
+  attribution floors hold: sacks 99.17%, interceptions 100.00%, scrimmage plays
+  99.9998%. **No assertion is ever written on tackles** — the pbp route gives
+  Watt 58 against the official 64, which is what `tackles_basis = 'pbp'`
+  discloses.
 * `player_images` reproduces both published coverage numbers: 244/251 = 97.2%
   Commons coverage and 235/251 = 93.6% rendered at `IMAGE_MIN_WIDTH_PX = 300`
   (6.4% designed-card fallback = 7 no photo + 9 below floor). The licence block

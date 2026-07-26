@@ -16,6 +16,10 @@ import pytest
 
 from conftest import find_mart, one_row, read_any, rel
 
+# The 32 current-franchise codes. Declared once, in the contract registry, so the
+# vocabulary cannot drift between the two files that police it.
+from test_contracts import TEAM_ABBRS
+
 # --------------------------------------------------------------------------
 # Expected shape, from DATA_AUDIT §2 and §4
 # --------------------------------------------------------------------------
@@ -675,3 +679,183 @@ def test_s11_ledger_charges_are_contained_by_team_totals(dm_ledger, dm_team_seas
             f"Wilson's DEN {season} charge should be the bulk of the team total; "
             f"got {charge / total:.1%}"
         )
+
+
+# ==========================================================================
+# S12 — player_season_production: population containment + attribution floors
+# ==========================================================================
+
+POPULATION_N = 251  # SPEC §8.4, DECISIONS 53
+PRODUCTION_ROWS = 1944
+PLAYERS_WITH_PRODUCTION = 249  # the 2 absent are OL with no credited event
+
+# Measured over all 27 REG seasons on the build that produced the committed mart,
+# then pinned with margin. These are DROPPED-PLAY rates: an event the source
+# records but attributes to no player, which no join can recover.
+#
+#   sack_attribution_rate          0.991675  (270 unattributed of 32,432 sacks)
+#   interception_attribution_rate  1.000000  (0 of 12,772 — perfect)
+#   scrimmage_attribution_rate     0.999998  (2 of 870,221 pass/run plays)
+#
+# The floors sit below the measurements, not on them: a source revision that
+# moves a rate slightly is not a failure, and one that collapses it is.
+ATTRIBUTION_FLOORS = {
+    "sack_attribution_rate": 0.95,
+    "interception_attribution_rate": 0.99,
+    "scrimmage_attribution_rate": 0.97,
+}
+# Nothing may drift ABOVE 1.0 either — a rate over 1 means the unattributed
+# counter and its denominator came apart.
+ATTRIBUTION_CEILING = 1.0
+
+
+def test_s12_production_population_is_the_251_audited_players(
+    production, player_images, cap
+):
+    """S12a Every production row maps into the 251-player v1 population.
+
+    The player view ships the audited population and nothing else (SPEC §8.4).
+    A gsis_id here that is not one of the 251 means the pbp aggregation escaped
+    its population filter and the player view can route to a page whose image
+    status and licence metadata were never audited.
+
+    Checked through the same bridge the ETL uses — `player_images.player_id` is
+    the otc_id, and `player_season_cap` carries the resolved (otc_id, gsis_id)
+    pair — so the test validates the join, not just a column of strings.
+    """
+    pop_otc = set(player_images.player_id.astype(int))
+    assert len(pop_otc) == POPULATION_N, (
+        f"player_images must carry exactly {POPULATION_N} distinct player_ids, "
+        f"found {len(pop_otc)}"
+    )
+
+    psc = read_any(find_mart("player_season_cap"))
+    pairs = psc[psc.gsis_id.notna()].drop_duplicates(["otc_id", "gsis_id"])
+    bridge = {
+        int(r.otc_id): r.gsis_id
+        for r in pairs.itertuples()
+        if int(r.otc_id) in pop_otc
+    }
+    assert len(bridge) == POPULATION_N, (
+        f"otc_id -> gsis_id bridged {len(bridge)}/{POPULATION_N} — the mart is built "
+        "on a hard 251/251 assertion and this is the committed-file mirror of it"
+    )
+    pop_gsis = set(bridge.values())
+
+    stray = sorted(set(production.gsis_id) - pop_gsis)
+    assert not stray, (
+        f"{len(stray)} gsis_id(s) in player_season_production are outside the "
+        f"{POPULATION_N}-player population, e.g. {stray[:5]}"
+    )
+    # ...and player_id must agree with the bridge on every row, not merely exist.
+    mismatched = [
+        (int(r.player_id), r.gsis_id)
+        for r in production.itertuples()
+        if bridge.get(int(r.player_id)) != r.gsis_id
+    ]
+    assert not mismatched, (
+        f"{len(mismatched)} row(s) carry a (player_id, gsis_id) pair the bridge does "
+        f"not agree with, e.g. {mismatched[:5]}"
+    )
+    assert production.player_id.nunique() == PLAYERS_WITH_PRODUCTION, (
+        f"expected {PLAYERS_WITH_PRODUCTION} of {POPULATION_N} players to have "
+        f"production, found {production.player_id.nunique()}"
+    )
+
+
+def test_s12_production_shape_and_null_is_not_zero(production):
+    """S12b Grain, window, and the block nullability rule of SPEC §7.13.
+
+    Blocks are written as a unit: a row may not carry `receptions` while leaving
+    `rec_yards` null, because that makes "no receiving" and "no receiving yards"
+    indistinguishable. And a row with every block null must not exist at all — a
+    player-season with no production is ABSENT, not a row of nulls.
+    """
+    assert len(production) == PRODUCTION_ROWS
+    assert production.duplicated(["gsis_id", "season"]).sum() == 0, "grain not unique"
+    assert production.season.min() >= SEASON_MIN and production.season.max() <= SEASON_MAX
+
+    blocks = {
+        "passing": ["pass_attempts", "pass_completions", "pass_yards", "pass_td",
+                    "pass_int"],
+        "rushing": ["rush_attempts", "rush_yards", "rush_td"],
+        "receiving": ["rec_targets", "receptions", "rec_yards", "rec_td"],
+        "defense": ["def_sacks", "def_interceptions", "def_tackles"],
+    }
+    for name, cols in blocks.items():
+        present = production[cols].notna()
+        partial = production[present.any(axis=1) & ~present.all(axis=1)]
+        assert partial.empty, (
+            f"{len(partial)} row(s) have a partially-filled {name} block — each block "
+            f"is written as a unit or left null (SPEC §7.13), e.g.\n"
+            f"{partial[['player', 'season'] + cols].head().to_string(index=False)}"
+        )
+
+    all_cols = [c for cols in blocks.values() for c in cols]
+    empty = production[production[all_cols].isna().all(axis=1)]
+    assert empty.empty, (
+        f"{len(empty)} row(s) carry no production at all — such a player-season must "
+        "be ABSENT from the mart, so the view renders the §1.2 boundary message "
+        "rather than a row of zeroes"
+    )
+
+    for col in ("player_id", "gsis_id", "season", "player", "teams", "tackles_basis"):
+        assert production[col].notna().all(), f"{col} is NOT NULL in SPEC §7.13"
+    assert set(production.tackles_basis.unique()) == {"pbp"}, (
+        "tackles_basis is the disclosure that pbp tackle counts diverge from official "
+        "gamebook counts; it must be present and constant on every row"
+    )
+    # Every code in the '/'-joined teams string is a current-franchise abbr.
+    codes = {c for s in production.teams for c in str(s).split("/")}
+    assert codes <= TEAM_ABBRS, f"non-canonical team code(s) in `teams`: {sorted(codes - TEAM_ABBRS)}"
+    # Sacks come in halves and nothing finer.
+    sacks = production.def_sacks.dropna()
+    assert (((sacks * 2) % 1) == 0).all(), (
+        "def_sacks must be a multiple of 0.5 — a full sack is 1.0 and each half_sack "
+        "credit is 0.5; anything else means the two forms were double-counted"
+    )
+    assert (sacks >= 0).all()
+
+
+def test_s12_production_attribution_rates_hold_their_floors(manifest):
+    """S12c The dropped-play rates the ETL measured, scored against pinned floors.
+
+    An unattributed event — a sack the source records with no sack_player_id — is
+    not recoverable by any join, so the honest thing is to measure the rate,
+    publish it in the manifest, and fail the build if it collapses. Reading it
+    back from the committed manifest keeps CI network-free (tests/README.md).
+
+    Measured on the committed build: sacks 99.1675%, interceptions 100.0000%,
+    scrimmage plays 99.9998%.
+    """
+    checks = manifest.get("checks", {}).get("player_season_production")
+    assert checks, (
+        "manifest checks carry no player_season_production block — the ETL records "
+        "its coverage measurements there on every run and this test scores them"
+    )
+    rates = checks["attribution"]
+    assert set(rates) == set(ATTRIBUTION_FLOORS), (
+        f"attribution rate set changed: {sorted(rates)} != {sorted(ATTRIBUTION_FLOORS)}"
+    )
+    for name, floor in ATTRIBUTION_FLOORS.items():
+        got = float(rates[name])
+        assert floor <= got <= ATTRIBUTION_CEILING, (
+            f"{name} is {got:.6f}, outside [{floor}, {ATTRIBUTION_CEILING}]. A rate "
+            "below the floor is a FINDING about the source, not a threshold to lower; "
+            "a rate above 1.0 means the counter and its denominator came apart."
+        )
+    # The ETL's own floors must not have been quietly relaxed below these.
+    for name, floor in ATTRIBUTION_FLOORS.items():
+        assert float(checks["attribution_floors"][name]) >= floor, (
+            f"etl/production.py lowered the {name} floor below the pinned {floor}"
+        )
+
+    dropped = checks["dropped_events"]
+    assert dropped["interception_unattributed"] == 0, (
+        "interception attribution has always been perfect; a non-zero count here is a "
+        "change in the source worth a human look"
+    )
+    assert checks["population"] == POPULATION_N
+    assert checks["bridged"] == POPULATION_N, "the mart requires a 251/251 bridge"
+    assert checks["rows"] == PRODUCTION_ROWS
+    assert checks["tackles_basis"] == "pbp"

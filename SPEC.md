@@ -671,6 +671,24 @@ not an edit.
 | `/methodology` | Public methodology (`METHODOLOGY.md`) | 1 |
 | `/credits` | Image attribution, data credits | 1 |
 
+**Additive render targets — NOT covered by the stability guarantee above.** Three routes ship
+that this table did not enumerate. They are listed here so the route set is complete and the
+build has no unwritten surfaces, and they are marked explicitly: **these URLs are not permanent,
+carry no redirect obligation, and may be renamed or withdrawn without a redirect.** None of them
+is a canonical address for any datum — every figure each one renders has a permanent home in the
+table above, and each is reachable from it.
+
+| Route | Rendering | Count | Why it is not canonical |
+|---|---|---:|---|
+| `/player` | Player search over the v1 population (§3.3 item 1, §8.4) | 1 | An index over `/player/{id}`; it addresses no player |
+| `/share/team/{abbr}/{season}` | Square export of the team header (`SCREENSHOT_VARIANTS.md` §2) | ~32 | A render target for a 1080×1080 crop of `/team/{abbr}/{season}` |
+| `/share/receipt/{div}/{season}` | Square export of the division Receipt (`SCREENSHOT_VARIANTS.md` §3) | 8 | A render target for a crop of `/` and `/division/{div}` |
+
+The `/share/*` pair exists because **screenshot variants are a build target, not an afterthought**
+(§4): the rasteriser needs a URL whose whole document is the card. The artifact those routes
+produce is the durable thing — an image, which outlives any URL — so the address that produced it
+is deliberately not promised.
+
 **`{abbr}` is always the current-franchise code** — the 32-code set the marts are keyed on:
 `ARI ATL BAL BUF CAR CHI CIN CLE DAL DEN DET GB HOU IND JAX KC LA LAC LV MIA MIN NE NO NYG NYJ
 PHI PIT SEA SF TB TEN WAS`. Lowercased in the URL. **The Rams are `LA`, never `LAR`** — neither
@@ -1048,6 +1066,60 @@ interface PositionAllocation {
 }
 type PositionGroup = 'QB'|'RB'|'WR'|'TE'|'OL'|'DL'|'LB'|'DB'|'ST';
 ```
+
+### 7.13 `player_season_production` — 1,944 rows, grain `(gsis_id, season)`, 1999–2025
+
+The data behind §3.3 point 6, the position-appropriate production line. REG only, derived from
+per-season play-by-play. Population is the **251-player audited set of §8.4** — the same
+population as §7.10, bridged `otc_id` → `gsis_id`.
+
+```ts
+interface PlayerSeasonProduction {
+  player_id: number;                  // the otc_id — the /player/{id} route key, as §7.10
+  gsis_id: string;                    // the play-by-play key; grain is (gsis_id, season)
+  season: Season; player: string;
+  teams: string;                      // '/'-joined, in first-credit order — 'CAR/BAL/HOU'
+  pass_attempts: number | null; pass_completions: number | null;
+  pass_yards: number | null; pass_td: number | null; pass_int: number | null;
+  rush_attempts: number | null; rush_yards: number | null; rush_td: number | null;
+  rec_targets: number | null; receptions: number | null;
+  rec_yards: number | null; rec_td: number | null;
+  def_sacks: number | null;           // halves are real: 22.5 is a value, not a rounding error
+  def_interceptions: number | null; def_tackles: number | null;
+  tackles_basis: 'pbp';               // MUST be rendered as a label — see below
+}
+```
+
+**Nullability is by position relevance, and `null` is not `0`.** Each of the four blocks —
+passing, rushing, receiving, defence — is written **as a unit** and only for a player-season
+with at least one credited event in it. A quarterback's `rec_yards` is `null` because he was
+never targeted; a receiver targeted five times who caught none has `receptions: 0` and
+`rec_yards: 0`, which are readings. A player-season with no production at all has **no row** —
+2 of the 251 (both offensive linemen) have none in any season — and the view renders §1.2's
+boundary message rather than a row of zeroes. `player_id`, `gsis_id`, `season`, `player`,
+`teams` and `tackles_basis` are the only NOT NULL fields.
+
+**`tackles_basis` is a disclosure, not a decoration.** Play-by-play tackle attribution
+**diverges from official gamebook counts**: T.J. Watt's 2021 is 58 tackles on this route
+against the 64 combined (48 solo + 16 assist) every box score prints. The constant ships on
+every row so the UI labels the figure where it renders, and **no golden test is written on
+tackles**. Sacks, interceptions and yards reproduce their published values exactly and carry
+the goldens. Rendering a divergent tackle count unlabelled beside an exact sack total is the
+single-number-of-mixed-provenance failure §1.2 forbids.
+
+> **ETL implementation note (Phase 1).** Two filters are load-bearing and neither is
+> cosmetic. `two_point_attempt = 0` on every offensive aggregate: conversions carry a passer,
+> a rusher and a receiver and are not official statistics (Derrick Henry's 2020 is 380 carries
+> with them, the official 378 without — the yardage is unaffected, so the error hides in the
+> attempt count). And **sacks are excluded from `pass_attempts` only**: nflverse's
+> `pass_attempt` is 1 on a sack where the official attempt count excludes it (Mahomes 2023 is
+> 624 with, the official 597 without); completions, yards, touchdowns and interceptions are
+> already 0 on a sack row. A sack is 1.0 on `sack_player_id` or 0.5 on each of
+> `half_sack_1/2_player_id`, forms that never co-occur. `teams` is built from the
+> **per-tackler `*_team` columns, never the play's `defteam`** — roughly 1,000–1,400 tackles a
+> season are made by a player who is not on the defence of that play (the quarterback who
+> tackles the man who just intercepted him, punt and kick coverage), and using `defteam` puts
+> the opponent's code on the player's season.
 
 ---
 

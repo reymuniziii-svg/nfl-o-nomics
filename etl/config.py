@@ -211,6 +211,8 @@ ROUND_USD = 0        # dollars are whole dollars
 ROUND_RATIO = 6      # shares, percentages, per-play rates
 ROUND_INDEX = 6      # index values and z-scores
 ROUND_EPA_TOTAL = 4
+#: Sacks are credited in halves (`half_sack_1/2` at 0.5 each) and never finer.
+ROUND_SACKS = 1
 
 #: Expected row counts. A mart that misses its count fails the build
 #: (`ARCHITECTURE.md` §7 post-seed assertions, restated here at source).
@@ -229,4 +231,7 @@ EXPECTED_ROWS = {
     "league_cap": 32,
     "draft_pick": 6644,
     "position_allocation": 3744,
+    #: 249 of the 251 audited players; the 2 absent are offensive linemen who
+    #: never recorded a credited play-by-play event, which is the correct shape.
+    "player_season_production": 1944,
 }

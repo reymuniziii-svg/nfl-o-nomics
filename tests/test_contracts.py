@@ -531,6 +531,55 @@ REGISTRY: tuple[Mart, ...] = (
              "cap held by rostered players.",
     ),
     Mart(
+        key="player_season_production",
+        spec_ref="SPEC §7.13",
+        candidates=("player_season_production", "player_production"),
+        columns={
+            # player_id IS the otc_id — the /player/{id} route key, same identifier
+            # player_images.player_id carries (SPEC §7.10).
+            "player_id": Col("number"),
+            "gsis_id": Col("str"),
+            "season": SEASON,
+            "player": Col("str"),
+            # '/'-joined in first-credit order, so a mid-season mover reads
+            # 'CAR/BAL/HOU'. NOT a TeamAbbr — a team ABBR enum here would reject
+            # every traded player, which is why it is typed as a display string.
+            "teams": Col("str"),
+            # Nullability is BY POSITION RELEVANCE and null is not zero. Each
+            # block is written as a unit, only for a player-season with at least
+            # one credited event in it: a QB's rec_yards is null because he was
+            # never targeted, while a receiver targeted five times who caught none
+            # has receptions 0 and rec_yards 0 — real readings. A player-season
+            # with no production at all has NO ROW (SPEC §7.13).
+            "pass_attempts": Col("number", NULLABLE),
+            "pass_completions": Col("number", NULLABLE),
+            "pass_yards": Col("number", NULLABLE),
+            "pass_td": Col("number", NULLABLE),
+            "pass_int": Col("number", NULLABLE),
+            "rush_attempts": Col("number", NULLABLE),
+            "rush_yards": Col("number", NULLABLE),
+            "rush_td": Col("number", NULLABLE),
+            "rec_targets": Col("number", NULLABLE),
+            "receptions": Col("number", NULLABLE),
+            "rec_yards": Col("number", NULLABLE),
+            "rec_td": Col("number", NULLABLE),
+            # Sacks are credited in halves; 22.5 is a value, not a rounding error,
+            # so this is `number` and never `int`.
+            "def_sacks": Col("number", NULLABLE),
+            "def_interceptions": Col("number", NULLABLE),
+            "def_tackles": Col("number", NULLABLE),
+            # THE DISCLOSURE COLUMN. pbp tackle attribution diverges from official
+            # gamebook counts (Watt 2021: 58 here vs 64 combined in every box
+            # score), so the basis travels with the number and the UI labels it.
+            # No golden test is ever written on tackles.
+            "tackles_basis": Col("str", REQUIRED, frozenset({"pbp"})),
+        },
+        grain=("gsis_id", "season"), rows=1944, seasons=(1999, 2025),
+        note="Population is the 251 audited players (SPEC §8.4), bridged otc_id -> "
+             "gsis_id. 249 of 251 appear; the 2 absent are offensive linemen with no "
+             "credited play-by-play event, which is the correct shape, not a gap.",
+    ),
+    Mart(
         key="dead_money_display",
         spec_ref="SPEC §7.5 + §1.2 (display resolution)",
         candidates=("dead_money_display",),

@@ -27,7 +27,7 @@ from pathlib import Path
 import pandas as pd
 
 from . import availability, capplus, coaching, config, contracts, curated
-from . import deadmoney, draft, images, io_utils, performance, pins
+from . import deadmoney, draft, images, io_utils, performance, pins, production
 
 
 # --------------------------------------------------------------------------- #
@@ -104,6 +104,12 @@ MARTS = [
          note="SPEC §7.9 — games + snaps per player-season, 2013+, REG only"),
     Mart("player_images", images.mart_player_images, aliases=("playermarks",),
          note="SPEC §7.10 — licence, attribution and rendition per player"),
+    # Reads the two marts above from disk for its otc_id -> gsis_id bridge, so it
+    # must follow them.
+    Mart("player_season_production", production.mart_player_season_production,
+         aliases=("player_production", "production"),
+         note="SPEC §7.13 — per-player REG production 1999-2025, pbp-derived; "
+              "tackles_basis='pbp'"),
     Mart("position_allocation", contracts.mart_position_allocation,
          aliases=("positional_allocation",),
          note="SPEC §7.12 / §2.6 — team-season x nine position groups, 2013+"),
