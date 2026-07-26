@@ -55,19 +55,27 @@ export function CardHeader({
   title,
   titleId,
   right,
+  titleAs: Title = 'h2',
 }: {
   eyebrow?: ReactNode;
   title: ReactNode;
   titleId?: string;
   right?: ReactNode;
+  /**
+   * The heading LEVEL, never the heading's look — `.yy-card-title` is the type
+   * recipe either way. A route whose leading card is the page's subject promotes
+   * that card's title to `h1` rather than adding a second, hidden heading that
+   * says the same thing (`COMPONENTS.md` §14). Exactly one `h1` per page.
+   */
+  titleAs?: 'h1' | 'h2';
 }) {
   return (
     <header className={css.cardHead}>
       <div className={css.cardHeadText}>
         {eyebrow ? <p className={`yy-eyebrow ${css.cardEyebrow}`}>{eyebrow}</p> : null}
-        <h2 id={titleId} className={`yy-card-title ${css.cardTitle}`}>
+        <Title id={titleId} className={`yy-card-title ${css.cardTitle}`}>
           {title}
-        </h2>
+        </Title>
       </div>
       {right ? <div className={css.cardHeadSlot}>{right}</div> : null}
     </header>
@@ -137,6 +145,37 @@ export function AsOf({
       <span className={`yy-label ${css.asofStamp}`}>
         · as of {date} · {stageWords(stage)}
       </span>
+    </span>
+  );
+}
+
+/**
+ * `$52.5M · source verified 2026-07-25` — the LEDGER stamp, and deliberately not
+ * `<AsOf>`.
+ *
+ * A dead-money *snapshot* date is a measurement date: it says when the league
+ * table this figure was read from was published, and two different dates are two
+ * different measurements of the same season (`SPEC.md` §7.5). A ledger row's
+ * `verified_asof` is a different fact — the day the charge was checked against
+ * its source — and it moves when someone re-checks the link, not when the charge
+ * changes. Printing it in the "as of" slot puts a provenance date where the
+ * reader has been taught to expect a measurement date, so it is named for what
+ * it is. The one-line, never-truncated, never-behind-a-tap constraints of
+ * `COMPONENTS.md` §8.1 apply here exactly as they do to `<AsOf>`.
+ */
+export function SourceVerified({
+  value,
+  date,
+  valueClass = 'yy-num',
+}: {
+  value: string;
+  date: string;
+  valueClass?: string;
+}) {
+  return (
+    <span className={css.asof}>
+      <span className={`${valueClass} ${css.asofValue}`}>{value}</span>
+      <span className={`yy-label ${css.asofStamp}`}>· source verified {date}</span>
     </span>
   );
 }
@@ -288,6 +327,18 @@ const BAND_CLASS: Record<Band, string> = {
 };
 
 /**
+ * The season rank that belongs beside an index figure: `#1 of 32`.
+ *
+ * `of` is the number of clubs the season ranked, not a constant — 1999–2001 rank
+ * 31. Both marts publish `season_rank`, and an index with no rank beside it
+ * makes the reader guess whether 134 is remarkable.
+ */
+export interface IndexRank {
+  rank: number;
+  of: number;
+}
+
+/**
  * The Cap+ / Team Rating figure with its name beneath.
  *
  * `metricName` is load-bearing, not decoration:
@@ -297,17 +348,22 @@ const BAND_CLASS: Record<Band, string> = {
  *    widens to 96px because the label wraps to two lines.
  *
  * The two indexes never share a badge, a colour or a label.
+ *
+ * `rank` renders only beside a figure that exists: a blanked season has no rank,
+ * and `#— of 32` would be a dash standing in for a number (`SPEC.md` §1.2).
  */
 export function IndexBadge({
   metric,
   scale,
   metricName,
   showCaption = false,
+  rank,
 }: {
   metric: Metric<number>;
   scale: BadgeScale;
   metricName: 'capplus' | 'teamRating';
   showCaption?: boolean;
+  rank?: IndexRank | null;
 }) {
   const isCapPlus = metricName === 'capplus';
   const wide = !isCapPlus;
@@ -343,6 +399,11 @@ export function IndexBadge({
           </>
         )}
       </span>
+      {rank && metric.state !== 'blank' ? (
+        <span className={`yy-label ${css.badgeRank}`}>
+          #{rank.rank} of {rank.of}
+        </span>
+      ) : null}
       {metric.state === 'partial' ? (
         <span className={`yy-micro yy-partial-ink`}>{partialSuffix(metric)}</span>
       ) : null}

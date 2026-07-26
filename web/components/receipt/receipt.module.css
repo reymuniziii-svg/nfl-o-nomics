@@ -346,6 +346,9 @@ a.row:hover {
   border-top: 1px solid var(--yy-line-divider);
 }
 
+/* The same line whether it is a button (mobile, in product) or a paragraph
+   (wide and every export, where there is nothing to disclose and therefore no
+   control — see the component). `margin: 0` is what makes the two identical. */
 .lensBtn {
   display: flex;
   width: 100%;
@@ -354,6 +357,7 @@ a.row:hover {
   gap: var(--yy-space-2);
   background: none;
   border: 0;
+  margin: 0;
   padding: var(--yy-space-1) 0;
   cursor: pointer;
   text-align: left;
@@ -529,6 +533,65 @@ a.row:hover {
 
 .sizeMobile {
   padding: var(--yy-space-4);
+}
+
+/* THE ROW'S HARD FLOOR, RELAXED BELOW THE REFLOW LINE.
+   The mobile row's fixed columns add up: 16 padding + 14 rank + 100 team + 40
+   minimum bar + 78 value + three 12px gaps + 16 padding + the border = 302px
+   that cannot compress. At the 390 canvas that is 56px of slack and the card is
+   correct; at 195 CSS px (a 390 canvas at 200% zoom) it is the page's widest
+   element and it pushes the whole document sideways.
+   `DECISIONS.md` 99(b) already ruled these widths advisory rather than binding —
+   they were measured against a fixture, and the rule they serve is that a
+   clipped figure is not a figure. Below 360 the columns give back what they can
+   while the figure column, which carries the number, keeps its width. Nothing
+   changes at either verified canvas. */
+@media (max-width: 359px) {
+  .sizeMobile {
+    padding: var(--yy-space-3);
+  }
+
+  /* The bar takes its own full-width line beneath the figures — the same move
+     the zero-win row already makes when its sentence will not fit beside the
+     track. The shared linear domain (§1.5) is unaffected: every bar still
+     measures against the same maximum, across the same width. */
+  .sizeMobile .row {
+    gap: var(--yy-space-2);
+    flex-wrap: wrap;
+  }
+
+  .sizeMobile .team {
+    width: auto;
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  /* At this width a three- or four-letter abbreviation is the longest
+     unbreakable token on the line. It breaks before the page does. */
+  .sizeMobile .abbr {
+    overflow-wrap: anywhere;
+  }
+
+  .sizeMobile .bar {
+    flex: 1 0 100%;
+    min-width: 0;
+    order: 1;
+  }
+
+  .sizeMobile .val {
+    width: auto;
+    flex: none;
+  }
+
+  /* One step down, to `--yy-size-metric-xs` — the same step §1.6 already takes
+     for the zero-win sentence, and four sizes above the 11px utility floor. */
+  .sizeMobile .num {
+    font-size: var(--yy-size-metric-xs);
+  }
+
+  .sizeMobile .row.zero .zeroNote {
+    order: 2;
+  }
 }
 
 .sizeSquare {

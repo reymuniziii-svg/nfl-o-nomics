@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import css from './compare.module.css';
 import {
   getCapPlus,
   getCompareBundle,
@@ -56,8 +57,29 @@ export default async function ComparePage({
   const season = await latestSeason();
 
   const one = (k: string) => (Array.isArray(sp[k]) ? sp[k]?.[0] : sp[k]) as string | undefined;
-  const a = parseRef(one('a')) ?? { team: 'KC' as const, season };
-  const b = parseRef(one('b')) ?? { team: 'SF' as const, season: 2023 };
+
+  /**
+   * A LINK THAT DID NOT PARSE IS NOT A COMPARISON.
+   *
+   * `?a=kc-2024&b=sf-223` used to fall through to the default pair and render a
+   * fully-labelled Chiefs–49ers head-to-head: every figure correct, every label
+   * correct, and not the comparison the reader asked for. Nothing on the page
+   * said so. A typo'd share link is the exact case where this product's rule —
+   * never show something other than what the data says, silently — applies to
+   * the URL as much as to a mart. The pickers render, the notice names the
+   * parameter that failed, and no comparison is drawn until a real pair exists.
+   */
+  const rawA = one('a');
+  const rawB = one('b');
+  const parsedA = parseRef(rawA);
+  const parsedB = parseRef(rawB);
+  const unrecognised = [
+    rawA !== undefined && !parsedA ? `a=${rawA}` : null,
+    rawB !== undefined && !parsedB ? `b=${rawB}` : null,
+  ].filter((x): x is string => x !== null);
+
+  const a = parsedA ?? { team: 'KC' as const, season };
+  const b = parsedB ?? { team: 'SF' as const, season: 2023 };
 
   const [bundle, meta, seasonsA, capA, capB, trA, trB] = await Promise.all([
     getCompareBundle(a, b),
@@ -90,15 +112,23 @@ export default async function ComparePage({
   return (
     <>
       <Card ariaLabel="Choose two team-seasons">
-        <CardHeader eyebrow="Curated pickers only" title="HEAD-TO-HEAD" />
+        <CardHeader eyebrow="Curated pickers only" title="HEAD-TO-HEAD" titleAs="h1" />
         <ComparePicker teams={teamOptions} seasons={seasons} a={a} b={b} />
+        {unrecognised.length ? (
+          <p className={`yy-caption ${css.notice}`}>
+            Not recognised: {unrecognised.join(' and ')}. A link carries{' '}
+            <code>?a=&#123;team&#125;-&#123;season&#125;&amp;b=&#123;team&#125;-&#123;season&#125;</code>{' '}
+            — for example <code>?a=buf-2007&amp;b=kc-2024</code>. Nothing is compared below until
+            both sides parse; pick them above.
+          </p>
+        ) : null}
         <ChartCaption>
           Two team-seasons, one at a time on each side. There is no free-form query builder in v1:
           every selection here is a curated list.
         </ChartCaption>
       </Card>
 
-      {bundle ? (
+      {unrecognised.length ? null : bundle ? (
         <Card ariaLabel="Comparison">
           <CardHeader
             eyebrow={`${eraIdentity(a.team, a.season).name} · ${a.season} vs ${eraIdentity(b.team, b.season).name} · ${b.season}`}

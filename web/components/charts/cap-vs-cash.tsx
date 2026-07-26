@@ -17,7 +17,7 @@
 import css from './chart.module.css';
 import { ChartCaption, Legend, type LegendItem } from '../primitives';
 import { chartId, dollarDomain, gridValues, scaleBand, scaleLinear } from './chart-kit';
-import { usdShort } from '@/lib/display';
+import { usdExact, usdShort } from '@/lib/display';
 import type { CapVsCashPoint } from '@/lib/data/player';
 import type { Coverage } from '@/lib/display';
 
@@ -76,12 +76,88 @@ export function CapVsCash({
         </div>
       </div>
       <Legend items={legend} />
+      {/* THE FIGURES THEMSELVES.
+          A paired-bar chart at this density can carry a value axis but not 2n
+          per-bar labels: at the 390 composition the bars are ~14 units wide and
+          `$37.1M` set at the 11px floor is wider than the bar it would sit on,
+          so the labels would either collide or drop below the floor — and
+          `DECISIONS.md` 65 forbids the second. The exact figure the reader came
+          for (`$37,133,824`, the September rework, is the number
+          `METHODOLOGY.md` cites by hand) therefore renders as a table beneath
+          the chart, which is also this chart's tabular equivalent. */}
+      <CapVsCashTable points={points} />
       <ChartCaption>
         Cap number is what the player held against the cap that season; cash paid is what the club
         actually paid out. A dead-money marker names the club that ate the charge, which is not
         always the club on the player&rsquo;s row for that year.
       </ChartCaption>
       <ChartCaption>{coverage.statement}</ChartCaption>
+    </div>
+  );
+}
+
+/**
+ * Season × cap × cash, to the dollar.
+ *
+ * `SPEC.md` §1.2 — a season the source is silent about carries the words, never
+ * a zero and never an empty cell. Figures are exact rather than the `$37.1M`
+ * short form used on cards: this table exists precisely because the rounded form
+ * is not the figure a reader is checking.
+ */
+function CapVsCashTable({ points }: { points: CapVsCashPoint[] }) {
+  if (!points.length) return null;
+  return (
+    <div className={css.tableScroll}>
+      <table className={css.table}>
+        <caption className="yy-visually-hidden">
+          Cap number and cash paid by season, in dollars, with the club that carried each
+          dead-money charge.
+        </caption>
+        <thead>
+          <tr>
+            <th scope="col" className="yy-label-lg">
+              Season
+            </th>
+            <th scope="col" className="yy-label-lg">
+              Team
+            </th>
+            <th scope="col" className={`yy-label-lg ${css.tableNum}`}>
+              Cap number
+            </th>
+            <th scope="col" className={`yy-label-lg ${css.tableNum}`}>
+              Cash paid
+            </th>
+            <th scope="col" className="yy-label-lg">
+              Dead money
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {points.map((p) => (
+            <tr key={`${p.season}-${p.team}`}>
+              <th scope="row" className="yy-num">
+                {p.season}
+              </th>
+              <td className="yy-label">{p.team}</td>
+              <td className={`yy-num ${css.tableNum}`}>{usdExact(p.capNumber)}</td>
+              <td className={`yy-num ${css.tableNum}`}>
+                {p.cashPaid === null ? (
+                  <span className="yy-label">Not recorded</span>
+                ) : (
+                  usdExact(p.cashPaid)
+                )}
+              </td>
+              <td className="yy-label">
+                {p.deadMoney
+                  ? `${p.deadMoney.team ?? 'Club not named'}${
+                      p.deadMoney.usd ? ` · ${usdShort(p.deadMoney.usd)}` : ''
+                    }`
+                  : 'No charge'}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }

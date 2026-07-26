@@ -28,7 +28,10 @@ export default async function PlayerIndexPage() {
 
   return (
     <Card ariaLabel="Player search">
-      <CardHeader eyebrow="The v1 population" title="PLAYERS" />
+      {/* This card IS the route, so its title is the page's `h1` — a hidden
+          second heading saying the same words is chrome for a screen reader
+          only. */}
+      <CardHeader eyebrow="The v1 population" title="PLAYERS" titleAs="h1" />
       <div className={css.searchBlock}>
         <PlayerSearch
           players={pop.map((p) => ({

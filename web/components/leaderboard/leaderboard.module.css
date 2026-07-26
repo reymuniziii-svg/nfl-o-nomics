@@ -71,6 +71,26 @@
   padding-inline-start: var(--yy-space-2);
 }
 
+/* Below the reflow line the row drops its decorative column.
+   `26 + 74 + 52` of fixed columns plus three 12px gaps is 188px before the team
+   name gets a pixel, and the card has ~139 to give at 195 CSS px. The column
+   that goes is the paired spend/wins track — it is `aria-hidden` decoration
+   whose two figures the sub-line already carries in words ($/win and W), so the
+   rank, the club and the index all survive at full size. No figure is lost and
+   nothing is truncated. */
+@media (max-width: 359px) {
+  .headRow,
+  .row {
+    grid-template-columns: 22px 1fr 46px;
+    gap: var(--yy-space-2);
+  }
+
+  .headRow > :nth-child(3),
+  .row > :nth-child(3) {
+    display: none;
+  }
+}
+
 .row:hover {
   background: var(--yy-bg-hover);
 }

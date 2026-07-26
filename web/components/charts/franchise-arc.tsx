@@ -6,9 +6,17 @@
  *
  * THE THREE RULES THIS CHART EXISTS TO OBEY
  *  1. **The hard break at 2013.** A full-height rule at `x(2013)`; no series
- *     path crosses it. Team Rating terminates at 2012 with a round cap; Cap+
- *     begins at 2014. A path that crossed would assert the two metrics are one
- *     series, which `DECISIONS.md` 18/19 forbid.
+ *     path crosses it. Team Rating's path terminates at 2012 with a round cap
+ *     and resumes at 2014; Cap+ begins at 2014. A path that crossed would
+ *     assert the two metrics are one series, which `DECISIONS.md` 18/19 forbid.
+ *
+ *     **The rule constrains the PATH, not the reading.** `team_rating` covers
+ *     all 861 team-seasons, so 2013 has a Team Rating and the card says so in
+ *     words; nulling the point made the chart contradict its own coverage
+ *     statement and quietly lost a season that exists. It is drawn as a single
+ *     unconnected mark on the rule, in the Team Rating channel — which is
+ *     exactly what the hard break makes safe: with no path through it, one dot
+ *     cannot read as a splice.
  *  2. **Both lines on the 2014–2025 overlap**, told apart by THREE channels —
  *     colour, stroke width and dash — plus a direct label at each terminus.
  *  3. **The four blanked Cap+ seasons are labelled gaps, never interpolated
@@ -113,6 +121,11 @@ export function FranchiseArc({
     return Boolean(cp || tr);
   });
 
+  /** The break season's Team Rating: it exists, so it is drawn and named. */
+  const breakSeasonRating = points.find(
+    (p) => p.season === TIER2_BREAK && p.teamRating.state !== 'blank',
+  );
+
   const legend: LegendItem[] = [
     { swatch: 'solid', label: 'Cap+', tone: 'accent' },
     {
@@ -123,6 +136,13 @@ export function FranchiseArc({
     { swatch: 'benchmark', label: '100 = league average', tone: 'benchmark' },
     { swatch: 'hatch', label: 'Season not covered', tone: 'absence' },
   ];
+  if (breakSeasonRating) {
+    legend.push({
+      swatch: 'dot',
+      label: '2013 Team rating — plotted, never connected across the rule',
+      tone: 'compare',
+    });
+  }
   if (offWindow.length) {
     legend.push({ swatch: 'offscale', label: 'Off scale — true value printed', tone: 'absence' });
   }
@@ -198,11 +218,21 @@ function ArcSvg({
   }));
   const ratingPoints: SeriesPoint[] = points.map((p) => ({
     x: p.season,
-    // §4.1 — Team Rating terminates at 2012 and resumes at 2014. No path
-    // crosses the break rule; the 2013 reading lives in the CSV export, which
-    // is this chart's accessible tabular equivalent.
+    // §4.1 — the PATH terminates at 2012 and resumes at 2014, because no path
+    // may cross the break rule. The 2013 READING is not dropped: it is drawn
+    // below as a single unconnected mark, and the card's coverage statement
+    // says so.
     y: p.season === TIER2_BREAK || p.teamRating.state === 'blank' ? null : p.teamRating.value,
   }));
+
+  /**
+   * The break season's own Team Rating. `team_rating` covers all 861
+   * team-seasons, so this is a real measurement — the one season the two paths
+   * leave a hole around. It renders as a mark, never as a segment.
+   */
+  const breakRating = points.find((p) => p.season === TIER2_BREAK);
+  const breakValue =
+    breakRating && breakRating.teamRating.state !== 'blank' ? breakRating.teamRating.value : null;
 
   const capplusRuns = runsOf(capplusPoints);
   const ratingRuns = runsOf(ratingPoints);
@@ -238,6 +268,13 @@ function ArcSvg({
   for (const p of ratingPoints) {
     const dir = p.y === null ? null : offScale(p.y);
     if (p.y !== null && dir) offMarks.push({ season: p.x, series: 'rating', dir, value: p.y });
+  }
+  // The break-season mark obeys the same off-scale grammar as every other
+  // reading: outside the fixed window it leaves the plate with its true value
+  // printed, never clamped onto the axis.
+  const breakOff = breakValue === null ? null : offScale(breakValue);
+  if (breakValue !== null && breakOff) {
+    offMarks.push({ season: TIER2_BREAK, series: 'rating', dir: breakOff, value: breakValue });
   }
 
   return (
@@ -424,6 +461,23 @@ function ArcSvg({
             </g>
           ))}
 
+          {/* §4.1 THE BREAK-SEASON READING. Team Rating covers 2013; the rule
+            forbids a path across it, not the season itself. One mark, in the
+            Team Rating channel, connected to nothing — which is what makes it
+            safe beside a rule whose entire job is to keep the two metrics from
+            reading as one series. */}
+          {breakValue !== null && !breakOff ? (
+            <circle
+              cx={px(TIER2_BREAK)}
+              cy={y(breakValue)}
+              r={3.5}
+              fill="var(--yy-compare)"
+              stroke="var(--yy-bg-card-flat)"
+              strokeWidth={1}
+              opacity={0.85}
+            />
+          ) : null}
+
           {/* §5.2 provisional — the normal mark plus a 1px provisional outline */}
           {provisional.map((s) => {
             const p = capplusPoints.find((q) => q.x === s);
@@ -502,8 +556,10 @@ function ArcSvg({
       </svg>
       <p id={`${id}-d`} className="yy-visually-hidden">
         Two indices plotted against a continuous season axis with a hard break at 2013. Team Rating
-        scores performance only and runs 1999 to 2012 and 2014 to 2025; Cap+ scores wins produced
-        per dollar and runs 2014 to 2025 with four seasons blanked. Blanked seasons are drawn as
+        scores performance only and covers every season on this axis, including 2013 — its line
+        stops at 2012 and resumes at 2014 because no line crosses the break rule, and the 2013
+        reading is drawn as a single unconnected point on the rule. Cap+ scores wins produced per
+        dollar and runs 2014 to 2025 with four seasons blanked. Blanked seasons are drawn as
         hatched gaps and are never interpolated.
       </p>
     </>

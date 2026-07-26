@@ -17,7 +17,6 @@ import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import css from './leaderboard.module.css';
 import { FranchiseSparkline } from '../charts/franchise-sparkline';
-import { CapPlusCaption } from '../primitives';
 import { indexBand, usdShort } from '@/lib/display';
 import type { Metric } from '@/lib/metric';
 import type { SparkPoint } from '@/lib/data/league';
@@ -346,8 +345,12 @@ export function CapPlusLeaderboard({
         above uses. Cash paid to players released in-year is not included, and this card offers no
         cap-hit alternative: the leaderboard is cash-only by design.
       </p>
+      {/* `CAPPLUS_LOCKUP.md` §3.5 — the `100 = LEAGUE AVERAGE` lockup line now
+        renders in the card's header row, beside the title, where the reader
+        meets it before the column rather than four screens after it. What stays
+        here is the thing the lockup does not say: what the index is not. */}
       <p className={`yy-caption ${css.caption}`}>
-        <CapPlusCaption /> — {indexName} is a season-relative index, not a front-office grade.
+        {indexName} is a season-relative index, not a front-office grade.
       </p>
       {csvSlot}
     </div>

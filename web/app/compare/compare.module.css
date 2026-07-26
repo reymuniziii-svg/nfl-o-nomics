@@ -1,0 +1,27 @@
+/* `/compare` — the one line the page needs that no component owns.
+ *
+ * A share link whose parameters did not parse is not a coverage state: nothing
+ * is missing from the data, the URL is simply not a pair. So it takes neither
+ * the dashed absence box (`BoundaryMessage`, which says "this does not exist in
+ * the record") nor any alert styling — `COMPONENTS.md` §13.3's ruling that
+ * absence is stated plainly, in the body face, applies to this just as well.
+ */
+
+.notice {
+  margin: var(--yy-space-3) 0 0;
+  max-width: var(--yy-measure);
+  color: var(--yy-fg-1);
+  /* A hairline rule, not a colour field: the notice is a correction, not a
+     warning, and the product reserves red for genuine negatives in the data. */
+  border-inline-start: var(--yy-space-0h) solid var(--yy-line-card);
+  padding-inline-start: var(--yy-space-3);
+}
+
+.notice code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.875em;
+  background: var(--yy-bg-sunken);
+  border-radius: var(--yy-radius-chip);
+  padding: 0.1em 0.35em;
+  overflow-wrap: anywhere;
+}

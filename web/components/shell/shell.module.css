@@ -39,6 +39,24 @@
   min-width: 0;
 }
 
+/* AT 200% ZOOM THE BAND STACKS RATHER THAN OVERPRINTS.
+   WCAG 1.4.10 puts the reflow floor at 320 CSS px, and a 390 canvas at 200%
+   zoom is 195 — below the floor, but the failure mode there was the wordmark
+   and the season chip painting over one another, which is worse than either
+   wrapping or clipping. Both flex children keep their own line below 320, and
+   the wordmark clips its own box rather than pushing the page sideways
+   (`MOBILE_PATTERNS.md` §2: the page never scrolls sideways). */
+@media (max-width: 319px) {
+  .header {
+    flex-wrap: wrap;
+    row-gap: var(--yy-space-2);
+  }
+
+  .brand {
+    overflow: hidden;
+  }
+}
+
 .wordmark {
   font-family: var(--yy-font-display);
   font-weight: var(--yy-weight-display);
@@ -47,6 +65,11 @@
   letter-spacing: var(--yy-track-display);
   color: var(--yy-chalk-white);
   white-space: nowrap;
+  /* The mark is never re-set, re-wrapped or hyphenated to fit a narrow band; it
+     is the identity. Its BOX may clip, which is what keeps it from overprinting
+     the season chip beside it. */
+  overflow: hidden;
+  max-width: 100%;
 }
 
 .slash {
@@ -169,6 +192,18 @@
      label is text and needs 4.5:1, the icon is a graphical object at 3:1. */
   color: var(--yy-ink-dark-2);
   padding-bottom: var(--yy-space-2);
+}
+
+/* Four labels at 13px do not fit a 195px band. They step to the 11px utility
+   floor rather than truncating: primary navigation that reads "Compa…" has lost
+   more than a pixel of type (`DECISIONS.md` 65 — the floor is 11, and this is
+   at it, not under it). */
+@media (max-width: 319px) {
+  .tab {
+    font-size: var(--yy-size-label);
+    letter-spacing: normal;
+    min-width: 0;
+  }
 }
 
 .tabIcon {

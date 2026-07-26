@@ -76,6 +76,10 @@ export default async function ShareReceiptPage({
         <CostPerWinCard
           size="square"
           title={divisionName(div).toUpperCase()}
+          /* The card is the page — and `/share/team/*` has always carried its
+             title as an `h1`. The two share variants now name themselves the
+             same way. */
+          titleAs="h1"
           season={season}
           rows={receiptRows(peers, false)}
           leagueAvg={leagueAvg}

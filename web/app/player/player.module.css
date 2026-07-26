@@ -6,6 +6,16 @@
   align-items: flex-start;
 }
 
+/* Below the reflow line the mark and the text stack. The PlayerMark renders at a
+   fixed card size (it is a photograph, not type, and is never re-rendered
+   smaller per viewport), so side by side the two of them are wider than the
+   page. */
+@media (max-width: 359px) {
+  .identity {
+    flex-wrap: wrap;
+  }
+}
+
 .identityText {
   min-width: 0;
   display: flex;

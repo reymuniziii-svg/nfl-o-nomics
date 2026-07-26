@@ -141,6 +141,45 @@
 }
 
 /* ══════════════════════════════════════════════════════════════════════════ */
+/* THE FIGURES BENEATH A CHART — the tabular equivalent                        */
+/* ══════════════════════════════════════════════════════════════════════════ */
+
+/* `MOBILE_PATTERNS.md` §2 — a table is never a page-level sideways scroll; it
+   scrolls inside its own box, like the plot above it. */
+.tableScroll {
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  margin-top: var(--yy-space-3);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 480px;
+}
+
+.table th,
+.table td {
+  padding: var(--yy-space-2) var(--yy-space-3);
+  text-align: left;
+  white-space: nowrap;
+}
+
+.table thead th {
+  color: var(--yy-fg-3);
+  border-bottom: 1px solid var(--yy-line-hairline);
+}
+
+.table tbody tr {
+  border-top: 1px solid var(--yy-line-divider);
+}
+
+.tableNum {
+  text-align: right;
+  padding-right: 0.03em;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════ */
 /* ALLOCATION DIVERGING BARS — COMPONENTS.md §7                                */
 /* ══════════════════════════════════════════════════════════════════════════ */
 
@@ -155,6 +194,55 @@
 .allocGroup {
   color: var(--yy-fg-2);
   letter-spacing: var(--yy-track-label-wide);
+}
+
+/* §7.2's geometry table, bound to the tokens it names rather than to a viewBox
+   that rescales with the column: the track is `--yy-track-h` (16px) and the bar
+   `--yy-bar-h-lg` (10px) at 390, at 1280 and at every width between. Positions
+   are percentages of the row's own shared domain, so the fluid row survives. */
+.allocTrack {
+  position: relative;
+  min-width: 0;
+  height: var(--yy-track-h);
+  background: var(--yy-bg-sunken);
+  border-radius: var(--yy-radius-mark);
+}
+
+.allocFill {
+  position: absolute;
+  top: calc((var(--yy-track-h) - var(--yy-bar-h-lg)) / 2);
+  height: var(--yy-bar-h-lg);
+  border-radius: var(--yy-radius-mark);
+  /* §7.2 — over and under take the SAME neutral fill. Direction is not
+     favourability, and no gradient ever sits inside a quantitative bar. */
+  background: var(--yy-series-neutral);
+}
+
+.allocFillSelected {
+  background: var(--yy-accent);
+}
+
+/* The not-covered mark: same box, same height, centred on the benchmark. */
+.allocAbsent {
+  position: absolute;
+  top: calc((var(--yy-track-h) - var(--yy-bar-h-lg)) / 2);
+  height: var(--yy-bar-h-lg);
+  width: 40px;
+  max-width: 100%;
+  transform: translateX(-50%);
+  border-radius: var(--yy-radius-mark);
+  background: var(--yy-absence-fill);
+  border: 1px dashed var(--yy-absence);
+}
+
+/* THE ZERO AXIS IS GOLD — it is the league average, and it is 1px at every
+   width. It overhangs the track by 2px top and bottom, as the mockup draws it. */
+.allocZero {
+  position: absolute;
+  top: -2px;
+  bottom: -2px;
+  width: 1px;
+  background: var(--yy-benchmark);
 }
 
 .allocValue {

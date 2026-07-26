@@ -38,7 +38,7 @@ import {
   CapPlusLeaderboard,
   type LeaderboardViewRow,
 } from '@/components/leaderboard/capplus-leaderboard';
-import { Card, CardHeader, ChartCaption } from '@/components/primitives';
+import { CapPlusCaption, Card, CardHeader, ChartCaption } from '@/components/primitives';
 import { LeagueField } from '@/components/field/league-field';
 import { DeadMoneyLedger } from '@/components/team/team-blocks';
 import { CsvExport } from '@/components/csv-export';
@@ -93,6 +93,17 @@ export async function DivisionView({ slug }: { slug: DivisionSlug }) {
 
   return (
     <>
+      {/* THE PAGE'S OWN NAME. The hero is rendered twice — the mobile and desktop
+        compositions are different components (`MOBILE_PATTERNS.md` §5/§8) and
+        both are in the DOM — so promoting its title would put two `h1`s on the
+        page. The heading is visually hidden because the Receipt already states
+        the division and the season in type a reader cannot miss; what was
+        missing was the machine-readable name of the route, which is a document
+        outline, not a design element. */}
+      <h1 className="yy-visually-hidden">
+        {division.name} — what a win costs, {season}
+      </h1>
+
       {/* 1 — the division picker, sticky */}
       <DivisionPicker
         selected={slug}
@@ -121,6 +132,16 @@ export async function DivisionView({ slug }: { slug: DivisionSlug }) {
           eyebrow={`League · ${season}`}
           title={leaderboard.capplusCovered ? 'CAP+ INDEX' : 'TEAM RATING'}
           right={
+            <>
+            {/* `CAPPLUS_LOCKUP.md` §3.5 — the caption is part of the lockup, not
+                a per-card afterthought: right-aligned in the card's header row,
+                baseline-aligned with the card title, on every surface where
+                Cap+ leads. It sat at the foot of the table, four screens below
+                the figures it defines. It renders only where the index IS
+                Cap+ — a Team Rating column is not centred on 100 by the same
+                construction and never takes the Cap+ lockup (`DECISIONS.md`
+                83). */}
+            {leaderboard.capplusCovered ? <CapPlusCaption /> : null}
             <CsvExport
               title={`${indexName} leaderboard`}
               filename={`yieldyard_leaderboard_${season}.csv`}
@@ -165,6 +186,7 @@ export async function DivisionView({ slug }: { slug: DivisionSlug }) {
                 }`,
               ])}
             />
+            </>
           }
         />
         {/* `SPEC.md` §4 — one of the product's exactly two field-literal

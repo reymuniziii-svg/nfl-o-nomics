@@ -1,7 +1,5 @@
 # Methodology
 
-*This is the public methodology page — the draft that becomes `/methodology`.*
-
 YIELD/YARD asks one question about every NFL team: **was it worth it?** This page explains how
 we answer it, what our numbers can and cannot see, and where every figure comes from.
 

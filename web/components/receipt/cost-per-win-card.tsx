@@ -68,6 +68,13 @@ export interface CostPerWinCardProps {
   sample?: boolean;
   /** Applies `.yy-export` and force-expands the caveat. */
   export?: boolean;
+  /**
+   * The heading LEVEL of the card title. `h2` in the product, where the page
+   * around it owns the `h1`; `h1` on `/share/receipt/*`, where this card IS the
+   * page — which is also what makes the two share variants consistent, since
+   * `/share/team/*` has always titled itself with an `h1`.
+   */
+  titleAs?: 'h1' | 'h2';
   coverage: Coverage;
 }
 
@@ -107,6 +114,7 @@ export function CostPerWinCard(props: CostPerWinCardProps) {
     subject,
     sample = false,
     export: isExport = false,
+    titleAs: Title = 'h2',
     coverage,
   } = props;
 
@@ -146,6 +154,19 @@ export function CostPerWinCard(props: CostPerWinCardProps) {
 
   const allRows = [...ordered, ...suppressed];
 
+  /**
+   * THE STRAP NAMES THE BENCHMARK THIS CARD ACTUALLY DRAWS.
+   *
+   * `CAPPLUS_LOCKUP.md` §3.5 puts `100 = LEAGUE AVERAGE` on "every surface where
+   * Cap+ leads", and gives the wide hero the combined line
+   * `▮ LEAGUE AVG $25.8M / WIN · 100 = LEAGUE AVERAGE` — for a Cap+ chart that
+   * ALSO carries a dollar benchmark. This card is not that surface at any size:
+   * every figure on it is dollars per win, no index is rendered, and the gold
+   * tick is the dollar average. Printing an index caption beside it defines a
+   * scale nothing here is drawn on, which is exactly the confusion the lockup
+   * rule exists to prevent. The dollar benchmark is already named in words, so
+   * the strap says that and stops.
+   */
   const straps: string[] = [];
   if (leagueAvg.state !== 'blank') {
     straps.push(
@@ -153,9 +174,6 @@ export function CostPerWinCard(props: CostPerWinCardProps) {
         ? `${subject} vs league avg ${usdShort(leagueAvg.value)} / win`
         : `League avg ${usdShort(leagueAvg.value)} / win`,
     );
-    // CAPPLUS_LOCKUP.md §3.5 — at wide the dollar benchmark and the Cap+
-    // caption share one strap line, and the Cap+ caption comes second.
-    if (size === 'wide') straps.push('100 = league average');
   }
 
   return (
@@ -179,7 +197,7 @@ export function CostPerWinCard(props: CostPerWinCardProps) {
                 ? `Cost per win · ${numerator === 'cash' ? 'cash' : 'cap hit'} · ${season}`
                 : `Cost per win · ${season}`}
             </p>
-            <h2 className={css.title}>{title}</h2>
+            <Title className={css.title}>{title}</Title>
           </div>
           <div className={css.headSlot}>
             {/* §1.10 — the chip renders whenever ANY figure on the card comes
@@ -214,23 +232,34 @@ export function CostPerWinCard(props: CostPerWinCardProps) {
 
       <div>
         {/* §1.8 — the lens line is always visible, at every size, in every
-            crop, never truncated. */}
+            crop, never truncated.
+
+            WHERE THERE IS NOTHING TO DISCLOSE THERE IS NO CONTROL. At wide and
+            in every export the sentence is already rendered (`DECISIONS.md` 73:
+            "any affordance that hides required text is expanded in export"), so
+            a `<button>` there is a control that does nothing: `pointer-events:
+            none`, `tabIndex={-1}`, `aria-expanded="true"` — and still a focusable
+            element in the DOM a rasteriser crops and a screen reader walks. It
+            is rendered as text instead, which is what it is. */}
         <div className={css.lens}>
-          <button
-            className={css.lensBtn}
-            type="button"
-            aria-expanded={isStatic ? true : open}
-            aria-controls={discloseId}
-            tabIndex={isStatic ? -1 : 0}
-            onClick={isStatic ? undefined : () => setOpen((v) => !v)}
-          >
-            <span>{LENS_LINE[numerator]}</span>
-            {isStatic ? null : (
+          {isStatic ? (
+            <p className={css.lensBtn}>
+              <span>{LENS_LINE[numerator]}</span>
+            </p>
+          ) : (
+            <button
+              className={css.lensBtn}
+              type="button"
+              aria-expanded={open}
+              aria-controls={discloseId}
+              onClick={() => setOpen((v) => !v)}
+            >
+              <span>{LENS_LINE[numerator]}</span>
               <i className={css.i} aria-hidden="true">
                 i
               </i>
-            )}
-          </button>
+            </button>
+          )}
           <div className={css.disclose} id={discloseId}>
             <div>
               <p>{LENS_SENTENCE[numerator]}</p>

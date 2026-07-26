@@ -26,7 +26,30 @@ export const ALLOCATION_CAVEAT =
   'Share of cap held by players on the roster — not share of cap. The denominator inherits the ' +
   'dead-money omission. Position is as of the deal then in force.';
 
-const TRACK_W = 240;
+/**
+ * THE GEOMETRY IS TOKENS AND PERCENTAGES — there is no viewBox to stretch.
+ *
+ * A 240-unit viewBox under `width:100%` is not a 240-unit track. The row's
+ * middle column runs ~220px at the 390 canvas and ~990px at 1280, so the same
+ * composition painted at 0.91× and at 4.2×: the 10-unit bar `COMPONENTS.md` §7
+ * fixes at `--yy-bar-h-lg` (10px) arrived as 9px on mobile and **42px** on
+ * desktop, the 16px track as 67px, the 2px corner radius as 8, and the 1px gold
+ * league-average axis as 4px. Nothing in the stylesheet changed; the viewBox did
+ * the inflating, exactly as it did to in-chart type before `DECISIONS.md` 65.
+ *
+ * Two geometry constants per canvas would fix the scale and lose the fluid row —
+ * an intrinsic-width composition cannot fill a column that is 220px on one
+ * canvas and 990px on the next without stretching again. So the track is built
+ * the way the Receipt's bar + gold tick and the head-to-head butterfly are
+ * already built in this system: **an HTML track whose heights are the tokens the
+ * spec names and whose positions are percentages of the shared domain.** Heights
+ * are then exactly `--yy-track-h` / `--yy-bar-h-lg` at every width, the domain
+ * still maps linearly across the full row, and the defect is structurally
+ * unavailable — at 1280, at 390, and at 195px under 200% zoom.
+ */
+
+/** The bar is at least this many CSS px, so a near-zero delta is still a mark. */
+const MIN_BAR_PX = 1;
 
 export function AllocationBars({
   bars,
@@ -41,63 +64,44 @@ export function AllocationBars({
   const bySlug = new Map(bars.map((b) => [b.positionGroup, b]));
   const deltas = bars.map((b) => b.deltaVsLeague);
   const domain = symmetricDomain(deltas);
-  const x = scaleLinear().domain(domain).range([0, TRACK_W]);
-  const zero = x(0);
+  /** Percent of the track, not pixels — the one scale both canvases share. */
+  const pct = scaleLinear().domain(domain).range([0, 100]);
+  const zero = pct(0);
 
   return (
     <div>
       {POSITION_GROUP_ORDER.map((group) => {
         const bar = bySlug.get(group);
         const isSelected = selected === group;
+        const label = bar
+          ? `${group}: ${signedPoints(bar.deltaVsLeague)} points versus the league average share`
+          : `${group}: not covered`;
+        const end = bar ? pct(bar.deltaVsLeague) : zero;
 
         return (
           <div className={css.allocRow} key={group}>
             <span className={`yy-label ${css.allocGroup}`}>{group}</span>
 
-            <svg
-              className={css.svg}
-              viewBox={`0 0 ${TRACK_W} 16`}
-              role="img"
-              aria-label={
-                bar
-                  ? `${group}: ${signedPoints(bar.deltaVsLeague)} points versus the league average share`
-                  : `${group}: not covered`
-              }
-            >
-              <rect x={0} y={0} width={TRACK_W} height={16} rx={2} fill="var(--yy-bg-sunken)" />
+            <div className={css.allocTrack} role="img" aria-label={label}>
               {bar ? (
-                <rect
-                  x={bar.deltaVsLeague >= 0 ? zero : x(bar.deltaVsLeague)}
-                  y={3}
-                  width={Math.max(1, Math.abs(x(bar.deltaVsLeague) - zero))}
-                  height={10}
-                  rx={2}
-                  fill={isSelected ? 'var(--yy-accent)' : 'var(--yy-series-neutral)'}
+                <div
+                  className={`${css.allocFill} ${isSelected ? css.allocFillSelected : ''}`}
+                  style={{
+                    insetInlineStart: `${Math.min(zero, end)}%`,
+                    width: `${Math.abs(end - zero)}%`,
+                    minWidth: `${MIN_BAR_PX}px`,
+                  }}
                 />
               ) : (
-                <rect
-                  x={zero - 20}
-                  y={3}
-                  width={40}
-                  height={10}
-                  rx={2}
-                  fill="var(--yy-absence-fill)"
-                  stroke="var(--yy-absence)"
-                  strokeWidth={1}
-                  style={{ strokeDasharray: 'var(--yy-dash-absence)' }}
-                />
+                /* `CHART_ANATOMY.md` §5.2 — absence occupies the same box, in the
+                   same place, as a live mark. It is centred on the benchmark
+                   because it takes no position on either side of it. */
+                <div className={css.allocAbsent} style={{ insetInlineStart: `${zero}%` }} />
               )}
               {/* THE ZERO AXIS IS GOLD — it is the league average. It replaces
                   the mockup's near-invisible light-on-light centre rule. */}
-              <line
-                x1={zero}
-                x2={zero}
-                y1={-2}
-                y2={18}
-                stroke="var(--yy-benchmark)"
-                strokeWidth={1}
-              />
-            </svg>
+              <div className={css.allocZero} style={{ insetInlineStart: `${zero}%` }} />
+            </div>
 
             <span className={`yy-num ${css.allocValue}`}>
               {bar ? signedPoints(bar.deltaVsLeague) : '—'}
@@ -114,3 +118,4 @@ export function AllocationBars({
     </div>
   );
 }
+

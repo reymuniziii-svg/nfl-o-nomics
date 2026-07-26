@@ -87,17 +87,37 @@ function runsFor(track: StabilityRow[], role: Run['role']): Run[] {
 
 const ROLES: Run['role'][] = ['HC', 'OC', 'DC'];
 
+/**
+ * A season the record does not reach is NOT a season with no published table.
+ *
+ * `regime_events` carries the two follow-on dead-money slots for every regime
+ * change, and for a change in the last season or two of the record those slots
+ * point at seasons that have not been played. The mart's blank reason is the
+ * league-table one — "no league-wide dead-money table was published for this
+ * season" — which is a claim about publishing, and reads as an indictment of
+ * sourcing for a year in which nothing has happened yet. The two absences are
+ * different facts and the page says which one it is. Display-layer only: the
+ * mart keeps its own reason, exactly as `displayName` leaves the `NONE@`
+ * sentinel in place.
+ */
+function outsideRecord(season: number): string {
+  return `Outside the record — ${season} has not been played.`;
+}
+
 export function RegimeTimeline({
   track,
   regimes,
   team,
   currentSeason,
+  lastRecordedSeason,
   coverage,
 }: {
   track: StabilityRow[];
   regimes: RegimeEvent[];
   team: string;
   currentSeason: number;
+  /** The last season the snapshot holds. Beyond it, absence has a different reason. */
+  lastRecordedSeason: number;
   coverage: Coverage;
 }) {
   if (!track.length) {
@@ -256,10 +276,12 @@ export function RegimeTimeline({
               {r.season} · {r.kind === 'in_season' ? 'In-season' : 'Offseason'} · {r.outgoingHc} →{' '}
               {r.incomingHc}
             </p>
-            {[r.dmNext1, r.dmNext2].map((dm, i) => (
+            {[r.dmNext1, r.dmNext2].map((dm, i) => {
+              const dmSeason = dm.season ?? r.season + i + 1;
+              return (
               <p className={shell.itemDm} key={i}>
                 <span className={`yy-label ${shell.itemDmSeason}`}>
-                  {dm.season ?? `${r.season + i + 1}`} dead money
+                  {dmSeason} dead money
                 </span>{' '}
                 {dm.state === 'value' && dm.usd !== null && dm.asOf ? (
                   <>
@@ -278,12 +300,17 @@ export function RegimeTimeline({
                   </>
                 ) : (
                   <BlankReason
-                    reason={dm.reason ?? 'Not available — no league-wide table was published.'}
+                    reason={
+                      dmSeason > lastRecordedSeason
+                        ? outsideRecord(dmSeason)
+                        : (dm.reason ?? 'Not available — no league-wide table was published.')
+                    }
                     inline
                   />
                 )}
               </p>
-            ))}
+              );
+            })}
           </li>
         ))}
       </ul>

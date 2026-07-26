@@ -8,6 +8,7 @@ import {
   getLeagueAvgCostPerWin,
   getTeamBundle,
   getTeamMetaMap,
+  getTeamRating,
   TIER2_FIRST_SEASON,
 } from '@/lib/data';
 import {
@@ -85,12 +86,41 @@ export default async function TeamSeasonPage({
   const slug = await divisionSlugForTeam(team);
   const meta = await getTeamMetaMap();
 
-  const [peersCash, peersCap, avgCash, avgCap] = await Promise.all([
+  const [peersCash, peersCap, avgCash, avgCap, ratingRow, allKeys] = await Promise.all([
     slug ? getDivisionPeers(slug, season, 'cash') : Promise.resolve(null),
     slug ? getDivisionPeers(slug, season, 'cap') : Promise.resolve(null),
     getLeagueAvgCostPerWin(season, 'cash'),
     getLeagueAvgCostPerWin(season, 'cap'),
+    getTeamRating(season, team),
+    allTeamSeasons(),
   ]);
+
+  /**
+   * THE RANK DENOMINATOR IS COUNTED, NOT ASSUMED. Both marts publish
+   * `season_rank`; neither publishes what it was ranked out of, and the league
+   * was 31 clubs in 1999–2001. `allTeamSeasons()` is memoised per process, so
+   * this is a filter over an array the build already holds.
+   */
+  const fieldSize = allKeys.filter((k) => k.season === season).length;
+  const capplusRank =
+    b.capplus.state === 'value' ? { rank: b.capplus.value.seasonRank, of: fieldSize } : null;
+  const teamRatingRank =
+    ratingRow.state === 'value' ? { rank: ratingRow.value.seasonRank, of: fieldSize } : null;
+  /** The last season the record holds — what makes 2026 "not yet played". */
+  const lastRecordedSeason = allKeys.length
+    ? allKeys.reduce((n, k) => (k.season > n ? k.season : n), 0)
+    : season;
+
+  /**
+   * THE ARC'S OWN SPAN, read off the points it is given rather than asserted.
+   * Houston enters in 2002, so a hardcoded "1999–2025" is false on one of the
+   * 32 team pages — and the three coverage statements on this card (the bridge,
+   * the coverage line and the CSV header) have to agree with each other and
+   * with what is drawn.
+   */
+  const arcFirst = b.history.points[0]?.season ?? TIER2_FIRST_SEASON;
+  const arcLast = b.history.points[b.history.points.length - 1]?.season ?? season;
+  const arcSpan = `${arcFirst}–${arcLast}`;
 
   const results = b.results.state === 'value' ? b.results.value : null;
   const record = results ? recordDash(results.wins, results.losses, results.ties) : '';
@@ -151,7 +181,9 @@ export default async function TeamSeasonPage({
         identityLine={identityLine}
         mark={teamMark(b.team, b.identity.name)}
         capplus={capplusIndex}
+        capplusRank={capplusRank}
         teamRating={b.teamRating}
+        teamRatingRank={teamRatingRank}
         season={season}
         tier2FirstSeason={TIER2_FIRST_SEASON}
         backHref={slug ? `/division/${slug}` : '/'}
@@ -220,7 +252,7 @@ export default async function TeamSeasonPage({
       {/* ── 2. THE 25-SEASON HISTORY ─────────────────────────────────────── */}
       <Card ariaLabel="Franchise history">
         <CardHeader
-          eyebrow="1999–2025"
+          eyebrow={arcSpan}
           title="THE FRANCHISE ARC"
           right={
             <CsvExport
@@ -246,8 +278,8 @@ export default async function TeamSeasonPage({
               ], [
                 `YIELD/YARD — ${b.identity.name} franchise arc`,
                 'source marts: team_rating, capplus_official',
-                'coverage: Team Rating 1999-2025 (performance only). Cap+ 2014-2025; 2013, 2016, 2020 and 2021 are blanked whole-season.',
-                'The two indices are never spliced: they are different metrics and the chart breaks at 2013.',
+                `coverage: Team Rating ${arcFirst}-${arcLast} (performance only), every season, no gap. Cap+ 2014-2025; 2013, 2016, 2020 and 2021 are blanked whole-season.`,
+                'The two indices are never spliced: they are different metrics and the chart breaks at 2013. The 2013 Team Rating reading exists and is plotted as an unconnected point; no path crosses the break.',
               ])}
             />
           }
@@ -255,10 +287,11 @@ export default async function TeamSeasonPage({
         <FranchiseArc
           points={b.history.points}
           team={b.identity.name}
-          bridgeSentence={ARC_BRIDGE}
+          bridgeSentence={arcBridge(arcSpan)}
           coverage={{
             statement:
-              'Team Rating covers 1999–2025. Cap+ covers 2014–2025; 2013, 2016, 2020 and 2021 have no league-wide dead-money table and are blanked whole-season.',
+              `Team Rating covers every season this franchise played, ${arcSpan}, with no gap — including 2013, whose reading is plotted as a single unconnected point because no path crosses the tier rule. ` +
+              'Cap+ covers 2014–2025; 2013, 2016, 2020 and 2021 have no league-wide dead-money table and are blanked whole-season.',
           }}
         />
       </Card>
@@ -378,9 +411,10 @@ export default async function TeamSeasonPage({
           regimes={b.regimes}
           team={b.identity.name}
           currentSeason={season}
+          lastRecordedSeason={lastRecordedSeason}
           coverage={{
             statement:
-              'The coaching record begins in 2000; Houston enters in 2002. A dead-money reading after a regime change exists only where a league-wide table was published that year.',
+              `The coaching record begins in 2000; Houston enters in 2002. A dead-money reading after a regime change exists only where a league-wide table was published that year — and a change in ${lastRecordedSeason} points at seasons the record does not reach yet, which is a different absence and is labelled as one.`,
           }}
         />
       </Card>
@@ -626,7 +660,12 @@ function AlternateReadings({
 const PROVISIONAL_NOTE =
   'This season’s Cap+ was published before the league year opened; it understates the final figure.';
 
-const ARC_BRIDGE =
-  'Two metrics are plotted. Team Rating (1999–2025) scores performance only. Cap+ (2014–2025) ' +
+/**
+ * The bridge sentence takes the arc's OWN span so it cannot disagree with the
+ * coverage line beside it or with the seasons actually drawn (Houston enters in
+ * 2002). `COMPONENTS.md` §4.4 — always present, never a tooltip.
+ */
+const arcBridge = (span: string) =>
+  `Two metrics are plotted. Team Rating (${span}) scores performance only. Cap+ (2014–2025) ` +
   'scores wins produced per dollar. They are shown together on the overlap so you can see where ' +
   'they disagree — not because they measure the same thing.';

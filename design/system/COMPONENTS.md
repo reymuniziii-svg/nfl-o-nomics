@@ -154,8 +154,12 @@ Sub-line content by size: mobile `BILLS · 13–4` · square `13–4` · wide `B
 
 ### 1.6 THE ZERO-WIN ROW — `SPEC.md` §2.5, `DECISIONS.md` 26
 
-A live rendering state, not an edge case. Exactly two team-seasons trigger it (2017 CLE, 2008 DET);
-both are golden-test fixtures.
+A live rendering state, not an edge case. Exactly two team-seasons trigger the zero-win rule (2017
+CLE, 2008 DET) and both are golden-test fixtures — but only **2017 CLE is a render fixture for this
+component**. 2008 is Tier 1: cash and cap coverage begin in 2013, so `getCostPerWin` returns the
+coverage-boundary message for DET 2008 rather than a suppressed ratio, and no zero-win row can ever
+be drawn for it. **DET 2008 is a data-layer fixture** — it asserts the rule holds where the ratio
+would be computed, not how the row looks.
 
 ```
 —   CLE   ┌ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┐   $151.1M spent · 0 wins

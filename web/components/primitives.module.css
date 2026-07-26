@@ -43,11 +43,34 @@
   min-width: 0;
 }
 
+/* THE SAME SLOT ON EVERY SURFACE (`COMPONENTS.md` §14) — and on a Cap+-led card
+   it carries two things: the `100 = LEAGUE AVERAGE` lockup line
+   (`CAPPLUS_LOCKUP.md` §3.5) and the CSV affordance, both baseline-aligned with
+   the title. It wraps rather than shrinks: neither is truncatable. */
 .cardHeadSlot {
   flex: none;
   display: flex;
   align-items: baseline;
+  justify-content: flex-end;
+  flex-wrap: wrap;
   gap: var(--yy-space-3);
+}
+
+/* BELOW THE REFLOW LINE THE HEADER STACKS.
+   The right slot never shrinks — it carries the `100 = LEAGUE AVERAGE` lockup
+   line, which has no short form, and the CSV affordance, which is a text button
+   by rule. Under ~360px the two of them are wider than the card, so the slot
+   takes its own full-width line beneath the title instead of pushing the page
+   sideways (`MOBILE_PATTERNS.md` §2). Nothing moves at either verified canvas. */
+@media (max-width: 359px) {
+  .cardHead {
+    flex-wrap: wrap;
+  }
+
+  .cardHeadSlot {
+    flex: 1 1 100%;
+    justify-content: flex-start;
+  }
 }
 
 .cardTitle {
@@ -250,6 +273,15 @@
   color: var(--yy-fg-3);
   max-width: 22ch;
   text-align: right;
+}
+
+/* `#1 OF 32` — the season rank beside the figure. Never band-coloured: the rank
+   is an ordering, not a value judgment, and colouring it twice-encodes the band
+   the figure already carries. */
+.badgeRank {
+  color: var(--yy-fg-2);
+  letter-spacing: var(--yy-track-label);
+  white-space: nowrap;
 }
 
 /* scales — TYPE.md §7 */

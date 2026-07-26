@@ -45,6 +45,19 @@ export function usdShort(n: number): string {
   return `${sign}$${abs.toFixed(0)}`;
 }
 
+/**
+ * `$37,133,824` — the figure to the dollar.
+ *
+ * The short form is right on a card, where a reader is comparing magnitudes;
+ * it is wrong in a table a reader opened to check a number against a source.
+ * Grouped with a plain comma (`en-US`) so it matches the CSV export and the
+ * figures quoted in `METHODOLOGY.md`, and never rounded.
+ */
+export function usdExact(n: number): string {
+  const sign = n < 0 ? '−' : '';
+  return `${sign}$${Math.round(Math.abs(n)).toLocaleString('en-US')}`;
+}
+
 /** `−$7.5M` / `+$12.2M` — the mobile delta. Minus is U+2212, never a hyphen. */
 export function usdSignedShort(n: number): string {
   const sign = n > 0 ? '+' : n < 0 ? '−' : '';

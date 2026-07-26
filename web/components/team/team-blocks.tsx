@@ -9,7 +9,15 @@
 
 import Link from 'next/link';
 import css from './team.module.css';
-import { AsOf, BlankReason, Chip, IndexBadge, MetricText } from '../primitives';
+import {
+  AsOf,
+  BlankReason,
+  Chip,
+  IndexBadge,
+  MetricText,
+  SourceVerified,
+  type IndexRank,
+} from '../primitives';
 import { TeamMark } from '../marks';
 import { IconChevronLeft } from '../icons';
 import { partialSuffix, usdShort } from '@/lib/display';
@@ -38,7 +46,9 @@ export function TeamHeader({
   identityLine,
   mark,
   capplus,
+  capplusRank,
   teamRating,
+  teamRatingRank,
   season,
   tier2FirstSeason,
   backHref,
@@ -47,7 +57,10 @@ export function TeamHeader({
   identityLine: string;
   mark: TeamMarkData | null;
   capplus: Metric<number>;
+  /** `#1 of 32` — published on `capplus_official`, and the page's largest figure. */
+  capplusRank?: IndexRank | null;
   teamRating: Metric<number>;
+  teamRatingRank?: IndexRank | null;
   season: number;
   tier2FirstSeason: number;
   backHref: string;
@@ -74,14 +87,26 @@ export function TeamHeader({
         the Cap+ era get the same treatment" as the pre-2013 pages. So the Cap+
         slot states its blank in full, and Team Rating renders beside it under
         its own name and without band colour (`DECISIONS.md` 83). */}
+      {/* `CAPPLUS_LOCKUP.md` §3.5 — `100 = LEAGUE AVERAGE` renders on EVERY
+        surface where Cap+ leads, and this badge is the page's largest Cap+
+        figure. `/compare` already carried it; the team header did not. */}
       <div className={css.badges}>
         <IndexBadge
           metric={inTier2 ? capplus : teamRating}
           scale="header"
           metricName={inTier2 ? 'capplus' : 'teamRating'}
+          rank={inTier2 ? capplusRank : teamRatingRank}
+          /* The caption explains a figure. A blanked season has none, and
+             `100 = LEAGUE AVERAGE` under `NOT COVERED` explains nothing. */
+          showCaption={inTier2 && capplus.state !== 'blank'}
         />
         {inTier2 && capplus.state === 'blank' ? (
-          <IndexBadge metric={teamRating} scale="header" metricName="teamRating" />
+          <IndexBadge
+            metric={teamRating}
+            scale="header"
+            metricName="teamRating"
+            rank={teamRatingRank}
+          />
         ) : null}
       </div>
     </header>
@@ -201,7 +226,7 @@ export function DeadMoneyLedger({ rows }: { rows: LedgerViewRow[] }) {
                 {r.team} · {r.seasons}
               </span>
             </div>
-            <AsOf value={usdShort(r.totalUsd)} date={r.verifiedAsof} stage="verified" />
+            <SourceVerified value={usdShort(r.totalUsd)} date={r.verifiedAsof} />
             {r.splitBySeason ? (
               <span className={`yy-label ${css.ledgerMeta}`}>Split: {r.splitBySeason}</span>
             ) : (
@@ -252,7 +277,7 @@ export function DeadMoneyLedger({ rows }: { rows: LedgerViewRow[] }) {
                 <td className="yy-label">{r.team}</td>
                 <td className="yy-label">{r.seasons}</td>
                 <td className={css.ledgerNum}>
-                  <AsOf value={usdShort(r.totalUsd)} date={r.verifiedAsof} stage="verified" />
+                  <SourceVerified value={usdShort(r.totalUsd)} date={r.verifiedAsof} />
                   {r.splitBySeason ? (
                     <span className={`yy-label ${css.ledgerMeta}`}>Split: {r.splitBySeason}</span>
                   ) : (

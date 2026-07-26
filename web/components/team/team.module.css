@@ -42,6 +42,21 @@
   justify-content: flex-end;
 }
 
+/* Below the reflow line the badge takes its own line. It carries the Cap+
+   figure, its rank and the `100 = LEAGUE AVERAGE` caption, none of which has a
+   short form — so the header stacks rather than the caption shrinking. */
+@media (max-width: 359px) {
+  .header {
+    flex-wrap: wrap;
+    row-gap: var(--yy-space-3);
+  }
+
+  .badges {
+    flex: 1 0 100%;
+    justify-content: flex-start;
+  }
+}
+
 .name {
   font-family: var(--yy-font-display);
   font-weight: var(--yy-weight-display);

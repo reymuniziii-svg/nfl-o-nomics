@@ -26,8 +26,13 @@
   border-top: 0;
 }
 
+/* Some Commons authors are credited by URL rather than by name, and a URL is one
+   unbreakable token — 341px of it, which pushed the whole page sideways at the
+   320px reflow floor. The credit is required and is never truncated
+   (`SPEC.md` §5.2), so it breaks instead. */
 .authorName {
   color: var(--yy-fg-1);
+  overflow-wrap: anywhere;
 }
 
 .authorCount {
