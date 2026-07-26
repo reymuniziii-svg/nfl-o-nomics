@@ -1,0 +1,230 @@
+/* YIELD/YARD — base stylesheet.
+ *
+ * THE DESIGN CONTRACT (SPEC.md §4): every visual value is a `--yy-*` custom
+ * property, and components bind to the SEMANTIC layer (`--yy-bg`, `--yy-fg-1`,
+ * `--yy-line-divider`, …), never to a raw palette token, or they will not theme.
+ *
+ * The import below is `design/system/tokens.css`, mirrored into `app/tokens.css`
+ * by `scripts/prepare.mjs` on every `npm run dev` / `npm run build`. Edit the
+ * design-track file; never this mirror. If the design track has not published
+ * tokens yet, the same path resolves to a neutral placeholder stub carrying the
+ * same token names, so the swap costs nothing.
+ *
+ * WHAT LIVES HERE: page-level typography, layout scaffolding, and the
+ * blank/partial/as-of affordances the never-silently-partial rule needs
+ * (SPEC §1.2). COMPONENT STYLING DOES NOT — that arrives with the views work as
+ * CSS Modules (BUILD_PLAN Phase 2 item 5 / Phase 3 chart anatomy).
+ */
+
+@import './tokens.css';
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  /* Dark is the flagship; light is a designed theme, and the token file's own
+     `prefers-color-scheme` block picks between them unless a theme is pinned. */
+  color-scheme: dark light;
+}
+
+body {
+  margin: 0;
+  background: var(--yy-bg);
+  color: var(--yy-fg-1);
+  font-family: var(--yy-font-body);
+  font-size: var(--yy-size-body);
+  line-height: var(--yy-lh-body);
+  /* SPEC §8.3 — tabular numerals everywhere. */
+  font-variant-numeric: tabular-nums;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: var(--yy-accent);
+}
+
+:focus-visible {
+  outline: var(--yy-focus-width) solid var(--yy-focus-ring);
+  outline-offset: var(--yy-focus-offset);
+}
+
+/* Mobile-first at 390px (SPEC §3), relaxing upward. */
+.yy-page {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: var(--yy-space-5);
+}
+
+.yy-chrome {
+  background: var(--yy-bg-chrome);
+  color: #eaf1ec;
+  padding: var(--yy-space-4) var(--yy-space-5);
+}
+
+.yy-chrome a {
+  color: #eaf1ec;
+  margin-right: var(--yy-space-5);
+  text-decoration: none;
+  font-family: var(--yy-font-display);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.yy-footer {
+  border-top: 1px solid var(--yy-line-divider);
+  color: var(--yy-fg-3);
+  font-size: var(--yy-size-caption);
+  padding: var(--yy-space-5);
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--yy-font-display);
+  letter-spacing: 0.01em;
+  line-height: var(--yy-lh-display);
+  margin: var(--yy-space-7) 0 var(--yy-space-2);
+}
+
+h1 {
+  font-size: var(--yy-size-display-md);
+}
+h2 {
+  font-size: var(--yy-size-display-xs);
+}
+h3 {
+  font-size: var(--yy-size-label-lg);
+  font-family: var(--yy-font-body);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--yy-fg-2);
+}
+
+section {
+  border-top: 1px solid var(--yy-line-divider);
+  padding-top: var(--yy-space-2);
+}
+
+dl {
+  display: grid;
+  grid-template-columns: minmax(12ch, 24ch) 1fr;
+  gap: var(--yy-space-1) var(--yy-space-5);
+  margin: var(--yy-space-3) 0;
+}
+
+dt {
+  color: var(--yy-fg-2);
+}
+
+dd {
+  margin: 0;
+  font-family: var(--yy-font-num);
+}
+
+/* ---- Coverage affordances. A blank is a rendered sentence, never an empty
+   cell, a dash, a zero or an interpolated point (SPEC §1.2). ---- */
+
+.yy-blank {
+  color: var(--yy-absence);
+  font-style: italic;
+}
+
+.yy-partial {
+  color: var(--yy-partial);
+}
+
+.yy-suppressed {
+  color: var(--yy-suppressed);
+}
+
+/* Value, date and stage always render together (SPEC §2.1). */
+.yy-asof-line {
+  color: var(--yy-asof);
+  font-size: var(--yy-size-caption);
+}
+
+.yy-caveat {
+  color: var(--yy-fg-3);
+  font-size: var(--yy-size-caption);
+  max-width: var(--yy-measure);
+}
+
+.yy-badge {
+  display: inline-block;
+  border: 1px solid var(--yy-line-card);
+  border-radius: var(--yy-radius-pill);
+  padding: 0 var(--yy-space-2);
+  font-size: var(--yy-size-micro);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.yy-badge-provisional {
+  color: var(--yy-provisional);
+  border-color: var(--yy-provisional-stroke, var(--yy-provisional));
+}
+
+/* Wide content scrolls inside its own container; the page never scrolls sideways. */
+.yy-scroll {
+  overflow-x: auto;
+}
+
+table {
+  border-collapse: collapse;
+  font-size: var(--yy-size-caption);
+  width: 100%;
+}
+
+th,
+td {
+  border-bottom: 1px solid var(--yy-line-divider);
+  padding: var(--yy-space-2) var(--yy-space-3);
+  text-align: left;
+  white-space: nowrap;
+}
+
+th {
+  color: var(--yy-fg-2);
+  font-weight: 600;
+}
+
+td.yy-num,
+th.yy-num {
+  text-align: right;
+  font-family: var(--yy-font-num);
+}
+
+.yy-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--yy-size-mark, 40px);
+  height: var(--yy-size-mark, 40px);
+  border-radius: var(--yy-radius-mark);
+  font-family: var(--yy-font-display);
+  font-size: var(--yy-size-label);
+  letter-spacing: 0.04em;
+  overflow: hidden;
+  vertical-align: middle;
+}
+
+.yy-prose {
+  max-width: var(--yy-measure);
+}
+
+.yy-prose pre,
+.yy-prose table {
+  overflow-x: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}
