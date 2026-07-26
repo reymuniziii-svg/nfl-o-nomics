@@ -1,17 +1,38 @@
-import Link from 'next/link';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
+import css from './team-page.module.css';
 import {
   allTeamSeasons,
+  divisionSlugForTeam,
+  getDivisionPeers,
+  getLeagueAvgCostPerWin,
   getTeamBundle,
-  getTopCapHits,
-  PROVISIONAL_COPY,
+  getTeamMetaMap,
+  TIER2_FIRST_SEASON,
 } from '@/lib/data';
-import { ERA_CONTINUITY_NOTE, asOfLabel } from '@/lib/metric';
+import { mapMetric, type Metric } from '@/lib/metric';
 import { eraIdentity, toAbbr } from '@/lib/teams';
 import { teamMark } from '@/lib/marks';
-import { num, pct, record, signedPct, usd, usdCompact } from '@/lib/format';
-import { Definitions, MetricValue, Note, Row, Section, TeamMarkView } from '@/components/shell';
+import { recordDash } from '@/lib/display';
+import { receiptCoverage, receiptRows } from '@/lib/view';
+import {
+  BoundaryMessage,
+  Card,
+  CardHeader,
+  ChartCaption,
+  Chip,
+  KpiTile,
+  MetricText,
+} from '@/components/primitives';
+import { TeamHeader, ThreeLens, DeadMoneyLedger, StatGrid } from '@/components/team/team-blocks';
+import { Receipt } from '@/components/receipt/receipt';
+import { FranchiseArc } from '@/components/charts/franchise-arc';
+import { AllocationBars } from '@/components/charts/allocation-bars';
+import { DeadMoneyDots } from '@/components/charts/dead-money-dots';
+import { RegimeTimeline } from '@/components/charts/regime-timeline';
+import { SeasonPicker, TeamPicker } from '@/components/pickers/team-season-picker';
+import { CsvExport } from '@/components/csv-export';
+import { csvTable } from '@/lib/csv';
 
 /** `SPEC.md` §6 — `/team/{abbr}/{season}`, static, 861 pages. */
 export const dynamic = 'force-static';
@@ -31,7 +52,10 @@ export async function generateMetadata({
   const team = toAbbr(abbr);
   if (!team) return {};
   const id = eraIdentity(team, Number(season));
-  return { title: `${id.name} · ${season}` };
+  return {
+    title: `${id.name} · ${season}`,
+    description: `${id.name}, ${season}: what the club spent, what it got, and where the record stops.`,
+  };
 }
 
 export default async function TeamSeasonPage({
@@ -47,452 +71,370 @@ export default async function TeamSeasonPage({
   const b = await getTeamBundle(team, season);
   if (!b) notFound();
 
+  const inTier2 = season >= TIER2_FIRST_SEASON;
+  const slug = await divisionSlugForTeam(team);
+  const meta = await getTeamMetaMap();
+
+  const [peersCash, peersCap, avgCash, avgCap] = await Promise.all([
+    slug ? getDivisionPeers(slug, season, 'cash') : Promise.resolve(null),
+    slug ? getDivisionPeers(slug, season, 'cap') : Promise.resolve(null),
+    getLeagueAvgCostPerWin(season, 'cash'),
+    getLeagueAvgCostPerWin(season, 'cap'),
+  ]);
+
+  const results = b.results.state === 'value' ? b.results.value : null;
+  const record = results ? recordDash(results.wins, results.losses, results.ties) : '';
+  const divisionLabel = meta.get(team)?.division ?? '';
+  const identityLine = [b.identity.location, divisionLabel, String(season), record]
+    .filter(Boolean)
+    .join(' · ');
+
+  /** THE INDEX RULE, `COMPONENTS.md` §3: which index the header badge carries is
+   *  decided by the SEASON, not by whether a value happens to exist. Inside
+   *  Tier 2 a blanked season renders `CAP+ —` with its reason; before it, the
+   *  badge is Team Rating and is never band-coloured. */
+  const capplusIndex: Metric<number> = mapMetric(b.capplus, (c) => c.capplus);
+
+  const teamOptions = [...meta.values()]
+    .map((m) => ({
+      abbr: m.abbr,
+      name: eraIdentity(m.abbr, season).name,
+      conference: m.conf,
+      division: m.division.replace(/^(AFC|NFC)\s*/, ''),
+    }))
+    .sort((x, y) => x.name.localeCompare(y.name));
+
+  const burden = b.deadMoney.burdenOfAdjustedCap;
+  const dots = b.deadMoney.series.map((s) => ({
+    season: s.season,
+    // The burden denominator is published per team-season; where it is not, the
+    // dot carries no y-position rather than an invented one.
+    burden: s.season === season && burden !== null ? burden : null,
+    usd: s.usd,
+    asOfDate: s.asOf.date,
+    asOfStage: s.asOf.stage,
+  }));
+  const anyBurden = dots.some((d) => d.burden !== null);
+
   return (
     <>
-      {/* 1. HEADER — TeamMark + era-correct name + record + index badge. */}
-      <h1>
-        <TeamMarkView mark={teamMark(b.team, b.identity.name)} /> {b.identityLine}
-      </h1>
-      <p className="yy-caveat">
-        {b.identity.location} · franchise code <code>{b.team}</code> (era code{' '}
-        <code>{b.identity.eraCode}</code>). {ERA_CONTINUITY_NOTE}
-      </p>
+      {/* ── 1. HEADER ─────────────────────────────────────────────────────── */}
+      <TeamHeader
+        name={b.identity.name.toUpperCase()}
+        identityLine={identityLine}
+        mark={teamMark(b.team, b.identity.name)}
+        capplus={capplusIndex}
+        teamRating={b.teamRating}
+        season={season}
+        tier2FirstSeason={TIER2_FIRST_SEASON}
+        backHref={slug ? `/division/${slug}` : '/'}
+      />
 
-      <Definitions>
-        <Row label="Record">
-          <MetricValue
-            metric={b.results}
-            format={(r) => `${record(r.wins, r.losses, r.ties)} · ${r.games} games`}
+      <div className={css.pickers}>
+        <TeamPicker teams={teamOptions} team={team} hrefPattern={`/team/{abbr}/${season}`} />
+        <SeasonPicker
+          seasons={b.seasons}
+          season={season}
+          hrefPattern={`/team/${team.toLowerCase()}/{season}`}
+        />
+      </div>
+
+      {/* ── the season at a glance ────────────────────────────────────────── */}
+      <Card ariaLabel="Season results">
+        <CardHeader eyebrow={`${b.identity.name} · ${season}`} title="THE SEASON" />
+        <StatGrid>
+          <KpiTile label="Record" value={record || '—'} />
+          <KpiTile
+            label="Point differential"
+            value={
+              results
+                ? results.pointDiff > 0
+                  ? `+${results.pointDiff}`
+                  : String(results.pointDiff)
+                : '—'
+            }
           />
-        </Row>
-        <Row label="Points">
-          <MetricValue
-            metric={b.results}
-            format={(r) => `${r.pointsFor} for · ${r.pointsAgainst} against · ${r.pointDiff} diff`}
+          <KpiTile
+            label="EPA margin / play"
+            value={
+              <MetricText metric={b.epa} format={(e) => e.epaMarginPerPlay.toFixed(3)} inlineBlank />
+            }
           />
-        </Row>
-        <Row label={b.index.name}>
-          {b.index.isCapPlus ? (
-            <MetricValue
-              metric={b.capplus}
-              format={(c) => `${num(c.capplus, 1)} · rank ${c.seasonRank} of 32`}
+          <KpiTile
+            label={inTier2 ? 'Cap+' : 'Team rating'}
+            value={
+              <MetricText
+                metric={inTier2 ? capplusIndex : b.teamRating}
+                format={(v) => v.toFixed(1)}
+                inlineBlank
+              />
+            }
+            unit={inTier2 ? '100 = league average' : 'performance only'}
+          />
+        </StatGrid>
+        {b.capplus.state === 'value' && b.capplus.provisional ? (
+          <p className={css.chipRow}>
+            <Chip kind="provisional" />
+            <span className="yy-caption">{PROVISIONAL_NOTE}</span>
+          </p>
+        ) : null}
+      </Card>
+
+      {/* ── 2. THE 25-SEASON HISTORY ─────────────────────────────────────── */}
+      <Card ariaLabel="Franchise history">
+        <CardHeader
+          eyebrow="1999–2025"
+          title="THE FRANCHISE ARC"
+          right={
+            <CsvExport
+              title="Franchise arc"
+              filename={`yieldyard_history_${team.toLowerCase()}.csv`}
+              table={csvTable(b.history.points, [
+                { key: 'season', label: 'season', get: (p) => p.season },
+                {
+                  key: 'team_rating',
+                  label: 'team_rating',
+                  get: (p) => (p.teamRating.state === 'blank' ? '' : p.teamRating.value.toFixed(6)),
+                },
+                {
+                  key: 'capplus',
+                  label: 'capplus',
+                  get: (p) => (p.capplus.state === 'blank' ? '' : p.capplus.value.toFixed(6)),
+                },
+                {
+                  key: 'capplus_blank_reason',
+                  label: 'capplus_blank_reason',
+                  get: (p) => (p.capplus.state === 'blank' ? p.capplus.reason : ''),
+                },
+              ], [
+                `YIELD/YARD — ${b.identity.name} franchise arc`,
+                'source marts: team_rating, capplus_official',
+                'coverage: Team Rating 1999-2025 (performance only). Cap+ 2014-2025; 2013, 2016, 2020 and 2021 are blanked whole-season.',
+                'The two indices are never spliced: they are different metrics and the chart breaks at 2013.',
+              ])}
             />
+          }
+        />
+        <FranchiseArc
+          points={b.history.points}
+          team={b.identity.name}
+          bridgeSentence={ARC_BRIDGE}
+          coverage={{
+            statement:
+              'Team Rating covers 1999–2025. Cap+ covers 2014–2025; 2013, 2016, 2020 and 2021 have no league-wide dead-money table and are blanked whole-season.',
+          }}
+        />
+      </Card>
+
+      {/* ── 3. THE THREE LENSES ──────────────────────────────────────────── */}
+      <Card ariaLabel="Spending, three ways">
+        <CardHeader eyebrow="Never one number" title="THREE LENSES" />
+        {inTier2 ? <ThreeLens lenses={b.lenses} /> : <BoundaryMessage season={season} />}
+      </Card>
+
+      {/* ── 4. ALLOCATION ────────────────────────────────────────────────── */}
+      <Card ariaLabel="Allocation versus the league">
+        <CardHeader
+          eyebrow="Nine position groups"
+          title="SPEND MIX vs LEAGUE"
+          right={
+            b.allocation.state === 'value' ? (
+              <CsvExport
+                title="Spend mix versus league"
+                filename={`yieldyard_allocation_${team.toLowerCase()}_${season}.csv`}
+                table={csvTable(b.allocation.value, [
+                  { key: 'group', label: 'position_group', get: (a) => a.positionGroup },
+                  { key: 'cap_usd', label: 'cap_usd', get: (a) => a.capUsd },
+                  {
+                    key: 'share',
+                    label: 'share_of_rostered_cap',
+                    get: (a) => a.shareOfRosteredCap.toFixed(6),
+                  },
+                  { key: 'league', label: 'league_share', get: (a) => a.leagueShare.toFixed(6) },
+                  {
+                    key: 'delta',
+                    label: 'delta_vs_league',
+                    get: (a) => a.deltaVsLeague.toFixed(6),
+                  },
+                ], [
+                  `YIELD/YARD — ${b.identity.name} ${season} allocation`,
+                  'source mart: position_allocation',
+                  'Share of cap held by players on the roster - not share of cap. The denominator inherits the dead-money omission.',
+                  'Position is as of the deal then in force.',
+                ])}
+              />
+            ) : undefined
+          }
+        />
+        {b.allocation.state === 'value' ? (
+          <AllocationBars
+            bars={b.allocation.value}
+            coverage={{
+              statement: `Nine position groups, ${season}, in a fixed order that never changes between clubs — which is what makes two clubs comparable.`,
+            }}
+          />
+        ) : (
+          <BoundaryMessage season={season} body={b.allocation.reason} />
+        )}
+      </Card>
+
+      {/* ── 5. COST PER WIN — SUBJECT MODE ───────────────────────────────── */}
+      {peersCash && peersCap && inTier2 ? (
+        <Receipt
+          title={`${b.team} vs ${peersCash.name.toUpperCase()}`}
+          wideTitle={`${b.team} vs ${peersCash.name.toUpperCase()} — WHAT A WIN COST`}
+          season={season}
+          subject={team}
+          rows={{ cash: receiptRows(peersCash), cap: receiptRows(peersCap) }}
+          leagueAvg={{ cash: avgCash, cap: avgCap }}
+          coverage={receiptCoverage(season, peersCash.teams.length)}
+        />
+      ) : (
+        <Card ariaLabel="Cost per win">
+          <CardHeader eyebrow={`Cost per win · ${season}`} title="WHAT A WIN COST" />
+          <BoundaryMessage season={season} />
+        </Card>
+      )}
+
+      {/* ── 6. COACHING STABILITY + REGIME TIMELINE ──────────────────────── */}
+      <Card ariaLabel="Coaching stability and regimes">
+        <CardHeader eyebrow="Continuity" title="COACHING & REGIMES" />
+        <StatGrid>
+          <KpiTile
+            label="Stability index"
+            value={
+              <MetricText metric={b.stability} format={(s) => s.stabilityIndex.toFixed(0)} inlineBlank />
+            }
+          />
+          <KpiTile
+            label="Head coach"
+            value={<MetricText metric={b.stability} format={(s) => s.hc} inlineBlank />}
+          />
+          <KpiTile
+            label="Season of regime"
+            value={
+              <MetricText metric={b.stability} format={(s) => String(s.regimeSeasonN)} inlineBlank />
+            }
+          />
+          <KpiTile
+            label="Churn points"
+            value={
+              <MetricText metric={b.stability} format={(s) => s.churnPoints.toFixed(1)} inlineBlank />
+            }
+          />
+        </StatGrid>
+        <RegimeTimeline
+          track={b.stabilityTrack}
+          regimes={b.regimes}
+          team={b.identity.name}
+          currentSeason={season}
+          coverage={{
+            statement:
+              'The coaching record begins in 2000; Houston enters in 2002. A dead-money reading after a regime change exists only where a league-wide table was published that year.',
+          }}
+        />
+      </Card>
+
+      {/* ── 7. DEAD MONEY ────────────────────────────────────────────────── */}
+      <Card ariaLabel="Dead money">
+        <CardHeader
+          eyebrow="Dated readings, never a trend"
+          title="DEAD MONEY"
+          right={
+            b.deadMoney.series.length ? (
+              <CsvExport
+                title="Dead money"
+                filename={`yieldyard_deadmoney_${team.toLowerCase()}.csv`}
+                table={csvTable(b.deadMoney.series, [
+                  { key: 'season', label: 'season', get: (s) => s.season },
+                  { key: 'usd', label: 'dead_money_usd', get: (s) => s.usd },
+                  { key: 'asof_date', label: 'asof_date', get: (s) => s.asOf.date },
+                  { key: 'asof_stage', label: 'asof_stage', get: (s) => s.asOf.stage },
+                  { key: 'coverage', label: 'coverage', get: (s) => s.coverage },
+                  { key: 'source', label: 'source_url', get: (s) => s.sourceUrl },
+                ], [
+                  `YIELD/YARD — ${b.identity.name} dead-money readings`,
+                  'source mart: dead_money_team_season',
+                  'Each row is a separate dated press snapshot. Readings are NEVER averaged, merged or connected across seasons.',
+                  'Same-season drift is real: CHI 2022 read $57.6M preseason and $91.8M final.',
+                ])}
+              />
+            ) : undefined
+          }
+        />
+        {b.deadMoney.series.length && anyBurden ? (
+          <DeadMoneyDots
+            team={b.identity.name}
+            points={dots}
+            seasons={b.history.points.map((p) => p.season)}
+            coverage={{
+              statement:
+                'Readings exist only for seasons in which a league-wide table was published. 2013, 2016, 2020 and 2021 have none, and the burden denominator is published per team-season — where it is not, the reading carries no position on this axis.',
+            }}
+          />
+        ) : null}
+
+        <div className={css.ledgerBlock}>
+          <p className="yy-label">This season</p>
+          {inTier2 ? (
+            <ThreeLens lenses={b.lenses.filter((l) => l.key === 'dead_money')} />
           ) : (
-            <MetricValue metric={b.teamRating} format={(v) => num(v, 1)} />
+            <BoundaryMessage season={season} />
           )}
-        </Row>
-      </Definitions>
-      {b.capplus.state === 'value' && b.capplus.provisional ? (
-        <Note>Provisional: {PROVISIONAL_COPY}</Note>
-      ) : null}
-
-      <nav aria-label="Season picker" className="yy-scroll">
-        <p className="yy-caveat">
-          {b.seasons.map((y) => (
-            <span key={y} style={{ marginRight: '0.6rem' }}>
-              {y === season ? <strong>{y}</strong> : <Link href={`/team/${abbr}/${y}`}>{y}</Link>}
-            </span>
-          ))}
-        </p>
-      </nav>
-
-      {/* 2. 25-SEASON HISTORY — hard visual break at 2013. */}
-      <Section title="Franchise history">
-        <Note>
-          Hard break at {b.history.breakSeason}. {b.history.bridgeSentence} Cap+ has no rows for{' '}
-          {b.history.blankSeasons.join(', ')}; those seasons render as labelled gaps and are never
-          interpolated.
-        </Note>
-        <div className="yy-scroll">
-          <table>
-            <thead>
-              <tr>
-                <th scope="col">Season</th>
-                <th scope="col" className="yy-num">
-                  Team Rating (performance only)
-                </th>
-                <th scope="col">Cap+</th>
-              </tr>
-            </thead>
-            <tbody>
-              {b.history.points.map((p) => (
-                <tr key={p.season}>
-                  <th scope="row">
-                    <Link href={`/team/${abbr}/${p.season}`}>{p.season}</Link>
-                  </th>
-                  <td className="yy-num">
-                    <MetricValue metric={p.teamRating} format={(v) => num(v, 1)} />
-                  </td>
-                  <td>
-                    <MetricValue metric={p.capplus} format={(v) => num(v, 1)} />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
         </div>
-      </Section>
 
-      {/* 3. THREE-LENS SUMMARY — each with its own caveat line. */}
-      <Section title="The three lenses">
-        {b.lenses.map((l) => (
-          <div key={l.key}>
-            <h3>{l.label}</h3>
-            <Definitions>
-              <Row label="Amount">
-                <MetricValue metric={l.amount} format={(v) => usd(v)} />
-              </Row>
-              {l.sourceUrl ? (
-                <Row label="Source">
-                  <a href={l.sourceUrl} rel="nofollow noreferrer">
-                    {new URL(l.sourceUrl).hostname}
-                  </a>
-                </Row>
-              ) : null}
-            </Definitions>
-            <Note>{l.caveat}</Note>
-          </div>
-        ))}
-      </Section>
+        <div className={css.ledgerBlock}>
+          <p className="yy-label">Marquee charges from the ledger</p>
+          <DeadMoneyLedger rows={b.deadMoney.ledger.map((r) => ({ ...r, team: b.team }))} />
+        </div>
+      </Card>
 
-      {/* 4. ALLOCATION — diverging from a zero-centred league-average axis. */}
-      <Section title="Positional allocation">
-        <Note>
-          Share of cap held by players on the roster — never “% of cap”. It inherits the
-          dead-money omission. Position as of the deal then in force.
-        </Note>
-        <MetricValue
-          metric={b.allocation}
-          format={(bars) => (
-            <div className="yy-scroll">
-              <table>
-                <thead>
-                  <tr>
-                    <th scope="col">Group</th>
-                    <th scope="col" className="yy-num">
-                      Cap
-                    </th>
-                    <th scope="col" className="yy-num">
-                      Share
-                    </th>
-                    <th scope="col" className="yy-num">
-                      League
-                    </th>
-                    <th scope="col" className="yy-num">
-                      vs league
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {bars.map((a) => (
-                    <tr key={a.positionGroup}>
-                      <th scope="row">{a.positionGroup}</th>
-                      <td className="yy-num">{usdCompact(a.capUsd)}</td>
-                      <td className="yy-num">{pct(a.shareOfRosteredCap)}</td>
-                      <td className="yy-num">{pct(a.leagueShare)}</td>
-                      <td className="yy-num">{signedPct(a.deltaVsLeague)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        />
-      </Section>
-
-      {/* 5. COST PER WIN — the zero-win rule is live. */}
-      <Section title="Cost per win">
-        <Definitions>
-          <Row label={b.numeratorLabel}>
-            <MetricValue
-              metric={b.costPerWin}
-              format={(c) =>
-                c.perWin === null
-                  ? c.zeroWinLabel
-                  : `${usdCompact(c.perWin)} per win · ${usd(c.spend)} over ${c.wins} wins`
-              }
-            />
-          </Row>
-        </Definitions>
-        <Note>{b.numeratorCaveat}</Note>
-      </Section>
-
-      {/* 6. COACHING STABILITY + REGIME TIMELINE. */}
-      <Section title="Coaching stability">
-        <MetricValue
-          metric={b.stability}
-          format={(x) => (
-            <Definitions>
-              <Row label="Stability Index">
-                {num(x.stabilityIndex, 1)} / 100{x.windowTruncated ? ' (window truncated)' : ''}
-              </Row>
-              <Row label="Head coach">
-                {x.hc} · season {x.hcTenureSeasons}
-              </Row>
-              <Row label="Offensive coordinator">
-                {x.oc} · season {x.ocTenureSeasons}
-              </Row>
-              <Row label="Defensive coordinator">
-                {x.dc} · season {x.dcTenureSeasons}
-              </Row>
-              <Row label="Regime">
-                {x.regimeId} · year {x.regimeSeasonN}
-              </Row>
-            </Definitions>
-          )}
-        />
-        {b.regimes.length ? (
-          <div className="yy-scroll">
-            <table>
-              <caption className="yy-caveat">
-                Regime changes, each with the two dated dead-money readings for s+1 and s+2.
-              </caption>
-              <thead>
-                <tr>
-                  <th scope="col">Season</th>
-                  <th scope="col">Change</th>
-                  <th scope="col">s+1 dead money</th>
-                  <th scope="col">s+2 dead money</th>
-                </tr>
-              </thead>
-              <tbody>
-                {b.regimes.map((r) => (
-                  <tr key={r.season}>
-                    <th scope="row">
-                      {r.season} <span className="yy-badge">{r.kind.replace('_', ' ')}</span>
-                    </th>
-                    <td>
-                      {r.outgoingHc} → {r.incomingHc}
-                    </td>
-                    {[r.dmNext1, r.dmNext2].map((dm, i) => (
-                      <td key={i}>
-                        {dm.state === 'value' && dm.usd !== null ? (
-                          <>
-                            {usdCompact(dm.usd)}{' '}
-                            {dm.asOf ? (
-                              <span className="yy-asof-line">{asOfLabel(dm.asOf)}</span>
-                            ) : null}
-                          </>
-                        ) : (
-                          <span className="yy-blank">
-                            {dm.reason ?? 'Not available for this season.'}
-                          </span>
-                        )}
-                      </td>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        ) : null}
-      </Section>
-
-      {/* 7. DEAD MONEY — dot plot, never a line. */}
-      <Section title="Dead money">
-        <Note>
-          Renderer: {b.deadMoney.seriesRenderer.replace(/_/g, ' ')}. These are individually dated
-          readings taken at different points in different league years, so they are never plotted
-          as a connected series and never averaged.
-        </Note>
-        <Definitions>
-          <Row label={`Resolved reading · ${season}`}>
-            <MetricValue metric={b.deadMoney.resolved} format={(d) => usd(d.usd)} />
-          </Row>
-          {b.deadMoney.burdenOfAdjustedCap !== null ? (
-            <Row label="Burden of adjusted cap">{pct(b.deadMoney.burdenOfAdjustedCap)}</Row>
-          ) : null}
-          {b.deadMoney.leagueMedianUsd !== null ? (
-            <Row label="League median">{usdCompact(b.deadMoney.leagueMedianUsd)}</Row>
-          ) : null}
-        </Definitions>
-
-        {b.deadMoney.alternates.length ? (
+      {/* ── 8. DRAFT ROI ─────────────────────────────────────────────────── */}
+      <Card ariaLabel="Draft class">
+        <CardHeader eyebrow={`${season} class`} title="DRAFT CAPITAL & RETURN" />
+        {b.draft.summary.state === 'value' ? (
           <>
-            <h3>Alternate readings</h3>
-            <Note>
-              Shown on request, never merged into the resolved figure and never averaged with it.
-            </Note>
-            <ul>
-              {b.deadMoney.alternates.map((a) => (
-                <li key={a.asOf.date}>
-                  {usd(a.usd)} <span className="yy-asof-line">{asOfLabel(a.asOf)}</span> ·{' '}
-                  {a.coverage} · {a.licenseTier}
-                </li>
-              ))}
-            </ul>
+            <StatGrid>
+              <KpiTile label="Picks" value={String(b.draft.summary.value.nPicks)} />
+              <KpiTile
+                label="Capital"
+                value={b.draft.summary.value.capital.toFixed(1)}
+                unit={`rank ${b.draft.summary.value.capitalRank}`}
+              />
+              <KpiTile
+                label="Return · games"
+                value={b.draft.summary.value.returnGames?.toFixed(0) ?? '—'}
+              />
+              <KpiTile
+                label="Return · wAV"
+                value={b.draft.summary.value.returnWAv?.toFixed(0) ?? '—'}
+              />
+            </StatGrid>
+            <ChartCaption>
+              Capital and realised return are Tier 1 and run the full record. Any framing of a draft
+              class in DOLLARS is Tier 2 and renders only for 2013 onward:{' '}
+              {b.draft.dollarFraming.state === 'blank'
+                ? b.draft.dollarFraming.reason
+                : 'available for this class.'}
+            </ChartCaption>
           </>
-        ) : null}
+        ) : (
+          <BoundaryMessage season={season} body={b.draft.summary.reason} />
+        )}
+      </Card>
 
-        {b.deadMoney.series.length ? (
-          <div className="yy-scroll">
-            <table>
-              <caption className="yy-caveat">
-                Every dated reading for this franchise — a dot plot with no connecting path.
-              </caption>
-              <thead>
-                <tr>
-                  <th scope="col">Season</th>
-                  <th scope="col" className="yy-num">
-                    Dead money
-                  </th>
-                  <th scope="col">As of</th>
-                  <th scope="col">Coverage</th>
-                </tr>
-              </thead>
-              <tbody>
-                {b.deadMoney.series.map((d) => (
-                  <tr key={`${d.season}-${d.asOf.date}`}>
-                    <th scope="row">{d.season}</th>
-                    <td className="yy-num">{usd(d.usd)}</td>
-                    <td className="yy-asof-line">{asOfLabel(d.asOf)}</td>
-                    <td>{d.coverage}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        ) : null}
-
-        {b.deadMoney.ledger.length ? (
-          <>
-            <h3>Marquee charges</h3>
-            <ul>
-              {b.deadMoney.ledger.map((l) => (
-                <li key={`${l.player}-${l.seasons}`}>
-                  {l.player} · {l.seasons} · {usd(l.totalUsd)}{' '}
-                  <span className="yy-badge">{l.isActual ? 'actual' : 'reported'}</span>{' '}
-                  <span className="yy-asof-line">verified {l.verifiedAsof}</span>
-                  {l.splitBySeason ? ` · split ${l.splitBySeason}` : ' · split not established'}
-                </li>
-              ))}
-            </ul>
-          </>
-        ) : null}
-      </Section>
-
-      {/* 8. DRAFT ROI. */}
-      <Section title="Draft class">
-        <MetricValue
-          metric={b.draft.summary}
-          format={(d) => (
-            <Definitions>
-              <Row label="Picks">{d.nPicks}</Row>
-              <Row label="Capital (Fitzgerald–Spielberger)">
-                {d.capital.toLocaleString()} · rank {d.capitalRank} of 32
-              </Row>
-              <Row label="Realized return">
-                {d.returnWAv ?? '—'} wAV · {d.returnGames ?? '—'} games ·{' '}
-                {d.returnSeasonsStarted} seasons started
-              </Row>
-              <Row label="Excluded from return joins">{d.nExcludedNoGsis} (no gsis_id)</Row>
-              <Row label="Snaps available">{d.snapsAvailable ? 'yes (2013+)' : 'no'}</Row>
-            </Definitions>
-          )}
-        />
-        <Definitions>
-          <Row label="Dollar framing">
-            <MetricValue metric={b.draft.dollarFraming} format={() => 'available'} />
-          </Row>
-        </Definitions>
-        {b.draft.picks.length ? (
-          <div className="yy-scroll">
-            <table>
-              <thead>
-                <tr>
-                  <th scope="col" className="yy-num">
-                    Rd
-                  </th>
-                  <th scope="col" className="yy-num">
-                    Pick
-                  </th>
-                  <th scope="col">Player</th>
-                  <th scope="col">Pos</th>
-                  <th scope="col" className="yy-num">
-                    Chart value
-                  </th>
-                  <th scope="col" className="yy-num">
-                    wAV
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {b.draft.picks.map((p) => (
-                  <tr key={p.pick}>
-                    <td className="yy-num">{p.round}</td>
-                    <td className="yy-num">{p.pick}</td>
-                    <th scope="row">{p.playerName}</th>
-                    <td>{p.position}</td>
-                    <td className="yy-num">{p.chartValue.toLocaleString()}</td>
-                    <td className="yy-num">
-                      {p.wAv === null ? <span className="yy-blank">not joined</span> : p.wAv}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        ) : null}
-      </Section>
-
-      {/* Roster economics — the top cap hits, linking into the player population. */}
-      <TopCapHits season={season} team={b.team} />
-
-      <Section title="Efficiency">
-        <MetricValue
-          metric={b.epa}
-          format={(e) => (
-            <Definitions>
-              <Row label="Offence EPA/play">{num(e.offEpaPerPlay, 4)}</Row>
-              <Row label="Defence EPA/play">{num(e.defEpaPerPlay, 4)}</Row>
-              <Row label="Margin EPA/play">{num(e.epaMarginPerPlay, 4)}</Row>
-              <Row label="Plays">
-                {e.offPlays} offensive · {e.defPlays} defensive
-              </Row>
-            </Definitions>
-          )}
-        />
-        <Note>Regular season only, pass and run plays only.</Note>
-      </Section>
+      <ChartCaption>
+        Franchise continuity is preserved, geography is not: {b.identity.name} is the identity this
+        franchise carried in {season}, and the route key is the current one.
+      </ChartCaption>
     </>
   );
 }
 
-async function TopCapHits({ season, team }: { season: number; team: string }) {
-  const rows = await getTopCapHits(season, team, 10);
-  if (!rows.length) return null;
-  return (
-    <Section title="Largest cap hits">
-      <div className="yy-scroll">
-        <table>
-          <thead>
-            <tr>
-              <th scope="col">Player</th>
-              <th scope="col">Group</th>
-              <th scope="col" className="yy-num">
-                Cap number
-              </th>
-              <th scope="col" className="yy-num">
-                Cash
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((r) => (
-              <tr key={r.otcId}>
-                <th scope="row">
-                  <Link href={`/player/${r.otcId}`}>{r.player ?? `Player ${r.otcId}`}</Link>
-                </th>
-                <td>{r.positionGroup ?? '—'}</td>
-                <td className="yy-num">{usd(r.capNumber)}</td>
-                <td className="yy-num">
-                  {r.cashPaid === null ? <span className="yy-blank">not recorded</span> : usd(r.cashPaid)}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </Section>
-  );
-}
+const PROVISIONAL_NOTE =
+  'This season’s Cap+ was published before the league year opened; it understates the final figure.';
+
+const ARC_BRIDGE =
+  'Two metrics are plotted. Team Rating (1999–2025) scores performance only. Cap+ (2014–2025) ' +
+  'scores wins produced per dollar. They are shown together on the overlap so you can see where ' +
+  'they disagree — not because they measure the same thing.';

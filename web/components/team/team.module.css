@@ -1,0 +1,264 @@
+/* TEAM PAGE BLOCKS — COMPONENTS.md §3 (header), §6 (three-lens), §8 (ledger). */
+
+/* ── HEADER — §3 ─────────────────────────────────────────────────────────── */
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--yy-space-3);
+}
+
+.back {
+  flex: none;
+  display: inline-grid;
+  place-items: center;
+  width: var(--yy-tap-target);
+  height: var(--yy-tap-target);
+  margin-inline-start: calc(var(--yy-space-3) * -1);
+  color: var(--yy-fg-3);
+  text-decoration: none;
+}
+
+.identity {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--yy-space-3);
+}
+
+.identityText {
+  min-width: 0;
+}
+
+.name {
+  font-family: var(--yy-font-display);
+  font-weight: var(--yy-weight-display);
+  font-size: var(--yy-size-display-sm);
+  letter-spacing: var(--yy-track-display);
+  line-height: var(--yy-lh-display);
+  color: var(--yy-chalk-white);
+  margin: 0;
+}
+
+:global([data-theme='light']) .name {
+  color: var(--yy-fg-1);
+}
+
+@media (prefers-color-scheme: light) {
+  :global(:root:not([data-theme='dark']):not([data-theme='light'])) .name {
+    color: var(--yy-fg-1);
+  }
+}
+
+/* Era-correct, always: `/team/lv/2003` reads OAKLAND. */
+.identityLine {
+  margin: var(--yy-space-1) 0 0;
+  color: var(--yy-fg-3);
+  letter-spacing: var(--yy-track-label-wide);
+}
+
+/* ── THREE-LENS SUMMARY — §6 ────────────────────────────────────────────── */
+
+.lenses {
+  display: flex;
+  flex-direction: column;
+}
+
+@media (min-width: 1024px) {
+  .lenses {
+    flex-direction: row;
+    gap: var(--yy-space-4);
+  }
+}
+
+.lens {
+  flex: 1;
+  min-width: 0;
+  padding: var(--yy-space-3) 0;
+  border-top: 1px solid var(--yy-line-divider);
+  display: flex;
+  flex-direction: column;
+  gap: var(--yy-space-2);
+}
+
+.lens:first-child {
+  border-top: 0;
+}
+
+@media (min-width: 1024px) {
+  .lens {
+    border-top: 0;
+  }
+}
+
+/* §6 — the label area is 2 LINES TALL at every size so the three figures stay
+   baseline-aligned. `CAP HIT (SEASON-FINAL)` is 21 characters and wraps. */
+.lensName {
+  color: var(--yy-fg-3);
+  min-height: calc(var(--yy-size-label-lg) * var(--yy-lh-label) * 2);
+  margin: 0;
+}
+
+.lensFigure {
+  font-size: var(--yy-size-metric-sm);
+  color: var(--yy-fg-1);
+}
+
+.lensCaveat {
+  margin: 0;
+  max-width: var(--yy-measure);
+}
+
+.lensSource {
+  color: var(--yy-accent);
+  text-decoration: underline;
+  align-self: flex-start;
+}
+
+/* ── DEAD-MONEY LEDGER — §8.3 ──────────────────────────────────────────── */
+
+.ledgerScroll {
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+}
+
+.ledger {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 640px;
+}
+
+.ledger th,
+.ledger td {
+  padding: var(--yy-space-3);
+  text-align: left;
+  vertical-align: top;
+}
+
+.ledger thead th {
+  color: var(--yy-fg-3);
+  border-bottom: 1px solid var(--yy-line-hairline);
+  white-space: nowrap;
+}
+
+.ledger tbody tr {
+  border-top: 1px solid var(--yy-line-divider);
+}
+
+.ledgerNum {
+  min-width: var(--yy-space-11);
+  white-space: nowrap;
+}
+
+/* Per-row citation is the product's strongest asset and it should look like
+   one: a visible link, never an icon. */
+.source {
+  color: var(--yy-accent);
+  text-decoration: underline;
+  word-break: break-word;
+}
+
+/* The Dareus/BUF row has a deliberately blank split. Never an inferred split. */
+.noSplit {
+  color: var(--yy-fg-3);
+  display: block;
+  margin-top: var(--yy-space-1);
+}
+
+/* ── mobile row-card list for the ledger — MOBILE_PATTERNS.md §4 ─────────── */
+
+.ledgerCards {
+  display: flex;
+  flex-direction: column;
+}
+
+.ledgerCard {
+  border-top: 1px solid var(--yy-line-divider);
+  padding: var(--yy-space-3) 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--yy-space-2);
+}
+
+.ledgerCard:first-child {
+  border-top: 0;
+}
+
+.ledgerCardHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--yy-space-2);
+}
+
+.ledgerPlayer {
+  font-family: var(--yy-font-display);
+  font-weight: var(--yy-weight-display);
+  font-size: var(--yy-size-display-xs);
+  letter-spacing: var(--yy-track-display);
+  color: var(--yy-fg-1);
+}
+
+.ledgerMeta {
+  color: var(--yy-fg-3);
+}
+
+.chipRow {
+  display: flex;
+  gap: var(--yy-space-2);
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+@media (min-width: 1024px) {
+  .ledgerCards {
+    display: none;
+  }
+}
+
+.ledgerTableWrap {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .ledgerTableWrap {
+    display: block;
+    overflow-x: auto;
+  }
+}
+
+/* ── STAT GRID ──────────────────────────────────────────────────────────── */
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--yy-space-2);
+}
+
+@media (min-width: 1024px) {
+  .stats {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--yy-space-4);
+  }
+}
+
+/* ── generic label/value rows ───────────────────────────────────────────── */
+
+.pairs {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--yy-space-2) var(--yy-space-4);
+  margin: 0;
+}
+
+.pairKey {
+  color: var(--yy-fg-3);
+  margin: 0;
+}
+
+.pairVal {
+  margin: 0;
+  text-align: right;
+  color: var(--yy-fg-1);
+}

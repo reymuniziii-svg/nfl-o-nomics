@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">YIELD/YARD app icon</title>
+  <desc id="desc">Premium dark green app icon with metallic rim, YY monogram and midfield marks.</desc>
+  <defs>
+    <linearGradient id="face" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#123F31"/><stop offset="0.55" stop-color="#071C16"/><stop offset="1" stop-color="#020908"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#F3D47A"/><stop offset="0.48" stop-color="#A87514"/><stop offset="1" stop-color="#E2B84D"/></linearGradient>
+    <linearGradient id="silver" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#FFFFFF"/><stop offset="0.5" stop-color="#AEB6B3"/><stop offset="1" stop-color="#F5F7F6"/></linearGradient>
+    <filter id="shadow"><feDropShadow dx="0" dy="14" stdDeviation="12" flood-opacity=".5"/></filter>
+  </defs>
+  <rect x="25" y="25" width="462" height="462" rx="104" fill="url(#gold)" filter="url(#shadow)"/>
+  <rect x="39" y="39" width="434" height="434" rx="92" fill="#071C16" stroke="#FFF2C4" stroke-width="4"/>
+  <rect x="52" y="52" width="408" height="408" rx="80" fill="url(#face)"/>
+  <path d="M78 102h96l83 128 82-128h93L306 295v112h-98V295L78 102Z" fill="url(#silver)"/>
+  <path d="M246 213h79l43 68 43-68h74l-78 121v73h-79v-73l-82-121Z" fill="#A6E22E"/>
+  <g stroke="#EEF5EF" stroke-width="5" opacity=".75">
+    <path d="M106 430h300"/><path d="M116 416v28M146 421v18M176 416v28M206 421v18M236 416v28M266 421v18M296 416v28M326 421v18M356 416v28M386 421v18"/>
+  </g>
+  <path d="M240.21 458.27Q238 458.27 236.27 457.48Q234.55 456.68 233.56 455.27Q232.56 453.87 232.53 452.05H237.22Q237.24 452.8 237.65 453.36Q238.06 453.93 238.73 454.24Q239.41 454.55 240.21 454.55Q241.15 454.55 241.87 454.13Q242.58 453.72 242.99 452.98Q243.39 452.24 243.39 451.25Q243.39 450.25 242.98 449.5Q242.57 448.75 241.85 448.33Q241.13 447.91 240.17 447.91Q239.27 447.91 238.48 448.3Q237.69 448.7 237.28 449.37L233 448.57L233.89 437.63H246.87V441.54H237.86L237.4 446.38H237.51Q238.03 445.55 239.15 445.01Q240.27 444.47 241.7 444.47Q243.06 444.47 244.23 444.96Q245.39 445.44 246.25 446.33Q247.11 447.23 247.58 448.44Q248.06 449.66 248.06 451.12Q248.06 453.21 247.08 454.82Q246.1 456.44 244.33 457.36Q242.57 458.27 240.21 458.27ZM264.87 458.27Q262.18 458.27 260.26 457.03Q258.35 455.79 257.33 453.46Q256.31 451.13 256.31 447.82Q256.31 444.53 257.33 442.19Q258.35 439.85 260.27 438.6Q262.18 437.36 264.87 437.36Q267.56 437.36 269.48 438.6Q271.4 439.85 272.41 442.19Q273.43 444.53 273.43 447.83Q273.43 451.13 272.41 453.46Q271.4 455.79 269.49 457.03Q267.58 458.27 264.87 458.27ZM264.87 454.32Q266.03 454.32 266.83 453.57Q267.63 452.82 268.05 451.36Q268.46 449.91 268.46 447.83Q268.46 445.73 268.05 444.27Q267.63 442.81 266.83 442.05Q266.02 441.28 264.87 441.28Q263.72 441.28 262.92 442.05Q262.11 442.81 261.7 444.27Q261.28 445.73 261.28 447.83Q261.28 449.91 261.69 451.36Q262.1 452.82 262.91 453.57Q263.72 454.32 264.87 454.32Z" fill="#FFFFFF"/>
+</svg>

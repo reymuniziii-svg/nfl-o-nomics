@@ -1,0 +1,33 @@
+/* COMPONENTS.md §14 — top-right of the card header, baseline-aligned with the
+   card title. THE SAME SLOT ON EVERY SURFACE, so a reader learns it once. */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--yy-space-1);
+  background: none;
+  border: 0;
+  padding: var(--yy-space-1) 0;
+  cursor: pointer;
+  color: var(--yy-fg-3);
+  position: relative;
+  transition: color var(--yy-dur-fast) var(--yy-ease-standard);
+}
+
+.btn:hover,
+.btn:focus-visible {
+  color: var(--yy-fg-1);
+}
+
+/* MOBILE_PATTERNS.md §7 — 44px of touch regardless of the painted size. */
+.btn::after {
+  content: '';
+  position: absolute;
+  inset: 50% -8px auto;
+  height: var(--yy-tap-target);
+  transform: translateY(-50%);
+}
+
+.glyph {
+  flex: none;
+}

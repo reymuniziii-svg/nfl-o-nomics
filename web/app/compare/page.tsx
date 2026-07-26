@@ -1,188 +1,171 @@
-import Link from 'next/link';
 import type { Metadata } from 'next';
 import {
-  canonicalPair,
-  formatRef,
+  getCapPlus,
   getCompareBundle,
+  getTeamMetaMap,
   latestSeason,
   parseRef,
-  type BenchmarkSide,
+  seasonsForTeam,
+  TIER2_FIRST_SEASON,
+  type TeamSeasonRef,
 } from '@/lib/data';
-import { num, signed, usdCompact } from '@/lib/format';
-import { MetricValue, Note, Section } from '@/components/shell';
+import { mapMetric, blank, value, type Metric } from '@/lib/metric';
+import { eraIdentity } from '@/lib/teams';
+import { BoundaryMessage, Card, CardHeader, ChartCaption, IndexBadge } from '@/components/primitives';
+import { EraCards, HeadToHead } from '@/components/compare/head-to-head';
+import { ComparePicker } from '@/components/pickers/team-season-picker';
+import { CsvExport } from '@/components/csv-export';
+import { csvTable } from '@/lib/csv';
+import { getDb } from '@/db/client';
+import * as s from '@/db/schema';
+import { and, eq } from 'drizzle-orm';
 
 /**
  * `SPEC.md` §6 — `/compare?a={abbr}-{season}&b={abbr}-{season}`, ON DEMAND.
  *
- * This is the only route that cannot be enumerated: 861 x 861 ordered pairs is
- * 741k combinations, of which realistically a few hundred get visited. It renders
- * on first request and is cached at the edge by the long `Cache-Control` set for
- * `/compare` in `next.config.ts`; a canonical ordering collapses each unordered
- * pair to one cache entry. It revalidates only when the data snapshot changes,
- * which is a redeploy (`ARCHITECTURE.md` §2, §6).
+ * The only route that cannot be enumerated: 861 × 861 ordered pairs is 741k
+ * combinations. It renders on first request and is cached at the edge by the
+ * long `Cache-Control` set for `/compare` in `next.config.ts`.
  */
 export const revalidate = 31536000;
 
-export const metadata: Metadata = { title: 'Head-to-head' };
+export const metadata: Metadata = {
+  title: 'Head-to-head',
+  description:
+    'Two team-seasons, each scored against its own season’s league — which is what makes a 2003 team and a 2024 team comparable.',
+};
 
-function fmt(unit: string, v: number): string {
-  switch (unit) {
-    case 'usd':
-      return usdCompact(v);
-    case 'rate':
-      return num(v, 4);
-    case 'index':
-      return num(v, 1);
-    default:
-      return num(v, 1);
-  }
-}
-
-function SideCell({ side, unit }: { side: BenchmarkSide; unit: string }) {
-  return (
-    <td>
-      <MetricValue metric={side.raw} format={(v) => fmt(unit, v)} />
-      {side.delta !== null ? (
-        <>
-          {' '}
-          <span className="yy-asof-line">
-            {unit === 'usd'
-              ? `${side.delta >= 0 ? '+' : '−'}${usdCompact(Math.abs(side.delta))} vs its own season`
-              : unit === 'rate'
-                ? `${signed(side.delta, 4)} vs its own season`
-                : `${signed(side.delta, 1)} vs its own season`}
-          </span>
-        </>
-      ) : null}
-    </td>
-  );
+async function teamRatingOf(ref: TeamSeasonRef): Promise<Metric<number>> {
+  const db = await getDb();
+  const [row] = await db
+    .select()
+    .from(s.teamRating)
+    .where(and(eq(s.teamRating.team, ref.team), eq(s.teamRating.season, ref.season)))
+    .limit(1);
+  return row
+    ? value(row.perfIndex)
+    : blank('Not available — no Team Rating row exists for this team-season.');
 }
 
 export default async function ComparePage({
   searchParams,
 }: {
-  searchParams: Promise<{ a?: string; b?: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const sp = await searchParams;
-  const aRef = parseRef(sp.a);
-  const bRef = parseRef(sp.b);
+  const season = await latestSeason();
 
-  if (!aRef || !bRef) {
-    const season = await latestSeason();
-    return (
-      <>
-        <h1>Head-to-head</h1>
-        <Note>
-          Pick two team-seasons. The URL carries them:{' '}
-          <code>/compare?a=kc-{season}&amp;b=sf-2023</code>.
-        </Note>
-        <Section title="Try one">
-          <ul>
-            <li>
-              <Link href={`/compare?a=kc-${season}&b=sf-2023`}>
-                Kansas City {season} vs San Francisco 2023
-              </Link>
-            </li>
-            <li>
-              <Link href="/compare?a=ne-2007&b=kc-2024">New England 2007 vs Kansas City 2024</Link>
-            </li>
-            <li>
-              <Link href="/compare?a=la-2003&b=la-2024">
-                Rams 2003 (St. Louis) vs Rams 2024 (Los Angeles)
-              </Link>
-            </li>
-          </ul>
-        </Section>
-      </>
+  const one = (k: string) => (Array.isArray(sp[k]) ? sp[k]?.[0] : sp[k]) as string | undefined;
+  const a = parseRef(one('a')) ?? { team: 'KC' as const, season };
+  const b = parseRef(one('b')) ?? { team: 'SF' as const, season: 2023 };
+
+  const [bundle, meta, seasonsA, capA, capB, trA, trB] = await Promise.all([
+    getCompareBundle(a, b),
+    getTeamMetaMap(),
+    seasonsForTeam(a.team),
+    getCapPlus(a.season, a.team),
+    getCapPlus(b.season, b.team),
+    teamRatingOf(a),
+    teamRatingOf(b),
+  ]);
+
+  const teamOptions = [...meta.values()]
+    .map((m) => ({
+      abbr: m.abbr,
+      name: m.teamName,
+      conference: m.conf,
+      division: m.division.replace(/^(AFC|NFC)\s*/, ''),
+    }))
+    .sort((x, y) => x.name.localeCompare(y.name));
+
+  const seasons = seasonsA.length ? seasonsA : [season];
+
+  const badgeFor = (ref: TeamSeasonRef, cap: Metric<number>, tr: Metric<number>) =>
+    ref.season >= TIER2_FIRST_SEASON ? (
+      <IndexBadge metric={cap} scale="era" metricName="capplus" showCaption />
+    ) : (
+      <IndexBadge metric={tr} scale="era" metricName="teamRating" />
     );
-  }
-
-  const [ca, cb] = canonicalPair(aRef, bRef);
-  const bundle = await getCompareBundle(ca, cb);
-
-  if (!bundle) {
-    return (
-      <>
-        <h1>Head-to-head</h1>
-        <Note>
-          One of those team-seasons is not in the record. Franchises that did not exist in a season
-          have no row: Houston enters 2002.
-        </Note>
-      </>
-    );
-  }
 
   return (
     <>
-      <h1>
-        {bundle.aLabel} vs {bundle.bLabel}
-      </h1>
+      <Card ariaLabel="Choose two team-seasons">
+        <CardHeader eyebrow="Curated pickers only" title="HEAD-TO-HEAD" />
+        <ComparePicker teams={teamOptions} seasons={seasons} a={a} b={b} />
+        <ChartCaption>
+          Two team-seasons, one at a time on each side. There is no free-form query builder in v1:
+          every selection here is a curated list.
+        </ChartCaption>
+      </Card>
 
-      {/* Cross-era legitimacy statement — rendered in the UI, not buried. */}
-      <p>{bundle.crossEraStatement}</p>
-      <Note>
-        Canonical URL for this pair: <code>/compare?a={formatRef(ca)}&amp;b={formatRef(cb)}</code>
-      </Note>
+      {bundle ? (
+        <Card ariaLabel="Comparison">
+          <CardHeader
+            eyebrow={`${eraIdentity(a.team, a.season).name} · ${a.season} vs ${eraIdentity(b.team, b.season).name} · ${b.season}`}
+            title="AGAINST THEIR OWN LEAGUES"
+            right={
+              <CsvExport
+                title="Head-to-head"
+                filename={`yieldyard_compare_${a.team.toLowerCase()}-${a.season}_${b.team.toLowerCase()}-${b.season}.csv`}
+                table={csvTable(bundle.rows, [
+                  { key: 'metric', label: 'metric', get: (r) => r.label },
+                  { key: 'tier', label: 'tier', get: (r) => r.tier },
+                  { key: 'unit', label: 'unit', get: (r) => r.unit },
+                  { key: 'a_ref', label: 'a', get: (r) => `${r.a.ref.team}-${r.a.ref.season}` },
+                  {
+                    key: 'a_value',
+                    label: 'a_value',
+                    get: (r) => (r.a.raw.state === 'blank' ? '' : r.a.raw.value),
+                  },
+                  { key: 'a_league', label: 'a_league_avg', get: (r) => r.a.leagueAvg ?? '' },
+                  { key: 'a_delta', label: 'a_delta_vs_own_league', get: (r) => r.a.delta ?? '' },
+                  {
+                    key: 'a_blank',
+                    label: 'a_blank_reason',
+                    get: (r) => (r.a.raw.state === 'blank' ? r.a.raw.reason : ''),
+                  },
+                  { key: 'b_ref', label: 'b', get: (r) => `${r.b.ref.team}-${r.b.ref.season}` },
+                  {
+                    key: 'b_value',
+                    label: 'b_value',
+                    get: (r) => (r.b.raw.state === 'blank' ? '' : r.b.raw.value),
+                  },
+                  { key: 'b_league', label: 'b_league_avg', get: (r) => r.b.leagueAvg ?? '' },
+                  { key: 'b_delta', label: 'b_delta_vs_own_league', get: (r) => r.b.delta ?? '' },
+                  {
+                    key: 'b_blank',
+                    label: 'b_blank_reason',
+                    get: (r) => (r.b.raw.state === 'blank' ? r.b.raw.reason : ''),
+                  },
+                ], [
+                  'YIELD/YARD — head-to-head',
+                  'source marts: team_season_results, team_season_epa, team_rating, capplus_official, team_season_cap',
+                  bundle.crossEraStatement,
+                  'Where one side is pre-2013, its Tier 2 rows carry the boundary message. No row is silently omitted and no side renders zero.',
+                ])}
+              />
+            }
+          />
 
-      <Section title="Stacked benchmark comparison">
-        <Note>
-          Each metric is paired against the league average of its own season, so the comparison is
-          between two distances from average rather than two raw numbers. Where one side is
-          pre-2013, the Tier 2 rows carry the boundary message on that side only and the Tier 1
-          rows compare normally.
-        </Note>
-        <div className="yy-scroll">
-          <table>
-            <thead>
-              <tr>
-                <th scope="col">Metric</th>
-                <th scope="col">Tier</th>
-                <th scope="col">{bundle.aLabel}</th>
-                <th scope="col">{bundle.bLabel}</th>
-                <th scope="col">League average</th>
-              </tr>
-            </thead>
-            <tbody>
-              {bundle.rows.map((r) => (
-                <tr key={r.key}>
-                  <th scope="row">{r.label}</th>
-                  <td>
-                    <span className="yy-badge">Tier {r.tier}</span>
-                  </td>
-                  <SideCell side={r.a} unit={r.unit} />
-                  <SideCell side={r.b} unit={r.unit} />
-                  <td className="yy-asof-line">
-                    {r.a.leagueAvg === null && r.b.leagueAvg === null
-                      ? 'no level benchmark'
-                      : [r.a, r.b]
-                          .map((s) =>
-                            s.leagueAvg === null
-                              ? '—'
-                              : r.unit === 'usd'
-                                ? usdCompact(s.leagueAvg)
-                                : r.unit === 'rate'
-                                  ? num(s.leagueAvg, 4)
-                                  : num(s.leagueAvg, 1),
-                          )
-                          .join(' / ')}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </Section>
+          <EraCards
+            bundle={bundle}
+            aIndex={badgeFor(a, mapMetric(capA, (c) => c.capplus), trA)}
+            bIndex={badgeFor(b, mapMetric(capB, (c) => c.capplus), trB)}
+          />
 
-      <Section title="Both pages">
-        <ul>
-          <li>
-            <Link href={`/team/${ca.team.toLowerCase()}/${ca.season}`}>{bundle.aLabel}</Link>
-          </li>
-          <li>
-            <Link href={`/team/${cb.team.toLowerCase()}/${cb.season}`}>{bundle.bLabel}</Link>
-          </li>
-        </ul>
-      </Section>
+          <HeadToHead
+            bundle={bundle}
+            coverage={{
+              statement:
+                'Every row is drawn against the league average of its own season. Rows where one side has no Tier 2 coverage render the boundary on that side only — the available side is unchanged and neither side renders zero.',
+            }}
+          />
+        </Card>
+      ) : (
+        <Card ariaLabel="Comparison">
+          <BoundaryMessage body="One of these team-seasons is not in the snapshot. Pick another pair above; every season 1999–2025 exists for every franchise that played it." />
+        </Card>
+      )}
     </>
   );
 }

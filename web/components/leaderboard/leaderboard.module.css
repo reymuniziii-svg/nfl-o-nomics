@@ -1,0 +1,277 @@
+/* LEAGUE CAP+ LEADERBOARD — COMPONENTS.md §2. ALL 32 ROWS. Not a top-10. */
+
+.wrap {
+  display: flex;
+  flex-direction: column;
+}
+
+/* §2.2 — the sticky group: the column-header row sticks at the top of the
+   scroll container. No pagination, no "show more", no virtualisation. */
+.headRow {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--yy-bg-card-flat);
+  display: grid;
+  grid-template-columns: 26px 1fr 74px 52px;
+  align-items: center;
+  gap: var(--yy-space-3);
+  padding: var(--yy-space-2) 0;
+  border-bottom: 1px solid var(--yy-line-hairline);
+}
+
+.sortBtn {
+  background: none;
+  border: 0;
+  padding: var(--yy-space-1) 0;
+  cursor: pointer;
+  color: var(--yy-fg-3);
+  text-align: inherit;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--yy-space-1);
+  position: relative;
+}
+
+.sortBtn::after {
+  content: '';
+  position: absolute;
+  inset: 50% -4px auto;
+  height: var(--yy-tap-target);
+  transform: translateY(-50%);
+}
+
+.sortActive {
+  color: var(--yy-fg-1);
+}
+
+.caret {
+  color: var(--yy-accent);
+  flex: none;
+}
+
+.alignRight {
+  text-align: right;
+  justify-content: flex-end;
+}
+
+/* ── ROW, mobile 390 — §2.1 ─────────────────────────────────────────────── */
+
+.row {
+  display: grid;
+  grid-template-columns: 26px 1fr 74px 52px;
+  align-items: center;
+  gap: var(--yy-space-3);
+  padding: var(--yy-space-2) 0;
+  border-top: 1px solid var(--yy-line-divider);
+  min-height: 48px;
+  text-decoration: none;
+  color: inherit;
+  border-inline-start: var(--yy-space-0h) solid transparent;
+  padding-inline-start: var(--yy-space-2);
+}
+
+.row:hover {
+  background: var(--yy-bg-hover);
+}
+
+/* §2.1 focus row — the tint alone is 1.06:1 and is not a distinction, so it is
+   always paired with a 2px lime left rule. */
+.rowFocus {
+  background: var(--yy-tint-selected);
+  border-inline-start-color: var(--yy-accent);
+}
+
+.rank {
+  color: var(--yy-fg-mid);
+  font-size: var(--yy-size-metric-xs);
+  text-align: right;
+  padding-right: 0.03em;
+}
+
+.rankTop {
+  color: var(--yy-accent);
+}
+
+.teamCell {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--yy-space-2);
+}
+
+.teamText {
+  min-width: 0;
+}
+
+.teamName {
+  font-family: var(--yy-font-display);
+  font-weight: var(--yy-weight-display);
+  font-size: var(--yy-size-display-xs);
+  letter-spacing: var(--yy-track-display);
+  line-height: var(--yy-lh-tight);
+  color: var(--yy-fg-1);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.teamSub {
+  color: var(--yy-fg-3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+}
+
+/* spend → wins: two stacked 5px tracks */
+.pair {
+  display: flex;
+  flex-direction: column;
+  gap: var(--yy-space-1);
+}
+
+.track {
+  height: var(--yy-bar-h-sm);
+  background: var(--yy-bg-sunken);
+  border-radius: var(--yy-radius-mark);
+  overflow: hidden;
+}
+
+.trackFill {
+  height: 100%;
+  border-radius: var(--yy-radius-mark);
+  background: var(--yy-bg-track);
+}
+
+.winsAbove {
+  background: var(--yy-accent);
+}
+
+.winsMid {
+  background: var(--yy-fg-mid);
+}
+
+.winsBelow {
+  background: var(--yy-negative-fill);
+}
+
+.index {
+  text-align: right;
+  font-size: var(--yy-size-metric-xs);
+  padding-right: 0.03em;
+}
+
+.indexAbove {
+  color: var(--yy-accent);
+}
+
+.indexMid {
+  color: var(--yy-fg-mid);
+}
+
+.indexBelow {
+  color: var(--yy-negative-text);
+}
+
+/* DECISIONS 83 — Team Rating is never band-coloured. */
+.indexNeutral {
+  color: var(--yy-fg-1);
+}
+
+.indexBlank {
+  color: var(--yy-fg-3);
+  font-size: var(--yy-size-label);
+}
+
+/* §2.3 — blanks sort to a LABELLED group at the bottom, never interleaved and
+   never sorted as zero. */
+.blankGroup {
+  margin-top: var(--yy-space-4);
+  padding-top: var(--yy-space-3);
+  border-top: 1px solid var(--yy-line-hairline);
+  color: var(--yy-fg-3);
+  letter-spacing: var(--yy-track-label-wide);
+}
+
+.blankReason {
+  margin: var(--yy-space-1) 0 0;
+  color: var(--yy-fg-3);
+  max-width: var(--yy-measure);
+}
+
+/* ── DESKTOP TABLE — §2.4. Originated; none exists in the mockup. ────────── */
+
+.tableWrap {
+  display: none;
+}
+
+.mobileList {
+  display: block;
+}
+
+@media (min-width: 1024px) {
+  .tableWrap {
+    display: block;
+    overflow-x: auto;
+  }
+
+  .mobileList {
+    display: none;
+  }
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th,
+.table td {
+  padding: var(--yy-space-2) var(--yy-space-3);
+  text-align: left;
+  white-space: nowrap;
+}
+
+.table thead th {
+  color: var(--yy-fg-3);
+  border-bottom: 1px solid var(--yy-line-hairline);
+  position: sticky;
+  top: 0;
+  background: var(--yy-bg-card-lg);
+  z-index: 1;
+}
+
+.table tbody tr {
+  border-top: 1px solid var(--yy-line-divider);
+  transition: background-color var(--yy-dur-fast) var(--yy-ease-standard);
+}
+
+.table tbody tr:hover {
+  background: var(--yy-bg-hover);
+}
+
+.table tbody tr.rowFocus {
+  background: var(--yy-tint-selected);
+  box-shadow: inset var(--yy-space-0h) 0 0 0 var(--yy-accent);
+}
+
+/* Column min-width for a figure column, measured at the widest possible value. */
+.numCell {
+  text-align: right;
+  min-width: var(--yy-space-11);
+  padding-right: 0.03em;
+}
+
+.link {
+  color: var(--yy-fg-1);
+  text-decoration: none;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
+
+.caption {
+  margin: var(--yy-space-3) 0 0;
+}

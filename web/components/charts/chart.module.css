@@ -1,0 +1,256 @@
+/* Chart surfaces — CHART_ANATOMY.md.
+ *
+ * The SVG is emitted on the server and never hydrates; everything that could be
+ * a colour is bound as a custom property directly on the SVG attribute, so a
+ * theme flip needs no re-render. What lives here is layout, type and the two
+ * responsive compositions.
+ */
+
+.svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  font-variant-numeric: tabular-nums;
+  overflow: visible;
+}
+
+/* Axis and data labels — the 11px utility floor, never below it. */
+.tick {
+  font-family: var(--yy-font-athletic);
+  font-weight: var(--yy-weight-label);
+  font-size: var(--yy-size-label);
+  letter-spacing: var(--yy-track-label);
+  fill: var(--yy-fg-3);
+  text-transform: uppercase;
+}
+
+.axisTitle {
+  font-family: var(--yy-font-athletic);
+  font-weight: var(--yy-weight-label);
+  font-size: var(--yy-size-label);
+  letter-spacing: var(--yy-track-label-wide);
+  fill: var(--yy-fg-3);
+  text-transform: uppercase;
+}
+
+.micro {
+  font-family: var(--yy-font-athletic);
+  font-weight: var(--yy-weight-metric);
+  font-size: var(--yy-size-micro);
+  letter-spacing: var(--yy-track-label);
+  fill: var(--yy-fg-3);
+  text-transform: uppercase;
+}
+
+.seriesLabel {
+  font-family: var(--yy-font-athletic);
+  font-weight: var(--yy-weight-label);
+  font-size: var(--yy-size-label);
+  letter-spacing: var(--yy-track-label-wide);
+  text-transform: uppercase;
+}
+
+.figure {
+  font-family: var(--yy-font-num);
+  font-weight: var(--yy-weight-metric);
+  font-size: var(--yy-size-label);
+  letter-spacing: var(--yy-track-metric);
+}
+
+/* The two designed compositions, switched at the single breakpoint. */
+.atMobile {
+  display: block;
+}
+
+.atDesktop {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .atMobile {
+    display: none;
+  }
+
+  .atDesktop {
+    display: block;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════════════════ */
+/* SPARKLINE — COMPONENTS.md §4.5. 96×24, no axis, no gridline.                */
+/* ══════════════════════════════════════════════════════════════════════════ */
+
+.spark {
+  display: block;
+  width: 96px;
+  height: 24px;
+  flex: none;
+  overflow: visible;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════ */
+/* ALLOCATION DIVERGING BARS — COMPONENTS.md §7                                */
+/* ══════════════════════════════════════════════════════════════════════════ */
+
+.allocRow {
+  display: grid;
+  grid-template-columns: 34px 1fr 56px;
+  align-items: center;
+  gap: var(--yy-space-3);
+  padding: var(--yy-space-1) 0;
+}
+
+.allocGroup {
+  color: var(--yy-fg-2);
+  letter-spacing: var(--yy-track-label-wide);
+}
+
+.allocValue {
+  text-align: right;
+  /* §7.2 — the value ink is NEVER coloured by sign. */
+  color: var(--yy-fg-1);
+  font-size: var(--yy-size-metric-xs);
+  padding-right: 0.03em;
+}
+
+.allocShare {
+  color: var(--yy-fg-3);
+  text-align: right;
+  display: block;
+  margin-top: var(--yy-space-0h);
+}
+
+/* ══════════════════════════════════════════════════════════════════════════ */
+/* H2H BUTTERFLY — COMPONENTS.md §5.3                                          */
+/* ══════════════════════════════════════════════════════════════════════════ */
+
+.h2hRow {
+  display: grid;
+  grid-template-columns: 48px 1fr 1px 1fr 48px;
+  align-items: center;
+  gap: var(--yy-space-2);
+  padding: var(--yy-space-3) 0;
+  border-top: 1px solid var(--yy-line-divider);
+}
+
+.h2hRow:first-of-type {
+  border-top: 0;
+}
+
+.h2hValue {
+  font-size: var(--yy-size-metric-xs);
+  color: var(--yy-fg-1);
+}
+
+.h2hValueA {
+  text-align: left;
+}
+
+.h2hValueB {
+  text-align: right;
+  padding-right: 0.03em;
+}
+
+.h2hTrack {
+  height: var(--yy-track-h);
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+/* §5.3 — a bar grows OUTWARD FROM THE CENTRE when the side is above its own
+   season's league average, and INWARD TOWARD IT when below. Length is always
+   |distance from that side's own benchmark|; the anchor carries the sign, and
+   the signed delta beneath says it in words. Neither direction is coloured:
+   favourability is not encoded by hue anywhere on `/compare`. */
+.h2hTrackA {
+  justify-content: flex-end;
+}
+
+.h2hTrackAwayA {
+  justify-content: flex-start;
+}
+
+.h2hTrackAwayB {
+  justify-content: flex-end;
+}
+
+.h2hBar {
+  height: var(--yy-bar-h-lg);
+  position: relative;
+}
+
+/* Side A — the subject. Solid at .75 alpha. */
+.h2hBarA {
+  background: color-mix(in srgb, var(--yy-series-subject) 75%, transparent);
+  border-radius: var(--yy-radius-mark) 0 0 var(--yy-radius-mark);
+}
+
+/* Side B — the comparison. Solid at .75 PLUS a 45° hatch, so the two sides are
+   told apart by pattern as well as hue (`SPEC.md` §8.3). Red never carries a
+   comparison series (`DECISIONS.md` 69). */
+.h2hBarB {
+  background:
+    repeating-linear-gradient(
+      45deg,
+      var(--yy-bg-card-flat) 0 1px,
+      transparent 1px 4px
+    ),
+    color-mix(in srgb, var(--yy-compare) 75%, transparent);
+  border-radius: 0 var(--yy-radius-mark) var(--yy-radius-mark) 0;
+}
+
+:global([data-theme='light']) .h2hBarA {
+  background: color-mix(in srgb, var(--yy-accent) 75%, transparent);
+}
+
+/* THE GOLD TICK for each side sits at its own zero — which IS the centre
+   divider — so there is one gold element, not two. */
+.h2hCentre {
+  width: 1px;
+  align-self: stretch;
+  background: var(--yy-benchmark-tick);
+  min-height: calc(var(--yy-track-h) + 4px);
+}
+
+.h2hLabel {
+  grid-column: 1 / -1;
+  text-align: center;
+  color: var(--yy-fg-3);
+  letter-spacing: var(--yy-track-label-wide);
+  margin-top: var(--yy-space-1);
+}
+
+.h2hDelta {
+  color: var(--yy-fg-3);
+  display: block;
+  margin-top: var(--yy-space-0h);
+  text-transform: none;
+  letter-spacing: normal;
+  font-family: var(--yy-font-body);
+  font-size: var(--yy-size-caption);
+}
+
+/* §5.4 — the unavailable side of a one-sided Tier 2 row. The bar is replaced by
+   a dashed absence box; the row's divider, label and available side render
+   unchanged. No row is silently omitted and no side renders zero. */
+.h2hAbsent {
+  height: var(--yy-bar-h-lg);
+  width: 100%;
+  background: var(--yy-absence-fill);
+  border: 1px dashed var(--yy-absence);
+  border-radius: var(--yy-radius-mark);
+}
+
+.h2hNotCovered {
+  color: var(--yy-fg-3);
+}
+
+/* ══════════════════════════════════════════════════════════════════════════ */
+/* REGIME TIMELINE — SPEC §3.2.6                                               */
+/* ══════════════════════════════════════════════════════════════════════════ */
+
+.timelineWrap {
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+}

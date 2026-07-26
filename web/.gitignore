@@ -35,3 +35,6 @@ next-env.d.ts
 /coverage
 .vercel
 *.tsbuildinfo
+
+# Playwright verification output — screenshots and the assertion log.
+/verify/

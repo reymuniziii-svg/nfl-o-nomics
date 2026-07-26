@@ -1,0 +1,396 @@
+/* PICKERS — COMPONENTS.md §12. CURATED PICKERS ONLY (`DECISIONS.md` 50).
+   No free-form query builder; a PR that adds arbitrary filtering is rejected. */
+
+/* ══════════════════════════════════════════════════════════════════════════ */
+/* §12.1 DIVISION PICKER — sticky, 8 divisions, AFC East default               */
+/* ══════════════════════════════════════════════════════════════════════════ */
+
+.divisionWrap {
+  position: sticky;
+  top: 62px;
+  z-index: 2;
+  background: var(--yy-bg);
+  margin-inline: calc(var(--yy-space-4) * -1);
+  padding-block: var(--yy-space-2);
+  border-bottom: 1px solid transparent;
+  transition: border-color var(--yy-dur-fast) var(--yy-ease-standard);
+}
+
+.divisionScrolled {
+  border-bottom-color: var(--yy-line-hairline);
+}
+
+@media (min-width: 1024px) {
+  .divisionWrap {
+    top: 84px;
+    margin-inline: 0;
+  }
+}
+
+.pills {
+  display: flex;
+  gap: var(--yy-space-2);
+  padding-inline: var(--yy-space-4);
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  /* the eight pills are ~640px against 390px of viewport: the edge fade is how
+     the reader knows there are more */
+  /* A mask gradient's stops are ALPHA, not ink: `black` here means "fully
+     visible", and it is the only non-token value in the system for that
+     reason. */
+  mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    black 24px,
+    black calc(100% - 24px),
+    transparent 100%
+  );
+  scrollbar-width: none;
+}
+
+.pills::-webkit-scrollbar {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .pills {
+    padding-inline: 0;
+    mask-image: none;
+    flex-wrap: wrap;
+    overflow: visible;
+  }
+}
+
+.pill {
+  scroll-snap-align: center;
+  flex: none;
+  border-radius: var(--yy-radius-pill);
+  padding: var(--yy-space-1) var(--yy-space-3);
+  border: 1px solid var(--yy-line-card);
+  background: transparent;
+  color: var(--yy-fg-2);
+  text-decoration: none;
+  white-space: nowrap;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--yy-space-8);
+  transition:
+    background-color var(--yy-dur-fast) var(--yy-ease-snap),
+    color var(--yy-dur-fast) var(--yy-ease-snap),
+    border-color var(--yy-dur-fast) var(--yy-ease-snap);
+}
+
+.pill::after {
+  content: '';
+  position: absolute;
+  inset: 50% 0 auto;
+  height: var(--yy-tap-target);
+  transform: translateY(-50%);
+}
+
+.pillSelected {
+  background: var(--yy-selected-bg);
+  color: var(--yy-selected-fg);
+  border-color: var(--yy-selected-bg);
+}
+
+.alignmentNote {
+  margin: var(--yy-space-2) 0 0;
+  padding-inline: var(--yy-space-4);
+  color: var(--yy-fg-3);
+}
+
+@media (min-width: 1024px) {
+  .alignmentNote {
+    padding-inline: 0;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════════════════ */
+/* §12.2 TEAM / SEASON MENUS — the one place the system uses elevation         */
+/* ══════════════════════════════════════════════════════════════════════════ */
+
+.menuWrap {
+  position: relative;
+  display: inline-flex;
+}
+
+.trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--yy-space-2);
+  border-radius: var(--yy-radius-pill);
+  border: 1px solid var(--yy-line-card);
+  background: transparent;
+  color: var(--yy-fg-1);
+  padding: var(--yy-space-2) var(--yy-space-3);
+  min-height: var(--yy-tap-target);
+  cursor: pointer;
+}
+
+.trigger:hover {
+  background: var(--yy-bg-hover);
+}
+
+.scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 9;
+  /* `MOBILE_PATTERNS.md` §3.2 gives the scrim as End Zone at 60%; bound to the
+     published brand token rather than re-typed as a literal. */
+  background: color-mix(in srgb, var(--yy-end-zone) 60%, transparent);
+  border: 0;
+  padding: 0;
+}
+
+@media (min-width: 1024px) {
+  .scrim {
+    background: transparent;
+  }
+}
+
+/* At 390 the menu is a BOTTOM SHEET (`MOBILE_PATTERNS.md` §3.2). */
+.panel {
+  position: fixed;
+  inset-inline: 0;
+  bottom: 0;
+  z-index: 10;
+  background: var(--yy-bg-menu);
+  border: 1px solid var(--yy-line-card);
+  border-radius: var(--yy-radius-card) var(--yy-radius-card) 0 0;
+  box-shadow: var(--yy-elevation-menu);
+  max-height: 70vh;
+  overflow-y: auto;
+  padding: var(--yy-space-3) var(--yy-space-4) var(--yy-safe-bottom);
+  animation: yy-sheet-in var(--yy-dur-fast) var(--yy-ease-standard);
+}
+
+@keyframes yy-sheet-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.grab {
+  width: 36px;
+  height: 4px;
+  border-radius: var(--yy-radius-pill);
+  background: var(--yy-fg-dim);
+  margin: 0 auto var(--yy-space-3);
+}
+
+@media (min-width: 1024px) {
+  .panel {
+    position: absolute;
+    inset: auto auto auto 0;
+    top: calc(100% + var(--yy-space-1));
+    bottom: auto;
+    min-width: 280px;
+    max-height: 420px;
+    border-radius: var(--yy-radius-card-sm);
+    padding: var(--yy-space-2);
+    animation: yy-menu-in var(--yy-dur-fast) var(--yy-ease-standard);
+  }
+
+  .grab {
+    display: none;
+  }
+}
+
+@keyframes yy-menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.groupLabel {
+  color: var(--yy-fg-3);
+  padding: var(--yy-space-2) var(--yy-space-2) var(--yy-space-1);
+  margin: 0;
+  letter-spacing: var(--yy-track-label-wide);
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: var(--yy-space-2);
+  width: 100%;
+  min-height: var(--yy-tap-target);
+  padding: var(--yy-space-3) var(--yy-space-2);
+  background: none;
+  border: 0;
+  border-radius: var(--yy-radius-control);
+  color: var(--yy-fg-1);
+  cursor: pointer;
+  text-align: left;
+  text-decoration: none;
+}
+
+.item:hover {
+  background: var(--yy-bg-hover);
+}
+
+.itemSelected {
+  background: var(--yy-tint-selected);
+}
+
+.check {
+  margin-inline-start: auto;
+  color: var(--yy-accent);
+  flex: none;
+}
+
+/* the season grid — 2 columns, descending. Years without Tier 2 coverage are
+   NOT disabled (`DECISIONS.md` 85): they are selectable and the page renders the
+   boundary message. */
+.seasonGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--yy-space-1);
+}
+
+.uncovered {
+  color: var(--yy-fg-3);
+  margin-inline-start: auto;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════ */
+/* §12.3 PLAYER SEARCH — originated; the mockup has no text input anywhere     */
+/* ══════════════════════════════════════════════════════════════════════════ */
+
+.searchWrap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--yy-space-2);
+  position: relative;
+}
+
+.field {
+  display: flex;
+  align-items: center;
+  gap: var(--yy-space-2);
+  background: var(--yy-bg-sunken);
+  border: 1px solid var(--yy-line-card);
+  border-radius: var(--yy-radius-control);
+  padding: var(--yy-space-3);
+  color: var(--yy-fg-3);
+}
+
+.field:focus-within {
+  border-color: var(--yy-accent);
+}
+
+.input {
+  flex: 1;
+  min-width: 0;
+  background: none;
+  border: 0;
+  outline: none;
+  color: var(--yy-fg-1);
+  font-family: var(--yy-font-body);
+  /* NEVER smaller than 16px, or iOS zooms the viewport on focus. */
+  font-size: var(--yy-size-body);
+  line-height: var(--yy-lh-body);
+}
+
+.input::placeholder {
+  color: var(--yy-fg-3);
+}
+
+.population {
+  margin: 0;
+  max-width: var(--yy-measure);
+  color: var(--yy-fg-3);
+}
+
+.results {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--yy-line-card);
+  border-radius: var(--yy-radius-card-sm);
+  background: var(--yy-bg-menu);
+  box-shadow: var(--yy-elevation-menu);
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.resultRow {
+  display: flex;
+  align-items: center;
+  gap: var(--yy-space-3);
+  padding: var(--yy-space-3);
+  min-height: var(--yy-tap-target);
+  text-decoration: none;
+  color: var(--yy-fg-1);
+}
+
+.resultRow:hover,
+.resultActive {
+  background: var(--yy-bg-hover);
+}
+
+.resultMatch {
+  color: var(--yy-fg-1);
+}
+
+/* NOT bold — a weight change reflows a proportionally-set list. */
+.resultRest {
+  color: var(--yy-fg-2);
+}
+
+.resultMeta {
+  margin-inline-start: auto;
+  color: var(--yy-fg-3);
+  white-space: nowrap;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════ */
+/* Compare picker — two sides                                                  */
+/* ══════════════════════════════════════════════════════════════════════════ */
+
+.compareBar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--yy-space-3);
+  align-items: center;
+}
+
+.side {
+  display: flex;
+  gap: var(--yy-space-2);
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.sideLabel {
+  color: var(--yy-fg-3);
+  letter-spacing: var(--yy-track-label-wide);
+}
+
+.go {
+  border-radius: var(--yy-radius-pill);
+  border: 1px solid var(--yy-selected-bg);
+  background: var(--yy-selected-bg);
+  color: var(--yy-selected-fg);
+  padding: var(--yy-space-2) var(--yy-space-4);
+  min-height: var(--yy-tap-target);
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+}

@@ -1,0 +1,89 @@
+/* Player view — SPEC §3.3. */
+
+.identity {
+  display: flex;
+  gap: var(--yy-space-4);
+  align-items: flex-start;
+}
+
+.identityText {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--yy-space-1);
+}
+
+.name {
+  font-family: var(--yy-font-display);
+  font-weight: var(--yy-weight-display);
+  font-size: var(--yy-size-display-md);
+  letter-spacing: var(--yy-track-display);
+  line-height: var(--yy-lh-display);
+  color: var(--yy-fg-1);
+  margin: 0;
+}
+
+.meta {
+  color: var(--yy-fg-3);
+  letter-spacing: var(--yy-track-label-wide);
+}
+
+/* SPEC §3.3 item 7 — a published, enforced product commitment, stated on the
+   surface rather than merely obeyed by omission. */
+.pledge {
+  margin: var(--yy-space-3) 0 0;
+  max-width: var(--yy-measure);
+  color: var(--yy-fg-2);
+}
+
+.contract {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--yy-space-3);
+}
+
+@media (min-width: 1024px) {
+  .contract {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--yy-space-4);
+  }
+}
+
+.tableScroll {
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 520px;
+}
+
+.table th,
+.table td {
+  padding: var(--yy-space-2) var(--yy-space-3);
+  text-align: left;
+  white-space: nowrap;
+}
+
+.table thead th {
+  color: var(--yy-fg-3);
+  border-bottom: 1px solid var(--yy-line-hairline);
+}
+
+.table tbody tr {
+  border-top: 1px solid var(--yy-line-divider);
+}
+
+.num {
+  text-align: right;
+  min-width: var(--yy-space-11);
+  padding-right: 0.03em;
+}
+
+.searchBlock {
+  display: flex;
+  flex-direction: column;
+  gap: var(--yy-space-3);
+}

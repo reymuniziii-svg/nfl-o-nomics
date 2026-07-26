@@ -14,6 +14,7 @@
 export * from './registry';
 export * from './seasons';
 export * from './metrics';
+export * from './league';
 export * from './home';
 export * from './team';
 export * from './player';

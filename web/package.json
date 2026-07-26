@@ -2,7 +2,7 @@
   "name": "yield-yard-web",
   "version": "0.1.0",
   "private": true,
-  "description": "YIELD/YARD — Next.js App Router front end. Reads precomputed marts only (ARCHITECTURE.md §3).",
+  "description": "YIELD/YARD \u2014 Next.js App Router front end. Reads precomputed marts only (ARCHITECTURE.md \u00a73).",
   "scripts": {
     "predev": "node scripts/prepare.mjs",
     "dev": "next dev",
@@ -12,10 +12,14 @@
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
     "seed": "tsx db/seed.ts",
-    "prepare:assets": "node scripts/prepare.mjs"
+    "prepare:assets": "node scripts/prepare.mjs",
+    "verify": "python3 scripts/verify.py"
   },
   "dependencies": {
     "@electric-sql/pglite": "0.5.4",
+    "d3-array": "3.2.4",
+    "d3-scale": "4.0.2",
+    "d3-shape": "3.2.0",
     "drizzle-orm": "0.45.2",
     "marked": "18.0.7",
     "next": "16.2.12",
@@ -24,6 +28,9 @@
     "react-dom": "19.2.4"
   },
   "devDependencies": {
+    "@types/d3-array": "3.2.1",
+    "@types/d3-scale": "4.0.9",
+    "@types/d3-shape": "3.1.7",
     "@types/node": "22.20.1",
     "@types/react": "19.2.17",
     "@types/react-dom": "19.2.3",

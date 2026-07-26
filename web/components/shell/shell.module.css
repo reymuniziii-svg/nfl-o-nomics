@@ -1,0 +1,220 @@
+/* NAV & PAGE SHELLS — COMPONENTS.md §15, MOBILE_PATTERNS.md §1 / §5.
+ *
+ * CHROME IS DARK IN BOTH THEMES. It is the brand's End Zone band and it is what
+ * makes the light theme read as the same product (`DECISIONS.md` 78).
+ */
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  background: var(--yy-bg-chrome);
+  padding: var(--yy-space-4) var(--yy-space-4) var(--yy-space-3);
+  border-bottom: 1px solid transparent;
+  transition: border-color var(--yy-dur-fast) var(--yy-ease-standard);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--yy-space-4);
+}
+
+/* MOBILE_PATTERNS.md §5 — the header never collapses and never hides on
+   scroll-down: a header that hides costs a reader the wordmark and the season,
+   and both are context a screenshot needs. */
+.headerScrolled {
+  border-bottom-color: var(--yy-line-hairline);
+}
+
+@media (min-width: 1024px) {
+  .header {
+    padding: var(--yy-space-5) var(--yy-space-9);
+  }
+}
+
+.brand {
+  display: flex;
+  flex-direction: column;
+  gap: var(--yy-space-1);
+  text-decoration: none;
+  min-width: 0;
+}
+
+.wordmark {
+  font-family: var(--yy-font-display);
+  font-weight: var(--yy-weight-display);
+  font-size: var(--yy-size-wordmark);
+  line-height: 1;
+  letter-spacing: var(--yy-track-display);
+  color: var(--yy-chalk-white);
+  white-space: nowrap;
+}
+
+.slash {
+  color: var(--yy-yield-lime);
+}
+
+.eyebrow {
+  color: var(--yy-ink-dark-2);
+  letter-spacing: var(--yy-track-label-wide);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.headerRight {
+  display: flex;
+  align-items: center;
+  gap: var(--yy-space-2);
+  flex: none;
+}
+
+.seasonChip {
+  border: 1px solid var(--yy-line-card-dark);
+  border-radius: var(--yy-radius-pill);
+  padding: var(--yy-space-1) var(--yy-space-3);
+  color: var(--yy-ink-dark-1);
+  white-space: nowrap;
+}
+
+/* ── desktop nav — inside the chrome band ─────────────────────────────────── */
+
+.nav {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .nav {
+    display: flex;
+    gap: var(--yy-space-7);
+    align-items: center;
+  }
+}
+
+.navItem {
+  color: var(--yy-ink-dark-2);
+  text-decoration: none;
+  padding-bottom: var(--yy-space-1);
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+  letter-spacing: var(--yy-track-label);
+}
+
+.navItem:hover {
+  color: var(--yy-ink-dark-1);
+}
+
+.navActive {
+  color: var(--yy-yield-lime);
+  border-bottom-color: var(--yy-yield-lime);
+}
+
+/* ── theme toggle ─────────────────────────────────────────────────────────── */
+
+.themeBtn {
+  background: none;
+  border: 1px solid var(--yy-line-card-dark);
+  border-radius: var(--yy-radius-pill);
+  color: var(--yy-ink-dark-1);
+  padding: var(--yy-space-1) var(--yy-space-3);
+  cursor: pointer;
+  min-height: var(--yy-space-8);
+  white-space: nowrap;
+  position: relative;
+}
+
+.themeBtn::after {
+  content: '';
+  position: absolute;
+  inset: 50% 0 auto;
+  height: var(--yy-tap-target);
+  transform: translateY(-50%);
+}
+
+/* ── bottom tab bar — FIXED, not sticky ─────────────────────────────────── */
+
+.tabbar {
+  position: fixed;
+  inset-inline: 0;
+  bottom: 0;
+  z-index: 3;
+  background: var(--yy-bg-tabbar);
+  border-top: 1px solid var(--yy-line-hairline);
+  display: flex;
+  padding-top: var(--yy-space-3);
+  padding-bottom: var(--yy-safe-bottom);
+}
+
+@media (min-width: 1024px) {
+  .tabbar {
+    display: none;
+  }
+}
+
+.tab {
+  flex: 1;
+  min-height: var(--yy-tap-target);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--yy-space-1);
+  text-decoration: none;
+  /* SPLIT — the label may NOT use the dim value: it is text and needs 4.5:1,
+     while the icon is a graphical object and clears at 3:1. `DECISIONS.md` 66. */
+  color: var(--yy-fg-3);
+  padding-bottom: var(--yy-space-2);
+}
+
+.tabIcon {
+  color: var(--yy-fg-dim);
+}
+
+.tabActive,
+.tabActive .tabIcon {
+  color: var(--yy-accent);
+}
+
+/* ── footer ─────────────────────────────────────────────────────────────── */
+
+.footer {
+  border-top: 1px solid var(--yy-line-divider);
+  padding: var(--yy-space-6) var(--yy-space-4);
+  padding-bottom: calc(var(--yy-space-10) + var(--yy-safe-bottom));
+  display: flex;
+  flex-direction: column;
+  gap: var(--yy-space-3);
+  color: var(--yy-fg-3);
+}
+
+@media (min-width: 1024px) {
+  .footer {
+    padding: var(--yy-space-8) var(--yy-space-9);
+  }
+}
+
+.footerLinks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--yy-space-4);
+}
+
+.footerLink {
+  color: var(--yy-fg-2);
+  text-decoration: none;
+  letter-spacing: var(--yy-track-label);
+}
+
+.footerLink:hover {
+  color: var(--yy-fg-1);
+  text-decoration: underline;
+}
+
+.footerNote {
+  margin: 0;
+  max-width: var(--yy-measure);
+}
+
+.stamp {
+  margin: 0;
+  color: var(--yy-fg-3);
+}

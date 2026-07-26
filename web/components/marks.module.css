@@ -1,0 +1,232 @@
+/* TeamMark (COMPONENTS.md §9) and PlayerMark (§10).
+ *
+ * Team colour appears in EXACTLY ONE PLACE in this product: the TeamMark
+ * fallback chip and the PlayerMark fallback card (`DECISIONS.md` 80). Both read
+ * it from `chipdata.json` as data — it is never a token and never a chart
+ * colour.
+ */
+
+/* ══════════════════════════════════════════════════════════════════════════ */
+/* TEAMMARK — §9.1 containment geometry                                        */
+/* ══════════════════════════════════════════════════════════════════════════ */
+
+.mark {
+  aspect-ratio: 1;
+  flex: none;
+  display: block;
+  position: relative;
+}
+
+.markXs {
+  width: 20px;
+  height: 20px;
+}
+
+.markSm {
+  width: 32px;
+  height: 32px;
+}
+
+.markMd {
+  width: 48px;
+  height: 48px;
+}
+
+.markLg {
+  width: 64px;
+  height: 64px;
+}
+
+/* The single number that makes 32 marks of different aspect look like one
+   system: a 12.5% inset on every side. `contain`, NEVER `cover`. */
+.logo {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 12.5%;
+  background: transparent;
+  display: block;
+}
+
+/* §9.3 rule 3 — in dense lists the mark steps back so it cannot shout over an
+   11px label, and it comes back on row hover/focus. */
+.dense .logo,
+.dense .chip {
+  opacity: 0.85;
+  transition: opacity var(--yy-dur-fast) var(--yy-ease-standard);
+}
+
+.dense:hover .logo,
+.dense:hover .chip,
+.dense:focus-within .logo,
+.dense:focus-within .chip {
+  opacity: 1;
+}
+
+/* §9.4 the kill-switch fallback chip — the same box, the same size, the same
+   position, filled instead of transparent. Not a broken-image state. */
+.chip {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  font-family: var(--yy-font-display);
+  font-weight: var(--yy-weight-display);
+  letter-spacing: var(--yy-track-display);
+  line-height: 1;
+  border-radius: var(--yy-radius-chip);
+  text-transform: uppercase;
+}
+
+.markMd .chip,
+.markLg .chip {
+  border-radius: var(--yy-radius-control);
+}
+
+.markXs .chip {
+  font-size: 12px;
+}
+
+.markSm .chip {
+  font-size: 19px;
+}
+
+.markMd .chip {
+  font-size: 29px;
+}
+
+.markLg .chip {
+  font-size: 38px;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════ */
+/* PLAYERMARK — §10                                                            */
+/* ══════════════════════════════════════════════════════════════════════════ */
+
+.player {
+  display: flex;
+  flex-direction: column;
+  gap: var(--yy-space-2);
+  flex: none;
+  min-width: 0;
+}
+
+.frame {
+  position: relative;
+  overflow: hidden;
+  /* painted BEHIND the image so a transparent PNG never shows the card
+     gradient through a subject's edge (34 of 244 sources are PNG) */
+  background: var(--yy-bg-track);
+  flex: none;
+}
+
+.frameChip {
+  width: 56px;
+  height: 56px;
+  border-radius: var(--yy-radius-chip);
+}
+
+.frameCard {
+  width: 120px;
+  height: 160px;
+  border-radius: var(--yy-radius-card-sm);
+}
+
+.photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* head-biased: Commons player photos are predominantly full- or half-body */
+  object-position: 50% 22%;
+  display: block;
+}
+
+/* §10.1 — THE EXACT FILTER STACK. Option (a): the treatment is CSS-only,
+   applied to untouched Commons bytes. Reversible to `filter:none` in one edit. */
+.photo {
+  filter: grayscale(1) contrast(1.06) brightness(0.92) sepia(0.42) hue-rotate(58deg)
+    saturate(1.45);
+}
+
+:global([data-theme='light']) .photo {
+  filter: grayscale(1) contrast(1.04) brightness(1.04) sepia(0.3) hue-rotate(58deg)
+    saturate(1.15);
+}
+
+@media (prefers-color-scheme: light) {
+  :global(:root:not([data-theme='dark']):not([data-theme='light'])) .photo {
+    filter: grayscale(1) contrast(1.04) brightness(1.04) sepia(0.3) hue-rotate(58deg)
+      saturate(1.15);
+  }
+}
+
+@media (prefers-contrast: more) {
+  .photo {
+    filter: grayscale(1) contrast(1.15);
+  }
+}
+
+/* §10.2 bottom fade — a render-time composite, not a stored one. Card only;
+   the chip is too small. */
+.frameCard::after {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  height: 22%;
+  background: linear-gradient(to bottom, transparent, var(--yy-bg-card-flat));
+  pointer-events: none;
+}
+
+/* §10.4 the fallback card — the same box, same radius, same position as the
+   photo. No dashed rule, no `?`, no silhouette, no broken-image glyph. */
+.fallback {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--yy-space-1);
+  text-align: center;
+}
+
+.fallbackGlyph {
+  font-family: var(--yy-font-display);
+  font-weight: var(--yy-weight-display);
+  letter-spacing: var(--yy-track-display);
+  line-height: 1;
+}
+
+.frameChip .fallbackGlyph {
+  font-size: 25px; /* 44% of 56 */
+}
+
+.frameCard .fallbackGlyph {
+  font-size: 70px; /* 44% of 160 */
+}
+
+.fallbackPos {
+  letter-spacing: var(--yy-track-label-wide);
+  opacity: 0.75;
+}
+
+/* §10.3 the visible attribution credit line — 91.4% of assets legally require
+   it, and a credit behind a hover is a licence violation, not a preference.
+   The space is reserved whether or not the asset needs one. */
+.credit {
+  color: var(--yy-fg-3);
+  min-height: 26px;
+  max-width: 160px;
+  text-transform: none;
+  letter-spacing: normal;
+  line-height: 1.3;
+}
+
+.creditChipWidth {
+  max-width: 120px;
+}
+
+.credit a {
+  color: inherit;
+}

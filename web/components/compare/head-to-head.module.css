@@ -1,0 +1,90 @@
+/* H2H COMPARISON STACK — COMPONENTS.md §5.
+ *
+ * D3 IS FIXED HERE: red never carries a comparison series. Side A is the
+ * subject (lime / lime-ink); side B is the comparison (slate) PLUS a hatch and
+ * a dash, so the two are told apart by pattern as well as hue.
+ */
+
+.eras {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--yy-space-3);
+}
+
+.era {
+  border-radius: var(--yy-radius-card-sm);
+  padding: var(--yy-space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--yy-space-2);
+  min-width: 0;
+}
+
+.eraA {
+  border: 1px solid color-mix(in srgb, var(--yy-accent) 40%, transparent);
+  background: color-mix(in srgb, var(--yy-accent) 5%, transparent);
+}
+
+.eraB {
+  border: 1px solid color-mix(in srgb, var(--yy-compare) 40%, transparent);
+  background: color-mix(in srgb, var(--yy-compare) 5%, transparent);
+}
+
+.eraHead {
+  display: flex;
+  align-items: center;
+  gap: var(--yy-space-2);
+  min-width: 0;
+}
+
+.eraChip {
+  font-family: var(--yy-font-display);
+  font-weight: var(--yy-weight-display);
+  font-size: var(--yy-size-display-sm);
+  letter-spacing: var(--yy-track-display);
+  line-height: var(--yy-lh-tight);
+  color: var(--yy-fg-1);
+}
+
+.eraName {
+  color: var(--yy-fg-3);
+  letter-spacing: var(--yy-track-label-wide);
+}
+
+/* §5.2 THE CROSS-ERA STATEMENT — a STANDING BAND directly beneath the two era
+   cards and above the first comparison chart, at every size. Not a footnote,
+   not a tooltip, not below the fold, not inside an accordion.
+   It takes the GOLD rule because it is a statement about the benchmark method,
+   and it is the only non-chart element in the product that carries gold. */
+.statement {
+  border-inline-start: var(--yy-space-0h) solid var(--yy-benchmark);
+  padding-inline-start: var(--yy-space-3);
+  margin: var(--yy-space-4) 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--yy-space-1);
+}
+
+.statementEyebrow {
+  color: var(--yy-benchmark);
+  letter-spacing: var(--yy-track-label-wide);
+  margin: 0;
+}
+
+.statementBody {
+  margin: 0;
+  max-width: var(--yy-measure);
+  font-size: var(--yy-size-caption);
+}
+
+@media (min-width: 1024px) {
+  .statementBody {
+    font-size: var(--yy-size-body);
+  }
+}
+
+/* §5.4 — the one-sided Tier 2 note, above the affected block. */
+.tierNote {
+  margin: 0 0 var(--yy-space-3);
+  max-width: var(--yy-measure);
+}

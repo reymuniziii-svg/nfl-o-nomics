@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">YIELD/YARD YY monogram</title>
+  <desc id="desc">Overlapping dark green and lime Y characters.</desc>
+  <rect width="512" height="512" rx="112" fill="#F7F8F5"></rect>
+  <path d="M78 90h98l82 126 82-126h96L306 290v134h-96V290L78 90Z" fill="#071C16"></path>
+  <path d="M242 198h84l47 73 47-73h82l-88 136v90h-82v-90l-90-136Z" fill="#A6E22E"></path>
+  <rect x="20" y="20" width="472" height="472" rx="96" fill="none" stroke="#D5DBD7" stroke-width="4"></rect>
+</svg>

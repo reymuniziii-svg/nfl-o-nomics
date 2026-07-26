@@ -105,6 +105,19 @@ const nextConfig: NextConfig = {
   // than bundled into the server chunks.
   serverExternalPackages: ['@electric-sql/pglite', 'postgres'],
 
+  /**
+   * IMAGES ARE SERVED BYTE-IDENTICAL. `DECISIONS.md` 62 instance 2 is ShareAlike
+   * option (a): the asset pipeline stores Commons renditions untouched and the
+   * duotone treatment happens in CSS at render time, so no fixed derivative is
+   * ever created. Running them through the image optimizer would create one —
+   * a re-encode is a derivative work — and would also add a runtime dependency
+   * to a static-first build whose assets are already self-hosted and sized.
+   * `COMPONENTS.md` §10 is written against this behaviour.
+   */
+  images: {
+    unoptimized: true,
+  },
+
   // `/compare` is the only route that cannot be enumerated (861 x 861 = 741k
   // ordered pairs). It renders on first request and is then cached at the edge
   // for the life of the data snapshot, which changes only on redeploy.

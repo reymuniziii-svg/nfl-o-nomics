@@ -1,0 +1,65 @@
+/* Entry cards — SPEC §3.1 item 5. Three fixed cards, each seeded with a
+   CONCRETE EXAMPLE rather than an empty state. */
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--yy-space-3);
+}
+
+@media (min-width: 1024px) {
+  .grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--yy-space-4);
+  }
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--yy-space-2);
+  padding: var(--yy-space-4);
+  border: 1px solid var(--yy-line-card);
+  border-radius: var(--yy-radius-card-sm);
+  background: var(--yy-bg-card);
+  text-decoration: none;
+  color: inherit;
+  min-height: var(--yy-tap-target);
+  transition: border-color var(--yy-dur-fast) var(--yy-ease-standard);
+}
+
+.card:hover {
+  border-color: var(--yy-accent);
+}
+
+.kind {
+  color: var(--yy-fg-3);
+  letter-spacing: var(--yy-track-label-wide);
+}
+
+.example {
+  font-family: var(--yy-font-display);
+  font-weight: var(--yy-weight-display);
+  font-size: var(--yy-size-display-sm);
+  letter-spacing: var(--yy-track-display);
+  line-height: var(--yy-lh-display);
+  color: var(--yy-fg-1);
+}
+
+.note {
+  margin: 0;
+  color: var(--yy-fg-2);
+}
+
+.foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--yy-space-2);
+  margin-top: auto;
+  padding-top: var(--yy-space-2);
+}
+
+.go {
+  color: var(--yy-accent);
+}

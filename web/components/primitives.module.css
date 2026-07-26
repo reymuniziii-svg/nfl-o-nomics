@@ -1,0 +1,372 @@
+/* Shared primitives — COMPONENTS.md §5.3, §8.1–8.2, §13, §14, CHART_ANATOMY.md §5.3.
+ *
+ * UNIVERSAL RULE 1: cards are border + gradient. Never a shadow. `--yy-shadow`
+ * is scoped to floating overlays in light mode only.
+ * UNIVERSAL RULE 2: every figure carries tabular numerals, set on the root.
+ */
+
+/* ── CARD ─────────────────────────────────────────────────────────────────── */
+
+.card {
+  background: var(--yy-bg-card);
+  border: 1px solid var(--yy-line-card);
+  border-radius: var(--yy-radius-card-sm);
+  padding: var(--yy-space-3);
+  color: var(--yy-fg-1);
+  font-variant-numeric: tabular-nums;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+@media (min-width: 1024px) {
+  .card {
+    background: var(--yy-bg-card-lg);
+    border-radius: var(--yy-radius-card);
+    padding: var(--yy-space-6) var(--yy-space-7);
+  }
+}
+
+.cardAccent {
+  background: var(--yy-bg-card-accent), var(--yy-bg-card);
+}
+
+.cardHead {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--yy-space-3);
+  margin-bottom: var(--yy-space-3);
+}
+
+.cardHeadText {
+  min-width: 0;
+}
+
+.cardHeadSlot {
+  flex: none;
+  display: flex;
+  align-items: baseline;
+  gap: var(--yy-space-3);
+}
+
+.cardTitle {
+  margin: 0;
+}
+
+.cardEyebrow {
+  margin: 0 0 var(--yy-space-1);
+}
+
+/* ── CHIPS — CHART_ANATOMY.md §5.3 ────────────────────────────────────────── */
+
+.chip {
+  display: inline-block;
+  border-radius: var(--yy-radius-chip);
+  padding: var(--yy-space-1) var(--yy-space-2);
+  border: 1px solid currentColor;
+  white-space: nowrap;
+  flex: none;
+}
+
+.chipProvisional {
+  color: var(--yy-provisional);
+  border-color: var(--yy-provisional-stroke);
+}
+
+.chipProjected {
+  color: var(--yy-provisional);
+  border-color: var(--yy-provisional-stroke);
+}
+
+.chipVerified {
+  color: var(--yy-verified);
+  border-color: color-mix(in srgb, currentColor 40%, transparent);
+}
+
+.chipSample {
+  color: var(--yy-negative-text);
+  border-color: color-mix(in srgb, currentColor 40%, transparent);
+}
+
+/* ── AS-OF — COMPONENTS.md §8.1. One line, one block. Never truncates. ────── */
+
+.asof {
+  display: flex;
+  align-items: baseline;
+  gap: var(--yy-space-2);
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+.asofValue {
+  color: var(--yy-fg-1);
+  white-space: nowrap;
+}
+
+.asofStamp {
+  color: var(--yy-asof);
+  white-space: nowrap;
+  text-transform: none;
+}
+
+/* ── BOUNDARY MESSAGE — COMPONENTS.md §13.3 ──────────────────────────────────
+   No red, no warning icon, no alert styling. Absence is a fact about the data. */
+
+.boundary {
+  background: var(--yy-bg-empty);
+  border: 1px dashed var(--yy-absence);
+  border-radius: var(--yy-radius-card-sm);
+  padding: var(--yy-space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--yy-space-2);
+}
+
+.boundaryBody {
+  margin: 0;
+  max-width: var(--yy-measure);
+}
+
+.boundaryLink {
+  color: var(--yy-accent);
+  text-decoration: none;
+  align-self: flex-start;
+}
+
+.boundaryLink:hover {
+  text-decoration: underline;
+}
+
+/* ── KPI TILE — COMPONENTS.md §13.1 ──────────────────────────────────────── */
+
+.kpi {
+  background: var(--yy-bg-card);
+  border: 1px solid var(--yy-line-card);
+  border-radius: var(--yy-radius-card-sm);
+  padding: var(--yy-space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--yy-space-1);
+  min-width: 0;
+}
+
+.kpiLabel {
+  color: var(--yy-fg-2);
+  letter-spacing: var(--yy-track-label-wide);
+}
+
+.kpiValueRow {
+  display: flex;
+  align-items: baseline;
+  gap: var(--yy-space-2);
+  flex-wrap: wrap;
+}
+
+.kpiValue {
+  font-size: var(--yy-size-metric-sm);
+  color: var(--yy-fg-1);
+}
+
+.kpiUnit {
+  color: var(--yy-fg-3);
+}
+
+.kpiNote {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .kpiNote {
+    display: block;
+    margin: 0;
+  }
+}
+
+/* ── INDEX BADGE — COMPONENTS.md §13.2, CAPPLUS_LOCKUP.md §3 ─────────────── */
+
+.badge {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--yy-space-1);
+  flex: none;
+  text-align: right;
+}
+
+.badgeWide {
+  min-width: 96px;
+}
+
+.badgeValue {
+  line-height: var(--yy-lh-tight);
+}
+
+.badgeAbove {
+  color: var(--yy-accent);
+}
+
+.badgeMid {
+  color: var(--yy-fg-mid);
+}
+
+.badgeBelow {
+  color: var(--yy-negative-text);
+}
+
+/* DECISIONS 83 — Team Rating is NEVER band-coloured. */
+.badgeNeutral {
+  color: var(--yy-fg-1);
+}
+
+.badgeBlank {
+  color: var(--yy-fg-3);
+}
+
+.badgeName {
+  color: var(--yy-fg-3);
+  letter-spacing: var(--yy-track-label-wide);
+}
+
+.badgeSub {
+  color: var(--yy-fg-3);
+  letter-spacing: var(--yy-track-label-wide);
+  text-transform: uppercase;
+}
+
+.badgeReason {
+  color: var(--yy-fg-3);
+  max-width: 22ch;
+  text-align: right;
+}
+
+/* scales — TYPE.md §7 */
+.scaleHero .badgeValue {
+  font-size: var(--yy-size-metric-hero);
+  line-height: var(--yy-lh-metric);
+  letter-spacing: var(--yy-track-metric-hero);
+}
+
+.scaleEra .badgeValue {
+  font-size: var(--yy-size-metric-lg);
+  line-height: var(--yy-lh-display);
+  letter-spacing: var(--yy-track-metric-hero);
+}
+
+.scaleHeader .badgeValue {
+  font-size: var(--yy-size-metric);
+}
+
+.scaleTile .badgeValue {
+  font-size: var(--yy-size-metric-sm);
+}
+
+.scaleRow .badgeValue {
+  font-size: var(--yy-size-metric-xs);
+}
+
+/* ── The `100 = LEAGUE AVERAGE` caption — one treatment, everywhere ───────── */
+
+.capplusCaption {
+  color: var(--yy-fg-3);
+  white-space: nowrap;
+}
+
+/* ── PRODUCT MARK — COMPONENTS.md §1.9, SCREENSHOT_VARIANTS.md §5 ────────────
+   A signature, not a logo lockup. Never larger, never full-opacity. */
+
+.productMark {
+  flex: none;
+  font-family: var(--yy-font-display);
+  font-weight: var(--yy-weight-display);
+  font-size: var(--yy-size-mark);
+  line-height: 1;
+  letter-spacing: var(--yy-track-display);
+  color: color-mix(in srgb, var(--yy-fg-1) 55%, transparent);
+  white-space: nowrap;
+}
+
+.productMarkSlash {
+  color: var(--yy-accent);
+}
+
+/* ── LEGEND — CHART_ANATOMY.md §5 ────────────────────────────────────────── */
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--yy-space-2) var(--yy-space-4);
+  margin-top: var(--yy-space-3);
+  padding: 0;
+  list-style: none;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: var(--yy-space-2);
+  color: var(--yy-fg-3);
+}
+
+.legendGlyph {
+  flex: none;
+  color: currentColor;
+}
+
+.legendAccent {
+  color: var(--yy-accent);
+}
+
+.legendCompare {
+  color: var(--yy-compare);
+}
+
+.legendAbsence {
+  color: var(--yy-fg-3);
+}
+
+.legendPartial {
+  color: var(--yy-fg-3);
+}
+
+.legendBenchmark {
+  color: var(--yy-benchmark);
+}
+
+/* ── Blank reason — a rendered sentence, never an empty cell ─────────────── */
+
+.blank {
+  color: var(--yy-fg-3);
+  text-transform: none;
+  letter-spacing: normal;
+  font-family: var(--yy-font-body);
+  font-size: var(--yy-size-caption);
+  line-height: var(--yy-lh-body);
+  max-width: var(--yy-measure);
+  display: block;
+}
+
+.blankInline {
+  font-family: var(--yy-font-athletic);
+  font-weight: var(--yy-weight-label);
+  font-size: var(--yy-size-label);
+  letter-spacing: var(--yy-track-label);
+  text-transform: uppercase;
+  color: var(--yy-fg-3);
+  display: inline;
+}
+
+/* ── Caption beneath a chart — always present, never a tooltip ───────────── */
+
+.chartCaption {
+  margin: var(--yy-space-3) 0 0;
+  max-width: var(--yy-measure);
+}
+
+/* ── Section — a labelled block on a view ───────────────────────────────── */
+
+.sectionLabel {
+  color: var(--yy-fg-3);
+  letter-spacing: var(--yy-track-label-wide);
+  margin: 0;
+}

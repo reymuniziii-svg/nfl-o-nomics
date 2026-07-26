@@ -1,0 +1,74 @@
+/* YIELD/YARD — self-hosted webfonts. @font-face declarations ONLY.
+ *
+ * All three families are licensed under the SIL Open Font License 1.1 (OFL 1.1).
+ * The full licence text ships beside the binaries:
+ *   public/fonts/OFL-BebasNeue.txt
+ *   public/fonts/OFL-Rajdhani.txt
+ *   public/fonts/OFL-Inter.txt
+ *
+ * Sources:
+ *   Bebas Neue  https://raw.githubusercontent.com/google/fonts/main/ofl/bebasneue/BebasNeue-Regular.ttf
+ *               (shipped in the handoff kit; the repo copy is the one subset here)
+ *   Rajdhani    https://raw.githubusercontent.com/google/fonts/main/ofl/rajdhani/Rajdhani-Regular.ttf
+ *               https://raw.githubusercontent.com/google/fonts/main/ofl/rajdhani/Rajdhani-Medium.ttf
+ *               https://raw.githubusercontent.com/google/fonts/main/ofl/rajdhani/Rajdhani-SemiBold.ttf
+ *   Inter       https://raw.githubusercontent.com/google/fonts/main/ofl/inter/Inter%5Bopsz%2Cwght%5D.ttf
+ *
+ * Each file is a latin-subset WOFF2. See public/fonts/README.md for the exact
+ * subset command, so the binaries are reproducible from the sources above.
+ *
+ * TYPE.md §8: no third-party font requests — these are served from our own origin.
+ * TYPE.md §1: Bebas Neue is declared at 400 and ONLY 400. It is a single-weight
+ * family; a 700 declaration would invite synthetic bold, which is forbidden.
+ *
+ * Layered so the cascade puts these under tokens/base. @font-face inside a
+ * cascade layer is legal — the layer does not scope the family names, which stay
+ * globally resolvable.
+ */
+
+@layer yy-fonts {
+  /* Display — Bebas Neue. 400 only. Never 700. */
+  @font-face {
+    font-family: 'Bebas Neue';
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url('/fonts/bebas-neue-400.woff2') format('woff2');
+  }
+
+  /* Athletic / utility — Rajdhani. The 400 / 500 / 600 ladder is load-bearing
+     (TYPE.md §2): label 500 vs value 600 is a real hierarchy step. */
+  @font-face {
+    font-family: 'Rajdhani';
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url('/fonts/rajdhani-400.woff2') format('woff2');
+  }
+
+  @font-face {
+    font-family: 'Rajdhani';
+    font-style: normal;
+    font-weight: 500;
+    font-display: swap;
+    src: url('/fonts/rajdhani-500.woff2') format('woff2');
+  }
+
+  @font-face {
+    font-family: 'Rajdhani';
+    font-style: normal;
+    font-weight: 600;
+    font-display: swap;
+    src: url('/fonts/rajdhani-600.woff2') format('woff2');
+  }
+
+  /* Body / prose and tabular figures — Inter, variable (axes: opsz 14–32,
+     wght 100–900). One rule covers the whole weight range. */
+  @font-face {
+    font-family: 'Inter';
+    font-style: normal;
+    font-weight: 100 900;
+    font-display: swap;
+    src: url('/fonts/inter-var.woff2') format('woff2');
+  }
+}

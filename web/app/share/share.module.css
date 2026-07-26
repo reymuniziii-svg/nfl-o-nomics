@@ -1,0 +1,142 @@
+/* SCREENSHOT VARIANTS — SCREENSHOT_VARIANTS.md.
+ *
+ * The export scope (`tokens.css` §27, applied by adding `.yy-export` to the card
+ * root) raises the card border to .42 on dark / .28 on light, flattens the card
+ * gradients, and collapses every duration to 1ms so a rasteriser cannot catch a
+ * card mid-transition.
+ */
+
+/* The export composition is exactly 400 x 400 and must NOT be reflowed to fit a
+   narrow preview — the crop is the deliverable. The preview therefore scrolls
+   inside its own container so the page never scrolls sideways
+   (`MOBILE_PATTERNS.md` §2). */
+.stage {
+  display: flex;
+  flex-direction: column;
+  gap: var(--yy-space-4);
+  align-items: flex-start;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  max-width: 100%;
+}
+
+.note {
+  max-width: var(--yy-measure);
+}
+
+/* The 1:1 composition. 1080 × 1080 is this at 2.7×; every token multiplies with
+   it, so the 11px utility floor becomes 29.7px of raster. */
+.square {
+  width: var(--yy-canvas-square);
+  min-width: var(--yy-canvas-square);
+  height: var(--yy-canvas-square);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--yy-space-3);
+  padding: var(--yy-space-5);
+  background: var(--yy-bg-card);
+  border: 1px solid var(--yy-line-card);
+  border-radius: var(--yy-radius-card-sm);
+  color: var(--yy-fg-1);
+  font-variant-numeric: tabular-nums;
+  /* the square export pins its own type scale, exactly as the Receipt does */
+  --yy-size-label-lg: 13px;
+  --yy-size-display-xs: 14px;
+  --yy-size-display-sm: 22px;
+  --yy-size-display-md: 28px;
+  --yy-size-mark: 13px;
+  --yy-size-metric-xs: 18px;
+  --yy-size-metric-sm: 22px;
+  --yy-size-metric: 30px;
+}
+
+.head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--yy-space-3);
+}
+
+.identity {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--yy-space-3);
+  min-width: 0;
+}
+
+.name {
+  font-family: var(--yy-font-display);
+  font-weight: var(--yy-weight-display);
+  font-size: var(--yy-size-display-sm);
+  letter-spacing: var(--yy-track-display);
+  line-height: var(--yy-lh-display);
+  color: var(--yy-fg-1);
+  margin: 0;
+}
+
+.identityLine {
+  margin: var(--yy-space-1) 0 0;
+  color: var(--yy-fg-3);
+  letter-spacing: var(--yy-track-label-wide);
+}
+
+.lenses {
+  display: flex;
+  flex-direction: column;
+  gap: var(--yy-space-2);
+}
+
+.lens {
+  border-top: 1px solid var(--yy-line-divider);
+  padding-top: var(--yy-space-2);
+  display: flex;
+  flex-direction: column;
+  gap: var(--yy-space-1);
+}
+
+.lensName {
+  color: var(--yy-fg-3);
+  margin: 0;
+}
+
+.lensFigure {
+  font-size: var(--yy-size-metric-sm);
+  color: var(--yy-fg-1);
+}
+
+/* §4 THE FORCE-EXPAND RULE — every caveat is rendered as static text. A
+   screenshot cannot be tapped, so a screenshot never hides a caveat. */
+.caveat {
+  margin: 0;
+  color: var(--yy-fg-2);
+}
+
+.strap {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--yy-space-3);
+  padding-top: var(--yy-space-3);
+  border-top: 1px solid var(--yy-line-hairline);
+}
+
+.bench {
+  color: var(--yy-fg-2);
+  min-width: 0;
+}
+
+.mark {
+  flex: none;
+  font-family: var(--yy-font-display);
+  font-weight: var(--yy-weight-display);
+  font-size: var(--yy-size-mark);
+  line-height: 1;
+  letter-spacing: var(--yy-track-display);
+  color: color-mix(in srgb, var(--yy-fg-1) 55%, transparent);
+  white-space: nowrap;
+}
+
+.markSlash {
+  color: var(--yy-accent);
+}
