@@ -263,15 +263,12 @@ def build_draft_class_summary(picks: pd.DataFrame) -> pd.DataFrame:
     g = (d.groupby(["season", "team"], as_index=False)
            .agg(n_picks=("pick", "size"),
                 capital=("chart_value", "sum"),
-                first_pick=("pick", "min"),
-                n_round1=("round", lambda s: int((s == 1).sum()),),
                 n_excluded_no_gsis=("has_gsis", lambda s: int((~s).sum())),
                 return_games=("games", "sum"),
                 return_w_av=("w_av", "sum"),
                 return_seasons_started=("seasons_started", "sum"),
                 return_probowls=("probowls", "sum"),
-                return_allpro=("allpro", "sum"),
-                n_hof=("hof", "sum")))
+                return_allpro=("allpro", "sum")))
 
     g["capital_rank"] = g.groupby("season")["capital"].rank(
         ascending=False, method="min")
@@ -294,10 +291,9 @@ def build_draft_class_summary(picks: pd.DataFrame) -> pd.DataFrame:
     g["snaps_available"] = g["season"] >= config.SNAP_START
 
     out = g[[
-        "season", "team", "n_picks", "n_round1", "first_pick",
-        "capital", "capital_rank",
+        "season", "team", "n_picks", "capital", "capital_rank",
         "return_games", "return_w_av", "return_seasons_started",
-        "return_probowls", "return_allpro", "n_hof",
+        "return_probowls", "return_allpro",
         "w_av_per_1000_capital", "games_per_1000_capital",
         "seasons_started_per_1000_capital",
         "n_excluded_no_gsis", "snaps_available",
@@ -309,9 +305,9 @@ def build_draft_class_summary(picks: pd.DataFrame) -> pd.DataFrame:
         "seasons_started_per_1000_capital": 4,
     })
     out = io_utils.as_int64(out, [
-        "n_picks", "n_round1", "first_pick", "capital", "capital_rank",
+        "n_picks", "capital", "capital_rank",
         "return_games", "return_w_av", "return_seasons_started",
-        "return_probowls", "return_allpro", "n_hof", "n_excluded_no_gsis",
+        "return_probowls", "return_allpro", "n_excluded_no_gsis",
     ])
     out["snaps_available"] = out["snaps_available"].astype(bool)
     out["dollar_framing_available"] = out["dollar_framing_available"].astype(bool)
@@ -352,6 +348,7 @@ def mart_draft_pick(ctx) -> pd.DataFrame:
     _CACHE["picks"] = out
     ctx.stats["draft_pick"] = stats
     ctx.note_source("nflverse draft_picks.parquet + F-S chart", rows=len(out),
+                    asset="draft_picks",
                     window=f"{config.DRAFT_WINDOW[0]}-{config.DRAFT_WINDOW[1]}")
     return out
 

@@ -224,7 +224,7 @@ EXPECTED_ROWS = {
     "team_season_stability": 830,
     "dead_money_team_season": 370,
     "dead_money_ledger": 21,
-    "dead_money_display": 416,
+    "dead_money_display": 316,   # 288 full32 + 28 published leaders
     "coaching_staff": 2612,
     "league_cap": 32,
     "draft_pick": 6644,

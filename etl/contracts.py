@@ -272,6 +272,7 @@ def _gsis_crosswalk(con, *, download: bool = False) -> pd.DataFrame:
     xw["otc_id"] = xw["otc_id"].astype("int64")
     if xw["otc_id"].duplicated().any():
         raise AssertionError("players.parquet otc_id must be unique (0 dup groups)")
+    _CACHE["players_rows"] = len(xw)
     return xw
 
 
@@ -323,13 +324,11 @@ def _ledger_markers(df: pd.DataFrame) -> tuple[pd.DataFrame, list[str]]:
                 "otc_id": otc,
                 "season": season,
                 "dm_ledger_charge": True,
-                "dm_ledger_player": r.player,
                 "dm_ledger_team": r.team,
                 "dm_ledger_usd": parts[i] if established and i < len(parts) else pd.NA,
                 "dm_ledger_total_usd": int(r.total_usd),
                 "dm_ledger_seasons": str(r.seasons),
                 "dm_ledger_split_established": established,
-                "dm_ledger_is_actual": True,
                 "dm_ledger_source_url": r.source_url,
             })
     return pd.DataFrame(rows), notes
@@ -339,8 +338,13 @@ def build_player_season_cap(con, df: pd.DataFrame, pos: pd.DataFrame, *,
                             download: bool = False) -> tuple[pd.DataFrame, dict]:
     d = df[df["season"].between(TIER2_START, TIER2_END) & df["team"].notna()].copy()
     d = d.merge(pos, on=["otc_id", "season"], how="left")
-    d["position_group"] = d["position"].map(config.POSITION_GROUP).fillna(
-        config.POSITION_UNMAPPED)
+    # `position_group` is the CLOSED nine-value vocabulary of SPEC §7.12. A
+    # player-season with no recorded signing position (502 of 32,105 = 1.6%,
+    # carrying 0.375% of cap) gets NULL, not a tenth `UNK` bucket: SPEC §2.6 says
+    # unmapped cap is *dropped*, not bucketed into "other", and the drop happens
+    # in `position_allocation`. Every player-season still ships here, because the
+    # 32,105-row Tier 2 promise is a roster, not a filtered sample.
+    d["position_group"] = d["position"].map(config.POSITION_GROUP)
 
     terms = contract_in_force(con)
     d = d.merge(terms, on=["otc_id", "year_signed", "position"], how="left")
@@ -356,7 +360,6 @@ def build_player_season_cap(con, df: pd.DataFrame, pos: pd.DataFrame, *,
     d["dm_ledger_charge"] = d["dm_ledger_charge"].fillna(False).astype(bool)
     d["dm_ledger_split_established"] = d["dm_ledger_split_established"].fillna(
         False).astype(bool)
-    d["dm_ledger_is_actual"] = d["dm_ledger_is_actual"].fillna(False).astype(bool)
 
     # Source is $ millions on the top-level contract columns too.
     for src, dst in (("contract_value_musd", "contract_value"),
@@ -388,9 +391,9 @@ def build_player_season_cap(con, df: pd.DataFrame, pos: pd.DataFrame, *,
         "base_salary", "prorated_bonus", "roster_bonus", "guaranteed_salary",
         "contract_year_signed", "contract_years", "contract_value",
         "contract_apy", "contract_guaranteed", "contract_apy_cap_pct",
-        "dm_ledger_charge", "dm_ledger_player", "dm_ledger_team",
+        "dm_ledger_charge", "dm_ledger_team",
         "dm_ledger_usd", "dm_ledger_total_usd", "dm_ledger_seasons",
-        "dm_ledger_split_established", "dm_ledger_is_actual", "dm_ledger_source_url",
+        "dm_ledger_split_established", "dm_ledger_source_url",
     ]].sort_values(["season", "team", "otc_id"]).reset_index(drop=True)
 
     out = io_utils.round_cols(out, {
@@ -418,7 +421,8 @@ def build_player_season_cap(con, df: pd.DataFrame, pos: pd.DataFrame, *,
         "cap_pct_coverage": round(float(out["cap_percent"].notna().mean()), 4),
         "ledger_marked_rows": int(out["dm_ledger_charge"].sum()),
         "ledger_players_in_window": int(
-            out.loc[out["dm_ledger_charge"], "dm_ledger_player"].nunique()),
+            out.loc[out["dm_ledger_charge"], "player"].nunique()),
+        "unmapped_position_rows": int(out["position_group"].isna().sum()),
         "collision_notes": notes,
     }
     return out, stats
@@ -439,14 +443,14 @@ def build_position_allocation(psc: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
     (`DECISIONS.md` 28). The column is named `share_of_rostered_cap` so the
     caveat travels in the schema itself.
     """
-    d = psc[psc["position_group"] != config.POSITION_UNMAPPED].copy()
+    d = psc[psc["position_group"].notna()].copy()
     d["cap_number"] = pd.to_numeric(d["cap_number"], errors="coerce")
-    unk = psc.loc[psc["position_group"] == config.POSITION_UNMAPPED, "cap_number"]
+    unk = psc.loc[psc["position_group"].isna(), "cap_number"]
     unk_share = float(pd.to_numeric(unk, errors="coerce").sum()
                       / pd.to_numeric(psc["cap_number"], errors="coerce").sum())
 
     g = (d.groupby(["season", "team", "position_group"], as_index=False)
-           .agg(cap_usd=("cap_number", "sum"), n_players=("cap_number", "size")))
+           .agg(cap_usd=("cap_number", "sum")))
 
     # Complete the grid: a team with no cap at a group has a genuine 0.0 share,
     # not a missing reading, and the chart needs all nine bars.
@@ -473,7 +477,7 @@ def build_position_allocation(psc: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
                   on=["season", "position_group"])
     out["delta_vs_league"] = out["share_of_rostered_cap"] - out["league_share"]
     out = out[[
-        "season", "team", "position_group", "n_players", "cap_usd",
+        "season", "team", "position_group", "cap_usd",
         "share_of_rostered_cap", "league_share", "delta_vs_league",
     ]].sort_values(["season", "team", "position_group"]).reset_index(drop=True)
 
@@ -491,7 +495,7 @@ def build_position_allocation(psc: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
         "cap_usd": 0, "share_of_rostered_cap": 6, "league_share": 6,
         "delta_vs_league": 6,
     })
-    out = io_utils.as_int64(out, ["cap_usd", "n_players"])
+    out = io_utils.as_int64(out, ["cap_usd"])
 
     io_utils.assert_rows(out, "position_allocation")
     assert_full_32(out["team"], "position_allocation")
@@ -546,7 +550,7 @@ def _prepare(ctx):
 def mart_team_season_cap(ctx) -> pd.DataFrame:
     s = _prepare(ctx)
     out = build_team_season_cap(s["df"], league_cap_map())
-    ctx.note_source("nflverse historical_contracts.parquet",
+    ctx.note_source("nflverse historical_contracts.parquet", asset="contracts",
                     rows=len(s["df"]), window=f"{TIER2_START}-{TIER2_END}")
     return out
 
@@ -557,7 +561,9 @@ def mart_player_season_cap(ctx) -> pd.DataFrame:
                                          download=ctx.download)
     _CACHE["player_season_cap"] = out
     ctx.note_source("nflverse historical_contracts.parquet + players.parquet",
-                    rows=stats["player_seasons"], window=f"{TIER2_START}-{TIER2_END}")
+                    asset="players", rows=stats["player_seasons"],
+                    asset_rows=_CACHE.get("players_rows"),
+                    window=f"{TIER2_START}-{TIER2_END}")
     ctx.stats["player_season_cap"] = stats
     if ctx.verbose:
         print(f"  player-seasons {stats['player_seasons']}, "

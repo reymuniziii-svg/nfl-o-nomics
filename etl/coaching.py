@@ -277,7 +277,7 @@ def build_stability(slots: pd.DataFrame, churn_role: pd.DataFrame) -> pd.DataFra
         ts[f"{role}_tenure_seasons"] = out
 
     # Regimes: head-coach identity only. Coordinator changes never start one.
-    regime_id, regime_n, regime_start = [], [], []
+    regime_id, regime_n = [], []
     cur_id, cur_start, prev_key, prev_hc = None, None, None, None
     for r in ts.itertuples():
         contiguous = (prev_key is not None and prev_key[0] == r.team
@@ -286,11 +286,9 @@ def build_stability(slots: pd.DataFrame, churn_role: pd.DataFrame) -> pd.DataFra
             cur_start = int(r.season)
             cur_id = f"{r.team}-{cur_start}-{_surname(r.hc_closing_holder)}"
         regime_id.append(cur_id)
-        regime_start.append(cur_start)
         regime_n.append(int(r.season) - cur_start + 1)
         prev_key, prev_hc = (r.team, int(r.season)), r.hc_closing_holder
     ts["regime_id"] = regime_id
-    ts["regime_start_season"] = regime_start
     ts["regime_season_n"] = regime_n
 
     out = ts.rename(columns={
@@ -301,14 +299,13 @@ def build_stability(slots: pd.DataFrame, churn_role: pd.DataFrame) -> pd.DataFra
         "hc", "oc", "dc",
         "hc_tenure_seasons", "oc_tenure_seasons", "dc_tenure_seasons",
         "hc_stints", "oc_stints", "dc_stints",
-        "regime_id", "regime_start_season", "regime_season_n",
+        "regime_id", "regime_season_n",
     ]].sort_values(["season", "team"]).reset_index(drop=True)
 
     out = io_utils.round_cols(out, {"churn_points": 6, "W": 6, "stability_index": 6})
     out = io_utils.as_int64(out, [
         "hc_tenure_seasons", "oc_tenure_seasons", "dc_tenure_seasons",
-        "hc_stints", "oc_stints", "dc_stints", "regime_start_season",
-        "regime_season_n",
+        "hc_stints", "oc_stints", "dc_stints", "regime_season_n",
     ])
     out["window_truncated"] = out["window_truncated"].astype(bool)
 
@@ -341,8 +338,6 @@ def build_regime_events(stability: pd.DataFrame) -> pd.DataFrame:
                 "kind": "in_season" if hc_stints[(s, t)] > 1 else "offseason",
                 "outgoing_hc": p["hc"], "incoming_hc": r.hc,
                 "regime_id": r.regime_id,
-                "prev_regime_id": p["regime_id"],
-                "prev_regime_seasons": p["regime_season_n"],
             })
         prev[t] = {"season": s, "hc": r.hc, "regime_id": r.regime_id,
                    "regime_season_n": int(r.regime_season_n)}
@@ -386,7 +381,7 @@ def build_regime_events(stability: pd.DataFrame) -> pd.DataFrame:
 
     ev = ev.sort_values(["team", "season"]).reset_index(drop=True)
     ev = io_utils.as_int64(ev, [
-        "season", "prev_regime_seasons",
+        "season",
         "dm_next1_season", "dm_next1_usd", "dm_next1_league_median_usd",
         "dm_next2_season", "dm_next2_usd", "dm_next2_league_median_usd",
     ])

@@ -1,215 +1,215 @@
-team,season,kind,outgoing_hc,incoming_hc,regime_id,prev_regime_id,prev_regime_seasons,dm_next1_season,dm_next1_state,dm_next1_usd,dm_next1_asof_date,dm_next1_asof_stage,dm_next1_league_median_usd,dm_next1_blank_reason,dm_next2_season,dm_next2_state,dm_next2_usd,dm_next2_asof_date,dm_next2_asof_stage,dm_next2_league_median_usd,dm_next2_blank_reason
-ARI,2004,offseason,Dave McGinnis,Dennis Green,ARI-2004-Green,ARI-2000-McGinnis,4,2005,blank,,,,,no league-wide dead-money table published for 2005,2006,blank,,,,,no league-wide dead-money table published for 2006
-ARI,2007,offseason,Dennis Green,Ken Whisenhunt,ARI-2007-Whisenhunt,ARI-2004-Green,3,2008,blank,,,,,no league-wide dead-money table published for 2008,2009,blank,,,,,no league-wide dead-money table published for 2009
-ARI,2013,offseason,Ken Whisenhunt,Bruce Arians,ARI-2013-Arians,ARI-2007-Whisenhunt,6,2014,value,10087468,2014-02-18,preseason,4030884,,2015,value,12792586,2015-10-28,midseason,14259529,
-ARI,2018,offseason,Bruce Arians,Steve Wilks,ARI-2018-Wilks,ARI-2013-Arians,5,2019,value,16390000,2019-03-10,preseason,3390000,,2020,blank,,,,,no league-wide dead-money table published for 2020
-ARI,2019,offseason,Steve Wilks,Kliff Kingsbury,ARI-2019-Kingsbury,ARI-2018-Wilks,1,2020,blank,,,,,no league-wide dead-money table published for 2020,2021,blank,,,,,no league-wide dead-money table published for 2021
-ARI,2023,offseason,Kliff Kingsbury,Jonathan Gannon,ARI-2023-Gannon,ARI-2019-Kingsbury,4,2024,value,29350000,2024-11-27,late_season,50285000,,2025,value,16510000,2025-12-17,late_season,41025000,
-ATL,2003,in_season,Dan Reeves,Wade Phillips,ATL-2003-Phillips,ATL-2000-Reeves,3,2004,blank,,,,,no league-wide dead-money table published for 2004,2005,blank,,,,,no league-wide dead-money table published for 2005
-ATL,2004,offseason,Wade Phillips,Jim L. Mora,ATL-2004-Mora,ATL-2003-Phillips,1,2005,blank,,,,,no league-wide dead-money table published for 2005,2006,blank,,,,,no league-wide dead-money table published for 2006
-ATL,2007,in_season,Jim L. Mora,Emmitt Thomas,ATL-2007-Thomas,ATL-2004-Mora,3,2008,blank,,,,,no league-wide dead-money table published for 2008,2009,blank,,,,,no league-wide dead-money table published for 2009
-ATL,2008,offseason,Emmitt Thomas,Mike Smith,ATL-2008-Smith,ATL-2007-Thomas,1,2009,blank,,,,,no league-wide dead-money table published for 2009,2010,blank,,,,,no league-wide dead-money table published for 2010
-ATL,2015,offseason,Mike Smith,Dan Quinn,ATL-2015-Quinn,ATL-2008-Smith,7,2016,blank,,,,,no league-wide dead-money table published for 2016,2017,value,4570000,2017-07-05,preseason,5270000,
-ATL,2020,in_season,Dan Quinn,Raheem Morris,ATL-2020-Morris,ATL-2015-Quinn,5,2021,blank,,,,,no league-wide dead-money table published for 2021,2022,value,63209124,2022-07-05,preseason,19109982,
-ATL,2021,offseason,Raheem Morris,Arthur Smith,ATL-2021-Smith,ATL-2020-Morris,1,2022,value,63209124,2022-07-05,preseason,19109982,,2023,value,18780000,2023-07-14,preseason,20300000,
-ATL,2024,offseason,Arthur Smith,Raheem Morris,ATL-2024-Morris,ATL-2021-Smith,3,2025,value,27000000,2025-12-17,late_season,41025000,,2026,blank,,,,,no league-wide dead-money table published for 2026
-BAL,2008,offseason,Brian Billick,John Harbaugh,BAL-2008-Harbaugh,BAL-2000-Billick,8,2009,blank,,,,,no league-wide dead-money table published for 2009,2010,blank,,,,,no league-wide dead-money table published for 2010
-BUF,2001,offseason,Wade Phillips,Gregg Williams,BUF-2001-Williams,BUF-2000-Phillips,1,2002,blank,,,,,no league-wide dead-money table published for 2002,2003,blank,,,,,no league-wide dead-money table published for 2003
-BUF,2004,offseason,Gregg Williams,Mike Mularkey,BUF-2004-Mularkey,BUF-2001-Williams,3,2005,blank,,,,,no league-wide dead-money table published for 2005,2006,blank,,,,,no league-wide dead-money table published for 2006
-BUF,2006,offseason,Mike Mularkey,Dick Jauron,BUF-2006-Jauron,BUF-2004-Mularkey,2,2007,blank,,,,,no league-wide dead-money table published for 2007,2008,blank,,,,,no league-wide dead-money table published for 2008
-BUF,2009,in_season,Dick Jauron,Perry Fewell,BUF-2009-Fewell,BUF-2006-Jauron,3,2010,blank,,,,,no league-wide dead-money table published for 2010,2011,blank,,,,,no league-wide dead-money table published for 2011
-BUF,2010,offseason,Perry Fewell,Chan Gailey,BUF-2010-Gailey,BUF-2009-Fewell,1,2011,blank,,,,,no league-wide dead-money table published for 2011,2012,blank,,,,,no league-wide dead-money table published for 2012
-BUF,2013,offseason,Chan Gailey,Doug Marrone,BUF-2013-Marrone,BUF-2010-Gailey,3,2014,value,12070113,2014-02-18,preseason,4030884,,2015,value,11793665,2015-10-28,midseason,14259529,
-BUF,2015,offseason,Doug Marrone,Rex Ryan,BUF-2015-Ryan,BUF-2013-Marrone,2,2016,blank,,,,,no league-wide dead-money table published for 2016,2017,value,7920000,2017-07-05,preseason,5270000,
-BUF,2016,in_season,Rex Ryan,Anthony Lynn,BUF-2016-Lynn,BUF-2015-Ryan,1,2017,value,7920000,2017-07-05,preseason,5270000,,2018,value,46710000,2018-07-14,preseason,8815000,
-BUF,2017,offseason,Anthony Lynn,Sean McDermott,BUF-2017-McDermott,BUF-2016-Lynn,1,2018,value,46710000,2018-07-14,preseason,8815000,,2019,value,7560000,2019-03-10,preseason,3390000,
-CAR,2002,offseason,George Seifert,John Fox,CAR-2002-Fox,CAR-2000-Seifert,2,2003,blank,,,,,no league-wide dead-money table published for 2003,2004,blank,,,,,no league-wide dead-money table published for 2004
-CAR,2011,offseason,John Fox,Ron Rivera,CAR-2011-Rivera,CAR-2002-Fox,9,2012,blank,,,,,no league-wide dead-money table published for 2012,2013,blank,,,,,no league-wide dead-money table published for 2013
-CAR,2019,in_season,Ron Rivera,Perry Fewell,CAR-2019-Fewell,CAR-2011-Rivera,8,2020,blank,,,,,no league-wide dead-money table published for 2020,2021,blank,,,,,no league-wide dead-money table published for 2021
-CAR,2020,offseason,Perry Fewell,Matt Rhule,CAR-2020-Rhule,CAR-2019-Fewell,1,2021,blank,,,,,no league-wide dead-money table published for 2021,2022,value,23507283,2022-07-05,preseason,19109982,
-CAR,2022,in_season,Matt Rhule,Steve Wilks,CAR-2022-Wilks,CAR-2020-Rhule,2,2023,value,51540000,2023-07-14,preseason,20300000,,2024,value,68280000,2024-11-27,late_season,50285000,
-CAR,2023,in_season,Steve Wilks,Chris Tabor,CAR-2023-Tabor,CAR-2022-Wilks,1,2024,value,68280000,2024-11-27,late_season,50285000,,2025,value,36550000,2025-12-17,late_season,41025000,
-CAR,2024,offseason,Chris Tabor,Dave Canales,CAR-2024-Canales,CAR-2023-Tabor,1,2025,value,36550000,2025-12-17,late_season,41025000,,2026,blank,,,,,no league-wide dead-money table published for 2026
-CHI,2004,offseason,Dick Jauron,Lovie Smith,CHI-2004-Smith,CHI-2000-Jauron,4,2005,blank,,,,,no league-wide dead-money table published for 2005,2006,blank,,,,,no league-wide dead-money table published for 2006
-CHI,2013,offseason,Lovie Smith,Marc Trestman,CHI-2013-Trestman,CHI-2004-Smith,9,2014,value,1476671,2014-02-18,preseason,4030884,,2015,value,25573238,2015-10-28,midseason,14259529,
-CHI,2015,offseason,Marc Trestman,John Fox,CHI-2015-Fox,CHI-2013-Trestman,2,2016,blank,,,,,no league-wide dead-money table published for 2016,2017,value,3800000,2017-07-05,preseason,5270000,
-CHI,2018,offseason,John Fox,Matt Nagy,CHI-2018-Nagy,CHI-2015-Fox,3,2019,value,920000,2019-03-10,preseason,3390000,,2020,blank,,,,,no league-wide dead-money table published for 2020
-CHI,2021,in_season,Matt Nagy,Chris Tabor,CHI-2021-Tabor,CHI-2018-Nagy,3,2022,value,57643341,2022-07-05,preseason,19109982,,2023,value,23520000,2023-07-14,preseason,20300000,
-CHI,2022,offseason,Chris Tabor,Matt Eberflus,CHI-2022-Eberflus,CHI-2021-Tabor,1,2023,value,23520000,2023-07-14,preseason,20300000,,2024,value,29650000,2024-11-27,late_season,50285000,
-CHI,2024,in_season,Matt Eberflus,Thomas Brown,CHI-2024-Brown,CHI-2022-Eberflus,2,2025,value,8600000,2025-12-17,late_season,41025000,,2026,blank,,,,,no league-wide dead-money table published for 2026
-CHI,2025,offseason,Thomas Brown,Ben Johnson,CHI-2025-Johnson,CHI-2024-Brown,1,2026,blank,,,,,no league-wide dead-money table published for 2026,2027,blank,,,,,no league-wide dead-money table published for 2027
-CIN,2003,offseason,Dick LeBeau,Marvin Lewis,CIN-2003-Lewis,CIN-2000-LeBeau,3,2004,blank,,,,,no league-wide dead-money table published for 2004,2005,blank,,,,,no league-wide dead-money table published for 2005
-CIN,2019,offseason,Marvin Lewis,Zac Taylor,CIN-2019-Taylor,CIN-2003-Lewis,16,2020,blank,,,,,no league-wide dead-money table published for 2020,2021,blank,,,,,no league-wide dead-money table published for 2021
-CLE,2001,offseason,Chris Palmer,Butch Davis,CLE-2001-Davis,CLE-2000-Palmer,1,2002,blank,,,,,no league-wide dead-money table published for 2002,2003,blank,,,,,no league-wide dead-money table published for 2003
-CLE,2004,in_season,Butch Davis,Terry Robiskie,CLE-2004-Robiskie,CLE-2001-Davis,3,2005,blank,,,,,no league-wide dead-money table published for 2005,2006,blank,,,,,no league-wide dead-money table published for 2006
-CLE,2005,offseason,Terry Robiskie,Romeo Crennel,CLE-2005-Crennel,CLE-2004-Robiskie,1,2006,blank,,,,,no league-wide dead-money table published for 2006,2007,blank,,,,,no league-wide dead-money table published for 2007
-CLE,2009,offseason,Romeo Crennel,Eric Mangini,CLE-2009-Mangini,CLE-2005-Crennel,4,2010,blank,,,,,no league-wide dead-money table published for 2010,2011,blank,,,,,no league-wide dead-money table published for 2011
-CLE,2011,offseason,Eric Mangini,Pat Shurmur,CLE-2011-Shurmur,CLE-2009-Mangini,2,2012,blank,,,,,no league-wide dead-money table published for 2012,2013,blank,,,,,no league-wide dead-money table published for 2013
-CLE,2013,offseason,Pat Shurmur,Rob Chudzinski,CLE-2013-Chudzinski,CLE-2011-Shurmur,2,2014,value,7194157,2014-02-18,preseason,4030884,,2015,value,6934915,2015-10-28,midseason,14259529,
-CLE,2014,offseason,Rob Chudzinski,Mike Pettine,CLE-2014-Pettine,CLE-2013-Chudzinski,1,2015,value,6934915,2015-10-28,midseason,14259529,,2016,blank,,,,,no league-wide dead-money table published for 2016
-CLE,2016,offseason,Mike Pettine,Hue Jackson,CLE-2016-Jackson,CLE-2014-Pettine,2,2017,value,11470000,2017-07-05,preseason,5270000,,2018,value,17230000,2018-07-14,preseason,8815000,
-CLE,2018,in_season,Hue Jackson,Gregg Williams,CLE-2018-Williams,CLE-2016-Jackson,2,2019,value,7440000,2019-03-10,preseason,3390000,,2020,blank,,,,,no league-wide dead-money table published for 2020
-CLE,2019,offseason,Gregg Williams,Freddie Kitchens,CLE-2019-Kitchens,CLE-2018-Williams,1,2020,blank,,,,,no league-wide dead-money table published for 2020,2021,blank,,,,,no league-wide dead-money table published for 2021
-CLE,2020,in_season,Freddie Kitchens,Mike Priefer,CLE-2020-Priefer,CLE-2019-Kitchens,1,2021,blank,,,,,no league-wide dead-money table published for 2021,2022,value,18774054,2022-07-05,preseason,19109982,
-CLE,2021,offseason,Mike Priefer,Kevin Stefanski,CLE-2021-Stefanski,CLE-2020-Priefer,1,2022,value,18774054,2022-07-05,preseason,19109982,,2023,value,16000000,2023-07-14,preseason,20300000,
-DAL,2003,offseason,Dave Campo,Bill Parcells,DAL-2003-Parcells,DAL-2000-Campo,3,2004,blank,,,,,no league-wide dead-money table published for 2004,2005,blank,,,,,no league-wide dead-money table published for 2005
-DAL,2007,offseason,Bill Parcells,Wade Phillips,DAL-2007-Phillips,DAL-2003-Parcells,4,2008,blank,,,,,no league-wide dead-money table published for 2008,2009,blank,,,,,no league-wide dead-money table published for 2009
-DAL,2010,in_season,Wade Phillips,Jason Garrett,DAL-2010-Garrett,DAL-2007-Phillips,3,2011,blank,,,,,no league-wide dead-money table published for 2011,2012,blank,,,,,no league-wide dead-money table published for 2012
-DAL,2020,offseason,Jason Garrett,Mike McCarthy,DAL-2020-McCarthy,DAL-2010-Garrett,10,2021,blank,,,,,no league-wide dead-money table published for 2021,2022,value,22713132,2022-07-05,preseason,19109982,
-DAL,2025,offseason,Mike McCarthy,Brian Schottenheimer,DAL-2025-Schottenheimer,DAL-2020-McCarthy,5,2026,blank,,,,,no league-wide dead-money table published for 2026,2027,blank,,,,,no league-wide dead-money table published for 2027
-DEN,2009,offseason,Mike Shanahan,Josh McDaniels,DEN-2009-McDaniels,DEN-2000-Shanahan,9,2010,blank,,,,,no league-wide dead-money table published for 2010,2011,blank,,,,,no league-wide dead-money table published for 2011
-DEN,2010,in_season,Josh McDaniels,Eric Studesville,DEN-2010-Studesville,DEN-2009-McDaniels,1,2011,blank,,,,,no league-wide dead-money table published for 2011,2012,blank,,,,,no league-wide dead-money table published for 2012
-DEN,2011,offseason,Eric Studesville,John Fox,DEN-2011-Fox,DEN-2010-Studesville,1,2012,blank,,,,,no league-wide dead-money table published for 2012,2013,blank,,,,,no league-wide dead-money table published for 2013
-DEN,2013,in_season,John Fox,Jack Del Rio,DEN-2013-Rio,DEN-2011-Fox,2,2014,value,3992330,2014-02-18,preseason,4030884,,2015,value,3935731,2015-10-28,midseason,14259529,
-DEN,2014,offseason,Jack Del Rio,John Fox,DEN-2014-Fox,DEN-2013-Rio,1,2015,value,3935731,2015-10-28,midseason,14259529,,2016,blank,,,,,no league-wide dead-money table published for 2016
-DEN,2015,offseason,John Fox,Gary Kubiak,DEN-2015-Kubiak,DEN-2014-Fox,1,2016,blank,,,,,no league-wide dead-money table published for 2016,2017,value,72000,2017-07-05,preseason,5270000,
-DEN,2016,in_season,Gary Kubiak,Joe DeCamillis,DEN-2016-DeCamillis,DEN-2015-Kubiak,1,2017,value,72000,2017-07-05,preseason,5270000,,2018,value,2480000,2018-07-14,preseason,8815000,
-DEN,2017,offseason,Joe DeCamillis,Vance Joseph,DEN-2017-Joseph,DEN-2016-DeCamillis,1,2018,value,2480000,2018-07-14,preseason,8815000,,2019,value,10380000,2019-03-10,preseason,3390000,
-DEN,2019,offseason,Vance Joseph,Vic Fangio,DEN-2019-Fangio,DEN-2017-Joseph,2,2020,blank,,,,,no league-wide dead-money table published for 2020,2021,blank,,,,,no league-wide dead-money table published for 2021
-DEN,2022,in_season,Vic Fangio,Jerry Rosburg,DEN-2022-Rosburg,DEN-2019-Fangio,3,2023,value,9720000,2023-07-14,preseason,20300000,,2024,value,85210000,2024-11-27,late_season,50285000,
-DEN,2023,offseason,Jerry Rosburg,Sean Payton,DEN-2023-Payton,DEN-2022-Rosburg,1,2024,value,85210000,2024-11-27,late_season,50285000,,2025,value,42780000,2025-12-17,late_season,41025000,
-DET,2001,offseason,Gary Moeller,Marty Mornhinweg,DET-2001-Mornhinweg,DET-2000-Moeller,1,2002,blank,,,,,no league-wide dead-money table published for 2002,2003,blank,,,,,no league-wide dead-money table published for 2003
-DET,2003,offseason,Marty Mornhinweg,Steve Mariucci,DET-2003-Mariucci,DET-2001-Mornhinweg,2,2004,blank,,,,,no league-wide dead-money table published for 2004,2005,blank,,,,,no league-wide dead-money table published for 2005
-DET,2005,in_season,Steve Mariucci,Dick Jauron,DET-2005-Jauron,DET-2003-Mariucci,2,2006,blank,,,,,no league-wide dead-money table published for 2006,2007,blank,,,,,no league-wide dead-money table published for 2007
-DET,2006,offseason,Dick Jauron,Rod Marinelli,DET-2006-Marinelli,DET-2005-Jauron,1,2007,blank,,,,,no league-wide dead-money table published for 2007,2008,blank,,,,,no league-wide dead-money table published for 2008
-DET,2009,offseason,Rod Marinelli,Jim Schwartz,DET-2009-Schwartz,DET-2006-Marinelli,3,2010,blank,,,,,no league-wide dead-money table published for 2010,2011,blank,,,,,no league-wide dead-money table published for 2011
-DET,2014,offseason,Jim Schwartz,Jim Caldwell,DET-2014-Caldwell,DET-2009-Schwartz,5,2015,value,19363607,2015-10-28,midseason,14259529,,2016,blank,,,,,no league-wide dead-money table published for 2016
-DET,2018,offseason,Jim Caldwell,Matt Patricia,DET-2018-Patricia,DET-2014-Caldwell,4,2019,value,4500000,2019-03-10,preseason,3390000,,2020,blank,,,,,no league-wide dead-money table published for 2020
-DET,2020,in_season,Matt Patricia,Robert Prince,DET-2020-Prince,DET-2018-Patricia,2,2021,blank,,,,,no league-wide dead-money table published for 2021,2022,value,20324288,2022-07-05,preseason,19109982,
-DET,2021,offseason,Robert Prince,Dan Campbell,DET-2021-Campbell,DET-2020-Prince,1,2022,value,20324288,2022-07-05,preseason,19109982,,2023,value,18690000,2023-07-14,preseason,20300000,
-GB,2006,offseason,Mike Sherman,Mike McCarthy,GB-2006-McCarthy,GB-2000-Sherman,6,2007,blank,,,,,no league-wide dead-money table published for 2007,2008,blank,,,,,no league-wide dead-money table published for 2008
-GB,2018,in_season,Mike McCarthy,Joe Philbin,GB-2018-Philbin,GB-2006-McCarthy,12,2019,value,566000,2019-03-10,preseason,3390000,,2020,blank,,,,,no league-wide dead-money table published for 2020
-GB,2019,offseason,Joe Philbin,Matt LaFleur,GB-2019-LaFleur,GB-2018-Philbin,1,2020,blank,,,,,no league-wide dead-money table published for 2020,2021,blank,,,,,no league-wide dead-money table published for 2021
-HOU,2006,offseason,Dom Capers,Gary Kubiak,HOU-2006-Kubiak,HOU-2002-Capers,4,2007,blank,,,,,no league-wide dead-money table published for 2007,2008,blank,,,,,no league-wide dead-money table published for 2008
-HOU,2013,in_season,Gary Kubiak,Wade Phillips,HOU-2013-Phillips,HOU-2006-Kubiak,7,2014,value,3247174,2014-02-18,preseason,4030884,,2015,value,13949305,2015-10-28,midseason,14259529,
-HOU,2014,offseason,Wade Phillips,Bill O'Brien,HOU-2014-O'Brien,HOU-2013-Phillips,1,2015,value,13949305,2015-10-28,midseason,14259529,,2016,blank,,,,,no league-wide dead-money table published for 2016
-HOU,2020,in_season,Bill O'Brien,Romeo Crennel,HOU-2020-Crennel,HOU-2014-O'Brien,6,2021,blank,,,,,no league-wide dead-money table published for 2021,2022,value,52289341,2022-07-05,preseason,19109982,
-HOU,2021,offseason,Romeo Crennel,David Culley,HOU-2021-Culley,HOU-2020-Crennel,1,2022,value,52289341,2022-07-05,preseason,19109982,,2023,value,31720000,2023-07-14,preseason,20300000,
-HOU,2022,offseason,David Culley,Lovie Smith,HOU-2022-Smith,HOU-2021-Culley,1,2023,value,31720000,2023-07-14,preseason,20300000,,2024,value,39280000,2024-11-27,late_season,50285000,
-HOU,2023,offseason,Lovie Smith,DeMeco Ryans,HOU-2023-Ryans,HOU-2022-Smith,1,2024,value,39280000,2024-11-27,late_season,50285000,,2025,value,66440000,2025-12-17,late_season,41025000,
-IND,2002,offseason,Jim E. Mora,Tony Dungy,IND-2002-Dungy,IND-2000-Mora,2,2003,blank,,,,,no league-wide dead-money table published for 2003,2004,blank,,,,,no league-wide dead-money table published for 2004
-IND,2009,offseason,Tony Dungy,Jim Caldwell,IND-2009-Caldwell,IND-2002-Dungy,7,2010,blank,,,,,no league-wide dead-money table published for 2010,2011,blank,,,,,no league-wide dead-money table published for 2011
-IND,2012,in_season,Jim Caldwell,Bruce Arians,IND-2012-Arians,IND-2009-Caldwell,3,2013,blank,,,,,no league-wide dead-money table published for 2013,2014,value,800734,2014-02-18,preseason,4030884,
-IND,2013,offseason,Bruce Arians,Chuck Pagano,IND-2013-Pagano,IND-2012-Arians,1,2014,value,800734,2014-02-18,preseason,4030884,,2015,value,10010298,2015-10-28,midseason,14259529,
-IND,2018,offseason,Chuck Pagano,Frank Reich,IND-2018-Reich,IND-2013-Pagano,5,2019,value,1230000,2019-03-10,preseason,3390000,,2020,blank,,,,,no league-wide dead-money table published for 2020
-IND,2022,in_season,Frank Reich,Jeff Saturday,IND-2022-Saturday,IND-2018-Reich,4,2023,value,24890000,2023-07-14,preseason,20300000,,2024,value,11800000,2024-11-27,late_season,50285000,
-IND,2023,offseason,Jeff Saturday,Shane Steichen,IND-2023-Steichen,IND-2022-Saturday,1,2024,value,11800000,2024-11-27,late_season,50285000,,2025,value,17370000,2025-12-17,late_season,41025000,
-JAX,2003,offseason,Tom Coughlin,Jack Del Rio,JAX-2003-Rio,JAX-2000-Coughlin,3,2004,blank,,,,,no league-wide dead-money table published for 2004,2005,blank,,,,,no league-wide dead-money table published for 2005
-JAX,2011,in_season,Jack Del Rio,Mel Tucker,JAX-2011-Tucker,JAX-2003-Rio,8,2012,blank,,,,,no league-wide dead-money table published for 2012,2013,blank,,,,,no league-wide dead-money table published for 2013
-JAX,2012,offseason,Mel Tucker,Mike Mularkey,JAX-2012-Mularkey,JAX-2011-Tucker,1,2013,blank,,,,,no league-wide dead-money table published for 2013,2014,value,5600511,2014-02-18,preseason,4030884,
-JAX,2013,offseason,Mike Mularkey,Gus Bradley,JAX-2013-Bradley,JAX-2012-Mularkey,1,2014,value,5600511,2014-02-18,preseason,4030884,,2015,value,5362098,2015-10-28,midseason,14259529,
-JAX,2016,in_season,Gus Bradley,Doug Marrone,JAX-2016-Marrone,JAX-2013-Bradley,3,2017,value,4390000,2017-07-05,preseason,5270000,,2018,value,4110000,2018-07-14,preseason,8815000,
-JAX,2021,in_season,Doug Marrone,Darrell Bevell,JAX-2021-Bevell,JAX-2016-Marrone,5,2022,value,21852872,2022-07-05,preseason,19109982,,2023,value,4700000,2023-07-14,preseason,20300000,
-JAX,2022,offseason,Darrell Bevell,Doug Pederson,JAX-2022-Pederson,JAX-2021-Bevell,1,2023,value,4700000,2023-07-14,preseason,20300000,,2024,value,51200000,2024-11-27,late_season,50285000,
-JAX,2025,offseason,Doug Pederson,Liam Coen,JAX-2025-Coen,JAX-2022-Pederson,3,2026,blank,,,,,no league-wide dead-money table published for 2026,2027,blank,,,,,no league-wide dead-money table published for 2027
-KC,2001,offseason,Gunther Cunningham,Dick Vermeil,KC-2001-Vermeil,KC-2000-Cunningham,1,2002,blank,,,,,no league-wide dead-money table published for 2002,2003,blank,,,,,no league-wide dead-money table published for 2003
-KC,2006,offseason,Dick Vermeil,Herm Edwards,KC-2006-Edwards,KC-2001-Vermeil,5,2007,blank,,,,,no league-wide dead-money table published for 2007,2008,blank,,,,,no league-wide dead-money table published for 2008
-KC,2009,offseason,Herm Edwards,Todd Haley,KC-2009-Haley,KC-2006-Edwards,3,2010,blank,,,,,no league-wide dead-money table published for 2010,2011,blank,,,,,no league-wide dead-money table published for 2011
-KC,2011,in_season,Todd Haley,Romeo Crennel,KC-2011-Crennel,KC-2009-Haley,2,2012,blank,,,,,no league-wide dead-money table published for 2012,2013,blank,,,,,no league-wide dead-money table published for 2013
-KC,2013,offseason,Romeo Crennel,Andy Reid,KC-2013-Reid,KC-2011-Crennel,2,2014,value,3505823,2014-02-18,preseason,4030884,,2015,value,21901376,2015-10-28,midseason,14259529,
-LA,2005,in_season,Mike Martz,Joe Vitt,LA-2005-Vitt,LA-2000-Martz,5,2006,blank,,,,,no league-wide dead-money table published for 2006,2007,blank,,,,,no league-wide dead-money table published for 2007
-LA,2006,offseason,Joe Vitt,Scott Linehan,LA-2006-Linehan,LA-2005-Vitt,1,2007,blank,,,,,no league-wide dead-money table published for 2007,2008,blank,,,,,no league-wide dead-money table published for 2008
-LA,2008,in_season,Scott Linehan,Jim Haslett,LA-2008-Haslett,LA-2006-Linehan,2,2009,blank,,,,,no league-wide dead-money table published for 2009,2010,blank,,,,,no league-wide dead-money table published for 2010
-LA,2009,offseason,Jim Haslett,Steve Spagnuolo,LA-2009-Spagnuolo,LA-2008-Haslett,1,2010,blank,,,,,no league-wide dead-money table published for 2010,2011,blank,,,,,no league-wide dead-money table published for 2011
-LA,2012,offseason,Steve Spagnuolo,Jeff Fisher,LA-2012-Fisher,LA-2009-Spagnuolo,3,2013,blank,,,,,no league-wide dead-money table published for 2013,2014,value,133805,2014-02-18,preseason,4030884,
-LA,2016,in_season,Jeff Fisher,John Fassel,LA-2016-Fassel,LA-2012-Fisher,4,2017,value,5710000,2017-07-05,preseason,5270000,,2018,value,12370000,2018-07-14,preseason,8815000,
-LA,2017,offseason,John Fassel,Sean McVay,LA-2017-McVay,LA-2016-Fassel,1,2018,value,12370000,2018-07-14,preseason,8815000,,2019,value,3850000,2019-03-10,preseason,3390000,
-LAC,2002,offseason,Mike Riley,Marty Schottenheimer,LAC-2002-Schottenheimer,LAC-2000-Riley,2,2003,blank,,,,,no league-wide dead-money table published for 2003,2004,blank,,,,,no league-wide dead-money table published for 2004
-LAC,2007,offseason,Marty Schottenheimer,Norv Turner,LAC-2007-Turner,LAC-2002-Schottenheimer,5,2008,blank,,,,,no league-wide dead-money table published for 2008,2009,blank,,,,,no league-wide dead-money table published for 2009
-LAC,2013,offseason,Norv Turner,Mike McCoy,LAC-2013-McCoy,LAC-2007-Turner,6,2014,value,8674983,2014-02-18,preseason,4030884,,2015,value,10439227,2015-10-28,midseason,14259529,
-LAC,2017,offseason,Mike McCoy,Anthony Lynn,LAC-2017-Lynn,LAC-2013-McCoy,4,2018,value,8840000,2018-07-14,preseason,8815000,,2019,value,3260000,2019-03-10,preseason,3390000,
-LAC,2021,offseason,Anthony Lynn,Brandon Staley,LAC-2021-Staley,LAC-2017-Lynn,4,2022,value,3661167,2022-07-05,preseason,19109982,,2023,value,2190000,2023-07-14,preseason,20300000,
-LAC,2023,in_season,Brandon Staley,Giff Smith,LAC-2023-Smith,LAC-2021-Staley,2,2024,value,58620000,2024-11-27,late_season,50285000,,2025,value,38780000,2025-12-17,late_season,41025000,
-LAC,2024,offseason,Giff Smith,Jim Harbaugh,LAC-2024-Harbaugh,LAC-2023-Smith,1,2025,value,38780000,2025-12-17,late_season,41025000,,2026,blank,,,,,no league-wide dead-money table published for 2026
-LV,2002,offseason,Jon Gruden,Bill Callahan,LV-2002-Callahan,LV-2000-Gruden,2,2003,blank,,,,,no league-wide dead-money table published for 2003,2004,blank,,,,,no league-wide dead-money table published for 2004
-LV,2004,offseason,Bill Callahan,Norv Turner,LV-2004-Turner,LV-2002-Callahan,2,2005,blank,,,,,no league-wide dead-money table published for 2005,2006,blank,,,,,no league-wide dead-money table published for 2006
-LV,2006,offseason,Norv Turner,Art Shell,LV-2006-Shell,LV-2004-Turner,2,2007,blank,,,,,no league-wide dead-money table published for 2007,2008,blank,,,,,no league-wide dead-money table published for 2008
-LV,2007,offseason,Art Shell,Lane Kiffin,LV-2007-Kiffin,LV-2006-Shell,1,2008,blank,,,,,no league-wide dead-money table published for 2008,2009,blank,,,,,no league-wide dead-money table published for 2009
-LV,2008,in_season,Lane Kiffin,Tom Cable,LV-2008-Cable,LV-2007-Kiffin,1,2009,blank,,,,,no league-wide dead-money table published for 2009,2010,blank,,,,,no league-wide dead-money table published for 2010
-LV,2011,offseason,Tom Cable,Hue Jackson,LV-2011-Jackson,LV-2008-Cable,3,2012,blank,,,,,no league-wide dead-money table published for 2012,2013,blank,,,,,no league-wide dead-money table published for 2013
-LV,2012,offseason,Hue Jackson,Dennis Allen,LV-2012-Allen,LV-2011-Jackson,1,2013,blank,,,,,no league-wide dead-money table published for 2013,2014,value,9311192,2014-02-18,preseason,4030884,
-LV,2014,in_season,Dennis Allen,Tony Sparano,LV-2014-Sparano,LV-2012-Allen,2,2015,value,16310434,2015-10-28,midseason,14259529,,2016,blank,,,,,no league-wide dead-money table published for 2016
-LV,2015,offseason,Tony Sparano,Jack Del Rio,LV-2015-Rio,LV-2014-Sparano,1,2016,blank,,,,,no league-wide dead-money table published for 2016,2017,value,55000,2017-07-05,preseason,5270000,
-LV,2018,offseason,Jack Del Rio,Jon Gruden,LV-2018-Gruden,LV-2015-Rio,3,2019,value,1500000,2019-03-10,preseason,3390000,,2020,blank,,,,,no league-wide dead-money table published for 2020
-LV,2021,in_season,Jon Gruden,Rich Bisaccia,LV-2021-Bisaccia,LV-2018-Gruden,3,2022,value,29441565,2022-07-05,preseason,19109982,,2023,value,29950000,2023-07-14,preseason,20300000,
-LV,2022,offseason,Rich Bisaccia,Josh McDaniels,LV-2022-McDaniels,LV-2021-Bisaccia,1,2023,value,29950000,2023-07-14,preseason,20300000,,2024,value,49370000,2024-11-27,late_season,50285000,
-LV,2023,in_season,Josh McDaniels,Antonio Pierce,LV-2023-Pierce,LV-2022-McDaniels,1,2024,value,49370000,2024-11-27,late_season,50285000,,2025,value,87790000,2025-12-17,late_season,41025000,
-LV,2025,offseason,Antonio Pierce,Pete Carroll,LV-2025-Carroll,LV-2023-Pierce,2,2026,blank,,,,,no league-wide dead-money table published for 2026,2027,blank,,,,,no league-wide dead-money table published for 2027
-MIA,2004,in_season,Dave Wannstedt,Jim Bates,MIA-2004-Bates,MIA-2000-Wannstedt,4,2005,blank,,,,,no league-wide dead-money table published for 2005,2006,blank,,,,,no league-wide dead-money table published for 2006
-MIA,2005,offseason,Jim Bates,Nick Saban,MIA-2005-Saban,MIA-2004-Bates,1,2006,blank,,,,,no league-wide dead-money table published for 2006,2007,blank,,,,,no league-wide dead-money table published for 2007
-MIA,2007,offseason,Nick Saban,Cam Cameron,MIA-2007-Cameron,MIA-2005-Saban,2,2008,blank,,,,,no league-wide dead-money table published for 2008,2009,blank,,,,,no league-wide dead-money table published for 2009
-MIA,2008,offseason,Cam Cameron,Tony Sparano,MIA-2008-Sparano,MIA-2007-Cameron,1,2009,blank,,,,,no league-wide dead-money table published for 2009,2010,blank,,,,,no league-wide dead-money table published for 2010
-MIA,2011,in_season,Tony Sparano,Todd Bowles,MIA-2011-Bowles,MIA-2008-Sparano,3,2012,blank,,,,,no league-wide dead-money table published for 2012,2013,blank,,,,,no league-wide dead-money table published for 2013
-MIA,2012,offseason,Todd Bowles,Joe Philbin,MIA-2012-Philbin,MIA-2011-Bowles,1,2013,blank,,,,,no league-wide dead-money table published for 2013,2014,value,4942896,2014-02-18,preseason,4030884,
-MIA,2015,in_season,Joe Philbin,Dan Campbell,MIA-2015-Campbell,MIA-2012-Philbin,3,2016,blank,,,,,no league-wide dead-money table published for 2016,2017,value,8200000,2017-07-05,preseason,5270000,
-MIA,2016,offseason,Dan Campbell,Adam Gase,MIA-2016-Gase,MIA-2015-Campbell,1,2017,value,8200000,2017-07-05,preseason,5270000,,2018,value,15000000,2018-07-14,preseason,8815000,
-MIA,2019,offseason,Adam Gase,Brian Flores,MIA-2019-Flores,MIA-2016-Gase,3,2020,blank,,,,,no league-wide dead-money table published for 2020,2021,blank,,,,,no league-wide dead-money table published for 2021
-MIA,2022,offseason,Brian Flores,Mike McDaniel,MIA-2022-McDaniel,MIA-2019-Flores,3,2023,value,8430000,2023-07-14,preseason,20300000,,2024,value,52280000,2024-11-27,late_season,50285000,
-MIN,2001,in_season,Dennis Green,Mike Tice,MIN-2001-Tice,MIN-2000-Green,1,2002,blank,,,,,no league-wide dead-money table published for 2002,2003,blank,,,,,no league-wide dead-money table published for 2003
-MIN,2006,offseason,Mike Tice,Brad Childress,MIN-2006-Childress,MIN-2001-Tice,5,2007,blank,,,,,no league-wide dead-money table published for 2007,2008,blank,,,,,no league-wide dead-money table published for 2008
-MIN,2010,in_season,Brad Childress,Leslie Frazier,MIN-2010-Frazier,MIN-2006-Childress,4,2011,blank,,,,,no league-wide dead-money table published for 2011,2012,blank,,,,,no league-wide dead-money table published for 2012
-MIN,2014,offseason,Leslie Frazier,Mike Zimmer,MIN-2014-Zimmer,MIN-2010-Frazier,4,2015,value,8446161,2015-10-28,midseason,14259529,,2016,blank,,,,,no league-wide dead-money table published for 2016
-MIN,2016,in_season,Mike Zimmer,Mike Priefer,MIN-2016-Priefer,MIN-2014-Zimmer,2,2017,value,4470000,2017-07-05,preseason,5270000,,2018,value,2990000,2018-07-14,preseason,8815000,
-MIN,2017,offseason,Mike Priefer,Mike Zimmer,MIN-2017-Zimmer,MIN-2016-Priefer,1,2018,value,2990000,2018-07-14,preseason,8815000,,2019,value,433000,2019-03-10,preseason,3390000,
-MIN,2022,offseason,Mike Zimmer,Kevin O'Connell,MIN-2022-O'Connell,MIN-2017-Zimmer,5,2023,value,35540000,2023-07-14,preseason,20300000,,2024,value,69830000,2024-11-27,late_season,50285000,
-NE,2024,offseason,Bill Belichick,Jerod Mayo,NE-2024-Mayo,NE-2000-Belichick,24,2025,value,50560000,2025-12-17,late_season,41025000,,2026,blank,,,,,no league-wide dead-money table published for 2026
-NE,2025,offseason,Jerod Mayo,Mike Vrabel,NE-2025-Vrabel,NE-2024-Mayo,1,2026,blank,,,,,no league-wide dead-money table published for 2026,2027,blank,,,,,no league-wide dead-money table published for 2027
-NO,2006,offseason,Jim Haslett,Sean Payton,NO-2006-Payton,NO-2000-Haslett,6,2007,blank,,,,,no league-wide dead-money table published for 2007,2008,blank,,,,,no league-wide dead-money table published for 2008
-NO,2012,in_season,Sean Payton,Joe Vitt,NO-2012-Vitt,NO-2006-Payton,6,2013,blank,,,,,no league-wide dead-money table published for 2013,2014,value,10450051,2014-02-18,preseason,4030884,
-NO,2013,offseason,Joe Vitt,Sean Payton,NO-2013-Payton,NO-2012-Vitt,1,2014,value,10450051,2014-02-18,preseason,4030884,,2015,value,32482518,2015-10-28,midseason,14259529,
-NO,2022,offseason,Sean Payton,Dennis Allen,NO-2022-Allen,NO-2013-Payton,9,2023,value,24580000,2023-07-14,preseason,20300000,,2024,value,59440000,2024-11-27,late_season,50285000,
-NO,2024,in_season,Dennis Allen,Darren Rizzi,NO-2024-Rizzi,NO-2022-Allen,2,2025,value,107830000,2025-12-17,late_season,41025000,,2026,blank,,,,,no league-wide dead-money table published for 2026
-NO,2025,offseason,Darren Rizzi,Kellen Moore,NO-2025-Moore,NO-2024-Rizzi,1,2026,blank,,,,,no league-wide dead-money table published for 2026,2027,blank,,,,,no league-wide dead-money table published for 2027
-NYG,2004,offseason,Jim Fassel,Tom Coughlin,NYG-2004-Coughlin,NYG-2000-Fassel,4,2005,blank,,,,,no league-wide dead-money table published for 2005,2006,blank,,,,,no league-wide dead-money table published for 2006
-NYG,2016,offseason,Tom Coughlin,Ben McAdoo,NYG-2016-McAdoo,NYG-2004-Coughlin,12,2017,value,3090000,2017-07-05,preseason,5270000,,2018,value,21120000,2018-07-14,preseason,8815000,
-NYG,2017,in_season,Ben McAdoo,Steve Spagnuolo,NYG-2017-Spagnuolo,NYG-2016-McAdoo,1,2018,value,21120000,2018-07-14,preseason,8815000,,2019,value,9660000,2019-03-10,preseason,3390000,
-NYG,2018,offseason,Steve Spagnuolo,Pat Shurmur,NYG-2018-Shurmur,NYG-2017-Spagnuolo,1,2019,value,9660000,2019-03-10,preseason,3390000,,2020,blank,,,,,no league-wide dead-money table published for 2020
-NYG,2020,offseason,Pat Shurmur,Joe Judge,NYG-2020-Judge,NYG-2018-Shurmur,2,2021,blank,,,,,no league-wide dead-money table published for 2021,2022,value,29262372,2022-07-05,preseason,19109982,
-NYG,2022,offseason,Joe Judge,Brian Daboll,NYG-2022-Daboll,NYG-2020-Judge,2,2023,value,22740000,2023-07-14,preseason,20300000,,2024,value,79570000,2024-11-27,late_season,50285000,
-NYG,2025,in_season,Brian Daboll,Mike Kafka,NYG-2025-Kafka,NYG-2022-Daboll,3,2026,blank,,,,,no league-wide dead-money table published for 2026,2027,blank,,,,,no league-wide dead-money table published for 2027
-NYJ,2001,offseason,Al Groh,Herm Edwards,NYJ-2001-Edwards,NYJ-2000-Groh,1,2002,blank,,,,,no league-wide dead-money table published for 2002,2003,blank,,,,,no league-wide dead-money table published for 2003
-NYJ,2006,offseason,Herm Edwards,Eric Mangini,NYJ-2006-Mangini,NYJ-2001-Edwards,5,2007,blank,,,,,no league-wide dead-money table published for 2007,2008,blank,,,,,no league-wide dead-money table published for 2008
-NYJ,2009,offseason,Eric Mangini,Rex Ryan,NYJ-2009-Ryan,NYJ-2006-Mangini,3,2010,blank,,,,,no league-wide dead-money table published for 2010,2011,blank,,,,,no league-wide dead-money table published for 2011
-NYJ,2015,offseason,Rex Ryan,Todd Bowles,NYJ-2015-Bowles,NYJ-2009-Ryan,6,2016,blank,,,,,no league-wide dead-money table published for 2016,2017,value,17320000,2017-07-05,preseason,5270000,
-NYJ,2019,offseason,Todd Bowles,Adam Gase,NYJ-2019-Gase,NYJ-2015-Bowles,4,2020,blank,,,,,no league-wide dead-money table published for 2020,2021,blank,,,,,no league-wide dead-money table published for 2021
-NYJ,2021,offseason,Adam Gase,Robert Saleh,NYJ-2021-Saleh,NYJ-2019-Gase,2,2022,value,2092411,2022-07-05,preseason,19109982,,2023,value,7950000,2023-07-14,preseason,20300000,
-NYJ,2024,in_season,Robert Saleh,Jeff Ulbrich,NYJ-2024-Ulbrich,NYJ-2021-Saleh,3,2025,value,102100000,2025-12-17,late_season,41025000,,2026,blank,,,,,no league-wide dead-money table published for 2026
-NYJ,2025,offseason,Jeff Ulbrich,Aaron Glenn,NYJ-2025-Glenn,NYJ-2024-Ulbrich,1,2026,blank,,,,,no league-wide dead-money table published for 2026,2027,blank,,,,,no league-wide dead-money table published for 2027
-PHI,2013,offseason,Andy Reid,Chip Kelly,PHI-2013-Kelly,PHI-2000-Reid,13,2014,value,1348343,2014-02-18,preseason,4030884,,2015,value,16381613,2015-10-28,midseason,14259529,
-PHI,2015,in_season,Chip Kelly,Pat Shurmur,PHI-2015-Shurmur,PHI-2013-Kelly,2,2016,blank,,,,,no league-wide dead-money table published for 2016,2017,value,14000000,2017-07-05,preseason,5270000,
-PHI,2016,offseason,Pat Shurmur,Doug Pederson,PHI-2016-Pederson,PHI-2015-Shurmur,1,2017,value,14000000,2017-07-05,preseason,5270000,,2018,value,9580000,2018-07-14,preseason,8815000,
-PHI,2021,offseason,Doug Pederson,Nick Sirianni,PHI-2021-Sirianni,PHI-2016-Pederson,5,2022,value,54915221,2022-07-05,preseason,19109982,,2023,value,54730000,2023-07-14,preseason,20300000,
-PIT,2007,offseason,Bill Cowher,Mike Tomlin,PIT-2007-Tomlin,PIT-2000-Cowher,7,2008,blank,,,,,no league-wide dead-money table published for 2008,2009,blank,,,,,no league-wide dead-money table published for 2009
-SEA,2009,offseason,Mike Holmgren,Jim L. Mora,SEA-2009-Mora,SEA-2000-Holmgren,9,2010,blank,,,,,no league-wide dead-money table published for 2010,2011,blank,,,,,no league-wide dead-money table published for 2011
-SEA,2010,offseason,Jim L. Mora,Pete Carroll,SEA-2010-Carroll,SEA-2009-Mora,1,2011,blank,,,,,no league-wide dead-money table published for 2011,2012,blank,,,,,no league-wide dead-money table published for 2012
-SEA,2024,offseason,Pete Carroll,Mike Macdonald,SEA-2024-Macdonald,SEA-2010-Carroll,14,2025,value,86100000,2025-12-17,late_season,41025000,,2026,blank,,,,,no league-wide dead-money table published for 2026
-SF,2003,offseason,Steve Mariucci,Dennis Erickson,SF-2003-Erickson,SF-2000-Mariucci,3,2004,blank,,,,,no league-wide dead-money table published for 2004,2005,blank,,,,,no league-wide dead-money table published for 2005
-SF,2005,offseason,Dennis Erickson,Mike Nolan,SF-2005-Nolan,SF-2003-Erickson,2,2006,blank,,,,,no league-wide dead-money table published for 2006,2007,blank,,,,,no league-wide dead-money table published for 2007
-SF,2008,in_season,Mike Nolan,Mike Singletary,SF-2008-Singletary,SF-2005-Nolan,3,2009,blank,,,,,no league-wide dead-money table published for 2009,2010,blank,,,,,no league-wide dead-money table published for 2010
-SF,2010,in_season,Mike Singletary,Jim Tomsula,SF-2010-Tomsula,SF-2008-Singletary,2,2011,blank,,,,,no league-wide dead-money table published for 2011,2012,blank,,,,,no league-wide dead-money table published for 2012
-SF,2011,offseason,Jim Tomsula,Jim Harbaugh,SF-2011-Harbaugh,SF-2010-Tomsula,1,2012,blank,,,,,no league-wide dead-money table published for 2012,2013,blank,,,,,no league-wide dead-money table published for 2013
-SF,2015,offseason,Jim Harbaugh,Jim Tomsula,SF-2015-Tomsula,SF-2011-Harbaugh,4,2016,blank,,,,,no league-wide dead-money table published for 2016,2017,value,13430000,2017-07-05,preseason,5270000,
-SF,2016,offseason,Jim Tomsula,Chip Kelly,SF-2016-Kelly,SF-2015-Tomsula,1,2017,value,13430000,2017-07-05,preseason,5270000,,2018,value,16160000,2018-07-14,preseason,8815000,
-SF,2017,offseason,Chip Kelly,Kyle Shanahan,SF-2017-Shanahan,SF-2016-Kelly,1,2018,value,16160000,2018-07-14,preseason,8815000,,2019,value,11540000,2019-03-10,preseason,3390000,
-TB,2002,offseason,Tony Dungy,Jon Gruden,TB-2002-Gruden,TB-2000-Dungy,2,2003,blank,,,,,no league-wide dead-money table published for 2003,2004,blank,,,,,no league-wide dead-money table published for 2004
-TB,2009,offseason,Jon Gruden,Raheem Morris,TB-2009-Morris,TB-2002-Gruden,7,2010,blank,,,,,no league-wide dead-money table published for 2010,2011,blank,,,,,no league-wide dead-money table published for 2011
-TB,2012,offseason,Raheem Morris,Greg Schiano,TB-2012-Schiano,TB-2009-Morris,3,2013,blank,,,,,no league-wide dead-money table published for 2013,2014,value,139119,2014-02-18,preseason,4030884,
-TB,2014,offseason,Greg Schiano,Lovie Smith,TB-2014-Smith,TB-2012-Schiano,2,2015,value,23601993,2015-10-28,midseason,14259529,,2016,blank,,,,,no league-wide dead-money table published for 2016
-TB,2016,offseason,Lovie Smith,Dirk Koetter,TB-2016-Koetter,TB-2014-Smith,2,2017,value,865000,2017-07-05,preseason,5270000,,2018,value,815510,2018-07-14,preseason,8815000,
-TB,2019,offseason,Dirk Koetter,Bruce Arians,TB-2019-Arians,TB-2016-Koetter,3,2020,blank,,,,,no league-wide dead-money table published for 2020,2021,blank,,,,,no league-wide dead-money table published for 2021
-TB,2022,offseason,Bruce Arians,Todd Bowles,TB-2022-Bowles,TB-2019-Arians,3,2023,value,75320000,2023-07-14,preseason,20300000,,2024,value,60640000,2024-11-27,late_season,50285000,
-TEN,2011,offseason,Jeff Fisher,Mike Munchak,TEN-2011-Munchak,TEN-2000-Fisher,11,2012,blank,,,,,no league-wide dead-money table published for 2012,2013,blank,,,,,no league-wide dead-money table published for 2013
-TEN,2014,offseason,Mike Munchak,Ken Whisenhunt,TEN-2014-Whisenhunt,TEN-2011-Munchak,3,2015,value,15499225,2015-10-28,midseason,14259529,,2016,blank,,,,,no league-wide dead-money table published for 2016
-TEN,2015,in_season,Ken Whisenhunt,Mike Mularkey,TEN-2015-Mularkey,TEN-2014-Whisenhunt,1,2016,blank,,,,,no league-wide dead-money table published for 2016,2017,value,4830000,2017-07-05,preseason,5270000,
-TEN,2018,offseason,Mike Mularkey,Mike Vrabel,TEN-2018-Vrabel,TEN-2015-Mularkey,3,2019,value,1150000,2019-03-10,preseason,3390000,,2020,blank,,,,,no league-wide dead-money table published for 2020
-TEN,2024,offseason,Mike Vrabel,Brian Callahan,TEN-2024-Callahan,TEN-2018-Vrabel,6,2025,value,59420000,2025-12-17,late_season,41025000,,2026,blank,,,,,no league-wide dead-money table published for 2026
-TEN,2025,in_season,Brian Callahan,Mike McCoy,TEN-2025-McCoy,TEN-2024-Callahan,1,2026,blank,,,,,no league-wide dead-money table published for 2026,2027,blank,,,,,no league-wide dead-money table published for 2027
-WAS,2001,offseason,Terry Robiskie,Marty Schottenheimer,WAS-2001-Schottenheimer,WAS-2000-Robiskie,1,2002,blank,,,,,no league-wide dead-money table published for 2002,2003,blank,,,,,no league-wide dead-money table published for 2003
-WAS,2002,offseason,Marty Schottenheimer,Steve Spurrier,WAS-2002-Spurrier,WAS-2001-Schottenheimer,1,2003,blank,,,,,no league-wide dead-money table published for 2003,2004,blank,,,,,no league-wide dead-money table published for 2004
-WAS,2004,offseason,Steve Spurrier,Joe Gibbs,WAS-2004-Gibbs,WAS-2002-Spurrier,2,2005,blank,,,,,no league-wide dead-money table published for 2005,2006,blank,,,,,no league-wide dead-money table published for 2006
-WAS,2008,offseason,Joe Gibbs,Jim Zorn,WAS-2008-Zorn,WAS-2004-Gibbs,4,2009,blank,,,,,no league-wide dead-money table published for 2009,2010,blank,,,,,no league-wide dead-money table published for 2010
-WAS,2010,offseason,Jim Zorn,Mike Shanahan,WAS-2010-Shanahan,WAS-2008-Zorn,2,2011,blank,,,,,no league-wide dead-money table published for 2011,2012,blank,,,,,no league-wide dead-money table published for 2012
-WAS,2014,offseason,Mike Shanahan,Jay Gruden,WAS-2014-Gruden,WAS-2010-Shanahan,4,2015,value,11333421,2015-10-28,midseason,14259529,,2016,blank,,,,,no league-wide dead-money table published for 2016
-WAS,2019,in_season,Jay Gruden,Bill Callahan,WAS-2019-Callahan,WAS-2014-Gruden,5,2020,blank,,,,,no league-wide dead-money table published for 2020,2021,blank,,,,,no league-wide dead-money table published for 2021
-WAS,2020,offseason,Bill Callahan,Ron Rivera,WAS-2020-Rivera,WAS-2019-Callahan,1,2021,blank,,,,,no league-wide dead-money table published for 2021,2022,value,6300496,2022-07-05,preseason,19109982,
-WAS,2024,offseason,Ron Rivera,Dan Quinn,WAS-2024-Quinn,WAS-2020-Rivera,4,2025,value,27290000,2025-12-17,late_season,41025000,,2026,blank,,,,,no league-wide dead-money table published for 2026
+team,season,kind,outgoing_hc,incoming_hc,regime_id,dm_next1_season,dm_next1_state,dm_next1_usd,dm_next1_asof_date,dm_next1_asof_stage,dm_next1_league_median_usd,dm_next1_blank_reason,dm_next2_season,dm_next2_state,dm_next2_usd,dm_next2_asof_date,dm_next2_asof_stage,dm_next2_league_median_usd,dm_next2_blank_reason
+ARI,2004,offseason,Dave McGinnis,Dennis Green,ARI-2004-Green,2005,blank,,,,,no league-wide dead-money table published for 2005,2006,blank,,,,,no league-wide dead-money table published for 2006
+ARI,2007,offseason,Dennis Green,Ken Whisenhunt,ARI-2007-Whisenhunt,2008,blank,,,,,no league-wide dead-money table published for 2008,2009,blank,,,,,no league-wide dead-money table published for 2009
+ARI,2013,offseason,Ken Whisenhunt,Bruce Arians,ARI-2013-Arians,2014,value,10087468,2014-02-18,preseason,4030884,,2015,value,12792586,2015-10-28,midseason,14259529,
+ARI,2018,offseason,Bruce Arians,Steve Wilks,ARI-2018-Wilks,2019,value,16390000,2019-03-10,preseason,3390000,,2020,blank,,,,,no league-wide dead-money table published for 2020
+ARI,2019,offseason,Steve Wilks,Kliff Kingsbury,ARI-2019-Kingsbury,2020,blank,,,,,no league-wide dead-money table published for 2020,2021,blank,,,,,no league-wide dead-money table published for 2021
+ARI,2023,offseason,Kliff Kingsbury,Jonathan Gannon,ARI-2023-Gannon,2024,value,29350000,2024-11-27,late_season,50285000,,2025,value,16510000,2025-12-17,late_season,41025000,
+ATL,2003,in_season,Dan Reeves,Wade Phillips,ATL-2003-Phillips,2004,blank,,,,,no league-wide dead-money table published for 2004,2005,blank,,,,,no league-wide dead-money table published for 2005
+ATL,2004,offseason,Wade Phillips,Jim L. Mora,ATL-2004-Mora,2005,blank,,,,,no league-wide dead-money table published for 2005,2006,blank,,,,,no league-wide dead-money table published for 2006
+ATL,2007,in_season,Jim L. Mora,Emmitt Thomas,ATL-2007-Thomas,2008,blank,,,,,no league-wide dead-money table published for 2008,2009,blank,,,,,no league-wide dead-money table published for 2009
+ATL,2008,offseason,Emmitt Thomas,Mike Smith,ATL-2008-Smith,2009,blank,,,,,no league-wide dead-money table published for 2009,2010,blank,,,,,no league-wide dead-money table published for 2010
+ATL,2015,offseason,Mike Smith,Dan Quinn,ATL-2015-Quinn,2016,blank,,,,,no league-wide dead-money table published for 2016,2017,value,4570000,2017-07-05,preseason,5270000,
+ATL,2020,in_season,Dan Quinn,Raheem Morris,ATL-2020-Morris,2021,blank,,,,,no league-wide dead-money table published for 2021,2022,value,63209124,2022-07-05,preseason,19109982,
+ATL,2021,offseason,Raheem Morris,Arthur Smith,ATL-2021-Smith,2022,value,63209124,2022-07-05,preseason,19109982,,2023,value,18780000,2023-07-14,preseason,20300000,
+ATL,2024,offseason,Arthur Smith,Raheem Morris,ATL-2024-Morris,2025,value,27000000,2025-12-17,late_season,41025000,,2026,blank,,,,,no league-wide dead-money table published for 2026
+BAL,2008,offseason,Brian Billick,John Harbaugh,BAL-2008-Harbaugh,2009,blank,,,,,no league-wide dead-money table published for 2009,2010,blank,,,,,no league-wide dead-money table published for 2010
+BUF,2001,offseason,Wade Phillips,Gregg Williams,BUF-2001-Williams,2002,blank,,,,,no league-wide dead-money table published for 2002,2003,blank,,,,,no league-wide dead-money table published for 2003
+BUF,2004,offseason,Gregg Williams,Mike Mularkey,BUF-2004-Mularkey,2005,blank,,,,,no league-wide dead-money table published for 2005,2006,blank,,,,,no league-wide dead-money table published for 2006
+BUF,2006,offseason,Mike Mularkey,Dick Jauron,BUF-2006-Jauron,2007,blank,,,,,no league-wide dead-money table published for 2007,2008,blank,,,,,no league-wide dead-money table published for 2008
+BUF,2009,in_season,Dick Jauron,Perry Fewell,BUF-2009-Fewell,2010,blank,,,,,no league-wide dead-money table published for 2010,2011,blank,,,,,no league-wide dead-money table published for 2011
+BUF,2010,offseason,Perry Fewell,Chan Gailey,BUF-2010-Gailey,2011,blank,,,,,no league-wide dead-money table published for 2011,2012,blank,,,,,no league-wide dead-money table published for 2012
+BUF,2013,offseason,Chan Gailey,Doug Marrone,BUF-2013-Marrone,2014,value,12070113,2014-02-18,preseason,4030884,,2015,value,11793665,2015-10-28,midseason,14259529,
+BUF,2015,offseason,Doug Marrone,Rex Ryan,BUF-2015-Ryan,2016,blank,,,,,no league-wide dead-money table published for 2016,2017,value,7920000,2017-07-05,preseason,5270000,
+BUF,2016,in_season,Rex Ryan,Anthony Lynn,BUF-2016-Lynn,2017,value,7920000,2017-07-05,preseason,5270000,,2018,value,46710000,2018-07-14,preseason,8815000,
+BUF,2017,offseason,Anthony Lynn,Sean McDermott,BUF-2017-McDermott,2018,value,46710000,2018-07-14,preseason,8815000,,2019,value,7560000,2019-03-10,preseason,3390000,
+CAR,2002,offseason,George Seifert,John Fox,CAR-2002-Fox,2003,blank,,,,,no league-wide dead-money table published for 2003,2004,blank,,,,,no league-wide dead-money table published for 2004
+CAR,2011,offseason,John Fox,Ron Rivera,CAR-2011-Rivera,2012,blank,,,,,no league-wide dead-money table published for 2012,2013,blank,,,,,no league-wide dead-money table published for 2013
+CAR,2019,in_season,Ron Rivera,Perry Fewell,CAR-2019-Fewell,2020,blank,,,,,no league-wide dead-money table published for 2020,2021,blank,,,,,no league-wide dead-money table published for 2021
+CAR,2020,offseason,Perry Fewell,Matt Rhule,CAR-2020-Rhule,2021,blank,,,,,no league-wide dead-money table published for 2021,2022,value,23507283,2022-07-05,preseason,19109982,
+CAR,2022,in_season,Matt Rhule,Steve Wilks,CAR-2022-Wilks,2023,value,51540000,2023-07-14,preseason,20300000,,2024,value,68280000,2024-11-27,late_season,50285000,
+CAR,2023,in_season,Steve Wilks,Chris Tabor,CAR-2023-Tabor,2024,value,68280000,2024-11-27,late_season,50285000,,2025,value,36550000,2025-12-17,late_season,41025000,
+CAR,2024,offseason,Chris Tabor,Dave Canales,CAR-2024-Canales,2025,value,36550000,2025-12-17,late_season,41025000,,2026,blank,,,,,no league-wide dead-money table published for 2026
+CHI,2004,offseason,Dick Jauron,Lovie Smith,CHI-2004-Smith,2005,blank,,,,,no league-wide dead-money table published for 2005,2006,blank,,,,,no league-wide dead-money table published for 2006
+CHI,2013,offseason,Lovie Smith,Marc Trestman,CHI-2013-Trestman,2014,value,1476671,2014-02-18,preseason,4030884,,2015,value,25573238,2015-10-28,midseason,14259529,
+CHI,2015,offseason,Marc Trestman,John Fox,CHI-2015-Fox,2016,blank,,,,,no league-wide dead-money table published for 2016,2017,value,3800000,2017-07-05,preseason,5270000,
+CHI,2018,offseason,John Fox,Matt Nagy,CHI-2018-Nagy,2019,value,920000,2019-03-10,preseason,3390000,,2020,blank,,,,,no league-wide dead-money table published for 2020
+CHI,2021,in_season,Matt Nagy,Chris Tabor,CHI-2021-Tabor,2022,value,57643341,2022-07-05,preseason,19109982,,2023,value,23520000,2023-07-14,preseason,20300000,
+CHI,2022,offseason,Chris Tabor,Matt Eberflus,CHI-2022-Eberflus,2023,value,23520000,2023-07-14,preseason,20300000,,2024,value,29650000,2024-11-27,late_season,50285000,
+CHI,2024,in_season,Matt Eberflus,Thomas Brown,CHI-2024-Brown,2025,value,8600000,2025-12-17,late_season,41025000,,2026,blank,,,,,no league-wide dead-money table published for 2026
+CHI,2025,offseason,Thomas Brown,Ben Johnson,CHI-2025-Johnson,2026,blank,,,,,no league-wide dead-money table published for 2026,2027,blank,,,,,no league-wide dead-money table published for 2027
+CIN,2003,offseason,Dick LeBeau,Marvin Lewis,CIN-2003-Lewis,2004,blank,,,,,no league-wide dead-money table published for 2004,2005,blank,,,,,no league-wide dead-money table published for 2005
+CIN,2019,offseason,Marvin Lewis,Zac Taylor,CIN-2019-Taylor,2020,blank,,,,,no league-wide dead-money table published for 2020,2021,blank,,,,,no league-wide dead-money table published for 2021
+CLE,2001,offseason,Chris Palmer,Butch Davis,CLE-2001-Davis,2002,blank,,,,,no league-wide dead-money table published for 2002,2003,blank,,,,,no league-wide dead-money table published for 2003
+CLE,2004,in_season,Butch Davis,Terry Robiskie,CLE-2004-Robiskie,2005,blank,,,,,no league-wide dead-money table published for 2005,2006,blank,,,,,no league-wide dead-money table published for 2006
+CLE,2005,offseason,Terry Robiskie,Romeo Crennel,CLE-2005-Crennel,2006,blank,,,,,no league-wide dead-money table published for 2006,2007,blank,,,,,no league-wide dead-money table published for 2007
+CLE,2009,offseason,Romeo Crennel,Eric Mangini,CLE-2009-Mangini,2010,blank,,,,,no league-wide dead-money table published for 2010,2011,blank,,,,,no league-wide dead-money table published for 2011
+CLE,2011,offseason,Eric Mangini,Pat Shurmur,CLE-2011-Shurmur,2012,blank,,,,,no league-wide dead-money table published for 2012,2013,blank,,,,,no league-wide dead-money table published for 2013
+CLE,2013,offseason,Pat Shurmur,Rob Chudzinski,CLE-2013-Chudzinski,2014,value,7194157,2014-02-18,preseason,4030884,,2015,value,6934915,2015-10-28,midseason,14259529,
+CLE,2014,offseason,Rob Chudzinski,Mike Pettine,CLE-2014-Pettine,2015,value,6934915,2015-10-28,midseason,14259529,,2016,blank,,,,,no league-wide dead-money table published for 2016
+CLE,2016,offseason,Mike Pettine,Hue Jackson,CLE-2016-Jackson,2017,value,11470000,2017-07-05,preseason,5270000,,2018,value,17230000,2018-07-14,preseason,8815000,
+CLE,2018,in_season,Hue Jackson,Gregg Williams,CLE-2018-Williams,2019,value,7440000,2019-03-10,preseason,3390000,,2020,blank,,,,,no league-wide dead-money table published for 2020
+CLE,2019,offseason,Gregg Williams,Freddie Kitchens,CLE-2019-Kitchens,2020,blank,,,,,no league-wide dead-money table published for 2020,2021,blank,,,,,no league-wide dead-money table published for 2021
+CLE,2020,in_season,Freddie Kitchens,Mike Priefer,CLE-2020-Priefer,2021,blank,,,,,no league-wide dead-money table published for 2021,2022,value,18774054,2022-07-05,preseason,19109982,
+CLE,2021,offseason,Mike Priefer,Kevin Stefanski,CLE-2021-Stefanski,2022,value,18774054,2022-07-05,preseason,19109982,,2023,value,16000000,2023-07-14,preseason,20300000,
+DAL,2003,offseason,Dave Campo,Bill Parcells,DAL-2003-Parcells,2004,blank,,,,,no league-wide dead-money table published for 2004,2005,blank,,,,,no league-wide dead-money table published for 2005
+DAL,2007,offseason,Bill Parcells,Wade Phillips,DAL-2007-Phillips,2008,blank,,,,,no league-wide dead-money table published for 2008,2009,blank,,,,,no league-wide dead-money table published for 2009
+DAL,2010,in_season,Wade Phillips,Jason Garrett,DAL-2010-Garrett,2011,blank,,,,,no league-wide dead-money table published for 2011,2012,blank,,,,,no league-wide dead-money table published for 2012
+DAL,2020,offseason,Jason Garrett,Mike McCarthy,DAL-2020-McCarthy,2021,blank,,,,,no league-wide dead-money table published for 2021,2022,value,22713132,2022-07-05,preseason,19109982,
+DAL,2025,offseason,Mike McCarthy,Brian Schottenheimer,DAL-2025-Schottenheimer,2026,blank,,,,,no league-wide dead-money table published for 2026,2027,blank,,,,,no league-wide dead-money table published for 2027
+DEN,2009,offseason,Mike Shanahan,Josh McDaniels,DEN-2009-McDaniels,2010,blank,,,,,no league-wide dead-money table published for 2010,2011,blank,,,,,no league-wide dead-money table published for 2011
+DEN,2010,in_season,Josh McDaniels,Eric Studesville,DEN-2010-Studesville,2011,blank,,,,,no league-wide dead-money table published for 2011,2012,blank,,,,,no league-wide dead-money table published for 2012
+DEN,2011,offseason,Eric Studesville,John Fox,DEN-2011-Fox,2012,blank,,,,,no league-wide dead-money table published for 2012,2013,blank,,,,,no league-wide dead-money table published for 2013
+DEN,2013,in_season,John Fox,Jack Del Rio,DEN-2013-Rio,2014,value,3992330,2014-02-18,preseason,4030884,,2015,value,3935731,2015-10-28,midseason,14259529,
+DEN,2014,offseason,Jack Del Rio,John Fox,DEN-2014-Fox,2015,value,3935731,2015-10-28,midseason,14259529,,2016,blank,,,,,no league-wide dead-money table published for 2016
+DEN,2015,offseason,John Fox,Gary Kubiak,DEN-2015-Kubiak,2016,blank,,,,,no league-wide dead-money table published for 2016,2017,value,72000,2017-07-05,preseason,5270000,
+DEN,2016,in_season,Gary Kubiak,Joe DeCamillis,DEN-2016-DeCamillis,2017,value,72000,2017-07-05,preseason,5270000,,2018,value,2480000,2018-07-14,preseason,8815000,
+DEN,2017,offseason,Joe DeCamillis,Vance Joseph,DEN-2017-Joseph,2018,value,2480000,2018-07-14,preseason,8815000,,2019,value,10380000,2019-03-10,preseason,3390000,
+DEN,2019,offseason,Vance Joseph,Vic Fangio,DEN-2019-Fangio,2020,blank,,,,,no league-wide dead-money table published for 2020,2021,blank,,,,,no league-wide dead-money table published for 2021
+DEN,2022,in_season,Vic Fangio,Jerry Rosburg,DEN-2022-Rosburg,2023,value,9720000,2023-07-14,preseason,20300000,,2024,value,85210000,2024-11-27,late_season,50285000,
+DEN,2023,offseason,Jerry Rosburg,Sean Payton,DEN-2023-Payton,2024,value,85210000,2024-11-27,late_season,50285000,,2025,value,42780000,2025-12-17,late_season,41025000,
+DET,2001,offseason,Gary Moeller,Marty Mornhinweg,DET-2001-Mornhinweg,2002,blank,,,,,no league-wide dead-money table published for 2002,2003,blank,,,,,no league-wide dead-money table published for 2003
+DET,2003,offseason,Marty Mornhinweg,Steve Mariucci,DET-2003-Mariucci,2004,blank,,,,,no league-wide dead-money table published for 2004,2005,blank,,,,,no league-wide dead-money table published for 2005
+DET,2005,in_season,Steve Mariucci,Dick Jauron,DET-2005-Jauron,2006,blank,,,,,no league-wide dead-money table published for 2006,2007,blank,,,,,no league-wide dead-money table published for 2007
+DET,2006,offseason,Dick Jauron,Rod Marinelli,DET-2006-Marinelli,2007,blank,,,,,no league-wide dead-money table published for 2007,2008,blank,,,,,no league-wide dead-money table published for 2008
+DET,2009,offseason,Rod Marinelli,Jim Schwartz,DET-2009-Schwartz,2010,blank,,,,,no league-wide dead-money table published for 2010,2011,blank,,,,,no league-wide dead-money table published for 2011
+DET,2014,offseason,Jim Schwartz,Jim Caldwell,DET-2014-Caldwell,2015,value,19363607,2015-10-28,midseason,14259529,,2016,blank,,,,,no league-wide dead-money table published for 2016
+DET,2018,offseason,Jim Caldwell,Matt Patricia,DET-2018-Patricia,2019,value,4500000,2019-03-10,preseason,3390000,,2020,blank,,,,,no league-wide dead-money table published for 2020
+DET,2020,in_season,Matt Patricia,Robert Prince,DET-2020-Prince,2021,blank,,,,,no league-wide dead-money table published for 2021,2022,value,20324288,2022-07-05,preseason,19109982,
+DET,2021,offseason,Robert Prince,Dan Campbell,DET-2021-Campbell,2022,value,20324288,2022-07-05,preseason,19109982,,2023,value,18690000,2023-07-14,preseason,20300000,
+GB,2006,offseason,Mike Sherman,Mike McCarthy,GB-2006-McCarthy,2007,blank,,,,,no league-wide dead-money table published for 2007,2008,blank,,,,,no league-wide dead-money table published for 2008
+GB,2018,in_season,Mike McCarthy,Joe Philbin,GB-2018-Philbin,2019,value,566000,2019-03-10,preseason,3390000,,2020,blank,,,,,no league-wide dead-money table published for 2020
+GB,2019,offseason,Joe Philbin,Matt LaFleur,GB-2019-LaFleur,2020,blank,,,,,no league-wide dead-money table published for 2020,2021,blank,,,,,no league-wide dead-money table published for 2021
+HOU,2006,offseason,Dom Capers,Gary Kubiak,HOU-2006-Kubiak,2007,blank,,,,,no league-wide dead-money table published for 2007,2008,blank,,,,,no league-wide dead-money table published for 2008
+HOU,2013,in_season,Gary Kubiak,Wade Phillips,HOU-2013-Phillips,2014,value,3247174,2014-02-18,preseason,4030884,,2015,value,13949305,2015-10-28,midseason,14259529,
+HOU,2014,offseason,Wade Phillips,Bill O'Brien,HOU-2014-O'Brien,2015,value,13949305,2015-10-28,midseason,14259529,,2016,blank,,,,,no league-wide dead-money table published for 2016
+HOU,2020,in_season,Bill O'Brien,Romeo Crennel,HOU-2020-Crennel,2021,blank,,,,,no league-wide dead-money table published for 2021,2022,value,52289341,2022-07-05,preseason,19109982,
+HOU,2021,offseason,Romeo Crennel,David Culley,HOU-2021-Culley,2022,value,52289341,2022-07-05,preseason,19109982,,2023,value,31720000,2023-07-14,preseason,20300000,
+HOU,2022,offseason,David Culley,Lovie Smith,HOU-2022-Smith,2023,value,31720000,2023-07-14,preseason,20300000,,2024,value,39280000,2024-11-27,late_season,50285000,
+HOU,2023,offseason,Lovie Smith,DeMeco Ryans,HOU-2023-Ryans,2024,value,39280000,2024-11-27,late_season,50285000,,2025,value,66440000,2025-12-17,late_season,41025000,
+IND,2002,offseason,Jim E. Mora,Tony Dungy,IND-2002-Dungy,2003,blank,,,,,no league-wide dead-money table published for 2003,2004,blank,,,,,no league-wide dead-money table published for 2004
+IND,2009,offseason,Tony Dungy,Jim Caldwell,IND-2009-Caldwell,2010,blank,,,,,no league-wide dead-money table published for 2010,2011,blank,,,,,no league-wide dead-money table published for 2011
+IND,2012,in_season,Jim Caldwell,Bruce Arians,IND-2012-Arians,2013,blank,,,,,no league-wide dead-money table published for 2013,2014,value,800734,2014-02-18,preseason,4030884,
+IND,2013,offseason,Bruce Arians,Chuck Pagano,IND-2013-Pagano,2014,value,800734,2014-02-18,preseason,4030884,,2015,value,10010298,2015-10-28,midseason,14259529,
+IND,2018,offseason,Chuck Pagano,Frank Reich,IND-2018-Reich,2019,value,1230000,2019-03-10,preseason,3390000,,2020,blank,,,,,no league-wide dead-money table published for 2020
+IND,2022,in_season,Frank Reich,Jeff Saturday,IND-2022-Saturday,2023,value,24890000,2023-07-14,preseason,20300000,,2024,value,11800000,2024-11-27,late_season,50285000,
+IND,2023,offseason,Jeff Saturday,Shane Steichen,IND-2023-Steichen,2024,value,11800000,2024-11-27,late_season,50285000,,2025,value,17370000,2025-12-17,late_season,41025000,
+JAX,2003,offseason,Tom Coughlin,Jack Del Rio,JAX-2003-Rio,2004,blank,,,,,no league-wide dead-money table published for 2004,2005,blank,,,,,no league-wide dead-money table published for 2005
+JAX,2011,in_season,Jack Del Rio,Mel Tucker,JAX-2011-Tucker,2012,blank,,,,,no league-wide dead-money table published for 2012,2013,blank,,,,,no league-wide dead-money table published for 2013
+JAX,2012,offseason,Mel Tucker,Mike Mularkey,JAX-2012-Mularkey,2013,blank,,,,,no league-wide dead-money table published for 2013,2014,value,5600511,2014-02-18,preseason,4030884,
+JAX,2013,offseason,Mike Mularkey,Gus Bradley,JAX-2013-Bradley,2014,value,5600511,2014-02-18,preseason,4030884,,2015,value,5362098,2015-10-28,midseason,14259529,
+JAX,2016,in_season,Gus Bradley,Doug Marrone,JAX-2016-Marrone,2017,value,4390000,2017-07-05,preseason,5270000,,2018,value,4110000,2018-07-14,preseason,8815000,
+JAX,2021,in_season,Doug Marrone,Darrell Bevell,JAX-2021-Bevell,2022,value,21852872,2022-07-05,preseason,19109982,,2023,value,4700000,2023-07-14,preseason,20300000,
+JAX,2022,offseason,Darrell Bevell,Doug Pederson,JAX-2022-Pederson,2023,value,4700000,2023-07-14,preseason,20300000,,2024,value,51200000,2024-11-27,late_season,50285000,
+JAX,2025,offseason,Doug Pederson,Liam Coen,JAX-2025-Coen,2026,blank,,,,,no league-wide dead-money table published for 2026,2027,blank,,,,,no league-wide dead-money table published for 2027
+KC,2001,offseason,Gunther Cunningham,Dick Vermeil,KC-2001-Vermeil,2002,blank,,,,,no league-wide dead-money table published for 2002,2003,blank,,,,,no league-wide dead-money table published for 2003
+KC,2006,offseason,Dick Vermeil,Herm Edwards,KC-2006-Edwards,2007,blank,,,,,no league-wide dead-money table published for 2007,2008,blank,,,,,no league-wide dead-money table published for 2008
+KC,2009,offseason,Herm Edwards,Todd Haley,KC-2009-Haley,2010,blank,,,,,no league-wide dead-money table published for 2010,2011,blank,,,,,no league-wide dead-money table published for 2011
+KC,2011,in_season,Todd Haley,Romeo Crennel,KC-2011-Crennel,2012,blank,,,,,no league-wide dead-money table published for 2012,2013,blank,,,,,no league-wide dead-money table published for 2013
+KC,2013,offseason,Romeo Crennel,Andy Reid,KC-2013-Reid,2014,value,3505823,2014-02-18,preseason,4030884,,2015,value,21901376,2015-10-28,midseason,14259529,
+LA,2005,in_season,Mike Martz,Joe Vitt,LA-2005-Vitt,2006,blank,,,,,no league-wide dead-money table published for 2006,2007,blank,,,,,no league-wide dead-money table published for 2007
+LA,2006,offseason,Joe Vitt,Scott Linehan,LA-2006-Linehan,2007,blank,,,,,no league-wide dead-money table published for 2007,2008,blank,,,,,no league-wide dead-money table published for 2008
+LA,2008,in_season,Scott Linehan,Jim Haslett,LA-2008-Haslett,2009,blank,,,,,no league-wide dead-money table published for 2009,2010,blank,,,,,no league-wide dead-money table published for 2010
+LA,2009,offseason,Jim Haslett,Steve Spagnuolo,LA-2009-Spagnuolo,2010,blank,,,,,no league-wide dead-money table published for 2010,2011,blank,,,,,no league-wide dead-money table published for 2011
+LA,2012,offseason,Steve Spagnuolo,Jeff Fisher,LA-2012-Fisher,2013,blank,,,,,no league-wide dead-money table published for 2013,2014,value,133805,2014-02-18,preseason,4030884,
+LA,2016,in_season,Jeff Fisher,John Fassel,LA-2016-Fassel,2017,value,5710000,2017-07-05,preseason,5270000,,2018,value,12370000,2018-07-14,preseason,8815000,
+LA,2017,offseason,John Fassel,Sean McVay,LA-2017-McVay,2018,value,12370000,2018-07-14,preseason,8815000,,2019,value,3850000,2019-03-10,preseason,3390000,
+LAC,2002,offseason,Mike Riley,Marty Schottenheimer,LAC-2002-Schottenheimer,2003,blank,,,,,no league-wide dead-money table published for 2003,2004,blank,,,,,no league-wide dead-money table published for 2004
+LAC,2007,offseason,Marty Schottenheimer,Norv Turner,LAC-2007-Turner,2008,blank,,,,,no league-wide dead-money table published for 2008,2009,blank,,,,,no league-wide dead-money table published for 2009
+LAC,2013,offseason,Norv Turner,Mike McCoy,LAC-2013-McCoy,2014,value,8674983,2014-02-18,preseason,4030884,,2015,value,10439227,2015-10-28,midseason,14259529,
+LAC,2017,offseason,Mike McCoy,Anthony Lynn,LAC-2017-Lynn,2018,value,8840000,2018-07-14,preseason,8815000,,2019,value,3260000,2019-03-10,preseason,3390000,
+LAC,2021,offseason,Anthony Lynn,Brandon Staley,LAC-2021-Staley,2022,value,3661167,2022-07-05,preseason,19109982,,2023,value,2190000,2023-07-14,preseason,20300000,
+LAC,2023,in_season,Brandon Staley,Giff Smith,LAC-2023-Smith,2024,value,58620000,2024-11-27,late_season,50285000,,2025,value,38780000,2025-12-17,late_season,41025000,
+LAC,2024,offseason,Giff Smith,Jim Harbaugh,LAC-2024-Harbaugh,2025,value,38780000,2025-12-17,late_season,41025000,,2026,blank,,,,,no league-wide dead-money table published for 2026
+LV,2002,offseason,Jon Gruden,Bill Callahan,LV-2002-Callahan,2003,blank,,,,,no league-wide dead-money table published for 2003,2004,blank,,,,,no league-wide dead-money table published for 2004
+LV,2004,offseason,Bill Callahan,Norv Turner,LV-2004-Turner,2005,blank,,,,,no league-wide dead-money table published for 2005,2006,blank,,,,,no league-wide dead-money table published for 2006
+LV,2006,offseason,Norv Turner,Art Shell,LV-2006-Shell,2007,blank,,,,,no league-wide dead-money table published for 2007,2008,blank,,,,,no league-wide dead-money table published for 2008
+LV,2007,offseason,Art Shell,Lane Kiffin,LV-2007-Kiffin,2008,blank,,,,,no league-wide dead-money table published for 2008,2009,blank,,,,,no league-wide dead-money table published for 2009
+LV,2008,in_season,Lane Kiffin,Tom Cable,LV-2008-Cable,2009,blank,,,,,no league-wide dead-money table published for 2009,2010,blank,,,,,no league-wide dead-money table published for 2010
+LV,2011,offseason,Tom Cable,Hue Jackson,LV-2011-Jackson,2012,blank,,,,,no league-wide dead-money table published for 2012,2013,blank,,,,,no league-wide dead-money table published for 2013
+LV,2012,offseason,Hue Jackson,Dennis Allen,LV-2012-Allen,2013,blank,,,,,no league-wide dead-money table published for 2013,2014,value,9311192,2014-02-18,preseason,4030884,
+LV,2014,in_season,Dennis Allen,Tony Sparano,LV-2014-Sparano,2015,value,16310434,2015-10-28,midseason,14259529,,2016,blank,,,,,no league-wide dead-money table published for 2016
+LV,2015,offseason,Tony Sparano,Jack Del Rio,LV-2015-Rio,2016,blank,,,,,no league-wide dead-money table published for 2016,2017,value,55000,2017-07-05,preseason,5270000,
+LV,2018,offseason,Jack Del Rio,Jon Gruden,LV-2018-Gruden,2019,value,1500000,2019-03-10,preseason,3390000,,2020,blank,,,,,no league-wide dead-money table published for 2020
+LV,2021,in_season,Jon Gruden,Rich Bisaccia,LV-2021-Bisaccia,2022,value,29441565,2022-07-05,preseason,19109982,,2023,value,29950000,2023-07-14,preseason,20300000,
+LV,2022,offseason,Rich Bisaccia,Josh McDaniels,LV-2022-McDaniels,2023,value,29950000,2023-07-14,preseason,20300000,,2024,value,49370000,2024-11-27,late_season,50285000,
+LV,2023,in_season,Josh McDaniels,Antonio Pierce,LV-2023-Pierce,2024,value,49370000,2024-11-27,late_season,50285000,,2025,value,87790000,2025-12-17,late_season,41025000,
+LV,2025,offseason,Antonio Pierce,Pete Carroll,LV-2025-Carroll,2026,blank,,,,,no league-wide dead-money table published for 2026,2027,blank,,,,,no league-wide dead-money table published for 2027
+MIA,2004,in_season,Dave Wannstedt,Jim Bates,MIA-2004-Bates,2005,blank,,,,,no league-wide dead-money table published for 2005,2006,blank,,,,,no league-wide dead-money table published for 2006
+MIA,2005,offseason,Jim Bates,Nick Saban,MIA-2005-Saban,2006,blank,,,,,no league-wide dead-money table published for 2006,2007,blank,,,,,no league-wide dead-money table published for 2007
+MIA,2007,offseason,Nick Saban,Cam Cameron,MIA-2007-Cameron,2008,blank,,,,,no league-wide dead-money table published for 2008,2009,blank,,,,,no league-wide dead-money table published for 2009
+MIA,2008,offseason,Cam Cameron,Tony Sparano,MIA-2008-Sparano,2009,blank,,,,,no league-wide dead-money table published for 2009,2010,blank,,,,,no league-wide dead-money table published for 2010
+MIA,2011,in_season,Tony Sparano,Todd Bowles,MIA-2011-Bowles,2012,blank,,,,,no league-wide dead-money table published for 2012,2013,blank,,,,,no league-wide dead-money table published for 2013
+MIA,2012,offseason,Todd Bowles,Joe Philbin,MIA-2012-Philbin,2013,blank,,,,,no league-wide dead-money table published for 2013,2014,value,4942896,2014-02-18,preseason,4030884,
+MIA,2015,in_season,Joe Philbin,Dan Campbell,MIA-2015-Campbell,2016,blank,,,,,no league-wide dead-money table published for 2016,2017,value,8200000,2017-07-05,preseason,5270000,
+MIA,2016,offseason,Dan Campbell,Adam Gase,MIA-2016-Gase,2017,value,8200000,2017-07-05,preseason,5270000,,2018,value,15000000,2018-07-14,preseason,8815000,
+MIA,2019,offseason,Adam Gase,Brian Flores,MIA-2019-Flores,2020,blank,,,,,no league-wide dead-money table published for 2020,2021,blank,,,,,no league-wide dead-money table published for 2021
+MIA,2022,offseason,Brian Flores,Mike McDaniel,MIA-2022-McDaniel,2023,value,8430000,2023-07-14,preseason,20300000,,2024,value,52280000,2024-11-27,late_season,50285000,
+MIN,2001,in_season,Dennis Green,Mike Tice,MIN-2001-Tice,2002,blank,,,,,no league-wide dead-money table published for 2002,2003,blank,,,,,no league-wide dead-money table published for 2003
+MIN,2006,offseason,Mike Tice,Brad Childress,MIN-2006-Childress,2007,blank,,,,,no league-wide dead-money table published for 2007,2008,blank,,,,,no league-wide dead-money table published for 2008
+MIN,2010,in_season,Brad Childress,Leslie Frazier,MIN-2010-Frazier,2011,blank,,,,,no league-wide dead-money table published for 2011,2012,blank,,,,,no league-wide dead-money table published for 2012
+MIN,2014,offseason,Leslie Frazier,Mike Zimmer,MIN-2014-Zimmer,2015,value,8446161,2015-10-28,midseason,14259529,,2016,blank,,,,,no league-wide dead-money table published for 2016
+MIN,2016,in_season,Mike Zimmer,Mike Priefer,MIN-2016-Priefer,2017,value,4470000,2017-07-05,preseason,5270000,,2018,value,2990000,2018-07-14,preseason,8815000,
+MIN,2017,offseason,Mike Priefer,Mike Zimmer,MIN-2017-Zimmer,2018,value,2990000,2018-07-14,preseason,8815000,,2019,value,433000,2019-03-10,preseason,3390000,
+MIN,2022,offseason,Mike Zimmer,Kevin O'Connell,MIN-2022-O'Connell,2023,value,35540000,2023-07-14,preseason,20300000,,2024,value,69830000,2024-11-27,late_season,50285000,
+NE,2024,offseason,Bill Belichick,Jerod Mayo,NE-2024-Mayo,2025,value,50560000,2025-12-17,late_season,41025000,,2026,blank,,,,,no league-wide dead-money table published for 2026
+NE,2025,offseason,Jerod Mayo,Mike Vrabel,NE-2025-Vrabel,2026,blank,,,,,no league-wide dead-money table published for 2026,2027,blank,,,,,no league-wide dead-money table published for 2027
+NO,2006,offseason,Jim Haslett,Sean Payton,NO-2006-Payton,2007,blank,,,,,no league-wide dead-money table published for 2007,2008,blank,,,,,no league-wide dead-money table published for 2008
+NO,2012,in_season,Sean Payton,Joe Vitt,NO-2012-Vitt,2013,blank,,,,,no league-wide dead-money table published for 2013,2014,value,10450051,2014-02-18,preseason,4030884,
+NO,2013,offseason,Joe Vitt,Sean Payton,NO-2013-Payton,2014,value,10450051,2014-02-18,preseason,4030884,,2015,value,32482518,2015-10-28,midseason,14259529,
+NO,2022,offseason,Sean Payton,Dennis Allen,NO-2022-Allen,2023,value,24580000,2023-07-14,preseason,20300000,,2024,value,59440000,2024-11-27,late_season,50285000,
+NO,2024,in_season,Dennis Allen,Darren Rizzi,NO-2024-Rizzi,2025,value,107830000,2025-12-17,late_season,41025000,,2026,blank,,,,,no league-wide dead-money table published for 2026
+NO,2025,offseason,Darren Rizzi,Kellen Moore,NO-2025-Moore,2026,blank,,,,,no league-wide dead-money table published for 2026,2027,blank,,,,,no league-wide dead-money table published for 2027
+NYG,2004,offseason,Jim Fassel,Tom Coughlin,NYG-2004-Coughlin,2005,blank,,,,,no league-wide dead-money table published for 2005,2006,blank,,,,,no league-wide dead-money table published for 2006
+NYG,2016,offseason,Tom Coughlin,Ben McAdoo,NYG-2016-McAdoo,2017,value,3090000,2017-07-05,preseason,5270000,,2018,value,21120000,2018-07-14,preseason,8815000,
+NYG,2017,in_season,Ben McAdoo,Steve Spagnuolo,NYG-2017-Spagnuolo,2018,value,21120000,2018-07-14,preseason,8815000,,2019,value,9660000,2019-03-10,preseason,3390000,
+NYG,2018,offseason,Steve Spagnuolo,Pat Shurmur,NYG-2018-Shurmur,2019,value,9660000,2019-03-10,preseason,3390000,,2020,blank,,,,,no league-wide dead-money table published for 2020
+NYG,2020,offseason,Pat Shurmur,Joe Judge,NYG-2020-Judge,2021,blank,,,,,no league-wide dead-money table published for 2021,2022,value,29262372,2022-07-05,preseason,19109982,
+NYG,2022,offseason,Joe Judge,Brian Daboll,NYG-2022-Daboll,2023,value,22740000,2023-07-14,preseason,20300000,,2024,value,79570000,2024-11-27,late_season,50285000,
+NYG,2025,in_season,Brian Daboll,Mike Kafka,NYG-2025-Kafka,2026,blank,,,,,no league-wide dead-money table published for 2026,2027,blank,,,,,no league-wide dead-money table published for 2027
+NYJ,2001,offseason,Al Groh,Herm Edwards,NYJ-2001-Edwards,2002,blank,,,,,no league-wide dead-money table published for 2002,2003,blank,,,,,no league-wide dead-money table published for 2003
+NYJ,2006,offseason,Herm Edwards,Eric Mangini,NYJ-2006-Mangini,2007,blank,,,,,no league-wide dead-money table published for 2007,2008,blank,,,,,no league-wide dead-money table published for 2008
+NYJ,2009,offseason,Eric Mangini,Rex Ryan,NYJ-2009-Ryan,2010,blank,,,,,no league-wide dead-money table published for 2010,2011,blank,,,,,no league-wide dead-money table published for 2011
+NYJ,2015,offseason,Rex Ryan,Todd Bowles,NYJ-2015-Bowles,2016,blank,,,,,no league-wide dead-money table published for 2016,2017,value,17320000,2017-07-05,preseason,5270000,
+NYJ,2019,offseason,Todd Bowles,Adam Gase,NYJ-2019-Gase,2020,blank,,,,,no league-wide dead-money table published for 2020,2021,blank,,,,,no league-wide dead-money table published for 2021
+NYJ,2021,offseason,Adam Gase,Robert Saleh,NYJ-2021-Saleh,2022,value,2092411,2022-07-05,preseason,19109982,,2023,value,7950000,2023-07-14,preseason,20300000,
+NYJ,2024,in_season,Robert Saleh,Jeff Ulbrich,NYJ-2024-Ulbrich,2025,value,102100000,2025-12-17,late_season,41025000,,2026,blank,,,,,no league-wide dead-money table published for 2026
+NYJ,2025,offseason,Jeff Ulbrich,Aaron Glenn,NYJ-2025-Glenn,2026,blank,,,,,no league-wide dead-money table published for 2026,2027,blank,,,,,no league-wide dead-money table published for 2027
+PHI,2013,offseason,Andy Reid,Chip Kelly,PHI-2013-Kelly,2014,value,1348343,2014-02-18,preseason,4030884,,2015,value,16381613,2015-10-28,midseason,14259529,
+PHI,2015,in_season,Chip Kelly,Pat Shurmur,PHI-2015-Shurmur,2016,blank,,,,,no league-wide dead-money table published for 2016,2017,value,14000000,2017-07-05,preseason,5270000,
+PHI,2016,offseason,Pat Shurmur,Doug Pederson,PHI-2016-Pederson,2017,value,14000000,2017-07-05,preseason,5270000,,2018,value,9580000,2018-07-14,preseason,8815000,
+PHI,2021,offseason,Doug Pederson,Nick Sirianni,PHI-2021-Sirianni,2022,value,54915221,2022-07-05,preseason,19109982,,2023,value,54730000,2023-07-14,preseason,20300000,
+PIT,2007,offseason,Bill Cowher,Mike Tomlin,PIT-2007-Tomlin,2008,blank,,,,,no league-wide dead-money table published for 2008,2009,blank,,,,,no league-wide dead-money table published for 2009
+SEA,2009,offseason,Mike Holmgren,Jim L. Mora,SEA-2009-Mora,2010,blank,,,,,no league-wide dead-money table published for 2010,2011,blank,,,,,no league-wide dead-money table published for 2011
+SEA,2010,offseason,Jim L. Mora,Pete Carroll,SEA-2010-Carroll,2011,blank,,,,,no league-wide dead-money table published for 2011,2012,blank,,,,,no league-wide dead-money table published for 2012
+SEA,2024,offseason,Pete Carroll,Mike Macdonald,SEA-2024-Macdonald,2025,value,86100000,2025-12-17,late_season,41025000,,2026,blank,,,,,no league-wide dead-money table published for 2026
+SF,2003,offseason,Steve Mariucci,Dennis Erickson,SF-2003-Erickson,2004,blank,,,,,no league-wide dead-money table published for 2004,2005,blank,,,,,no league-wide dead-money table published for 2005
+SF,2005,offseason,Dennis Erickson,Mike Nolan,SF-2005-Nolan,2006,blank,,,,,no league-wide dead-money table published for 2006,2007,blank,,,,,no league-wide dead-money table published for 2007
+SF,2008,in_season,Mike Nolan,Mike Singletary,SF-2008-Singletary,2009,blank,,,,,no league-wide dead-money table published for 2009,2010,blank,,,,,no league-wide dead-money table published for 2010
+SF,2010,in_season,Mike Singletary,Jim Tomsula,SF-2010-Tomsula,2011,blank,,,,,no league-wide dead-money table published for 2011,2012,blank,,,,,no league-wide dead-money table published for 2012
+SF,2011,offseason,Jim Tomsula,Jim Harbaugh,SF-2011-Harbaugh,2012,blank,,,,,no league-wide dead-money table published for 2012,2013,blank,,,,,no league-wide dead-money table published for 2013
+SF,2015,offseason,Jim Harbaugh,Jim Tomsula,SF-2015-Tomsula,2016,blank,,,,,no league-wide dead-money table published for 2016,2017,value,13430000,2017-07-05,preseason,5270000,
+SF,2016,offseason,Jim Tomsula,Chip Kelly,SF-2016-Kelly,2017,value,13430000,2017-07-05,preseason,5270000,,2018,value,16160000,2018-07-14,preseason,8815000,
+SF,2017,offseason,Chip Kelly,Kyle Shanahan,SF-2017-Shanahan,2018,value,16160000,2018-07-14,preseason,8815000,,2019,value,11540000,2019-03-10,preseason,3390000,
+TB,2002,offseason,Tony Dungy,Jon Gruden,TB-2002-Gruden,2003,blank,,,,,no league-wide dead-money table published for 2003,2004,blank,,,,,no league-wide dead-money table published for 2004
+TB,2009,offseason,Jon Gruden,Raheem Morris,TB-2009-Morris,2010,blank,,,,,no league-wide dead-money table published for 2010,2011,blank,,,,,no league-wide dead-money table published for 2011
+TB,2012,offseason,Raheem Morris,Greg Schiano,TB-2012-Schiano,2013,blank,,,,,no league-wide dead-money table published for 2013,2014,value,139119,2014-02-18,preseason,4030884,
+TB,2014,offseason,Greg Schiano,Lovie Smith,TB-2014-Smith,2015,value,23601993,2015-10-28,midseason,14259529,,2016,blank,,,,,no league-wide dead-money table published for 2016
+TB,2016,offseason,Lovie Smith,Dirk Koetter,TB-2016-Koetter,2017,value,865000,2017-07-05,preseason,5270000,,2018,value,815510,2018-07-14,preseason,8815000,
+TB,2019,offseason,Dirk Koetter,Bruce Arians,TB-2019-Arians,2020,blank,,,,,no league-wide dead-money table published for 2020,2021,blank,,,,,no league-wide dead-money table published for 2021
+TB,2022,offseason,Bruce Arians,Todd Bowles,TB-2022-Bowles,2023,value,75320000,2023-07-14,preseason,20300000,,2024,value,60640000,2024-11-27,late_season,50285000,
+TEN,2011,offseason,Jeff Fisher,Mike Munchak,TEN-2011-Munchak,2012,blank,,,,,no league-wide dead-money table published for 2012,2013,blank,,,,,no league-wide dead-money table published for 2013
+TEN,2014,offseason,Mike Munchak,Ken Whisenhunt,TEN-2014-Whisenhunt,2015,value,15499225,2015-10-28,midseason,14259529,,2016,blank,,,,,no league-wide dead-money table published for 2016
+TEN,2015,in_season,Ken Whisenhunt,Mike Mularkey,TEN-2015-Mularkey,2016,blank,,,,,no league-wide dead-money table published for 2016,2017,value,4830000,2017-07-05,preseason,5270000,
+TEN,2018,offseason,Mike Mularkey,Mike Vrabel,TEN-2018-Vrabel,2019,value,1150000,2019-03-10,preseason,3390000,,2020,blank,,,,,no league-wide dead-money table published for 2020
+TEN,2024,offseason,Mike Vrabel,Brian Callahan,TEN-2024-Callahan,2025,value,59420000,2025-12-17,late_season,41025000,,2026,blank,,,,,no league-wide dead-money table published for 2026
+TEN,2025,in_season,Brian Callahan,Mike McCoy,TEN-2025-McCoy,2026,blank,,,,,no league-wide dead-money table published for 2026,2027,blank,,,,,no league-wide dead-money table published for 2027
+WAS,2001,offseason,Terry Robiskie,Marty Schottenheimer,WAS-2001-Schottenheimer,2002,blank,,,,,no league-wide dead-money table published for 2002,2003,blank,,,,,no league-wide dead-money table published for 2003
+WAS,2002,offseason,Marty Schottenheimer,Steve Spurrier,WAS-2002-Spurrier,2003,blank,,,,,no league-wide dead-money table published for 2003,2004,blank,,,,,no league-wide dead-money table published for 2004
+WAS,2004,offseason,Steve Spurrier,Joe Gibbs,WAS-2004-Gibbs,2005,blank,,,,,no league-wide dead-money table published for 2005,2006,blank,,,,,no league-wide dead-money table published for 2006
+WAS,2008,offseason,Joe Gibbs,Jim Zorn,WAS-2008-Zorn,2009,blank,,,,,no league-wide dead-money table published for 2009,2010,blank,,,,,no league-wide dead-money table published for 2010
+WAS,2010,offseason,Jim Zorn,Mike Shanahan,WAS-2010-Shanahan,2011,blank,,,,,no league-wide dead-money table published for 2011,2012,blank,,,,,no league-wide dead-money table published for 2012
+WAS,2014,offseason,Mike Shanahan,Jay Gruden,WAS-2014-Gruden,2015,value,11333421,2015-10-28,midseason,14259529,,2016,blank,,,,,no league-wide dead-money table published for 2016
+WAS,2019,in_season,Jay Gruden,Bill Callahan,WAS-2019-Callahan,2020,blank,,,,,no league-wide dead-money table published for 2020,2021,blank,,,,,no league-wide dead-money table published for 2021
+WAS,2020,offseason,Bill Callahan,Ron Rivera,WAS-2020-Rivera,2021,blank,,,,,no league-wide dead-money table published for 2021,2022,value,6300496,2022-07-05,preseason,19109982,
+WAS,2024,offseason,Ron Rivera,Dan Quinn,WAS-2024-Quinn,2025,value,27290000,2025-12-17,late_season,41025000,,2026,blank,,,,,no league-wide dead-money table published for 2026

@@ -45,6 +45,10 @@ GOLDEN_RECORDS = [
 # --------------------------------------------------------------------------- #
 # team_season_results
 # --------------------------------------------------------------------------- #
+#: Rows read out of each upstream asset, for etl/pins.toml. Set during the build.
+ASSET_ROWS: dict[str, int] = {}
+
+
 def build_team_season_results(*, verbose: bool = True) -> pd.DataFrame:
     lo, hi = config.PERF_WINDOW
     g = pd.read_csv(config.GAMES_URL)
@@ -63,6 +67,7 @@ def build_team_season_results(*, verbose: bool = True) -> pd.DataFrame:
         )
     reg["home_score"] = reg["home_score"].astype(int)
     reg["away_score"] = reg["away_score"].astype(int)
+    ASSET_ROWS["games"] = len(reg)
 
     home = pd.DataFrame({
         "season": reg["season"], "team": reg["home_team"],
@@ -196,14 +201,15 @@ def build_team_season_epa(*, download: bool = False, verbose: bool = True) -> pd
 # --------------------------------------------------------------------------- #
 def mart_team_season_results(ctx) -> pd.DataFrame:
     out = build_team_season_results(verbose=ctx.verbose)
-    ctx.note_source("nfldata games.csv", rows=len(out),
+    ctx.note_source("nfldata games.csv", rows=len(out), asset="games",
+                    asset_rows=ASSET_ROWS.get("games"),
                     window=f"{config.PERF_WINDOW[0]}-{config.PERF_WINDOW[1]} REG")
     return out
 
 
 def mart_team_season_epa(ctx) -> pd.DataFrame:
     out = build_team_season_epa(download=ctx.download, verbose=ctx.verbose)
-    ctx.note_source("nflverse play_by_play_{year}.parquet",
+    ctx.note_source("nflverse play_by_play_{year}.parquet", asset="pbp",
                     rows=int(out["off_plays"].sum()),
                     window=f"{config.PERF_WINDOW[0]}-{config.PERF_WINDOW[1]} REG pass+run")
     # 1:1 with results — the join every other mart depends on.

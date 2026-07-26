@@ -320,51 +320,68 @@ def _ledger_by_team_season(led: pd.DataFrame) -> pd.DataFrame:
 
 def build_display(dm: pd.DataFrame, cap: pd.DataFrame,
                   led: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
+    """`dead_money_display` — the RESOLVED view, 316 rows, grain (season, team).
+
+    **Exactly one dated reading per team-season that has one**, and nothing else.
+    316 = the 288 team-seasons in the nine full-32 seasons + the 28 published
+    leaders in the four blank seasons (2013: 5, 2016: 8, 2020: 5, 2021: 10).
+
+    Three properties make this mart honest, and each is asserted below:
+
+    1. **Every row carries a real dated reading.** `(season, team, asof_date)`
+       matches a row in `dead_money_team_season` — a resolved value is never an
+       average, a merge or an interpolation of two snapshots taken at different
+       points in different league years (`SPEC.md` §2.1 rule 3).
+    2. **No invented rows and no dropped ones.** The key set is exactly the key
+       set of the source. This mart never fabricates a team-season.
+    3. **The four blank seasons are labelled, not silently partial.**
+       `season_coverage = 'leaders_only'` marks the 28 rows that are a "biggest
+       hits" leaderboard rather than a league reading, and `coverage` carries the
+       source's own `top5`/`partial` label. A leaders-only list is never rendered
+       as a 32-team view with 22+ silent gaps (`SPEC.md` §2.1).
+
+    **The whole-season blank statement lives in `dead_money_snapshot_resolution`,
+    one row per season, not duplicated onto 128 team rows.** That follows the
+    house pattern `capplus_official` already sets: the mart has no rows for a
+    blank season and the data layer synthesises `{state:'blank', reason}` from
+    the approved copy (`SPEC.md` §7.4). Absence in the mart, blank in the data
+    layer — one place, one copy string.
+    """
     lo, hi = config.TIER2_WINDOW
     dm = dm[dm["season"].between(lo, hi)].copy()
     same, snap = resolve_same_stage(dm)
     assert_pinned_resolution(snap)
     covered = set(snap["season"])
 
-    grid = cap[["season", "team", "team_adjusted_cap_implied", "league_cap"]].copy()
-    grid = grid[grid["season"].between(lo, hi)]
+    resolved = same.rename(columns={
+        "dead_money_rec": "dead_money_usd",
+        "dm_rec_asof_date": "asof_date",
+        "dm_rec_asof_stage": "asof_stage",
+    })
+    resolved["coverage"] = RESOLVABLE_COVERAGE
+    resolved["season_coverage"] = "full32"
 
-    out = grid.merge(
-        same.rename(columns={
-            "dead_money_rec": "dead_money_usd",
-            "dm_rec_asof_date": "asof_date",
-            "dm_rec_asof_stage": "asof_stage",
-        }), on=["season", "team"], how="left")
+    # The four blank seasons still have published leaders. They resolve to their
+    # own latest reading, keep the source's coverage label, and are marked
+    # `leaders_only` so no consumer can read them as a league-wide table.
+    lead = dm[~dm["season"].isin(covered)].copy()
+    lead["_rank"] = lead["coverage"].map(COVERAGE_RANK)
+    lead = (lead.sort_values(["season", "team", "asof_date", "_rank"],
+                             ascending=[True, True, True, True], kind="stable")
+                .groupby(["season", "team"], as_index=False).last())
+    lead = lead.rename(columns={"dead_money_usd": "dead_money_usd"})
+    lead["season_coverage"] = "leaders_only"
+    lead = lead[["season", "team", "dead_money_usd", "asof_date", "asof_stage",
+                 "coverage", "license_tier", "source_url", "note", "season_coverage"]]
 
-    out["state"] = np.where(out["season"].isin(covered), "value", "blank")
-    out["blank_reason"] = np.where(
-        out["state"] == "blank", config.BLANK_REASON_NO_DM_TABLE, "")
-    out["coverage"] = np.where(out["state"] == "value", "full32", "")
-    out["season_coverage"] = np.where(
-        out["season"].isin(covered), "full32", "leaders_only")
-
-    # The four blank seasons still have published leaders. Those render as a
-    # "biggest hits" leaderboard LABELLED AS SUCH, never as a 32-team view with
-    # 22+ silent gaps (SPEC.md §2.1). The values ride along on their own columns
-    # so no code path can mistake them for the season's team reading.
-    leaders = dm[~dm["season"].isin(covered)].sort_values(
-        ["season", "team", "asof_date"]).groupby(["season", "team"], as_index=False).last()
-    leaders = leaders.rename(columns={
-        "dead_money_usd": "leaders_only_usd", "asof_date": "leaders_only_asof_date",
-        "asof_stage": "leaders_only_asof_stage", "coverage": "leaders_only_coverage",
-        "source_url": "leaders_only_source_url", "license_tier": "leaders_only_license_tier",
-    })[["season", "team", "leaders_only_usd", "leaders_only_asof_date",
-        "leaders_only_asof_stage", "leaders_only_coverage",
-        "leaders_only_source_url", "leaders_only_license_tier"]]
-    out = out.merge(leaders, on=["season", "team"], how="left")
+    out = pd.concat([resolved, lead], ignore_index=True)
 
     # Alternate readings: how many OTHER dated snapshots exist for this
     # team-season. The UI shows them on request, never averaged, never merged.
     alt = dm.groupby(["season", "team"], as_index=False).size().rename(
         columns={"size": "n_readings"})
     out = out.merge(alt, on=["season", "team"], how="left")
-    out["n_readings"] = out["n_readings"].fillna(0).astype(int)
-    out["n_alternate_readings"] = (out["n_readings"] - 1).clip(lower=0)
+    out["n_alternate_readings"] = (out["n_readings"] - 1).clip(lower=0).astype(int)
 
     out = out.merge(
         snap[["season", "median_dead_money_usd", "badge"]].rename(
@@ -373,7 +390,10 @@ def build_display(dm: pd.DataFrame, cap: pd.DataFrame,
 
     # Burden denominator = implied adjusted cap — the cap the team actually
     # operated against (DECISIONS 25). The league-cap version ships beside it as
-    # a labelled secondary readout.
+    # a labelled secondary readout; both denominators travel so the figure is
+    # checkable from the row itself.
+    out = out.merge(cap[["season", "team", "team_adjusted_cap_implied", "league_cap"]],
+                    on=["season", "team"], how="left", validate="1:1")
     out["burden_of_adjusted_cap"] = out["dead_money_usd"] / out["team_adjusted_cap_implied"]
     out["burden_of_league_cap"] = out["dead_money_usd"] / out["league_cap"]
 
@@ -382,70 +402,78 @@ def build_display(dm: pd.DataFrame, cap: pd.DataFrame,
     out["ledger_players"] = out["ledger_players"].fillna("")
     out["ledger_split_all_established"] = out["ledger_split_all_established"].fillna(
         False).astype(bool)
-
-    # `license_tier` describes the reading the row actually carries, so it is
-    # populated for a leaders-only row in a blank season too — it is the field
-    # the DEAD_MONEY_TIER filter and the takedown runbook key on, and a row with
-    # a value must always declare its licensing tier. It is empty only where the
-    # row carries no reading of any kind (a team outside a blank season's
-    # published leaders list).
-    out["license_tier"] = out["license_tier"].fillna(
-        out["leaders_only_license_tier"]).fillna("")
-    out["source_url"] = out["source_url"].fillna(
-        out["leaders_only_source_url"]).fillna("")
-    out["note"] = out["note"].fillna("")
-    out["asof_date"] = out["asof_date"].fillna("")
-    out["asof_stage"] = out["asof_stage"].fillna("")
     out["badge"] = out["badge"].fillna("")
+    out["note"] = out["note"].fillna("")
 
     out = out[[
-        "season", "team", "state", "dead_money_usd", "asof_date", "asof_stage",
-        "coverage", "license_tier", "badge", "blank_reason",
-        "league_median_usd", "burden_of_adjusted_cap", "burden_of_league_cap",
-        "team_adjusted_cap_implied", "league_cap",
-        "season_coverage", "n_alternate_readings",
-        "leaders_only_usd", "leaders_only_asof_date", "leaders_only_asof_stage",
-        "leaders_only_coverage", "leaders_only_license_tier", "leaders_only_source_url",
+        "season", "team", "dead_money_usd", "asof_date", "asof_stage", "coverage",
+        "license_tier", "season_coverage", "badge", "n_alternate_readings",
+        "league_median_usd", "team_adjusted_cap_implied", "league_cap",
+        "burden_of_adjusted_cap", "burden_of_league_cap",
         "ledger_n_charges", "ledger_players", "ledger_usd_attributed",
-        "ledger_split_all_established",
-        "source_url", "note",
+        "ledger_split_all_established", "source_url", "note",
     ]].sort_values(["season", "team"]).reset_index(drop=True)
 
     out = io_utils.round_cols(out, {
-        "dead_money_usd": 0, "league_median_usd": 0, "leaders_only_usd": 0,
+        "dead_money_usd": 0, "league_median_usd": 0,
         "team_adjusted_cap_implied": 0, "league_cap": 0, "ledger_usd_attributed": 0,
         "burden_of_adjusted_cap": 6, "burden_of_league_cap": 6,
     })
     out = io_utils.as_int64(out, [
-        "dead_money_usd", "league_median_usd", "leaders_only_usd",
+        "dead_money_usd", "league_median_usd",
         "team_adjusted_cap_implied", "league_cap", "ledger_usd_attributed",
     ])
 
-    io_utils.assert_rows(out, "dead_money_display")
+    # Row count is tier-dependent by design — it is exactly the number of
+    # distinct team-seasons the (filtered) source carries a reading for. Under
+    # the shipping tier that is the contracted 316; under the SAFE-only
+    # licensing reversal it collapses with the source, which is the contingency
+    # working (`RISKS.md` risk 1).
+    if len(out) != len(set(zip(dm["season"], dm["team"]))):
+        raise AssertionError(
+            f"dead_money_display: {len(out)} rows != "
+            f"{len(set(zip(dm['season'], dm['team'])))} source team-seasons")
+    if config.DEAD_MONEY_TIER == "full":
+        io_utils.assert_rows(out, "dead_money_display")
     assert_full_32(out["team"], "dead_money_display")
-    # Rule 1: a value row without a date is a bug.
-    bad = out[(out["state"] == "value") & (out["asof_date"] == "")]
-    if len(bad):
-        raise AssertionError(f"{len(bad)} value rows without an asof_date")
-    # Blank rows carry the reason string, never a dash, a zero or an empty cell.
-    blanks = out[out["state"] == "blank"]
-    if blanks["dead_money_usd"].notna().any():
-        raise AssertionError("a blank row carries a value")
-    if (blanks["blank_reason"] != config.BLANK_REASON_NO_DM_TABLE).any():
-        raise AssertionError("a blank row is missing the approved reason string")
-    # Every row that carries a reading declares its licensing tier.
-    carries = out["dead_money_usd"].notna() | out["leaders_only_usd"].notna()
-    if (out.loc[carries, "license_tier"] == "").any():
-        raise AssertionError("a row with a reading has no license_tier")
-    if not out["license_tier"].isin(list(config.LICENSE_TIERS) + [""]).all():
+    io_utils.assert_unique(out, ["season", "team"], "dead_money_display")
+
+    # Property 1 — every resolved row is a real dated source reading.
+    src_keys = set(zip(dm["season"], dm["team"], dm["asof_date"],
+                       dm["dead_money_usd"]))
+    bad = [(int(r.season), r.team, r.asof_date)
+           for r in out.itertuples()
+           if (int(r.season), r.team, r.asof_date,
+               int(r.dead_money_usd)) not in src_keys]
+    if bad:
+        raise AssertionError(
+            f"{len(bad)} resolved row(s) do not correspond to any dated source "
+            f"reading — snapshots must never be averaged or merged: {bad[:3]}")
+    # Property 2 — no invented rows, no dropped ones.
+    if set(zip(out["season"], out["team"])) != set(zip(dm["season"], dm["team"])):
+        raise AssertionError(
+            "the display mart must resolve exactly the team-seasons that exist in "
+            "the source")
+    # Property 3 — value, date and stage always travel together.
+    for col in ("dead_money_usd", "asof_date", "asof_stage", "coverage",
+                "license_tier"):
+        if out[col].isna().any() or (out[col].astype(str) == "").any():
+            raise AssertionError(f"dead_money_display: {col} must be present on every row")
+    if not out["season_coverage"].isin(("full32", "leaders_only")).all():
+        raise AssertionError("dead_money_display: season_coverage vocabulary drifted")
+    if not out["license_tier"].isin(list(config.LICENSE_TIERS)).all():
         raise AssertionError("license_tier vocabulary drifted")
 
+    leaders = out[out["season_coverage"] == "leaders_only"]
     stats = {
+        "rows": len(out),
         "covered_seasons": sorted(int(s) for s in covered),
-        "blank_seasons": sorted(int(s) for s in set(out["season"]) - covered),
-        "value_rows": int((out["state"] == "value").sum()),
-        "blank_rows": int((out["state"] == "blank").sum()),
-        "leaders_rows_in_blank_seasons": int(out["leaders_only_usd"].notna().sum()),
+        "blank_seasons": sorted(int(s) for s in set(dm["season"]) - covered),
+        "full32_rows": int((out["season_coverage"] == "full32").sum()),
+        "leaders_only_rows": int(len(leaders)),
+        "leaders_only_by_season": {int(k): int(v) for k, v in
+                                   leaders.groupby("season").size().items()},
+        "blank_season_statement_lives_in": "dead_money_snapshot_resolution",
         "snapshots": snap.assign(
             median_dead_money_M=(snap["median_dead_money_usd"] / 1e6).round(1)
         )[["season", "asof_date", "asof_stage", "badge", "median_dead_money_M"]]
@@ -501,10 +529,12 @@ def mart_dead_money_display(ctx) -> pd.DataFrame:
     ctx.note_source("curated dead-money snapshots + team_season_cap",
                     rows=len(dm), window=f"tier={config.DEAD_MONEY_TIER}")
     if ctx.verbose:
+        print(f"  {stats['rows']} resolved rows = {stats['full32_rows']} full32 "
+              f"+ {stats['leaders_only_rows']} leaders-only")
         print(f"  covered seasons {stats['covered_seasons']}")
-        print(f"  blank seasons   {stats['blank_seasons']} "
-              f"({stats['blank_rows']} rows carry the approved reason string; "
-              f"{stats['leaders_rows_in_blank_seasons']} carry a leaders-only reading)")
+        print(f"  blank seasons   {stats['blank_seasons']} -> leaders-only rows "
+              f"{stats['leaders_only_by_season']}; the whole-season blank statement "
+              f"lives in dead_money_snapshot_resolution")
         for s in stats["snapshots"]:
             print(f"    {s['season']} @ {s['asof_date']} {s['asof_stage']:<11} "
                   f"badge={s['badge']:<11} median ${s['median_dead_money_M']}M")

@@ -174,7 +174,7 @@
       ]
     },
     "dead_money_display": {
-      "blank_rows": 128,
+      "blank_season_statement_lives_in": "dead_money_snapshot_resolution",
       "blank_seasons": [
         2013,
         2016,
@@ -192,7 +192,15 @@
         2024,
         2025
       ],
-      "leaders_rows_in_blank_seasons": 28,
+      "full32_rows": 288,
+      "leaders_only_by_season": {
+        "2013": 5,
+        "2016": 8,
+        "2020": 5,
+        "2021": 10
+      },
+      "leaders_only_rows": 28,
+      "rows": 316,
       "snapshots": [
         {
           "asof_date": "2014-02-18",
@@ -257,8 +265,7 @@
           "median_dead_money_M": 41.0,
           "season": 2025
         }
-      ],
-      "value_rows": 288
+      ]
     },
     "draft_pick": {
       "codes_normalize_team_alone_misses": [
@@ -295,6 +302,38 @@
         "picks_verified": 256
       }
     },
+    "player_images": {
+      "attribution_required": 215,
+      "below_floor": 9,
+      "commons_coverage": 0.9721,
+      "designed_card_fallback": 0.0637,
+      "distinct_authors": 70,
+      "has_usable_image": 244,
+      "image_min_width_px": 300,
+      "license_url_null": 21,
+      "no_usable_image": 7,
+      "population": 251,
+      "render_coverage": 0.9363,
+      "renders_photo": 235,
+      "restrictions_personality": 12,
+      "share_alike": 116,
+      "treatment_mode": "css_filter_only"
+    },
+    "player_season_availability": {
+      "bridge_rate": 0.998442,
+      "distinct_players": 7060,
+      "golden_tomlinson": {
+        "delta": 0,
+        "games": 17,
+        "off_pct": 1.0,
+        "off_snaps": 1101
+      },
+      "player_team_seasons_before_bridge": 28234,
+      "reg_snap_rows_consumed": 310475,
+      "rows": 28190,
+      "unbridged_dropped": 44,
+      "window": "2013-2025"
+    },
     "player_season_cap": {
       "cap_pct_coverage": 1.0,
       "collision_notes": [],
@@ -302,7 +341,8 @@
       "ledger_marked_rows": 21,
       "ledger_players_in_window": 15,
       "player_seasons": 32105,
-      "team_seasons": 416
+      "team_seasons": 416,
+      "unmapped_position_rows": 502
     },
     "position_allocation": {
       "league_2023": {
@@ -382,6 +422,7 @@
       2024,
       2025
     ],
+    "dead_money_resolved_rows": 316,
     "dead_money_snapshots": {
       "2014": "2014-02-18 (preseason, provisional)",
       "2015": "2015-10-28 (midseason, in_season)",
@@ -463,27 +504,19 @@
       "columns": [
         "season",
         "team",
-        "state",
         "dead_money_usd",
         "asof_date",
         "asof_stage",
         "coverage",
         "license_tier",
+        "season_coverage",
         "badge",
-        "blank_reason",
+        "n_alternate_readings",
         "league_median_usd",
-        "burden_of_adjusted_cap",
-        "burden_of_league_cap",
         "team_adjusted_cap_implied",
         "league_cap",
-        "season_coverage",
-        "n_alternate_readings",
-        "leaders_only_usd",
-        "leaders_only_asof_date",
-        "leaders_only_asof_stage",
-        "leaders_only_coverage",
-        "leaders_only_license_tier",
-        "leaders_only_source_url",
+        "burden_of_adjusted_cap",
+        "burden_of_league_cap",
         "ledger_n_charges",
         "ledger_players",
         "ledger_usd_attributed",
@@ -493,9 +526,9 @@
       ],
       "contract": "416 render-ready rows; four blank seasons explicit",
       "file": "data/marts/dead_money_display.csv",
-      "md5": "61a1f8436818b3e6ae232fa9d8c72a95",
-      "n_columns": 29,
-      "rows": 416,
+      "md5": "a1c60c0b0456a43ade4b39327ef67f25",
+      "n_columns": 21,
+      "rows": 316,
       "source_data": [
         {
           "rows": 370,
@@ -593,8 +626,6 @@
         "season",
         "team",
         "n_picks",
-        "n_round1",
-        "first_pick",
         "capital",
         "capital_rank",
         "return_games",
@@ -602,7 +633,6 @@
         "return_seasons_started",
         "return_probowls",
         "return_allpro",
-        "n_hof",
         "w_av_per_1000_capital",
         "games_per_1000_capital",
         "seasons_started_per_1000_capital",
@@ -613,8 +643,8 @@
       ],
       "contract": "SPEC §7.8 — capital spent vs realized return per team-class",
       "file": "data/marts/draft_class_summary.csv",
-      "md5": "3ee36d80e1f7ec69a7616a39b6458466",
-      "n_columns": 20,
+      "md5": "bf49f32fdd0b9050d05943a3315927f1",
+      "n_columns": 17,
       "rows": 830,
       "source_data": [
         {
@@ -652,6 +682,7 @@
       "rows": 6644,
       "source_data": [
         {
+          "asset": "draft_picks",
           "rows": 6644,
           "source": "nflverse draft_picks.parquet + F-S chart",
           "window": "2000-2025"
@@ -702,6 +733,77 @@
         }
       ]
     },
+    "player_images": {
+      "columns": [
+        "player_id",
+        "has_usable_image",
+        "file_title",
+        "file_url",
+        "width",
+        "height",
+        "author",
+        "license",
+        "license_machine",
+        "license_url",
+        "attribution",
+        "attribution_required",
+        "share_alike",
+        "restrictions",
+        "verification_method",
+        "wikidata_qid",
+        "wikipedia_article",
+        "notes",
+        "last_verified_at",
+        "meets_min_width",
+        "renders_photo",
+        "asset_file",
+        "rendition",
+        "rendition_width",
+        "rendition_height",
+        "rendition_sha256",
+        "rendition_bytes"
+      ],
+      "contract": "SPEC §7.10 — licence, attribution and rendition per player",
+      "file": "data/marts/player_images.csv",
+      "md5": "41da10688a71b1f527a931f9a993144e",
+      "n_columns": 27,
+      "rows": 251,
+      "source_data": [
+        {
+          "rows": 251,
+          "source": "curated staging player_images_sample.csv + playermarks asset manifest",
+          "window": "251-player v1 population (SPEC §8.4)"
+        }
+      ]
+    },
+    "player_season_availability": {
+      "columns": [
+        "gsis_id",
+        "season",
+        "team",
+        "player",
+        "pfr_player_id",
+        "games",
+        "off_snaps",
+        "def_snaps",
+        "st_snaps",
+        "off_pct"
+      ],
+      "contract": "SPEC §7.9 — games + snaps per player-season, 2013+, REG only",
+      "file": "data/marts/player_season_availability.csv",
+      "md5": "f3f85143b480c875ca49665f4497b2e0",
+      "n_columns": 10,
+      "rows": 28190,
+      "source_data": [
+        {
+          "asset": "snap_counts",
+          "asset_rows": 310475,
+          "rows": 28234,
+          "source": "nflverse snap_counts_{year}.parquet + players.parquet bridge",
+          "window": "2013-2025 REG"
+        }
+      ]
+    },
     "player_season_cap": {
       "columns": [
         "season",
@@ -725,22 +827,22 @@
         "contract_guaranteed",
         "contract_apy_cap_pct",
         "dm_ledger_charge",
-        "dm_ledger_player",
         "dm_ledger_team",
         "dm_ledger_usd",
         "dm_ledger_total_usd",
         "dm_ledger_seasons",
         "dm_ledger_split_established",
-        "dm_ledger_is_actual",
         "dm_ledger_source_url"
       ],
       "contract": "SPEC §7.9 — player-season cap detail 2013-2025 + ledger markers",
       "file": "data/marts/player_season_cap.csv",
-      "md5": "5b28ae2a58556c707413377015ea306c",
-      "n_columns": 29,
+      "md5": "93a509c9580aa05160eb52c0ab99edc3",
+      "n_columns": 27,
       "rows": 32105,
       "source_data": [
         {
+          "asset": "players",
+          "asset_rows": 9338,
           "rows": 32105,
           "source": "nflverse historical_contracts.parquet + players.parquet",
           "window": "2013-2025"
@@ -752,7 +854,6 @@
         "season",
         "team",
         "position_group",
-        "n_players",
         "cap_usd",
         "share_of_rostered_cap",
         "league_share",
@@ -760,8 +861,8 @@
       ],
       "contract": "SPEC §7.12 / §2.6 — team-season x nine position groups, 2013+",
       "file": "data/marts/position_allocation.csv",
-      "md5": "772ca4395727902e3e967c0fb520747a",
-      "n_columns": 8,
+      "md5": "1aed0774f4c6580aa9047388251480b9",
+      "n_columns": 7,
       "rows": 3744,
       "source_data": [
         {
@@ -779,8 +880,6 @@
         "outgoing_hc",
         "incoming_hc",
         "regime_id",
-        "prev_regime_id",
-        "prev_regime_seasons",
         "dm_next1_season",
         "dm_next1_state",
         "dm_next1_usd",
@@ -798,8 +897,8 @@
       ],
       "contract": "SPEC §7.7 — HC identity changes + dated s+1/s+2 dead-money links",
       "file": "data/marts/regime_events.csv",
-      "md5": "5aedc32f164f260368b16590f3704135",
-      "n_columns": 22,
+      "md5": "c9584ac42659d5ba87b86653154c6f00",
+      "n_columns": 20,
       "rows": 214,
       "source_data": [
         {
@@ -854,6 +953,7 @@
       "rows": 416,
       "source_data": [
         {
+          "asset": "contracts",
           "rows": 41976,
           "source": "nflverse historical_contracts.parquet",
           "window": "2013-2025"
@@ -879,6 +979,7 @@
       "rows": 861,
       "source_data": [
         {
+          "asset": "pbp",
           "rows": 870208,
           "source": "nflverse play_by_play_{year}.parquet",
           "window": "1999-2025 REG pass+run"
@@ -905,6 +1006,8 @@
       "rows": 861,
       "source_data": [
         {
+          "asset": "games",
+          "asset_rows": 6967,
           "rows": 861,
           "source": "nfldata games.csv",
           "window": "1999-2025 REG"
@@ -929,13 +1032,12 @@
         "oc_stints",
         "dc_stints",
         "regime_id",
-        "regime_start_season",
         "regime_season_n"
       ],
       "contract": "SPEC §2.8 — 830 rows, Stability Index",
       "file": "data/marts/team_season_stability.csv",
-      "md5": "bc59a71f3d51354f57c90da2ed538ea2",
-      "n_columns": 18,
+      "md5": "ad58dd5b176dae25b0cd16da8451844f",
+      "n_columns": 17,
       "rows": 830,
       "source_data": [
         {

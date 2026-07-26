@@ -54,7 +54,10 @@ verification, which degrades to a warning rather than failing the build).
 | `capplus.py` | `capplus_backtest.py` §15 | `capplus_official`, `team_rating` |
 | `coaching.py` | new, per `SPEC.md` §2.8 | `coaching_staff`, `team_season_stability`, `regime_events` |
 | `draft.py` | `audit_support.py` | the F-S chart, `draft_pick`, `draft_class_summary` |
+| `availability.py` | `audit_support.py` (snaps) | `player_season_availability` |
+| `images.py` | `audit_images.py` + the asset pipeline | `player_images` |
 | `curated.py` | new | `league_cap` passthrough |
+| `pins.py` | new | `etl/pins.toml`, derived from the manifest |
 | `pipeline.py` | new | orchestrator + `manifest.json` |
 
 ---
@@ -69,19 +72,21 @@ Row counts are the shipping (`DEAD_MONEY_TIER=full`) build.
 | `team_season_epa` | 861 | 9 | SPEC §7.2 — REG only, `play_type IN ('pass','run')` |
 | `league_cap` | 32 | 5 | SPEC §7.11 — 1994–2025; **2010 NULL, uncapped** |
 | `team_season_cap` | 416 | 14 | SPEC §7.3 — 2013–2025; dead-money columns **always null** |
-| `player_season_cap` | 32,105 | 29 | SPEC §7.9 — player-season detail + marquee dead-money markers |
-| `position_allocation` | 3,744 | 8 | SPEC §7.12 / §2.6 — 13 × 32 × 9 groups |
+| `player_season_cap` | 32,105 | 27 | SPEC §7.9 — player-season detail + marquee dead-money markers |
+| `player_season_availability` | 28,190 | 10 | SPEC §7.9 — games + snaps, 2013–2025, REG only |
+| `player_images` | 251 | 27 | SPEC §7.10 — licence, attribution, self-hosted rendition |
+| `position_allocation` | 3,744 | 7 | SPEC §7.12 / §2.6 — 13 × 32 × 9 groups |
 | `dead_money_team_season` | 370 | 9 | SPEC §7.5 — dated snapshots + the derived `license_tier` |
 | `dead_money_ledger` | 21 | 9 | SPEC §7.6 — verified individual charges |
 | `dead_money_snapshot_resolution` | 13 | 18 | the pinned same-stage rule's choice, per season |
-| `dead_money_display` | 416 | 29 | render-ready; four blank seasons explicit |
+| `dead_money_display` | 316 | 21 | the RESOLVED view — one dated reading per team-season |
 | `capplus_official` | 288 | 17 | SPEC §7.4 — nine seasons, gate #1 promotion |
 | `team_rating` | 861 | 5 | SPEC §2.3 — **"Team Rating (performance only)"** |
 | `coaching_staff` | 2,612 | 9 | SPEC §7.7 — **era-correct** codes + surrogate `coach_id` |
-| `team_season_stability` | 830 | 18 | SPEC §2.8 — the Stability Index |
-| `regime_events` | 214 | 22 | SPEC §7.7 — HC identity changes + dated `s+1`/`s+2` links |
+| `team_season_stability` | 830 | 17 | SPEC §2.8 — the Stability Index |
+| `regime_events` | 214 | 20 | SPEC §7.7 — HC identity changes + dated `s+1`/`s+2` links |
 | `draft_pick` | 6,644 | 18 | SPEC §7.8 — 2000–2025, **`car_av` excluded** |
-| `draft_class_summary` | 830 | 20 | SPEC §7.8 — capital vs realized return per team-class |
+| `draft_class_summary` | 830 | 17 | SPEC §7.8 — capital vs realized return per team-class |
 | `capplus_candidates` | 861 | 69 | **verified, not rewritten** (see below) |
 
 Plus `data/curated/fitzgerald_spielberger_chart.csv` (262 rows) — a new curated
@@ -90,13 +95,26 @@ file with a per-row `source_url`.
 `draft_class_summary` is 830, not 832, because **Houston did not draft in 2000 or
 2001**: 2 × 31 + 24 × 32 = 830. Same arithmetic as the 830 coaching team-seasons.
 
-### Not built here
+### `etl/pins.toml`
 
-`player_season_availability` (SPEC §7.9) and `player_images` (SPEC §7.10) are
-Phase 1 items in `BUILD_PLAN.md` that fall outside this build's brief. Neither is
-started; `config.IMAGE_MIN_WIDTH_PX` and `config.IMAGE_TREATMENT_MODE` are wired
-and waiting for `etl/images.py`. `etl/pins.toml` (`BUILD_PLAN.md` Phase 1 item 3)
-is likewise not written yet — the source URLs it will pin live in `config.py`.
+Generated on every full run by `etl/pins.py`, **derived from the manifest's own
+`data_version` scheme** rather than hand-maintained: the release tag is parsed
+from the URL the ETL actually read, the projected column set is the one the scan
+requested, and the row count is what that scan returned. Nothing is typed twice,
+so the pin file cannot drift from the pipeline.
+
+`DECISIONS.md` 8 also asks for a **checksum** per asset and this file does not
+carry one — a documented consequence of `DECISIONS.md` 7. Assets are read by
+remote scan and `data/raw/` is empty at rest, so no file ever lands to hash.
+What is pinned instead — named tag, exact projected columns, observed rows
+consumed, and the 18 golden tests — is stronger for schema drift (`RISKS.md`
+risk 6); the one uncovered case is a byte-level republish that changed nothing we
+read. Closing it needs a `--download` verification pass and is recorded in
+`etl/pins.py` as the open item rather than faked.
+
+Observed consumption reconciles to `DATA_AUDIT.md` §2 exactly: games 6,967 REG ·
+pbp 870,208 REG pass+run · contracts 41,976 deduped player-seasons · draft 6,644
+picks · snaps 310,475 REG · players 9,338 `otc_id` crosswalk rows.
 
 ---
 
@@ -132,7 +150,7 @@ timestamps in any output file**.
 Verified two ways:
 
 * Two independent cold runs of the whole pipeline in separate processes produce
-  **byte-identical output for all 18 marts, the curated chart and
+  **byte-identical output for all 20 marts, the curated chart, `pins.toml` and
   `manifest.json`.**
 * `--check-stable` builds each mart twice inside one run and diffs the bytes.
 
@@ -178,7 +196,7 @@ DEAD_MONEY_TIER=safe
   dead_money_team_season   370 -> 114 rows
   full-32 seasons            9 -> 2   (2014, 2015 only)
   capplus_official         288 -> 64  rows
-  dead_money_display       416 rows, value rows 288 -> 64
+  dead_money_display       316 -> 114 rows (full32 288 -> 64)
   team_rating              861 rows, UNCHANGED (performance-only, no cap term)
 ```
 
@@ -266,7 +284,7 @@ Golden facts, re-run against the built marts at `DATA_AUDIT.md` §3 tolerances:
 
 Structural:
 
-* 861 / 861 / 416 / 288 / 830 / 370 / 21 / 2,612 / 6,644 row counts.
+* 861 / 861 / 416 / 288 / 830 / 370 / 21 / 316 / 2,612 / 6,644 / 251 row counts.
 * 31 teams in 1999–2001, 32 from 2002; record arithmetic closes; league points
   balance every season; **2022 BUF and CIN played 16 games**, asserted by name.
 * `team_season_cap.dead_money_total` and `dead_money_pct` are **all-null**.
@@ -284,6 +302,21 @@ Structural:
 * 830 coaching team-seasons; every one has ≥1 HC, OC and DC; zero `HC = NONE`;
   436 distinct `coach_name` values (435 people + the sentinel).
 * Position-group shares sum to exactly 1.000 per team-season and per season.
+* `dead_money_display` is the RESOLVED view: every row matches a real dated
+  source reading on `(season, team, asof_date)` — never an average or a merge —
+  and its key set is exactly the source's, so no team-season is invented or
+  dropped. `season_coverage = 'leaders_only'` marks exactly the four blank
+  seasons (2013: 5, 2016: 8, 2020: 5, 2021: 10 published leaders).
+* `player_season_availability` reproduces golden test 18 from the mart: Laken
+  Tomlinson 2023 NYJ, **1,101 REG offensive snaps over 17 games, `off_pct`
+  1.000** (a 0-1 fraction). The 2012 snap asset is asserted still empty rather
+  than the 2013 boundary being trusted.
+* `player_images` reproduces both published coverage numbers: 244/251 = 97.2%
+  Commons coverage and 235/251 = 93.6% rendered at `IMAGE_MIN_WIDTH_PX = 300`
+  (6.4% designed-card fallback = 7 no photo + 9 below floor). The licence block
+  is complete for all 244 usable assets and null only where there is no photo;
+  `license_url` is genuinely null for the public-domain files. Any non-zero
+  `api_error` in the asset manifest fails the build as a re-run signal.
 * `data/raw/` is empty.
 
 ---

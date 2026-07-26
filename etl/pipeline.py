@@ -26,8 +26,8 @@ from pathlib import Path
 
 import pandas as pd
 
-from . import capplus, coaching, config, contracts, curated, deadmoney, draft
-from . import io_utils, performance
+from . import availability, capplus, coaching, config, contracts, curated
+from . import deadmoney, draft, images, io_utils, performance, pins
 
 
 # --------------------------------------------------------------------------- #
@@ -41,13 +41,24 @@ class Context:
     _sources: list = field(default_factory=list)
 
     def note_source(self, name: str, *, rows: int | None = None,
-                    window: str | None = None) -> None:
-        """Record an input's *data version* — never a timestamp."""
+                    window: str | None = None, asset: str | None = None,
+                    asset_rows: int | None = None) -> None:
+        """Record an input's *data version* — never a timestamp.
+
+        `asset` names the upstream release asset so `etl/pins.toml` can be
+        derived from these notes rather than maintained by hand.
+        """
         entry = {"source": name}
         if rows is not None:
             entry["rows"] = int(rows)
         if window is not None:
             entry["window"] = window
+        if asset is not None:
+            entry["asset"] = asset
+        if asset_rows is not None:
+            # Rows read OUT OF THE UPSTREAM ASSET, which is what pins.toml
+            # records — distinct from `rows`, the mart's own consumption count.
+            entry["asset_rows"] = int(asset_rows)
         self._sources.append(entry)
 
     def take_sources(self) -> list:
@@ -88,6 +99,11 @@ MARTS = [
     Mart("player_season_cap", contracts.mart_player_season_cap,
          aliases=("player_cap",),
          note="SPEC §7.9 — player-season cap detail 2013-2025 + ledger markers"),
+    Mart("player_season_availability", availability.mart_player_season_availability,
+         aliases=("player_season_snaps", "availability"),
+         note="SPEC §7.9 — games + snaps per player-season, 2013+, REG only"),
+    Mart("player_images", images.mart_player_images, aliases=("playermarks",),
+         note="SPEC §7.10 — licence, attribution and rendition per player"),
     Mart("position_allocation", contracts.mart_position_allocation,
          aliases=("positional_allocation",),
          note="SPEC §7.12 / §2.6 — team-season x nine position groups, 2013+"),
@@ -247,6 +263,10 @@ def run(selected: list[str] | None = None, *, verbose: bool = True,
     }
     if not selected:
         _write_manifest(manifest)
+        # etl/pins.toml is derived from the manifest's own data_version scheme,
+        # so it only regenerates on a full run — a partial run has not read
+        # every asset and would write an incomplete pin file.
+        pins.write(manifest)
     elif config.MANIFEST.exists():
         prev = json.loads(config.MANIFEST.read_text())
         prev["marts"].update(manifest_marts)
@@ -276,6 +296,7 @@ def _data_version(ctx: Context) -> dict:
     if dm:
         dv["dead_money_covered_seasons"] = dm["covered_seasons"]
         dv["dead_money_blank_seasons"] = dm["blank_seasons"]
+        dv["dead_money_resolved_rows"] = dm["rows"]
         dv["dead_money_snapshots"] = {
             str(s["season"]): f"{s['asof_date']} ({s['asof_stage']}, {s['badge']})"
             for s in dm["snapshots"]
