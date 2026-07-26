@@ -44,16 +44,26 @@ export function DivisionPicker({
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
+  /**
+   * Roving tabindex means the seven unselected pills are skipped by Tab and the
+   * arrows are the only way into them — so the arrows have to move from WHERE
+   * FOCUS ACTUALLY IS, not from the selected slug. Computing the origin from
+   * `selected` made ArrowRight land on selected+1 forever: five of the eight
+   * divisions could never be focused through this control at all.
+   */
   function onKeyDown(e: KeyboardEvent<HTMLDivElement>) {
     const keys = ['ArrowLeft', 'ArrowRight', 'Home', 'End'];
     if (!keys.includes(e.key)) return;
-    const i = options.findIndex((o) => o.slug === selected);
+    const tabs = [...(listRef.current?.querySelectorAll<HTMLElement>('[role="tab"]') ?? [])];
+    if (!tabs.length) return;
+    const focused = tabs.indexOf(document.activeElement as HTMLElement);
+    const i = focused >= 0 ? focused : Math.max(0, options.findIndex((o) => o.slug === selected));
     let next = i;
-    if (e.key === 'ArrowRight') next = (i + 1) % options.length;
-    if (e.key === 'ArrowLeft') next = (i - 1 + options.length) % options.length;
+    if (e.key === 'ArrowRight') next = (i + 1) % tabs.length;
+    if (e.key === 'ArrowLeft') next = (i - 1 + tabs.length) % tabs.length;
     if (e.key === 'Home') next = 0;
-    if (e.key === 'End') next = options.length - 1;
-    const el = listRef.current?.querySelectorAll<HTMLElement>('[role="tab"]')[next];
+    if (e.key === 'End') next = tabs.length - 1;
+    const el = tabs[next];
     if (el) {
       e.preventDefault();
       el.focus();

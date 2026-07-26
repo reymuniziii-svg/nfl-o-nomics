@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import css from '../player.module.css';
-import { getPlayerBundle, getPlayerPopulation, SNAPS_FIRST_SEASON } from '@/lib/data';
+import { AVAILABILITY_WINDOW, getPlayerBundle, getPlayerPopulation } from '@/lib/data';
 import { playerMark } from '@/lib/marks';
 import { usdShort } from '@/lib/display';
 import {
@@ -62,6 +62,9 @@ export default async function PlayerPage({ params }: { params: Promise<{ id: str
   const availRows = b.availability.state === 'blank' ? [] : b.availability.value;
   const deadCharges = capRows.filter((r) => r.deadMoney);
 
+  /** A cell the source does not record. Never a dash on its own, never a zero. */
+  const notRecorded = <span className="yy-label">Not recorded</span>;
+
   return (
     <>
       {/* ── 2. IDENTITY CHIP — the credit line renders VISIBLY, beneath the
@@ -96,7 +99,40 @@ export default async function PlayerPage({ params }: { params: Promise<{ id: str
 
       {/* ── 3. CONTRACT CARD ─────────────────────────────────────────────── */}
       <Card ariaLabel="Contract">
-        <CardHeader eyebrow="Most recent deal" title="CONTRACT" />
+        <CardHeader
+          eyebrow="Most recent deal"
+          title="CONTRACT"
+          right={
+            /* `SPEC.md` §8.1 puts CSV on every tabular surface and §3.3.8 names
+               the contract card by hand as one of this page's three. */
+            b.contract.state === 'blank' ? undefined : (
+              <CsvExport
+                title="Contract"
+                filename={`yieldyard_player_${b.playerId}_contract.csv`}
+                table={csvTable([b.contract.value], [
+                  { key: 'player', label: 'player', get: () => b.name },
+                  { key: 'otc_id', label: 'otc_id', get: () => b.playerId },
+                  { key: 'year_signed', label: 'year_signed', get: (c) => c.yearSigned ?? '' },
+                  { key: 'years', label: 'years', get: (c) => c.years ?? '' },
+                  { key: 'value_usd', label: 'value_usd', get: (c) => c.value ?? '' },
+                  { key: 'apy_usd', label: 'apy_usd', get: (c) => c.apy ?? '' },
+                  { key: 'guaranteed_usd', label: 'guaranteed_usd', get: (c) => c.guaranteed ?? '' },
+                  {
+                    key: 'apy_cap_pct',
+                    label: 'apy_pct_of_cap_that_year',
+                    get: (c) => (c.apyCapPct === null ? '' : c.apyCapPct.toFixed(6)),
+                  },
+                ], [
+                  `YIELD/YARD — ${b.name}, contract terms`,
+                  'source mart: player_contract',
+                  'The published top-level columns of the deal in force. They are not re-derived from year-by-year cap numbers, and no term is inferred where a source is silent.',
+                  'An empty cell is a term the source does not state. It is never a zero.',
+                  'No value grade is computed or published for any player.',
+                ])}
+              />
+            )
+          }
+        />
         {b.contract.state === 'blank' ? (
           <BoundaryMessage body={b.contract.reason} />
         ) : (
@@ -227,7 +263,7 @@ export default async function PlayerPage({ params }: { params: Promise<{ id: str
                 ], [
                   `YIELD/YARD — ${b.name}, availability`,
                   'source mart: player_season_availability',
-                  `Games run the full record; snap counts begin in ${SNAPS_FIRST_SEASON} (the 2012 source file is empty).`,
+                  `Availability runs ${AVAILABILITY_WINDOW}; games and snap counts share that window and the record does not extend earlier.`,
                   'off_pct is a 0-1 fraction, not 0-100.',
                 ])}
               />
@@ -238,22 +274,25 @@ export default async function PlayerPage({ params }: { params: Promise<{ id: str
           <BoundaryMessage body={b.availability.reason} />
         ) : (
           <>
+            {/* The tiles name the window they cover. "Games" unqualified reads
+                as a career total; the mart holds 2013–2025 and nothing
+                earlier. */}
             <StatGrid>
               <KpiTile
-                label="Seasons on record"
+                label={`Seasons on record (${AVAILABILITY_WINDOW})`}
                 value={String(availRows.length)}
               />
               <KpiTile
-                label="Games"
+                label={`Games (${AVAILABILITY_WINDOW})`}
                 value={String(availRows.reduce((n, r) => n + (r.games ?? 0), 0))}
               />
               <KpiTile
-                label="First season"
-                value={String(availRows[0]?.season ?? '—')}
+                label="First season on record"
+                value={String(availRows[0]?.season ?? AVAILABILITY_WINDOW)}
               />
               <KpiTile
-                label="Latest season"
-                value={String(availRows[availRows.length - 1]?.season ?? '—')}
+                label="Latest season on record"
+                value={String(availRows[availRows.length - 1]?.season ?? AVAILABILITY_WINDOW)}
               />
             </StatGrid>
             <div className={css.tableScroll}>
@@ -287,28 +326,14 @@ export default async function PlayerPage({ params }: { params: Promise<{ id: str
                         {r.season}
                       </th>
                       <td className="yy-label">{r.team}</td>
-                      <td className={`yy-num ${css.num}`}>{r.games ?? '—'}</td>
-                      <td className={`yy-num ${css.num}`}>
-                        {r.season < SNAPS_FIRST_SEASON ? (
-                          <span className="yy-label">Pre-2013</span>
-                        ) : (
-                          (r.offSnaps ?? '—')
-                        )}
-                      </td>
-                      <td className={`yy-num ${css.num}`}>
-                        {r.season < SNAPS_FIRST_SEASON ? (
-                          <span className="yy-label">Pre-2013</span>
-                        ) : (
-                          (r.defSnaps ?? '—')
-                        )}
-                      </td>
-                      <td className={`yy-num ${css.num}`}>
-                        {r.season < SNAPS_FIRST_SEASON ? (
-                          <span className="yy-label">Pre-2013</span>
-                        ) : (
-                          (r.stSnaps ?? '—')
-                        )}
-                      </td>
+                      {/* Every row in this mart is inside the window, so the
+                        pre-2013 branch that used to sit here was unreachable —
+                        the boundary is stated once, beneath the table, where it
+                        is true of the whole card rather than of a row. */}
+                      <td className={`yy-num ${css.num}`}>{r.games ?? notRecorded}</td>
+                      <td className={`yy-num ${css.num}`}>{r.offSnaps ?? notRecorded}</td>
+                      <td className={`yy-num ${css.num}`}>{r.defSnaps ?? notRecorded}</td>
+                      <td className={`yy-num ${css.num}`}>{r.stSnaps ?? notRecorded}</td>
                     </tr>
                   ))}
                 </tbody>

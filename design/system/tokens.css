@@ -438,7 +438,13 @@
   --yy-fg-3: #616E69;
   --yy-fg-mid: #5A6B63;
   --yy-fg-dim: #71807A;
-  --yy-fg-on-accent: #071C16;
+  /* THE INK THAT READS ON `--yy-accent`, WHICH IS NOT THE SAME COLOUR IN BOTH
+     THEMES. Dark's accent is Yield Lime (#A6E22E) and End Zone sits on it at
+     12.2:1; light's accent is the lime INK (#4F7413) and End Zone sits on THAT
+     at 3.24:1 — below AA for the one place this token is used, the coach name
+     on the current regime band. Chalk white measures 5.51:1 there. The token
+     keeps its name and its job; only the value follows the surface. */
+  --yy-fg-on-accent: #FFFFFF;
 
   --yy-line-card: rgba(7, 28, 22, 0.15);
   --yy-line-hairline: rgba(7, 28, 22, 0.15);
@@ -462,6 +468,20 @@
   --yy-elevation-menu: 0 12px 32px rgba(2, 9, 7, 0.24);
   --yy-border-export: rgba(7, 28, 22, 0.28);
   --yy-feed-check: #FFFFFF;
+
+  /* SERIES SEMANTICS, LIGHT. The four `--yy-series-*` names had no light
+     override, so a component binding the semantic name painted the DARK value
+     on a light card: `--yy-series-neutral` (#A8B1AD) on the #F0F1F1 allocation
+     track measures 1.95:1 against the 3:1 SC 1.4.11 requires of a graphical
+     object that carries the data. The `*-light` palette values existed one line
+     below the ones being used and were referenced nowhere. §23's warning — "a
+     component that references a raw token above will not theme and fails
+     review" — is only true if the semantic name themes, which is what this
+     block makes true. */
+  --yy-series-subject: #4F7413;
+  --yy-series-compare: #5A6B63;
+  --yy-series-benchmark: #8A6D14;
+  --yy-series-neutral: #46534F;
 }
 
 /* System preference, unless an explicit theme is pinned. Values are identical
@@ -486,7 +506,7 @@
     --yy-fg-3: #616E69;
     --yy-fg-mid: #5A6B63;
     --yy-fg-dim: #71807A;
-    --yy-fg-on-accent: #071C16;
+    --yy-fg-on-accent: #FFFFFF;
     --yy-line-card: rgba(7, 28, 22, 0.15);
     --yy-line-hairline: rgba(7, 28, 22, 0.15);
     --yy-line-divider: rgba(7, 28, 22, 0.10);
@@ -508,6 +528,10 @@
     --yy-elevation-menu: 0 12px 32px rgba(2, 9, 7, 0.24);
     --yy-border-export: rgba(7, 28, 22, 0.28);
     --yy-feed-check: #FFFFFF;
+    --yy-series-subject: #4F7413;
+    --yy-series-compare: #5A6B63;
+    --yy-series-benchmark: #8A6D14;
+    --yy-series-neutral: #46534F;
   }
 }
 

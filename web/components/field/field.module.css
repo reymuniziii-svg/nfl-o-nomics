@@ -1,0 +1,234 @@
+/* THE TWO FIELD-LITERAL SURFACES — CHART_ANATOMY.md §7, SPEC.md §4.
+ *
+ * "The field is a coordinate system, not an illustration." No turf fill, no
+ * stadium, no crowd, no green. The ground is the flat card surface, the yard
+ * lines are gridlines and obey the same ceiling as any other, and the only two
+ * tinted regions are the red zone and the safety band the spec names.
+ */
+
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--yy-space-2);
+  margin-bottom: var(--yy-space-4);
+}
+
+/* ── the ground ──────────────────────────────────────────────────────────── */
+
+.field {
+  position: relative;
+  background: var(--yy-bg-card-flat);
+  border: 1px solid var(--yy-line-hairline);
+  border-radius: var(--yy-radius-chip);
+  /* the marks sit on their own yard line; nothing is nudged to fit */
+  overflow: hidden;
+  min-height: 96px;
+}
+
+.yardLine {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--yy-gridline);
+}
+
+/* Midfield — Cap+ 100, the league average. It is the one yard line that carries
+   a benchmark meaning, so it takes the benchmark ink. */
+.midfield {
+  background: var(--yy-benchmark-line-under);
+}
+
+/* §7 — hash marks every 5 yards, "omitted below 320px of field length". At the
+   390 canvas the field is ~300px, so they are dropped there. */
+.hash {
+  position: absolute;
+  top: 50%;
+  height: 8px;
+  width: 1px;
+  transform: translateY(-50%);
+  background: var(--yy-gridline);
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .hash {
+    display: block;
+  }
+}
+
+/* §7 — the 0–20 band, `--yy-accent` at 6%. */
+.redZone {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  background: color-mix(in srgb, var(--yy-accent) 6%, transparent);
+}
+
+/* §7 — the own-goal-line band, `--yy-negative-fill` at 6%. A club behind it is
+   genuinely below the floor the index is built on, which is the one reading on
+   this surface that IS a negative. */
+.safety {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 2%;
+  background: color-mix(in srgb, var(--yy-negative-fill) 6%, transparent);
+}
+
+/* ── the marks ───────────────────────────────────────────────────────────── */
+
+.mark {
+  position: absolute;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-decoration: none;
+  color: inherit;
+  /* room for the stem, plus the 6px that keeps the first lane's mark off the
+     field's own top rule */
+  padding-top: 14px;
+}
+
+/* §7 — a 1px stem from the mark to its yard line, so the mark's meaning is its
+   position and the reader can see which line it belongs to. */
+.stem {
+  position: absolute;
+  top: 6px;
+  height: 8px;
+  width: 1px;
+  background: var(--yy-fg-2);
+}
+
+.markLabel {
+  color: var(--yy-fg-3);
+  white-space: nowrap;
+  letter-spacing: var(--yy-track-label);
+}
+
+.markFocus .markLabel {
+  color: var(--yy-fg-1);
+}
+
+.mark:hover .markLabel,
+.mark:focus-visible .markLabel {
+  color: var(--yy-fg-1);
+}
+
+/* ── the axes ────────────────────────────────────────────────────────────── */
+
+.axis {
+  position: relative;
+  height: calc(var(--yy-size-label) * var(--yy-lh-label));
+}
+
+.yardNumber,
+.capTick {
+  position: absolute;
+  transform: translateX(-50%);
+  color: var(--yy-fg-3);
+  white-space: nowrap;
+}
+
+.capTick {
+  color: var(--yy-fg-2);
+}
+
+/* An axis endpoint anchors to its own edge; centring it on a goal line paints
+   half the label outside the card. */
+.tickStart {
+  transform: none;
+}
+
+.tickEnd {
+  transform: translateX(-100%);
+}
+
+.axisTitle {
+  margin: 0;
+  color: var(--yy-fg-3);
+  letter-spacing: var(--yy-track-label-wide);
+}
+
+/* ── band key ────────────────────────────────────────────────────────────── */
+
+.bandKey {
+  list-style: none;
+  margin: var(--yy-space-1) 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--yy-space-2) var(--yy-space-4);
+}
+
+.bandKeyItem {
+  display: flex;
+  align-items: center;
+  gap: var(--yy-space-2);
+  color: var(--yy-fg-3);
+}
+
+.bandSwatch {
+  width: 16px;
+  height: 12px;
+  flex: none;
+  border-radius: var(--yy-radius-mark);
+}
+
+.bandSwatchRed {
+  background: color-mix(in srgb, var(--yy-accent) 24%, transparent);
+}
+
+.bandSwatchSafety {
+  background: color-mix(in srgb, var(--yy-negative-fill) 24%, transparent);
+}
+
+/* ── off the field ───────────────────────────────────────────────────────── */
+
+/* §7 — a club with a blank Cap+ is never placed at a goal line, which would
+   read as Cap+ 150 or 50. It is named beneath, under its reason. */
+.offField {
+  margin-top: var(--yy-space-3);
+  padding-top: var(--yy-space-3);
+  border-top: 1px solid var(--yy-line-hairline);
+}
+
+.offFieldHead {
+  margin: 0 0 var(--yy-space-2);
+  color: var(--yy-fg-3);
+  letter-spacing: var(--yy-track-label-wide);
+  max-width: var(--yy-measure);
+}
+
+.offFieldList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--yy-space-2) var(--yy-space-4);
+}
+
+.offFieldItem {
+  display: flex;
+  align-items: center;
+  gap: var(--yy-space-2);
+  color: var(--yy-fg-2);
+  text-decoration: none;
+}
+
+.offFieldItem:hover {
+  color: var(--yy-fg-1);
+}
+
+/* ══════════════════════════════════════════════════════════════════════════ */
+/* THE TEAM DRIVE — the same coordinate system, one franchise, 25 seasons      */
+/* ══════════════════════════════════════════════════════════════════════════ */
+
+.driveScroll {
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+}

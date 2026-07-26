@@ -39,6 +39,7 @@ import {
   type LeaderboardViewRow,
 } from '@/components/leaderboard/capplus-leaderboard';
 import { Card, CardHeader, ChartCaption } from '@/components/primitives';
+import { LeagueField } from '@/components/field/league-field';
 import { DeadMoneyLedger } from '@/components/team/team-blocks';
 import { CsvExport } from '@/components/csv-export';
 import { csvTable } from '@/lib/csv';
@@ -166,6 +167,24 @@ export async function DivisionView({ slug }: { slug: DivisionSlug }) {
             />
           }
         />
+        {/* `SPEC.md` §4 — one of the product's exactly two field-literal
+            surfaces. It sits ABOVE the row list and does not replace it: the
+            list is the tabular reading and the field is the second encoding of
+            the same number. It renders only where the index IS Cap+, because
+            the metaphor is defined for Cap+ and for nothing else. */}
+        {leaderboard.capplusCovered ? (
+          <LeagueField
+            teams={rows.map((r) => ({
+              team: r.team,
+              teamName: r.teamName,
+              index: r.index,
+              href: r.href,
+            }))}
+            season={season}
+            focusTeams={divisionTeams}
+          />
+        ) : null}
+
         <CapPlusLeaderboard
           rows={rows}
           season={season}
@@ -177,7 +196,38 @@ export async function DivisionView({ slug }: { slug: DivisionSlug }) {
 
       {/* 4 — largest dead-money charges */}
       <Card ariaLabel="Largest dead-money charges">
-        <CardHeader eyebrow="From the ledger" title="LARGEST DEAD-MONEY CHARGES" />
+        <CardHeader
+          eyebrow="From the ledger"
+          title="LARGEST DEAD-MONEY CHARGES"
+          right={
+            /* `SPEC.md` §8.1 — CSV on EVERY tabular surface. This table carries
+               the product's strongest asset: 21 verified-actual charges with a
+               source URL on every row. */
+            ledger.state === 'blank' ? undefined : (
+              <CsvExport
+                title="Largest dead-money charges"
+                filename="yieldyard_deadmoney_ledger.csv"
+                table={csvTable(ledger.value, [
+                  { key: 'player', label: 'player', get: (c) => c.player },
+                  { key: 'team', label: 'team', get: (c) => c.team },
+                  { key: 'seasons', label: 'seasons', get: (c) => c.seasons },
+                  { key: 'total_usd', label: 'total_usd', get: (c) => c.totalUsd },
+                  { key: 'split', label: 'split_by_season', get: (c) => c.splitBySeason ?? '' },
+                  { key: 'is_actual', label: 'is_actual', get: (c) => String(c.isActual) },
+                  { key: 'verified', label: 'verified_asof', get: (c) => c.verifiedAsof },
+                  { key: 'source', label: 'source_url', get: (c) => c.sourceUrl },
+                  { key: 'notes', label: 'notes', get: (c) => c.notes ?? '' },
+                ], [
+                  'YIELD/YARD — largest dead-money charges',
+                  'source mart: dead_money_ledger',
+                  'Every charge carries the date it was verified and a link to its source.',
+                  'Charges are never averaged, never summed across differently dated readings, and never split across seasons unless the split is published.',
+                  'split_by_season is EMPTY where the per-season split has never been established — it is deliberately not inferred (Marcell Dareus / BUF).',
+                ])}
+              />
+            )
+          }
+        />
         {ledger.state === 'blank' ? (
           <ChartCaption>{ledger.reason}</ChartCaption>
         ) : (

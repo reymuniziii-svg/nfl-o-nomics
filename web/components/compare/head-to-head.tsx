@@ -32,6 +32,11 @@ function fmt(unit: BenchmarkRow['unit'], v: number): string {
       return v.toFixed(1);
     case 'rate':
       return Math.abs(v) < 1 ? v.toFixed(3) : v.toFixed(2);
+    // A 0–1 share of that season's league cap, printed in points of cap. This
+    // is the unit every cross-era money row is scaled from; dollars ride
+    // beneath it as a secondary readout and never drive a bar.
+    case 'pct_of_cap':
+      return `${(v * 100).toFixed(1)}%`;
     default:
       return v.toFixed(0);
   }
@@ -39,6 +44,9 @@ function fmt(unit: BenchmarkRow['unit'], v: number): string {
 
 function fmtDelta(unit: BenchmarkRow['unit'], v: number): string {
   const sign = v > 0 ? '+' : v < 0 ? '−' : '';
+  if (unit === 'pct_of_cap') {
+    return `${sign}${Math.abs(v * 100).toFixed(1)} pts of cap`;
+  }
   return `${sign}${fmt(unit, Math.abs(v))}`;
 }
 
@@ -99,6 +107,23 @@ export function HeadToHead({ bundle, coverage }: { bundle: CompareBundle; covera
   );
 }
 
+/**
+ * What one side of a row says beneath it. A blank says its reason; a PARTIAL
+ * says its reason AND still carries its distance, because a partial value is
+ * still a value; a value with no benchmark says which is missing, and it is
+ * never "no league average" when what is actually absent is a 32-team table.
+ */
+function sideNote(row: BenchmarkRow, key: 'a' | 'b'): string {
+  const side = row[key];
+  const yr = `’${String(side.ref.season).slice(2)}`;
+  if (side.raw.state === 'blank') return side.raw.reason;
+  const partialNote = side.raw.state === 'partial' ? ` — ${side.raw.reason}` : '';
+  if (side.delta === null) {
+    return `No comparable ${yr} league benchmark for this measure${partialNote}`;
+  }
+  return `${fmtDelta(row.unit, side.delta)} vs ${yr} league${partialNote}`;
+}
+
 function ButterflyRow({ row }: { row: BenchmarkRow }) {
   const deltas = [row.a.delta, row.b.delta].filter((d): d is number => d !== null);
   const scaleMax = deltas.length ? Math.max(...deltas.map(Math.abs)) : 1;
@@ -113,7 +138,14 @@ function ButterflyRow({ row }: { row: BenchmarkRow }) {
         {row.a.raw.state === 'blank' ? (
           <span className={`yy-label ${chart.h2hNotCovered}`}>Not covered</span>
         ) : (
-          fmt(row.unit, row.a.raw.value)
+          <>
+            {fmt(row.unit, row.a.raw.value)}
+            {row.a.secondaryUsd !== null && row.a.secondaryUsd !== undefined ? (
+              <span className={`yy-label ${chart.h2hSecondary}`}>
+                {usdShort(row.a.secondaryUsd)}
+              </span>
+            ) : null}
+          </>
         )}
       </div>
 
@@ -150,24 +182,23 @@ function ButterflyRow({ row }: { row: BenchmarkRow }) {
         {row.b.raw.state === 'blank' ? (
           <span className={`yy-label ${chart.h2hNotCovered}`}>Not covered</span>
         ) : (
-          fmt(row.unit, row.b.raw.value)
+          <>
+            {fmt(row.unit, row.b.raw.value)}
+            {row.b.secondaryUsd !== null && row.b.secondaryUsd !== undefined ? (
+              <span className={`yy-label ${chart.h2hSecondary}`}>
+                {usdShort(row.b.secondaryUsd)}
+              </span>
+            ) : null}
+          </>
         )}
       </div>
 
       <div className={`yy-label ${chart.h2hLabel}`}>
         {row.label}
         <span className={chart.h2hDelta}>
-          {row.a.delta === null
-            ? row.a.raw.state === 'blank'
-              ? row.a.raw.reason
-              : 'No league average for this measure'
-            : `${fmtDelta(row.unit, row.a.delta)} vs ’${String(row.a.ref.season).slice(2)} league`}
+          {sideNote(row, 'a')}
           {' · '}
-          {row.b.delta === null
-            ? row.b.raw.state === 'blank'
-              ? row.b.raw.reason
-              : 'No league average for this measure'
-            : `${fmtDelta(row.unit, row.b.delta)} vs ’${String(row.b.ref.season).slice(2)} league`}
+          {sideNote(row, 'b')}
         </span>
       </div>
     </div>

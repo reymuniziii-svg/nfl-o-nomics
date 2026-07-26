@@ -34,7 +34,12 @@ import type { Coverage } from '@/lib/display';
  * and it survives the hoist.
  */
 
-const MOBILE = { w: 358, h: 240, ml: 44, mr: 10, mt: 34, mb: 44 };
+/**
+ * Both compositions paint at their INTRINSIC size (scale 1.0) so the 11px type
+ * floor survives — see `chart.module.css` `.svgFixed`. 332 is the card's content
+ * width at the 390 canvas.
+ */
+const MOBILE = { w: 332, h: 240, ml: 44, mr: 10, mt: 34, mb: 44 };
 const DESKTOP = { w: 980, h: 380, ml: 60, mr: 16, mt: 40, mb: 52 };
 
 export function CapVsCash({
@@ -61,10 +66,14 @@ export function CapVsCash({
   return (
     <div>
       <div className={css.atMobile}>
-        <CapVsCashSvg points={points} playerName={playerName} geo={MOBILE} />
+        <div className={css.plotScroll}>
+          <CapVsCashSvg points={points} playerName={playerName} geo={MOBILE} />
+        </div>
       </div>
       <div className={css.atDesktop}>
-        <CapVsCashSvg points={points} playerName={playerName} geo={DESKTOP} />
+        <div className={css.plotScroll}>
+          <CapVsCashSvg points={points} playerName={playerName} geo={DESKTOP} />
+        </div>
       </div>
       <Legend items={legend} />
       <ChartCaption>
@@ -105,7 +114,9 @@ function CapVsCashSvg({
   return (
     <>
       <svg
-        className={css.svg}
+        className={css.svgFixed}
+        width={w}
+        height={h}
         viewBox={`0 0 ${w} ${h}`}
         role="img"
         aria-label={`${playerName} — cap number and cash paid by season`}

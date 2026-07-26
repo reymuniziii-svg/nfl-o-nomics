@@ -124,6 +124,25 @@ export const DIVISION_ALIGNMENT_NOTE =
   'Current alignment only. The realignment of 2002 is not modelled; a 1999 team-season is ' +
   'reachable through its franchise’s current division.';
 
+/**
+ * SPEC §2.1 — the dead-money definition, quoted VERBATIM with its credit, in
+ * both places the spec names: the methodology page and the dead-money card's
+ * info panel. It is a quotation, not house copy, and it is never paraphrased.
+ */
+export const DEAD_MONEY_DEFINITION =
+  '“A dead money charge is a charge on an NFL team’s salary cap for a player who is no longer ' +
+  'on the roster. It represents any remaining signing bonus proration that was not accounted ' +
+  'for prior to the player’s release or trade. It is not a cash payment…”';
+
+export const DEAD_MONEY_DEFINITION_CREDIT = 'the standard definition, from Dan Graziano at ESPN';
+
+/** SPEC §7.5 — a leaders-list reading is not a league table. */
+export const NOT_A_32_TEAM_READING = 'Not a 32-team reading';
+
+/** SPEC §2.9 — the draft value chart, cited on the card and in the methodology. */
+export const DRAFT_CHART_NAME = 'Fitzgerald–Spielberger NFL Draft Trade Value Chart';
+export const DRAFT_CHART_URL = 'https://overthecap.com/draft-trade-value-chart';
+
 /** SPEC §2.1 — dead money never renders without its date and stage. */
 export function asOfLabel(asOf: AsOf): string {
   const stage = asOf.stage.replace('_', ' ');

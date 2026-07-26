@@ -290,8 +290,13 @@
   color: var(--yy-fg-3);
 }
 
+/* The shared ring is universal rule 5 — this field was the one interactive
+   element in the product opting out of it. The border change stays; the ring is
+   added, so the search input matches every other control. */
 .field:focus-within {
   border-color: var(--yy-accent);
+  outline: var(--yy-focus-width) solid var(--yy-focus-ring);
+  outline-offset: var(--yy-focus-offset);
 }
 
 .input {

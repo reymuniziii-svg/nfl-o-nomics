@@ -159,19 +159,25 @@
   justify-content: center;
   gap: var(--yy-space-1);
   text-decoration: none;
-  /* SPLIT — the label may NOT use the dim value: it is text and needs 4.5:1,
-     while the icon is a graphical object and clears at 3:1. `DECISIONS.md` 66. */
-  color: var(--yy-fg-3);
+  /* THE TAB BAR IS PINNED DARK IN BOTH THEMES (`--yy-bg-tabbar: #111416`,
+     `DECISIONS.md` 78 — it is the brand's End Zone band), so its type must bind
+     to the DARK ladder in both themes too. Binding to the theme-flipping
+     `--yy-fg-*` names put #616E69 on #111416 in light mode: 3.47:1 for the
+     inactive labels and 3.38:1 for the active one, below AA for 13px text, on
+     the app's primary navigation, on every surface. The header already solved
+     this the same way. `DECISIONS.md` 66 still splits label from icon: the
+     label is text and needs 4.5:1, the icon is a graphical object at 3:1. */
+  color: var(--yy-ink-dark-2);
   padding-bottom: var(--yy-space-2);
 }
 
 .tabIcon {
-  color: var(--yy-fg-dim);
+  color: var(--yy-ink-dark-3);
 }
 
 .tabActive,
 .tabActive .tabIcon {
-  color: var(--yy-accent);
+  color: var(--yy-yield-lime);
 }
 
 /* ── footer ─────────────────────────────────────────────────────────────── */

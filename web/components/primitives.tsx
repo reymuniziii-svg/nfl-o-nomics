@@ -316,7 +316,13 @@ export function IndexBadge({
   let toneClass = css.badgeNeutral;
 
   if (metric.state === 'blank') {
-    figure = '—';
+    /**
+     * `SPEC.md` §2.2 and `CAPPLUS_MEMO.md` §4 — the four blanked seasons render
+     * THE LITERAL SENTENCE: "never a dash, never a blank cell, never a zero".
+     * The sentence prints beneath; the value slot carries the short form of the
+     * same fact, not an em dash standing in for a number.
+     */
+    figure = <span className={css.badgeBlankShort}>Not covered</span>;
     toneClass = css.badgeBlank;
   } else {
     figure = metric.value.toFixed(0);
@@ -409,7 +415,8 @@ export type LegendSwatch =
   | 'benchmark'
   | 'provisional'
   | 'dot'
-  | 'ring';
+  | 'ring'
+  | 'offscale';
 
 const TONE_VAR: Record<LegendTone, string> = {
   accent: 'var(--yy-accent)',
@@ -491,6 +498,20 @@ export function LegendSwatchMark({
           stroke="var(--yy-provisional-stroke)"
           strokeWidth="1"
         />
+      ) : null}
+      {swatch === 'offscale' ? (
+        <>
+          <line
+            x1="8"
+            y1="4"
+            x2="8"
+            y2="12"
+            stroke="var(--yy-fg-dim)"
+            strokeWidth="1"
+            style={{ strokeDasharray: 'var(--yy-dash-absence)' }}
+          />
+          <path d="M3 6 8 0 13 6Z" fill={c} />
+        </>
       ) : null}
       {swatch === 'dot' ? <circle cx="8" cy="6" r="5" fill={c} stroke="var(--yy-bg-card-flat)" strokeWidth="1" /> : null}
       {swatch === 'ring' ? (

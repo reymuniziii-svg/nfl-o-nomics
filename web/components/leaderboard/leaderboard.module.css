@@ -138,10 +138,21 @@
   overflow: hidden;
 }
 
+/* `display: block` IS THE MARK. `.track` blockifies as a flex item; a `<span>`
+   inside it does not, and an inline box ignores `width` and `height` entirely —
+   so every spend bar in this list painted 0px while carrying a correct
+   percentage in its inline style. */
 .trackFill {
+  display: block;
+  width: 0;
   height: 100%;
   border-radius: var(--yy-radius-mark);
-  background: var(--yy-bg-track);
+  /* SC 1.4.11 — the bar carries the data, so it needs ≥3:1 against its own
+     track. `--yy-bg-track` is the NEXT STEP ON THE SAME SURFACE LADDER as
+     `--yy-bg-sunken` (1.22:1 light, 1.27:1 dark): two adjacent greys cannot
+     encode a value. The spend bar takes a foreground weight, like the wins bar
+     directly beneath it. */
+  background: var(--yy-fg-mid);
 }
 
 .winsAbove {
@@ -182,6 +193,14 @@
 .indexBlank {
   color: var(--yy-fg-3);
   font-size: var(--yy-size-label);
+}
+
+/* A blank cell's SHORT FORM. Never a dash, never empty — the full reason rides
+   along as the cell's accessible text. */
+.blankCell {
+  color: var(--yy-fg-3);
+  font-size: var(--yy-size-label);
+  white-space: nowrap;
 }
 
 /* §2.3 — blanks sort to a LABELLED group at the bottom, never interleaved and

@@ -120,6 +120,11 @@ export default async function ComparePage({
                   { key: 'a_league', label: 'a_league_avg', get: (r) => r.a.leagueAvg ?? '' },
                   { key: 'a_delta', label: 'a_delta_vs_own_league', get: (r) => r.a.delta ?? '' },
                   {
+                    key: 'a_usd',
+                    label: 'a_secondary_usd',
+                    get: (r) => r.a.secondaryUsd ?? '',
+                  },
+                  {
                     key: 'a_blank',
                     label: 'a_blank_reason',
                     get: (r) => (r.a.raw.state === 'blank' ? r.a.raw.reason : ''),
@@ -133,14 +138,20 @@ export default async function ComparePage({
                   { key: 'b_league', label: 'b_league_avg', get: (r) => r.b.leagueAvg ?? '' },
                   { key: 'b_delta', label: 'b_delta_vs_own_league', get: (r) => r.b.delta ?? '' },
                   {
+                    key: 'b_usd',
+                    label: 'b_secondary_usd',
+                    get: (r) => r.b.secondaryUsd ?? '',
+                  },
+                  {
                     key: 'b_blank',
                     label: 'b_blank_reason',
                     get: (r) => (r.b.raw.state === 'blank' ? r.b.raw.reason : ''),
                   },
                 ], [
                   'YIELD/YARD — head-to-head',
-                  'source marts: team_season_results, team_season_epa, team_rating, capplus_official, team_season_cap',
+                  'source marts: team_season_results, team_season_epa, team_rating, capplus_official, team_season_cap, dead_money_display',
                   bundle.crossEraStatement,
+                  'unit=pct_of_cap is a 0-1 SHARE OF THAT SEASON\'S LEAGUE CAP, not dollars. Every money row is compared on that scale; the dollar figure is in the *_secondary_usd column and is never what a bar is drawn from.',
                   'Where one side is pre-2013, its Tier 2 rows carry the boundary message. No row is silently omitted and no side renders zero.',
                 ])}
               />

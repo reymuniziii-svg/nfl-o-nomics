@@ -289,7 +289,14 @@ function ReceiptRow({
         ? row.record
         : `${row.fullName} · ${row.record}`;
 
-  /* ---- the zero-win row: a live rendering state, not an edge case ---- */
+  /* ---- the zero-win row: a live rendering state, not an edge case ----
+     `CHART_ANATOMY.md` §5.2 requires the suppressed mark to occupy "the same
+     box, same position, same size as a live mark", and §1.4 fixes every column
+     but the bar — so the track is only equal if the other columns are. The
+     value here is a SENTENCE, not a ratio, and it does not fit the 78px figure
+     column; taking the width out of the track instead made the dashed box 42%
+     of a live bar, which reads as a small value rather than as an absence. So
+     the row keeps the live grid and the sentence takes the line beneath it. */
   if (isSuppressed(row.costPerWin)) {
     return (
       <div className={`${css.row} ${css.zero}`}>
@@ -304,7 +311,9 @@ function ReceiptRow({
         </div>
         {/* no gold tick — there is no ratio to compare */}
         <div className={css.bar} />
-        <div className={css.val}>
+        {/* the figure column's width, held open so the track matches a live one */}
+        <div className={css.val} aria-hidden="true" />
+        <div className={css.zeroNote}>
           <div className={css.num}>{row.costPerWin.spendLabel}</div>
           <div className={css.delta}>Ratio suppressed · excluded from ranking</div>
         </div>

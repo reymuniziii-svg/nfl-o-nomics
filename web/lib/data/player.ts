@@ -21,6 +21,20 @@ import { isSeeded } from './registry';
 /** `SPEC.md` §3.3 item 5 — snaps 2013+; the 2012 asset exists and is empty. */
 export const SNAPS_FIRST_SEASON = 2013;
 
+/**
+ * The AVAILABILITY window, which is not the same claim as the snaps boundary.
+ *
+ * `player_season_availability` holds 2013–2025 and nothing earlier — GAMES are
+ * truncated at exactly the same boundary as snaps, not carried "the full
+ * record". Saying otherwise turned Tom Brady's 23-season, 335-game career into
+ * a "Games 158" tile with a caption asserting completeness, which is precisely
+ * the failure `SPEC.md` §1.2 forbids. Both figures are labelled with the window
+ * they actually cover.
+ */
+export const AVAILABILITY_FIRST_SEASON = 2013;
+export const AVAILABILITY_LAST_SEASON = 2025;
+export const AVAILABILITY_WINDOW = `${AVAILABILITY_FIRST_SEASON}–${AVAILABILITY_LAST_SEASON}`;
+
 export interface PopulationEntry {
   playerId: string;
   player: string | null;
@@ -243,7 +257,10 @@ export async function getPlayerBundle(playerId: string): Promise<PlayerBundle | 
     contract,
     capVsCash,
     availability,
-    snapsBoundaryNote: `Games run the full record; snap counts begin in ${SNAPS_FIRST_SEASON} (the 2012 source file is empty).`,
+    snapsBoundaryNote:
+      `Availability runs ${AVAILABILITY_WINDOW}. Games and snap counts share that window: ` +
+      'the record does not extend earlier and the 2012 snap source file is empty. Seasons a ' +
+      'player played before it are not counted here and are not estimated.',
     noValueGrade: true,
   };
 }

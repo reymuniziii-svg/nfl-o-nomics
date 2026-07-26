@@ -7,7 +7,16 @@
  * year. They are not a trend.
  *
  * EVERY DOT CARRIES ITS OWN DATE, always — that is the affordance that makes the
- * rule visible rather than merely obeyed. The date is never behind a tooltip.
+ * rule visible rather than merely obeyed. The date is never behind a tooltip and
+ * is never dropped: where the labels would collide the composition renders FEWER
+ * SEASONS and says so (`SCREENSHOT_VARIANTS.md` §3), and the surviving dates are
+ * rotated 90° under their own one-unit-wide column (`CHART_ANATOMY.md` §5.2).
+ *
+ * ONE MARK PER FACT. A season in which no league-wide table was published but a
+ * leaders list named this club carries its reading in the OPEN RING style, so
+ * the single mark says both "here is the figure" and "this is not a 32-team
+ * reading". Drawing a filled dot *and* a baseline absence ring at the same x
+ * asserted two contradictory things at one coordinate.
  */
 
 import css from './chart.module.css';
@@ -33,10 +42,15 @@ export const DOT_PLOT_CAPTION =
   'Each dot is a separate dated reading, taken at a different point in a different league year. ' +
   'They are not a trend and are deliberately not connected.';
 
-/** `DECISIONS.md` 16 — the four seasons with no league-wide table. */
-const BLANK_SEASONS = [2013, 2016, 2020, 2021];
+/** `SPEC.md` §1.1 — the first season of player-level economics. */
+const TIER2_FIRST_SEASON = 2013;
 
-const MOBILE = { w: 358, h: 220, ml: 34, mr: 12, mt: 12, mb: 56 };
+/**
+ * The mobile composition paints at its intrinsic width so its type sits exactly
+ * on the 11px floor (`DECISIONS.md` 65); 332 is the card's content width at the
+ * 390 canvas.
+ */
+const MOBILE = { w: 332, h: 306, ml: 34, mr: 14, mt: 12, mb: 122 };
 const DESKTOP = { w: 980, h: 340, ml: 52, mr: 20, mt: 16, mb: 64 };
 
 export interface DotPoint {
@@ -46,35 +60,83 @@ export interface DotPoint {
   usd: number;
   asOfDate: string;
   asOfStage: string;
+  /** A published leaders list, not a league table (`SPEC.md` §7.5). */
+  leadersOnly: boolean;
 }
 
 export function DeadMoneyDots({
   team,
   points,
   seasons,
+  blankSeasons,
   coverage,
 }: {
   team: string;
   points: DotPoint[];
   /** The full season domain. The axis is never shortened so a gap disappears. */
   seasons: number[];
+  /**
+   * Seasons with no league-wide table AND no leaders-list reading for this club
+   * — the only ones that draw an empty ring at the baseline.
+   */
+  blankSeasons: number[];
   coverage: Coverage;
 }) {
+  const anyLeadersOnly = points.some((p) => p.leadersOnly);
+
   const legend: LegendItem[] = [
-    { swatch: 'dot', label: 'Dated reading', tone: 'partial' },
+    { swatch: 'dot', label: 'Dated reading — all 32 clubs', tone: 'partial' },
     { swatch: 'ring', label: 'Not a 32-team reading', tone: 'absence' },
   ];
+
+  // The reduced mobile domain: Tier 2 onward. Nothing is hidden by it — no
+  // dead-money reading exists before 2013 on any surface — and it is stated.
+  const mobileSeasons = seasons.filter((s) => s >= TIER2_FIRST_SEASON);
+  const reduced = mobileSeasons.length < seasons.length && mobileSeasons.length > 0;
+  const mobileDomain = mobileSeasons.length ? mobileSeasons : seasons;
 
   return (
     <div>
       <div className={css.atMobile}>
-        <DotsSvg team={team} points={points} seasons={seasons} geo={MOBILE} everyLabel={false} />
+        <div className={css.plotScroll}>
+          <DotsSvg
+            team={team}
+            points={points.filter((p) => mobileDomain.includes(p.season))}
+            seasons={mobileDomain}
+            blankSeasons={blankSeasons}
+            geo={MOBILE}
+            rotateDates
+          />
+        </div>
+        {reduced ? (
+          <ChartCaption>
+            At this width the axis runs {mobileDomain[0]}–{mobileDomain[mobileDomain.length - 1]} so
+            that every dot keeps its own date. No reading is hidden by the reduction: dead money is
+            recorded from {TIER2_FIRST_SEASON} onward and there is none before it.
+          </ChartCaption>
+        ) : null}
       </div>
       <div className={css.atDesktop}>
-        <DotsSvg team={team} points={points} seasons={seasons} geo={DESKTOP} everyLabel />
+        <div className={css.plotScroll}>
+          <DotsSvg
+            team={team}
+            points={points}
+            seasons={seasons}
+            blankSeasons={blankSeasons}
+            geo={DESKTOP}
+            rotateDates={false}
+          />
+        </div>
       </div>
       <Legend items={legend} />
       <ChartCaption>{DOT_PLOT_CAPTION}</ChartCaption>
+      {anyLeadersOnly ? (
+        <ChartCaption>
+          A reading drawn as an open ring comes from a published leaders list rather than a
+          league-wide table. It is a real, dated figure for this club and it is not comparable with
+          the other 31.
+        </ChartCaption>
+      ) : null}
       <ChartCaption>{coverage.statement}</ChartCaption>
     </div>
   );
@@ -84,14 +146,16 @@ function DotsSvg({
   team,
   points,
   seasons,
+  blankSeasons,
   geo,
-  everyLabel,
+  rotateDates,
 }: {
   team: string;
   points: DotPoint[];
   seasons: number[];
+  blankSeasons: number[];
   geo: typeof MOBILE;
-  everyLabel: boolean;
+  rotateDates: boolean;
 }) {
   const { w, h, ml, mr, mt, mb } = geo;
   const innerW = w - ml - mr;
@@ -112,17 +176,26 @@ function DotsSvg({
   const grid = gridValues([0, Math.max(0.05, max * 1.15)], 3);
   const ticks = thinTicks(seasons, tickBudget(innerW));
 
-  // The date label under every dot is the point of the component; at mobile the
-  // labels collide, so the composition renders fewer SEASONS and says so — it
-  // never drops the labels (`SCREENSHOT_VARIANTS.md` §3).
-  const shown = everyLabel
-    ? points
-    : points.filter((p) => ticks.includes(p.season) || points.length <= 8);
+  /**
+   * `COMPONENTS.md` §8.4 and `SPEC.md` §2.1 rule 1: a dated reading without its
+   * date cannot render. It is a build-time failure, not a silent omission.
+   */
+  if (process.env.NODE_ENV !== 'production') {
+    const undated = points.find((p) => !p.asOfDate);
+    if (undated) {
+      throw new Error(
+        `DeadMoneyDots received a ${undated.season} reading with no as-of date. ` +
+          'Value, date and stage render together or not at all (SPEC.md §2.1).',
+      );
+    }
+  }
 
   return (
     <>
       <svg
-        className={css.svg}
+        className={css.svgFixed}
+        width={w}
+        height={h}
         viewBox={`0 0 ${w} ${h}`}
         role="img"
         aria-label={`${team} — dead money as a share of the adjusted cap`}
@@ -141,48 +214,53 @@ function DotsSvg({
             />
           ))}
 
-          {/* the four seasons with no league-wide table: an OPEN ring at the
-            baseline, never a value and never an omission */}
-          {BLANK_SEASONS.filter((s) => seasons.includes(s)).map((s) => (
-            <circle
-              key={`b${s}`}
-              cx={px(s)}
-              cy={innerH}
-              r={5}
-              fill="none"
-              stroke="var(--yy-absence)"
-              strokeWidth={1}
-              style={{ strokeDasharray: 'var(--yy-dash-absence)' }}
-            />
-          ))}
+          {/* Seasons with no league-wide table AND no leaders-list reading for
+            this club: an OPEN ring at the baseline, never a value and never an
+            omission. A season this club DOES appear in carries its ring at its
+            own reading instead — one mark, both facts. */}
+          {blankSeasons
+            .filter((s) => seasons.includes(s))
+            .map((s) => (
+              <g key={`b${s}`}>
+                <circle
+                  data-dm-absence={s}
+                  cx={px(s)}
+                  cy={innerH}
+                  r={5}
+                  fill="none"
+                  stroke="var(--yy-absence)"
+                  strokeWidth={1}
+                  style={{ strokeDasharray: 'var(--yy-dash-absence)' }}
+                />
+                <text
+                  className={css.micro}
+                  x={px(s)}
+                  y={innerH - 12}
+                  textAnchor="end"
+                  transform={`rotate(-90 ${px(s)} ${innerH - 12})`}
+                >
+                  Not a 32-team reading
+                </text>
+              </g>
+            ))}
 
           {points.map((p) =>
             p.burden === null ? null : (
               <circle
                 key={`p${p.season}-${p.asOfDate}`}
+                /* Structural markers, so the build check can assert "every dot
+                   keeps its date" and "no absence ring shares a season with a
+                   reading" exactly, rather than inferring either from pixel
+                   geometry. */
+                data-dm-reading={p.season}
                 cx={px(p.season)}
                 cy={y(p.burden)}
                 r={5}
-                fill="var(--yy-negative-fill)"
-                stroke="var(--yy-bg-card-flat)"
+                fill={p.leadersOnly ? 'none' : 'var(--yy-negative-fill)'}
+                stroke={p.leadersOnly ? 'var(--yy-absence)' : 'var(--yy-bg-card-flat)'}
                 strokeWidth={1}
+                style={p.leadersOnly ? { strokeDasharray: 'var(--yy-dash-absence)' } : undefined}
               />
-            ),
-          )}
-
-          {/* per-dot date labels — every dot, always */}
-          {shown.map((p) =>
-            p.burden === null ? null : (
-              <text
-                key={`l${p.season}-${p.asOfDate}`}
-                className={css.micro}
-                x={px(p.season)}
-                y={y(p.burden) + 18}
-                textAnchor="middle"
-                fill="var(--yy-asof)"
-              >
-                {p.asOfDate}
-              </text>
             ),
           )}
 
@@ -195,13 +273,48 @@ function DotsSvg({
             strokeWidth={1}
           />
           {ticks.map((s) => (
-            <text key={`t${s}`} className={css.tick} x={px(s)} y={innerH + 18} textAnchor="middle">
+            <text key={`t${s}`} className={css.tick} x={px(s)} y={innerH + 16} textAnchor="middle">
               &rsquo;{String(s).slice(2)}
             </text>
           ))}
-          <text className={css.axisTitle} x={innerW / 2} y={innerH + 38} textAnchor="middle">
-            Season
-          </text>
+
+          {/* per-dot date labels — EVERY dot, always. Beneath the dot where
+            there is room; rotated under its own one-unit-wide column where
+            there is not. Never dropped. */}
+          {points.map((p) =>
+            p.burden === null ? null : rotateDates ? (
+              <text
+                key={`l${p.season}-${p.asOfDate}`}
+                data-dm-asof={p.season}
+                className={css.micro}
+                x={px(p.season)}
+                y={innerH + 30}
+                textAnchor="end"
+                fill="var(--yy-asof)"
+                transform={`rotate(-90 ${px(p.season)} ${innerH + 30})`}
+              >
+                {p.asOfDate}
+              </text>
+            ) : (
+              <text
+                key={`l${p.season}-${p.asOfDate}`}
+                data-dm-asof={p.season}
+                className={css.micro}
+                x={px(p.season)}
+                y={y(p.burden) + 18}
+                textAnchor="middle"
+                fill="var(--yy-asof)"
+              >
+                {p.asOfDate}
+              </text>
+            ),
+          )}
+
+          {rotateDates ? null : (
+            <text className={css.axisTitle} x={innerW / 2} y={innerH + 38} textAnchor="middle">
+              Season
+            </text>
+          )}
 
           {grid.map((v) => (
             <text key={`vt${v}`} className={css.tick} x={-8} y={y(v) + 4} textAnchor="end">
@@ -212,13 +325,14 @@ function DotsSvg({
 
         {/* The axis label STATES ITS DENOMINATOR (`SPEC.md` §2.7). */}
         <text className={css.axisTitle} x={4} y={h - 6} textAnchor="start">
-          Share of implied adjusted cap
+          Season · share of implied adjusted cap
         </text>
       </svg>
       <p id={`${id}-d`} className="yy-visually-hidden">
         A dot plot of individually dated dead-money readings. The points are deliberately not
         connected: each is a separate press snapshot taken at a different point in a different
-        league year.
+        league year. A filled dot is a reading from a league-wide table; an open dashed ring is a
+        reading from a leaders list, which is not a 32-team reading.
       </p>
     </>
   );

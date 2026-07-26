@@ -123,6 +123,95 @@ def check(page, name: str, path: str, theme: str, width: int) -> dict:
     # 6 — a blank always renders a reason
     row["blank_reasons"] = len(re.findall(r"Not available —", body_text))
 
+    # 6b — NO CELL IS A BARE DASH. Check 6 counted reason strings, which a table
+    # cell containing "—" passes trivially: the dash is not empty, so nothing
+    # caught 32 rows of unexplained Δ 5Y on the two highest-traffic routes.
+    # `COMPONENTS.md` universal rule 3 is about the CELL, so this asserts on the
+    # cell.
+    bare_dashes = page.evaluate(
+        """() => [...document.querySelectorAll('td, th')]
+             .filter(c => {
+               const t = (c.textContent || '').trim();
+               if (!['\\u2014', '-', '\\u2013', ''].includes(t)) return false;
+               // A cell carrying a NAMED graphical mark (the trend sparkline) is
+               // not an empty cell — it has content and an accessible name.
+               if (c.querySelector('[aria-label], img[alt]:not([alt=""])')) return false;
+               return true;
+             })
+             .map(c => (c.closest('table')?.querySelector('caption')?.textContent || '')
+                         .slice(0, 40) + ' col' + c.cellIndex)"""
+    )
+    row["bare_dash_cells"] = bare_dashes
+    if bare_dashes:
+        failures.append(f"{tag}: {len(bare_dashes)} table cell(s) render a bare dash or nothing")
+
+    # 6c — IN-CHART TYPE NEVER FALLS BELOW THE FLOOR. `DECISIONS.md` 65 /
+    # RESOLUTIONS D1: one utility floor at 11px, with a single 10px exception
+    # for tracked all-caps inside a data mark. A `<text>` inside a viewBox is
+    # painted at cssFontSize x (renderedWidth / viewBoxWidth), so a chart that
+    # stretches or squeezes its viewBox moves its own type off the floor in
+    # both directions without anything in the stylesheet changing.
+    small_type = page.evaluate(
+        """() => {
+             const out = [];
+             for (const svg of document.querySelectorAll('svg')) {
+               const vb = svg.viewBox && svg.viewBox.baseVal;
+               const r = svg.getBoundingClientRect();
+               if (!vb || !vb.width || !r.width) continue;
+               const scale = r.width / vb.width;
+               for (const t of svg.querySelectorAll('text')) {
+                 const cls = t.getAttribute('class') || '';
+                 const floor = /micro/.test(cls) ? 10 : 11;
+                 const painted = parseFloat(getComputedStyle(t).fontSize) * scale;
+                 if (painted < floor - 0.01) {
+                   out.push({ text: (t.textContent || '').slice(0, 20),
+                              painted: +painted.toFixed(2), floor });
+                 }
+               }
+             }
+             return out;
+           }"""
+    )
+    row["below_type_floor"] = small_type
+    if small_type:
+        failures.append(
+            f"{tag}: {len(small_type)} chart label(s) painted below the type floor "
+            f"(worst {min(s['painted'] for s in small_type)}px)"
+        )
+
+    # 6d — THE DOT PLOT DRAWS EVERY DATED READING, AND EVERY DOT KEEPS ITS DATE.
+    # `COMPONENTS.md` §8.4: "every dot, always — this is the affordance that
+    # makes the rule visible". And no absence ring may share an x with a plotted
+    # point: one coordinate cannot say both "this season has no reading" and
+    # "here is its reading".
+    dots = page.evaluate(
+        """() => {
+             const at = (els, a) => els.map(e => e.getAttribute(a));
+             const out = [];
+             for (const svg of document.querySelectorAll('svg')) {
+               if (!/dead money as a share/.test(svg.getAttribute('aria-label') || '')) continue;
+               if (!svg.getBoundingClientRect().width) continue;
+               const readings = at([...svg.querySelectorAll('[data-dm-reading]')], 'data-dm-reading');
+               const dated    = at([...svg.querySelectorAll('[data-dm-asof]')], 'data-dm-asof');
+               const absent   = at([...svg.querySelectorAll('[data-dm-absence]')], 'data-dm-absence');
+               out.push({
+                 readings: readings.length,
+                 undated: readings.filter(s => !dated.includes(s)),
+                 clash: absent.filter(s => readings.includes(s)),
+               });
+             }
+             return out;
+           }"""
+    )
+    row["dot_plots"] = dots
+    for d in dots:
+        if d["undated"]:
+            failures.append(f"{tag}: dot plot readings with no date label: {d['undated']}")
+        if d["clash"]:
+            failures.append(
+                f"{tag}: season(s) {d['clash']} carry BOTH an absence ring and a reading"
+            )
+
     # 7 — the page never scrolls sideways
     overflow = page.evaluate(
         "() => document.documentElement.scrollWidth - document.documentElement.clientWidth"

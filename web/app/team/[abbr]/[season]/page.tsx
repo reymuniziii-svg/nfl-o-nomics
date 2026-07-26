@@ -10,12 +10,21 @@ import {
   getTeamMetaMap,
   TIER2_FIRST_SEASON,
 } from '@/lib/data';
-import { mapMetric, type Metric } from '@/lib/metric';
+import {
+  DEAD_MONEY_DEFINITION,
+  DEAD_MONEY_DEFINITION_CREDIT,
+  DRAFT_CHART_NAME,
+  DRAFT_CHART_URL,
+  mapMetric,
+  type Metric,
+} from '@/lib/metric';
 import { eraIdentity, toAbbr } from '@/lib/teams';
 import { teamMark } from '@/lib/marks';
-import { recordDash } from '@/lib/display';
+import { recordDash, usdShort } from '@/lib/display';
+import type { DeadMoneySnapshot, LedgerRow } from '@/lib/data/team';
 import { receiptCoverage, receiptRows } from '@/lib/view';
 import {
+  AsOf,
   BoundaryMessage,
   Card,
   CardHeader,
@@ -27,6 +36,7 @@ import {
 import { TeamHeader, ThreeLens, DeadMoneyLedger, StatGrid } from '@/components/team/team-blocks';
 import { Receipt } from '@/components/receipt/receipt';
 import { FranchiseArc } from '@/components/charts/franchise-arc';
+import { TeamDrive } from '@/components/field/team-drive';
 import { AllocationBars } from '@/components/charts/allocation-bars';
 import { DeadMoneyDots } from '@/components/charts/dead-money-dots';
 import { RegimeTimeline } from '@/components/charts/regime-timeline';
@@ -104,17 +114,34 @@ export default async function TeamSeasonPage({
     }))
     .sort((x, y) => x.name.localeCompare(y.name));
 
-  const burden = b.deadMoney.burdenOfAdjustedCap;
+  /**
+   * EVERY dated reading this franchise has, each with ITS OWN published burden.
+   * `dead_money_display` carries `burden_of_adjusted_cap` on every row, so the
+   * only legitimate `null` here is a row whose mart column is genuinely empty —
+   * and the coverage sentence below only claims otherwise when one exists.
+   */
   const dots = b.deadMoney.series.map((s) => ({
     season: s.season,
-    // The burden denominator is published per team-season; where it is not, the
-    // dot carries no y-position rather than an invented one.
-    burden: s.season === season && burden !== null ? burden : null,
+    burden: s.burdenOfAdjustedCap,
     usd: s.usd,
     asOfDate: s.asOf.date,
     asOfStage: s.asOf.stage,
+    leadersOnly: s.seasonCoverage === 'leaders_only',
   }));
   const anyBurden = dots.some((d) => d.burden !== null);
+  const missingBurden = dots.filter((d) => d.burden === null).length;
+
+  const dotCoverage = [
+    'Readings exist only for seasons in which a league-wide table or a published leaders list named this club.',
+    b.deadMoney.emptyBlankSeasons.length
+      ? `${listSeasons(b.deadMoney.emptyBlankSeasons)} carry neither and are drawn as empty rings on the baseline.`
+      : '',
+    missingBurden
+      ? `${missingBurden} reading${missingBurden === 1 ? '' : 's'} carry no published burden denominator and therefore take no position on this axis.`
+      : '',
+  ]
+    .filter(Boolean)
+    .join(' ');
 
   return (
     <>
@@ -171,6 +198,16 @@ export default async function TeamSeasonPage({
             }
             unit={inTier2 ? '100 = league average' : 'performance only'}
           />
+          {/* Team Rating exists for all 861 team-seasons. On a blanked Cap+
+              season it is the reading the page still has, and dropping it left
+              these 128 pages with no index at all. */}
+          {inTier2 && capplusIndex.state === 'blank' ? (
+            <KpiTile
+              label="Team rating"
+              value={<MetricText metric={b.teamRating} format={(v) => v.toFixed(1)} inlineBlank />}
+              unit="performance only"
+            />
+          ) : null}
         </StatGrid>
         {b.capplus.state === 'value' && b.capplus.provisional ? (
           <p className={css.chipRow}>
@@ -222,6 +259,19 @@ export default async function TeamSeasonPage({
           coverage={{
             statement:
               'Team Rating covers 1999–2025. Cap+ covers 2014–2025; 2013, 2016, 2020 and 2021 have no league-wide dead-money table and are blanked whole-season.',
+          }}
+        />
+      </Card>
+
+      {/* ── 2b. THE DRIVE — the second field-literal surface (`SPEC.md` §4) ── */}
+      <Card ariaLabel="Cap+ as field position">
+        <CardHeader eyebrow="The same number, read as ground" title="THE DRIVE" />
+        <TeamDrive
+          points={b.history.points}
+          team={b.identity.name}
+          coverage={{
+            statement:
+              'Cap+ covers 2014–2025; 2013, 2016, 2020 and 2021 have no league-wide dead-money table and are blanked whole-season. Nothing is clipped: the field runs Cap+ 50 to 150, which contains every value in the record.',
           }}
         />
       </Card>
@@ -351,11 +401,27 @@ export default async function TeamSeasonPage({
                   { key: 'asof_date', label: 'asof_date', get: (s) => s.asOf.date },
                   { key: 'asof_stage', label: 'asof_stage', get: (s) => s.asOf.stage },
                   { key: 'coverage', label: 'coverage', get: (s) => s.coverage },
+                  {
+                    key: 'season_coverage',
+                    label: 'season_coverage',
+                    get: (s) => s.seasonCoverage ?? '',
+                  },
+                  {
+                    key: 'burden',
+                    label: 'burden_of_adjusted_cap',
+                    get: (s) => (s.burdenOfAdjustedCap === null ? '' : s.burdenOfAdjustedCap.toFixed(6)),
+                  },
+                  {
+                    key: 'median',
+                    label: 'league_median_usd',
+                    get: (s) => s.leagueMedianUsd ?? '',
+                  },
                   { key: 'source', label: 'source_url', get: (s) => s.sourceUrl },
                 ], [
                   `YIELD/YARD — ${b.identity.name} dead-money readings`,
-                  'source mart: dead_money_team_season',
+                  'source mart: dead_money_display (the pinned per-team-season resolution)',
                   'Each row is a separate dated press snapshot. Readings are NEVER averaged, merged or connected across seasons.',
+                  'season_coverage=leaders_only means a published leaders list, not a 32-team table.',
                   'Same-season drift is real: CHI 2022 read $57.6M preseason and $91.8M final.',
                 ])}
               />
@@ -367,10 +433,8 @@ export default async function TeamSeasonPage({
             team={b.identity.name}
             points={dots}
             seasons={b.history.points.map((p) => p.season)}
-            coverage={{
-              statement:
-                'Readings exist only for seasons in which a league-wide table was published. 2013, 2016, 2020 and 2021 have none, and the burden denominator is published per team-season — where it is not, the reading carries no position on this axis.',
-            }}
+            blankSeasons={b.deadMoney.emptyBlankSeasons}
+            coverage={{ statement: dotCoverage }}
           />
         ) : null}
 
@@ -383,8 +447,46 @@ export default async function TeamSeasonPage({
           )}
         </div>
 
+        {/* `SPEC.md` §7.5 — where more than one dated reading exists for this
+            (season, team) the UI picks ONE by the pinned rule and shows the
+            others as alternate readings. They are never averaged and never
+            merged: CHI 2022 reads $57.6M preseason and $91.8M final, and both
+            are true of the dates they carry. */}
+        <AlternateReadings
+          alternates={b.deadMoney.alternates}
+          resolved={b.deadMoney.resolved}
+          season={season}
+        />
+
+        {/* `SPEC.md` §2.1 — the definition renders in BOTH places it is
+            specified: the methodology page and this card's info panel, quoted
+            verbatim with its credit. */}
         <div className={css.ledgerBlock}>
-          <p className="yy-label">Marquee charges from the ledger</p>
+          <p className="yy-label">What a dead-money charge is</p>
+          <blockquote className={css.definition}>
+            <p className="yy-caption">{DEAD_MONEY_DEFINITION}</p>
+            <p className={`yy-label ${css.definitionCredit}`}>
+              — {DEAD_MONEY_DEFINITION_CREDIT}
+            </p>
+          </blockquote>
+        </div>
+
+        <div className={css.ledgerBlock}>
+          <div className={css.ledgerHead}>
+            <p className="yy-label">Marquee charges from the ledger</p>
+            {b.deadMoney.ledger.length ? (
+              <CsvExport
+                title="Marquee dead-money charges"
+                filename={`yieldyard_deadmoney_ledger_${team.toLowerCase()}.csv`}
+                table={csvTable(b.deadMoney.ledger, LEDGER_COLUMNS, [
+                  `YIELD/YARD — ${b.identity.name} marquee dead-money charges`,
+                  'source mart: dead_money_ledger',
+                  'Every charge carries the date it was verified and a link to its source.',
+                  'split_by_season is EMPTY where the per-season split has never been published — it is deliberately not inferred (Marcell Dareus / BUF).',
+                ])}
+              />
+            ) : null}
+          </div>
           <DeadMoneyLedger rows={b.deadMoney.ledger.map((r) => ({ ...r, team: b.team }))} />
         </div>
       </Card>
@@ -410,12 +512,38 @@ export default async function TeamSeasonPage({
                 value={b.draft.summary.value.returnWAv?.toFixed(0) ?? '—'}
               />
             </StatGrid>
+            {/* `SPEC.md` §2.9 — the excluded count is printed on the card,
+                because capital counts every pick while return counts only the
+                picks that carry a gsis_id to join on. Two figures beside one
+                another over different pick sets, unlabelled, is the thing this
+                line exists to prevent. */}
+            {b.draft.summary.value.nExcludedNoGsis > 0 ? (
+              <ChartCaption>
+                Return is measured over{' '}
+                {b.draft.summary.value.nPicks - b.draft.summary.value.nExcludedNoGsis} of{' '}
+                {b.draft.summary.value.nPicks} picks: {b.draft.summary.value.nExcludedNoGsis} carr
+                {b.draft.summary.value.nExcludedNoGsis === 1 ? 'ies' : 'y'} no gsis_id and{' '}
+                {b.draft.summary.value.nExcludedNoGsis === 1 ? 'is' : 'are'} excluded from the return
+                join. They remain in the capital total.
+              </ChartCaption>
+            ) : null}
             <ChartCaption>
               Capital and realised return are Tier 1 and run the full record. Any framing of a draft
-              class in DOLLARS is Tier 2 and renders only for 2013 onward:{' '}
+              class in DOLLARS is Tier 2 and renders only for 2013 onward.{' '}
               {b.draft.dollarFraming.state === 'blank'
                 ? b.draft.dollarFraming.reason
-                : 'available for this class.'}
+                : 'It is available for this class but is not yet surfaced on this card.'}
+            </ChartCaption>
+            {/* §2.9 — the chart is cited where its unit is printed. */}
+            <ChartCaption>
+              Capital is the summed pick value from the{' '}
+              <a href={DRAFT_CHART_URL} rel="noopener noreferrer" target="_blank">
+                {DRAFT_CHART_NAME}
+              </a>
+              , published at Over The Cap. It is used in preference to the Jimmy Johnson chart
+              because its units are dollars of surplus value against rookie-contract cost — the same
+              units as the rest of this product — rather than a 1990s trade-negotiation heuristic
+              never calibrated to on-field outcome.
             </ChartCaption>
           </>
         ) : (
@@ -428,6 +556,70 @@ export default async function TeamSeasonPage({
         franchise carried in {season}, and the route key is the current one.
       </ChartCaption>
     </>
+  );
+}
+
+/** `1999`, `1999 and 2001`, `1999, 2001 and 2004`. */
+function listSeasons(seasons: number[]): string {
+  if (!seasons.length) return '';
+  if (seasons.length === 1) return String(seasons[0]);
+  return `${seasons.slice(0, -1).join(', ')} and ${seasons[seasons.length - 1]}`;
+}
+
+const LEDGER_COLUMNS = [
+  { key: 'player', label: 'player', get: (r: LedgerRow) => r.player },
+  { key: 'seasons', label: 'seasons', get: (r: LedgerRow) => r.seasons },
+  { key: 'total_usd', label: 'total_usd', get: (r: LedgerRow) => r.totalUsd },
+  { key: 'split', label: 'split_by_season', get: (r: LedgerRow) => r.splitBySeason ?? '' },
+  { key: 'is_actual', label: 'is_actual', get: (r: LedgerRow) => String(r.isActual) },
+  { key: 'verified', label: 'verified_asof', get: (r: LedgerRow) => r.verifiedAsof },
+  { key: 'source', label: 'source_url', get: (r: LedgerRow) => r.sourceUrl },
+  { key: 'notes', label: 'notes', get: (r: LedgerRow) => r.notes ?? '' },
+];
+
+/**
+ * `SPEC.md` §7.5 — the other dated readings for this (season, team). Shown ON
+ * REQUEST, each with its own value, date, stage and coverage class, under the
+ * resolution rule that picked the one above. **Never averaged, never merged.**
+ */
+function AlternateReadings({
+  alternates,
+  resolved,
+  season,
+}: {
+  alternates: DeadMoneySnapshot[];
+  resolved: Metric<DeadMoneySnapshot>;
+  season: number;
+}) {
+  if (!alternates.length) return null;
+  const chosen = resolved.state === 'blank' ? null : resolved.value;
+
+  return (
+    <details className={css.alternates}>
+      <summary className={`yy-label ${css.alternatesSummary}`}>
+        {alternates.length} other dated reading{alternates.length === 1 ? '' : 's'} published for{' '}
+        {season}
+      </summary>
+      <ul className={css.alternatesList}>
+        {alternates.map((a) => (
+          <li key={`${a.asOf.date}-${a.usd}`} className={css.alternatesItem}>
+            <AsOf value={usdShort(a.usd)} date={a.asOf.date} stage={a.asOf.stage} />
+            <span className={`yy-label ${css.alternatesMeta}`}>
+              {a.coverage === 'full32' ? 'All 32 clubs' : `${a.coverage} coverage`}
+            </span>
+            {a.note ? <span className="yy-caption">{a.note}</span> : null}
+          </li>
+        ))}
+      </ul>
+      <p className="yy-caption">
+        {chosen
+          ? `The figure above (${usdShort(chosen.usd)}, ${chosen.asOf.date}) is the one the pinned resolution selected: broadest coverage class first, then the latest as-of date. `
+          : ''}
+        Readings are never averaged and never merged. Each is true of the date it carries, and
+        same-season drift is real — a preseason table and a season-final one are different
+        measurements, not a disagreement to be split.
+      </p>
+    </details>
   );
 }
 

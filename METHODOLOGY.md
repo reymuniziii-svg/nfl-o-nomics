@@ -189,14 +189,30 @@ is filled in. Dead money by team is available for **2014, 2015, 2017, 2018, 2019
 2016, 2020 and 2021 — are honestly blank**, because only a handful of teams were ever
 published and a leaders list is not a league table.
 
+**Draft pick value** uses the [Fitzgerald–Spielberger NFL Draft Trade Value
+Chart](https://overthecap.com/draft-trade-value-chart), published at Over The Cap. Every "capital"
+figure on a draft card is the summed chart value of the picks a team made. We chose it over the
+better-known Jimmy Johnson chart because its units are dollars of surplus value produced by a pick
+relative to what its rookie contract costs — the same units as the rest of this site — where the
+Johnson chart is a 1990s trade-negotiation heuristic that was never calibrated against what players
+actually went on to do.
+
+Two figures on that card are measured over different sets of picks, and the card says so: **capital
+counts every pick a team made, while realised return counts only the picks that carry a `gsis_id` to
+join on.** Where any pick is excluded, the count is printed beside the figures.
+
 **Coaching staffs — head coach, offensive coordinator and defensive coordinator for every team
 from 2000 to 2025** — are compiled the same way, row by row with sources. Every head-coach row
 was cross-checked against an independent franchise record, and a random 10% sample of
 coordinators was verified against a second independent source. Where sources genuinely
 disagree, we keep the disagreement in the notes rather than picking a winner quietly.
 
-**Snap counts start in 2013.** The 2012 file exists upstream and contains no rows. We would
-rather tell you that than let an axis imply otherwise.
+**Availability — games played and snap counts — runs 2013 to 2025.** The 2012 snap file exists
+upstream and contains no rows, and the games column in the same table does not reach back past 2013
+either. So a player's "games" total on this site is his games *inside that window*, and the page
+labels it that way. Tom Brady's card says 158 games over 10 seasons because that is what the record
+holds, not because he played 158 games. We would rather tell you that than let a total imply
+otherwise.
 
 **Player photographs** come from [Wikimedia Commons](https://commons.wikimedia.org/), used
 under their own licences with the photographer credited. Every photograph on this site is

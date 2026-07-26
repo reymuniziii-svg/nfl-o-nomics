@@ -320,7 +320,6 @@ a.row:hover {
   font-size: var(--yy-size-metric-xs);
   letter-spacing: 0;
   color: var(--yy-suppressed);
-  white-space: nowrap;
 }
 
 .zero .delta {
@@ -376,7 +375,8 @@ a.row:hover {
   display: grid;
   place-items: center;
   font-family: var(--yy-font-body);
-  font-size: 9px;
+  /* the 11px utility floor — 9px was below even the 10px data-mark exception */
+  font-size: var(--yy-size-label);
   font-weight: var(--yy-weight-metric);
   color: var(--yy-fg-3);
   font-style: normal;
@@ -612,29 +612,44 @@ a.row:hover {
   height: var(--yy-bar-h-lg);
 }
 
-/* THE ZERO-WIN ROW'S VALUE IS A SENTENCE, not a ratio, and the container is
-   never allowed to truncate it — the same principle as the as-of stamp in §8.1:
-   if it does not fit, the container is wrong. At mobile and square the value
-   column takes the remaining width and the sentence wraps; at wide it is given
-   300px outright. */
-.sizeWide .zero .val {
-  width: 300px;
+/* THE SUPPRESSED BAR IS THE SAME MARK AS A LIVE BAR.
+   `CHART_ANATOMY.md` §5.2 requires a blank mark to occupy "the same box, same
+   position, same size as a live mark", and §1.4's geometry table fixes every
+   column except the bar, which is `flex:1` — so equal columns are what make the
+   tracks equal. Widening this row's value column (300px at wide, `flex:1 1 auto`
+   at mobile) took that width straight out of the track: 40px against 96px live
+   at 390, and 578 against 684 at 1280. A short bar at left:0 in the same slot
+   reads as a small value — "cheap" — which is the one thing §2.5 exists to
+   avoid saying about a club that went 0–16.
+
+   The value column therefore keeps the live width at every size and the
+   SENTENCE WRAPS inside it. It is a sentence, not a ratio, and §1.6 already
+   sets it one step down for exactly that reason — a rule the wide size was
+   silently overriding back up to 34px. */
+.row.zero {
+  flex-wrap: wrap;
 }
 
-.sizeMobile .zero .val,
-.sizeSquare .zero .val {
-  width: auto;
-  flex: 1 1 auto;
-  min-width: 0;
+.row.zero .val {
+  flex: none;
 }
 
-.sizeMobile .zero .bar,
-.sizeSquare .zero .bar {
-  flex: 0 0 40px;
+.row.zero .bar {
+  flex: 1;
+  min-width: 40px;
 }
 
-.sizeMobile .zero .num,
-.sizeSquare .zero .num {
+/* The substitute statement, on its own full-width line. §1.6 keeps it one step
+   down from a ratio figure, and it never truncates and never breaks mid-token:
+   if it does not fit, the container is wrong — so it is given the container. */
+.zeroNote {
+  flex: 1 0 100%;
+  text-align: right;
+  margin-top: var(--yy-space-1);
+}
+
+.row.zero .num {
+  font-size: var(--yy-size-metric-xs);
   white-space: normal;
 }
 

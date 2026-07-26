@@ -12,8 +12,8 @@ import css from './team.module.css';
 import { AsOf, BlankReason, Chip, IndexBadge, MetricText } from '../primitives';
 import { TeamMark } from '../marks';
 import { IconChevronLeft } from '../icons';
-import { usdShort } from '@/lib/display';
-import { type Metric } from '@/lib/metric';
+import { partialSuffix, usdShort } from '@/lib/display';
+import { NOT_A_32_TEAM_READING, type Metric } from '@/lib/metric';
 import type { TeamMark as TeamMarkData } from '@/lib/marks';
 import type { LedgerRow, Lens } from '@/lib/data/team';
 
@@ -66,11 +66,24 @@ export function TeamHeader({
           <p className={`yy-label ${css.identityLine}`}>{identityLine}</p>
         </div>
       </div>
-      <IndexBadge
-        metric={inTier2 ? capplus : teamRating}
-        scale="header"
-        metricName={inTier2 ? 'capplus' : 'teamRating'}
-      />
+      {/* THE INDEX RULE (`COMPONENTS.md` §3): the SEASON decides which index
+        the badge carries. Inside Tier 2 that is Cap+ — but where Cap+ is
+        blanked, dropping Team Rating entirely loses a figure that exists for
+        all 861 team-seasons and that `/compare` already renders for the same
+        team-season. `CAPPLUS_MEMO.md` §4: "The four uncovered seasons inside
+        the Cap+ era get the same treatment" as the pre-2013 pages. So the Cap+
+        slot states its blank in full, and Team Rating renders beside it under
+        its own name and without band colour (`DECISIONS.md` 83). */}
+      <div className={css.badges}>
+        <IndexBadge
+          metric={inTier2 ? capplus : teamRating}
+          scale="header"
+          metricName={inTier2 ? 'capplus' : 'teamRating'}
+        />
+        {inTier2 && capplus.state === 'blank' ? (
+          <IndexBadge metric={teamRating} scale="header" metricName="teamRating" />
+        ) : null}
+      </div>
     </header>
   );
 }
@@ -100,12 +113,33 @@ export function ThreeLens({ lenses }: { lenses: Lens[] }) {
             lens.amount.state === 'blank' ? (
               <BlankReason reason={lens.amount.reason} />
             ) : lens.asOf ? (
-              <AsOf
-                value={usdShort(lens.amount.value)}
-                date={lens.asOf.date}
-                stage={lens.asOf.stage}
-                valueClass={`yy-num ${css.lensFigure}`}
-              />
+              <>
+                <AsOf
+                  value={usdShort(lens.amount.value)}
+                  date={lens.asOf.date}
+                  stage={lens.asOf.stage}
+                  valueClass={`yy-num ${css.lensFigure}`}
+                />
+                {/* `SPEC.md` §2.8 / `CAPPLUS_MEMO.md` §3 — the season's league
+                  median renders BESIDE the figure. $85.2M is an indictment on
+                  its own and an unremarkable number against a $50.3M median,
+                  and the memo's defence of λ=1.5 rests on the reader seeing the
+                  second one. */}
+                {lens.leagueMedianUsd !== null ? (
+                  <span className={`yy-label ${css.lensBenchmark}`}>
+                    League median {usdShort(lens.leagueMedianUsd)} this season
+                  </span>
+                ) : null}
+                {/* `SPEC.md` §1.2 — a partial season is labelled partial. A
+                  leaders-list figure looks exactly like a league-wide one
+                  unless the surface says otherwise. */}
+                {lens.amount.state === 'partial' ? (
+                  <span className={`yy-label ${css.lensPartial}`}>
+                    {NOT_A_32_TEAM_READING}{' '}
+                    <span className="yy-partial-ink">{partialSuffix(lens.amount)}</span>
+                  </span>
+                ) : null}
+              </>
             ) : (
               /* A dead-money key without an as-of date is a build-time test
                  failure (`SPEC.md` §2.1 rule 1); if one ever reaches the view it
@@ -121,6 +155,9 @@ export function ThreeLens({ lenses }: { lenses: Lens[] }) {
           )}
 
           <p className={`yy-caption ${css.lensCaveat}`}>{lens.caveat}</p>
+          {lens.amount.state === 'partial' ? (
+            <p className={`yy-caption ${css.lensCaveat}`}>{lens.amount.reason}</p>
+          ) : null}
           {lens.sourceUrl ? (
             <a
               className={`yy-label ${css.lensSource}`}

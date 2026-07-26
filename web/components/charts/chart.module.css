@@ -6,21 +6,64 @@
  * responsive compositions.
  */
 
+/* THE DEFAULT INK IS SET ON THE ROOT AND INHERITED — never declared on a text
+ * class. `fill` in a CSS rule beats a `fill="…"` presentation attribute on the
+ * same element no matter how specific the attribute looks, so a class that
+ * declares `fill` silently swallows every per-element colour a chart sets. That
+ * is how the coach name on the lime regime band ended up drawn in `--yy-fg-3`
+ * at 1.20:1 while the code plainly said `--yy-fg-on-accent`, and how the gold
+ * `100` tick on the franchise arc lost its gold. Inheritance is the lowest
+ * priority in the cascade, so a root default lets both a presentation attribute
+ * and a modifier class win — which is what every chart here expects. */
 .svg {
   display: block;
   width: 100%;
   height: auto;
   font-variant-numeric: tabular-nums;
   overflow: visible;
+  fill: var(--yy-fg-3);
 }
 
-/* Axis and data labels — the 11px utility floor, never below it. */
+/* THE IN-CHART TYPE FLOOR — DECISIONS.md 65 / RESOLUTIONS D1.
+ *
+ * A `viewBox` stretched or squeezed by its container scales the `<text>` inside
+ * it with the geometry: an 11px label in a 358-unit viewBox painted at 332px is
+ * 10.2px, and the same label painted at 1126px is 12.6px. Neither is the ladder
+ * the type scale ruled on, and the small end is under the floor that cost the
+ * hero card 20px of bar.
+ *
+ * Every chart that carries type therefore paints at its INTRINSIC size — scale
+ * exactly 1.0, in both directions, at every viewport — and the plot scrolls
+ * inside its own box when the container is narrower than the composition. The
+ * page itself never scrolls sideways (`MOBILE_PATTERNS.md` §2); this is a
+ * contained scroller, the same affordance the regime band already uses. */
+.svgFixed {
+  display: block;
+  height: auto;
+  flex: none;
+  font-variant-numeric: tabular-nums;
+  overflow: visible;
+  fill: var(--yy-fg-3);
+  /* The global `img, svg { max-width: 100% }` reset would squeeze the
+     composition back down to its container — which is the whole defect. These
+     paint at their intrinsic width and the wrapper scrolls instead. */
+  max-width: none;
+}
+
+.plotScroll {
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  /* room for the `overflow: visible` marks that sit outside the viewBox */
+  padding-block: var(--yy-space-0h);
+}
+
+/* Axis and data labels — the 11px utility floor, never below it.
+   None of these declare `fill`; see the note on `.svg` above. */
 .tick {
   font-family: var(--yy-font-athletic);
   font-weight: var(--yy-weight-label);
   font-size: var(--yy-size-label);
   letter-spacing: var(--yy-track-label);
-  fill: var(--yy-fg-3);
   text-transform: uppercase;
 }
 
@@ -29,7 +72,6 @@
   font-weight: var(--yy-weight-label);
   font-size: var(--yy-size-label);
   letter-spacing: var(--yy-track-label-wide);
-  fill: var(--yy-fg-3);
   text-transform: uppercase;
 }
 
@@ -38,8 +80,18 @@
   font-weight: var(--yy-weight-metric);
   font-size: var(--yy-size-micro);
   letter-spacing: var(--yy-track-label);
-  fill: var(--yy-fg-3);
   text-transform: uppercase;
+}
+
+/* Type on the current (accent-filled) band. */
+.microOnAccent {
+  fill: var(--yy-fg-on-accent);
+}
+
+/* Type on a sunken band — `--yy-fg-2`, which clears 4.5:1 in both themes where
+   `--yy-fg-3` does not (4.19–4.49:1 measured on dark). */
+.microOnSunken {
+  fill: var(--yy-fg-2);
 }
 
 .seriesLabel {
@@ -219,6 +271,15 @@
   color: var(--yy-fg-3);
   letter-spacing: var(--yy-track-label-wide);
   margin-top: var(--yy-space-1);
+}
+
+/* The dollars behind a share-of-cap row. Present, and visibly NOT the figure
+   the bar is scaled from. */
+.h2hSecondary {
+  display: block;
+  color: var(--yy-fg-3);
+  letter-spacing: var(--yy-track-label);
+  margin-top: var(--yy-space-0h);
 }
 
 .h2hDelta {

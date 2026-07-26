@@ -7,15 +7,17 @@
  *   (dot plot, never a line) · 8 draft ROI · 9 CSV export (the view's job).
  */
 
-import { and, asc, desc, eq } from 'drizzle-orm';
+import { and, asc, desc, eq, sql } from 'drizzle-orm';
 import { getDb } from '@/db/client';
 import * as s from '@/db/schema';
 import {
   BLANK_REASON,
   BRIDGE_SENTENCE,
+  NOT_A_32_TEAM_READING,
   TEAM_RATING_NAME,
   blank,
   mapMetric,
+  partial,
   value,
   type AsOf,
   type AsOfStage,
@@ -97,6 +99,11 @@ export interface Lens {
   caveat: string;
   /** Dead money only — value, date and stage render together (`SPEC.md` §2.1). */
   asOf: AsOf | null;
+  /**
+   * Dead money only — the season's league median, the benchmark `SPEC.md` §2.8
+   * step 7 requires beside the figure.
+   */
+  leagueMedianUsd: number | null;
   sourceUrl: string | null;
 }
 
@@ -162,9 +169,22 @@ export interface DeadMoneySnapshot {
   usd: number;
   asOf: AsOf;
   coverage: string;
+  /**
+   * `full32` | `leaders_only`. A leaders list is not a league table
+   * (`SPEC.md` §7.5) and the reading is labelled partial wherever it renders.
+   */
+  seasonCoverage: string | null;
   licenseTier: string;
   sourceUrl: string;
   note: string | null;
+  /**
+   * Dead money ÷ `team_adjusted_cap_implied`, PUBLISHED PER TEAM-SEASON in
+   * `dead_money_display`. Never recomputed here; `null` only where the mart's
+   * own column is empty.
+   */
+  burdenOfAdjustedCap: number | null;
+  /** The season's league median dead money — the benchmark this figure needs. */
+  leagueMedianUsd: number | null;
 }
 
 export interface DeadMoneyBlock {
@@ -186,6 +206,13 @@ export interface DeadMoneyBlock {
   ledger: LedgerRow[];
   burdenOfAdjustedCap: number | null;
   leagueMedianUsd: number | null;
+  /**
+   * The four seasons with no league-wide table that ALSO have no leaders-list
+   * reading for this club. These are the only seasons that draw an empty
+   * absence ring; a club that does appear in a leaders list gets a ring AT ITS
+   * VALUE instead, so one mark carries both facts.
+   */
+  emptyBlankSeasons: number[];
 }
 
 export interface LedgerRow {
@@ -368,14 +395,22 @@ export async function getTeamBundle(
     .limit(1);
   const cap = capRows[0];
 
-  const dmDisplayRows = (await isSeeded('dead_money_display'))
+  /**
+   * THE WHOLE FRANCHISE, not just the viewed season. `dead_money_display` is
+   * the render-ready resolution — one row per (season, team), each carrying its
+   * own `burden_of_adjusted_cap` — so the dot plot gets every dated reading
+   * this club has with its own y-position, and the viewed season is simply the
+   * row that matches. Filtering this query by season was what reduced the plot
+   * to a single dot.
+   */
+  const dmDisplaySeries = (await isSeeded('dead_money_display'))
     ? await db
         .select()
         .from(s.deadMoneyDisplay)
-        .where(and(eq(s.deadMoneyDisplay.team, team), eq(s.deadMoneyDisplay.season, season)))
-        .limit(1)
+        .where(eq(s.deadMoneyDisplay.team, team))
+        .orderBy(asc(s.deadMoneyDisplay.season))
     : [];
-  const dmDisplay = dmDisplayRows[0];
+  const dmDisplay = dmDisplaySeries.find((x) => x.season === season);
 
   const dmSnapshots = (await isSeeded('dead_money_team_season'))
     ? await db
@@ -390,29 +425,63 @@ export async function getTeamBundle(
     usd: row.deadMoneyUsd,
     asOf: { date: row.asofDate, stage: row.asofStage as AsOfStage },
     coverage: row.coverage,
+    seasonCoverage: row.coverage === 'full32' ? 'full32' : 'leaders_only',
     licenseTier: row.licenseTier,
     sourceUrl: row.sourceUrl,
     note: row.note,
+    // The burden denominator is published only against the RESOLVED reading, so
+    // an alternate carries none rather than borrowing another row's.
+    burdenOfAdjustedCap: null,
+    leagueMedianUsd: null,
   });
+
+  const toDisplaySnapshot = (
+    row: typeof s.deadMoneyDisplay.$inferSelect,
+  ): DeadMoneySnapshot | null => {
+    const asOf = asOfOf(row.asofDate, row.asofStage);
+    if (row.deadMoneyUsd === null || !asOf) return null;
+    return {
+      season: row.season,
+      usd: row.deadMoneyUsd,
+      asOf,
+      coverage: row.coverage ?? 'partial',
+      seasonCoverage: row.seasonCoverage,
+      licenseTier: row.licenseTier ?? '',
+      sourceUrl: row.sourceUrl ?? '',
+      note: row.note,
+      burdenOfAdjustedCap: row.burdenOfAdjustedCap,
+      leagueMedianUsd: row.leagueMedianUsd,
+    };
+  };
 
   // The resolved reading is the one the ETL pinned in dead_money_display; the
   // rest are alternates. Nothing here re-runs the resolution rule.
-  const resolvedAsOf = asOfOf(dmDisplay?.asofDate ?? null, dmDisplay?.asofStage ?? null);
-  const resolvedSnapshot =
-    dmDisplay && dmDisplay.deadMoneyUsd !== null && resolvedAsOf
-      ? {
-          season,
-          usd: dmDisplay.deadMoneyUsd,
-          asOf: resolvedAsOf,
-          coverage: dmDisplay.coverage ?? 'partial',
-          licenseTier: dmDisplay.licenseTier ?? '',
-          sourceUrl: dmDisplay.sourceUrl ?? '',
-          note: dmDisplay.note,
-        }
-      : null;
+  const resolvedSnapshot = dmDisplay ? toDisplaySnapshot(dmDisplay) : null;
+
+  /**
+   * `SPEC.md` §1.2 / §7.5 — a leaders-list reading is a PARTIAL season, and a
+   * partial season is labelled partial. The covered count is read from the mart
+   * (how many clubs the published list actually names), never assumed.
+   */
+  const leadersOnly = resolvedSnapshot?.seasonCoverage === 'leaders_only';
+  let coveredClubs = 0;
+  if (leadersOnly) {
+    const covered = await db
+      .select({ n: sql<number>`count(*)::int` })
+      .from(s.deadMoneyDisplay)
+      .where(eq(s.deadMoneyDisplay.season, season));
+    coveredClubs = covered[0]?.n ?? 0;
+  }
 
   const deadMoneyResolved: Metric<DeadMoneySnapshot> = resolvedSnapshot
-    ? value(resolvedSnapshot, resolvedSnapshot.asOf)
+    ? leadersOnly
+      ? partial(
+          resolvedSnapshot,
+          coveredClubs,
+          32,
+          `${NOT_A_32_TEAM_READING} — no league-wide table was published for ${season}; this figure comes from a published leaders list naming ${coveredClubs} of 32 clubs.`,
+        )
+      : value(resolvedSnapshot, resolvedSnapshot.asOf)
     : season < TIER2_FIRST_SEASON
       ? blank(BLANK_REASON.PRE_TIER2)
       : blank(dmDisplay?.blankReason ?? BLANK_REASON.NO_DM_TABLE);
@@ -424,6 +493,7 @@ export async function getTeamBundle(
       amount: cap ? value(cap.capUsedTotal) : blank(BLANK_REASON.PRE_TIER2),
       caveat: NUMERATOR_CAVEAT.cap,
       asOf: null,
+      leagueMedianUsd: null,
       sourceUrl: null,
     },
     {
@@ -432,6 +502,7 @@ export async function getTeamBundle(
       amount: cap ? value(cap.cashSpentTotal) : blank(BLANK_REASON.PRE_TIER2),
       caveat: NUMERATOR_CAVEAT.cash,
       asOf: null,
+      leagueMedianUsd: null,
       sourceUrl: null,
     },
     {
@@ -441,6 +512,7 @@ export async function getTeamBundle(
       caveat:
         'A dated press snapshot, not a derived figure. Value, date and stage always render together; readings are never averaged or connected across seasons.',
       asOf: resolvedSnapshot?.asOf ?? null,
+      leagueMedianUsd: resolvedSnapshot?.leagueMedianUsd ?? null,
       sourceUrl: resolvedSnapshot?.sourceUrl ?? null,
     },
   ];
@@ -528,17 +600,14 @@ export async function getTeamBundle(
   }));
 
   /* --- 7. dead money --- */
-  const dmSeriesRows = (await isSeeded('dead_money_team_season'))
-    ? await db
-        .select()
-        .from(s.deadMoneyTeamSeason)
-        .where(eq(s.deadMoneyTeamSeason.team, team))
-        .orderBy(asc(s.deadMoneyTeamSeason.season), asc(s.deadMoneyTeamSeason.asofDate))
-    : [];
-
   const ledgerRows = (await isSeeded('dead_money_ledger'))
     ? await db.select().from(s.deadMoneyLedger).where(eq(s.deadMoneyLedger.team, team))
     : [];
+
+  const series = dmDisplaySeries
+    .map(toDisplaySnapshot)
+    .filter((x): x is DeadMoneySnapshot => x !== null);
+  const seasonsWithReading = new Set(series.map((x) => x.season));
 
   const deadMoney: DeadMoneyBlock = {
     resolved: deadMoneyResolved,
@@ -546,7 +615,8 @@ export async function getTeamBundle(
       .filter((x) => x.asofDate !== resolvedSnapshot?.asOf.date)
       .map(toSnapshot),
     seriesRenderer: 'dot_plot_no_path',
-    series: dmSeriesRows.map(toSnapshot),
+    series,
+    emptyBlankSeasons: CAPPLUS_BLANK_SEASONS.filter((x) => !seasonsWithReading.has(x)),
     ledger: ledgerRows.map((x) => ({
       player: x.player,
       seasons: x.seasons,

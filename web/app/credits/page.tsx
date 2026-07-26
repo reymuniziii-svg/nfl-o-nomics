@@ -37,6 +37,12 @@ export default async function CreditsPage() {
     photo_source?: string;
   };
 
+  const summaryAuthors = credits.summary.distinct_authors;
+  const distinctAuthors =
+    typeof summaryAuthors === 'number'
+      ? summaryAuthors
+      : new Set(credits.groups.flatMap((g) => g.authors.map((a) => a.author))).size;
+
   return (
     <>
       <header>
@@ -59,10 +65,13 @@ export default async function CreditsPage() {
         <StatGrid>
           <KpiTile label="Assets credited" value={String(credits.totalPhotoAssets)} />
           <KpiTile label="Licence groups" value={String(credits.groups.length)} />
-          <KpiTile
-            label="Distinct authors"
-            value={String(credits.groups.reduce((a, g) => a + g.authorCount, 0))}
-          />
+          {/* Summing the per-group author counts DOUBLE-COUNTS the seven authors
+              who appear under more than one licence (Erik Drost under CC BY 2.0
+              and 4.0, Jeffrey Beall under 3.0 and 4.0, the Tennessee Titans
+              under 3.0 and 4.0), and published 77 where the manifest's own
+              computed figure is 70. On the page whose whole job is discharging
+              a licence obligation, the count comes from the manifest. */}
+          <KpiTile label="Distinct authors" value={String(distinctAuthors)} />
           <KpiTile label="Resolution floor" value={String(IMAGE_MIN_WIDTH_PX)} unit="px" />
         </StatGrid>
 

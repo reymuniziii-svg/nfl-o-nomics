@@ -124,6 +124,19 @@ export function CapPlusLeaderboard({
   );
   const maxWins = Math.max(1, ...rows.map((r) => r.wins));
 
+  /**
+   * `SPEC.md` §1.2 / `CHART_ANATOMY.md` §5.2: a blank renders its reason, and a
+   * blank with no visible reason is a bug. When the whole Δ 5Y column is blank
+   * — which is the launch state, because 2025 − 5 = 2020 and 2020 Cap+ was
+   * never published — the reason belongs once beneath the table rather than 32
+   * times inside it. The per-cell short form still carries it as accessible
+   * text, so nothing is lost to a screen reader.
+   */
+  const delta5yReasons = [
+    ...new Set(rows.map((r) => (r.delta5y.state === 'blank' ? r.delta5y.reason : '')).filter(Boolean)),
+  ];
+  const allDelta5yBlank = rows.length > 0 && rows.every((r) => r.delta5y.state === 'blank');
+
   return (
     <div className={css.wrap}>
       {/* ── mobile: the row-card list ─────────────────────────────────────── */}
@@ -131,7 +144,9 @@ export function CapPlusLeaderboard({
         <div className={css.headRow}>
           <SortHeader label="#" sortKey="rank" sort={sort} onSort={toggle} align="right" />
           <SortHeader label="Team" sortKey="team" sort={sort} onSort={toggle} />
-          <span className={`yy-label ${css.alignRight}`}>Spend → wins</span>
+          {/* `SPEC.md` §2.1 — the product never says "spend" without saying
+            which lens. This card is cash, and the column says so. */}
+          <span className={`yy-label ${css.alignRight}`}>Cash → wins</span>
           <SortHeader
             label={isCapPlus ? 'Cap+' : 'Rating'}
             sortKey="index"
@@ -179,7 +194,11 @@ export function CapPlusLeaderboard({
               </span>
             </span>
             <span className={`yy-num ${css.index} ${bandClass(r.index, isCapPlus, 'index')}`}>
-              {r.index.state === 'blank' ? '—' : r.index.value.toFixed(0)}
+              {r.index.state === 'blank' ? (
+                <BlankCell reason={r.index.reason} short="Not covered" />
+              ) : (
+                r.index.value.toFixed(0)
+              )}
             </span>
           </Link>
         ))}
@@ -190,7 +209,12 @@ export function CapPlusLeaderboard({
             <p className={`yy-caption ${css.blankReason}`}>{blankReason}</p>
             {blanked.map((r) => (
               <Link key={r.team} href={r.href} className={css.row}>
-                <span className={`yy-num ${css.rank}`}>—</span>
+                {/* The rank is genuinely absent, not zero: a club with no index
+                  is excluded from the ordering, not sorted to an extreme. It is
+                  named by the group heading directly above. */}
+                <span className={`yy-label ${css.rank}`} aria-hidden="true">
+                  —
+                </span>
                 <span className={css.teamCell}>
                   <span className={css.teamText}>
                     <span className={css.teamName}>{r.teamName}</span>
@@ -200,7 +224,11 @@ export function CapPlusLeaderboard({
                   </span>
                 </span>
                 <span />
-                <span className={`yy-label ${css.indexBlank}`}>—</span>
+                <span className={`yy-label ${css.indexBlank}`}>
+                  {r.index.state === 'blank' ? (
+                    <BlankCell reason={r.index.reason} short="Not covered" />
+                  ) : null}
+                </span>
               </Link>
             ))}
           </>
@@ -224,14 +252,16 @@ export function CapPlusLeaderboard({
               <th scope="col" className="yy-label-lg">
                 Trend
               </th>
+              {/* `SPEC.md` §2.1 — the lens is named in the column head, not
+                assumed from a neighbouring card. */}
               <th scope="col" className={`yy-label-lg ${css.numCell}`} aria-sort={ariaSort(sort, 'spend')}>
-                <SortHeader label="Spend" sortKey="spend" sort={sort} onSort={toggle} align="right" />
+                <SortHeader label="Cash spent" sortKey="spend" sort={sort} onSort={toggle} align="right" />
               </th>
               <th scope="col" className={`yy-label-lg ${css.numCell}`} aria-sort={ariaSort(sort, 'wins')}>
                 <SortHeader label="Wins" sortKey="wins" sort={sort} onSort={toggle} align="right" />
               </th>
               <th scope="col" className={`yy-label-lg ${css.numCell}`} aria-sort={ariaSort(sort, 'perWin')}>
-                <SortHeader label="$/win" sortKey="perWin" sort={sort} onSort={toggle} align="right" />
+                <SortHeader label="$/win (cash)" sortKey="perWin" sort={sort} onSort={toggle} align="right" />
               </th>
               <th scope="col" className={`yy-label-lg ${css.numCell}`} aria-sort={ariaSort(sort, 'index')}>
                 <SortHeader
@@ -275,11 +305,15 @@ export function CapPlusLeaderboard({
                   )}
                 </td>
                 <td className={`yy-num ${css.numCell} ${bandClass(r.index, isCapPlus, 'index')}`}>
-                  {r.index.state === 'blank' ? '—' : r.index.value.toFixed(1)}
+                  {r.index.state === 'blank' ? (
+                    <BlankCell reason={r.index.reason} short="Not covered" />
+                  ) : (
+                    r.index.value.toFixed(1)
+                  )}
                 </td>
                 <td className={`yy-num ${css.numCell}`}>
                   {r.delta5y.state === 'blank' ? (
-                    <span className="yy-label">—</span>
+                    <BlankCell reason={r.delta5y.reason} short="Not covered" />
                   ) : (
                     `${r.delta5y.value > 0 ? '+' : r.delta5y.value < 0 ? '−' : ''}${Math.abs(
                       r.delta5y.value,
@@ -299,11 +333,43 @@ export function CapPlusLeaderboard({
         ) : null}
       </div>
 
+      {/* Every blank on this card renders its reason. When one is true of the
+        whole column it is said once, in full, rather than 32 times. */}
+      {allDelta5yBlank ? (
+        <p className={`yy-caption ${css.blankReason}`}>{delta5yReasons.join(' ')}</p>
+      ) : null}
+
+      {/* §2.1 — the lens caveat travels with the figures it qualifies. This card
+        offers one lens by design and says which, and says what it leaves out. */}
+      <p className={`yy-caption ${css.caption}`}>
+        Cash · roster only — cash to players on the roster, the same lens the cost-per-win card
+        above uses. Cash paid to players released in-year is not included, and this card offers no
+        cap-hit alternative: the leaderboard is cash-only by design.
+      </p>
       <p className={`yy-caption ${css.caption}`}>
         <CapPlusCaption /> — {indexName} is a season-relative index, not a front-office grade.
       </p>
       {csvSlot}
     </div>
+  );
+}
+
+/**
+ * A cell whose metric is `blank`. `COMPONENTS.md` universal rule 3: there is no
+ * code path that renders an empty cell, a dash or a zero. The short form is
+ * visible and the full reason is the cell's accessible text, so nothing is left
+ * to a tooltip.
+ *
+ * The glyph vocabulary (`⊟`) is deliberately NOT used: none of the three shipped
+ * faces carries it and a character that falls back to tofu is not a label
+ * (`COMPONENTS.md` §5, legend swatches).
+ */
+function BlankCell({ reason, short }: { reason: string; short: string }) {
+  return (
+    <span className={`yy-label ${css.blankCell}`}>
+      {short}
+      <span className="yy-visually-hidden"> — {reason}</span>
+    </span>
   );
 }
 

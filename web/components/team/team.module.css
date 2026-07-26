@@ -31,6 +31,17 @@
   min-width: 0;
 }
 
+/* One badge normally; two on a blanked Tier 2 season, where the Cap+ slot
+   states its absence and Team Rating renders beside it under its own name. */
+.badges {
+  flex: none;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--yy-space-4);
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
 .name {
   font-family: var(--yy-font-display);
   font-weight: var(--yy-weight-display);
@@ -108,6 +119,23 @@
 .lensCaveat {
   margin: 0;
   max-width: var(--yy-measure);
+}
+
+/* SPEC §2.8 step 7 — the league median for the same season, beside the figure.
+   Never coloured and never band-coded: it is the context that keeps a large
+   dead-money number from reading as a verdict. */
+.lensBenchmark {
+  color: var(--yy-fg-3);
+  display: block;
+  letter-spacing: var(--yy-track-label);
+}
+
+/* SPEC §1.2 — a partial season is labelled partial, in words, beside the value
+   and not only in a caption. */
+.lensPartial {
+  color: var(--yy-fg-2);
+  display: block;
+  letter-spacing: var(--yy-track-label);
 }
 
 .lensSource {

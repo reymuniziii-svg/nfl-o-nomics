@@ -15,7 +15,7 @@
 
 import css from './chart.module.css';
 import shell from './regime.module.css';
-import { AsOf, BlankReason, ChartCaption } from '../primitives';
+import { AsOf, BlankReason, ChartCaption, Legend } from '../primitives';
 import { chartId, scaleLinear } from './chart-kit';
 import { usdShort } from '@/lib/display';
 import type { RegimeEvent, StabilityRow } from '@/lib/data/team';
@@ -39,6 +39,35 @@ interface Run {
   name: string;
   from: number;
   to: number;
+}
+
+/**
+ * `etl/coaching.py` writes `NONE@<head coach>` when a club carried no separate
+ * coordinator and the head coach absorbed the role. That is INTERNAL SHORTHAND
+ * and it is not a name: printing `NONE@BILL BELICHICK` to a reader is a leak of
+ * the pipeline into the page. It is translated here, at the display layer, and
+ * nowhere else — the mart keeps its sentinel.
+ */
+const NONE_PREFIX = 'NONE@';
+
+function displayName(role: Run['role'], raw: string): string {
+  if (!raw.startsWith(NONE_PREFIX)) return raw;
+  const hc = raw.slice(NONE_PREFIX.length).trim();
+  const surname = hc.split(/\s+/).slice(-1)[0] || hc;
+  return hc ? `No ${role} — ${surname} called it` : `No ${role} on record`;
+}
+
+/**
+ * A run label is drawn inside its own band and must never overrun into the next
+ * one. The athletic face at 10px tracked runs ≈ 6.1px per character; the gate is
+ * measured against the actual string rather than a fixed pixel width, and a
+ * label that cannot fit is dropped rather than allowed to collide (the run is
+ * still readable from the list beneath, which carries every change in words).
+ */
+const MICRO_CHAR_W = 6.1;
+
+function fits(label: string, runWidth: number): boolean {
+  return label.length * MICRO_CHAR_W + 12 <= runWidth;
 }
 
 function runsFor(track: StabilityRow[], role: Run['role']): Run[] {
@@ -99,13 +128,17 @@ export function RegimeTimeline({
   return (
     <div>
       <div className={shell.scroll}>
+        {/* The band paints at its INTRINSIC 900 units — scale exactly 1.0 —
+          inside the scroller, so its 10px type is 10px and not the 7.8px a
+          640px squeeze produced (`DECISIONS.md` 65). */}
         <svg
-          className={css.svg}
+          className={css.svgFixed}
+          width={W}
+          height={H}
           viewBox={`0 0 ${W} ${H}`}
           role="img"
           aria-label={`${team} — coaching tenure, ${first} to ${last}`}
           aria-describedby={`${id}-d`}
-          style={{ minWidth: '640px' }}
         >
           <g transform={`translate(${ml},${mt})`}>
             {ROLES.map((role, ri) => {
@@ -120,6 +153,7 @@ export function RegimeTimeline({
                     const x1 = x(run.to + 1);
                     const w = Math.max(2, x1 - x0 - 2);
                     const isCurrent = run.from <= currentSeason && currentSeason <= run.to;
+                    const label = displayName(role, run.name);
                     return (
                       <g key={`${role}-${run.from}`}>
                         <rect
@@ -129,16 +163,18 @@ export function RegimeTimeline({
                           height={rowH}
                           rx={2}
                           fill={isCurrent ? 'var(--yy-accent)' : 'var(--yy-bg-sunken)'}
-                          opacity={isCurrent ? 0.9 : 1}
                         />
-                        {w > 54 ? (
+                        {/* Colour comes from a CLASS, not a presentation
+                          attribute: `.micro` used to declare `fill` and a CSS
+                          declaration always beats an attribute, so the
+                          on-accent ink never reached the element. */}
+                        {fits(label, w) ? (
                           <text
-                            className={css.micro}
+                            className={`${css.micro} ${isCurrent ? css.microOnAccent : css.microOnSunken}`}
                             x={x0 + 6}
                             y={y0 + rowH / 2 + 3}
-                            fill={isCurrent ? 'var(--yy-fg-on-accent)' : 'var(--yy-fg-2)'}
                           >
-                            {run.name}
+                            {label}
                           </text>
                         ) : null}
                       </g>
@@ -148,7 +184,15 @@ export function RegimeTimeline({
               );
             })}
 
-            {/* regime-change markers — a stem through the whole band */}
+            {/* Regime-change markers — a stem through the whole band.
+              A REGIME CHANGE IS AN EVENT, NOT A NEGATIVE. Red is reserved for
+              genuine negatives (`SPEC.md` §4) and, per `DECISIONS.md` 72, only
+              where a benchmark renders on the same surface; neither holds here.
+              Marking Andy Reid's arrival in the ink the system uses for "you
+              paid more per win than the league" grades a front office, which
+              this page promises never to do. The solid/dashed distinction still
+              carries offseason vs in-season without hue, and the legend names
+              it in words. */}
             {regimes.map((r) => (
               <line
                 key={`m${r.season}`}
@@ -156,7 +200,7 @@ export function RegimeTimeline({
                 x2={x(r.season)}
                 y1={-4}
                 y2={ROLES.length * (rowH + gap)}
-                stroke="var(--yy-negative-fill)"
+                stroke="var(--yy-fg-dim)"
                 strokeWidth={1}
                 style={
                   r.kind === 'in_season' ? { strokeDasharray: 'var(--yy-dash-absence)' } : undefined
@@ -191,10 +235,18 @@ export function RegimeTimeline({
         </p>
       </div>
 
+      <Legend
+        items={[
+          { swatch: 'solid', label: 'Tenure — current regime', tone: 'accent' },
+          { swatch: 'absence', label: 'Head-coach change (dashed = in-season)', tone: 'absence' },
+        ]}
+      />
+
       <ChartCaption>
-        A regime marker is a head-coach change. Solid marks an offseason change, dashed marks an
-        in-season one. The two dated dead-money readings that follow each change are printed below —
-        they are never behind a tap.
+        A regime marker is a head-coach change — an event, not a judgement, and it is never drawn in
+        the negative colour. Solid marks an offseason change, dashed marks an in-season one. The two
+        dated dead-money readings that follow each change are printed below — they are never behind
+        a tap.
       </ChartCaption>
 
       <ul className={shell.list}>
@@ -210,7 +262,20 @@ export function RegimeTimeline({
                   {dm.season ?? `${r.season + i + 1}`} dead money
                 </span>{' '}
                 {dm.state === 'value' && dm.usd !== null && dm.asOf ? (
-                  <AsOf value={usdShort(dm.usd)} date={dm.asOf.date} stage={dm.asOf.stage} />
+                  <>
+                    <AsOf value={usdShort(dm.usd)} date={dm.asOf.date} stage={dm.asOf.stage} />
+                    {/* `SPEC.md` §2.8 step 7 — the reading renders BESIDE THE
+                      LEAGUE MEDIAN for its own season. Without it "$85.2M"
+                      reads as an indictment; against a $50.3M median it reads
+                      as what it is. `CAPPLUS_MEMO.md` §3 makes this a day-one
+                      disclosure, not a nicety. */}
+                    {dm.leagueMedianUsd !== null ? (
+                      <span className={`yy-label ${shell.itemMedian}`}>
+                        {' '}
+                        · league median {usdShort(dm.leagueMedianUsd)}
+                      </span>
+                    ) : null}
+                  </>
                 ) : (
                   <BlankReason
                     reason={dm.reason ?? 'Not available — no league-wide table was published.'}

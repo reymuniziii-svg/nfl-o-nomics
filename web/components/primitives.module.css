@@ -223,6 +223,18 @@
   color: var(--yy-fg-3);
 }
 
+/* The value slot's short form for a blanked index. It sits in the metric slot
+   but is NOT a metric, so it drops to the label scale rather than pretending to
+   the size of a number that does not exist. Never a dash (`SPEC.md` §2.2). */
+.badgeBlankShort {
+  font-family: var(--yy-font-athletic);
+  font-weight: var(--yy-weight-label);
+  font-size: var(--yy-size-label);
+  letter-spacing: var(--yy-track-label);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
 .badgeName {
   color: var(--yy-fg-3);
   letter-spacing: var(--yy-track-label-wide);

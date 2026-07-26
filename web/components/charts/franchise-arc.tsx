@@ -58,8 +58,31 @@ interface Geometry {
   mb: number;
 }
 
-const MOBILE: Geometry = { w: 358, h: 244, ml: 30, mr: 92, mt: 16, mb: 40 };
+/**
+ * Both compositions paint at their INTRINSIC size (scale 1.0) so the 11px type
+ * floor survives — see `chart.module.css` `.svgFixed`. 332 is the card's content
+ * width at the 390 canvas.
+ */
+const MOBILE: Geometry = { w: 332, h: 244, ml: 30, mr: 92, mt: 16, mb: 40 };
 const DESKTOP: Geometry = { w: 980, h: 440, ml: 44, mr: 132, mt: 20, mb: 52 };
+
+/**
+ * OFF-SCALE GRAMMAR — `CHART_ANATOMY.md` §2 + §5.2.
+ *
+ * The index window is FIXED at 76–124 and is never auto-fitted: an axis that
+ * rescales per team makes two clubs incomparable. But 9% of both marts sit
+ * outside it (BAL 2019 at 138.1, CLE 2017 at 72.9, NE 2007's 139.5 Team Rating —
+ * the very seasons this product exists to talk about), and a path that simply
+ * stops at the plate edge tells the reader nothing about how far past it the
+ * season went. Every off-window season therefore gets a boundary chevron in its
+ * own series colour, on a dashed absence stem, WITH ITS TRUE VALUE PRINTED
+ * BESIDE IT. The path is still clipped; it just never terminates silently.
+ */
+function offScale(v: number): 'above' | 'below' | null {
+  if (v > INDEX_DOMAIN[1]) return 'above';
+  if (v < INDEX_DOMAIN[0]) return 'below';
+  return null;
+}
 
 export function FranchiseArc({
   points,
@@ -84,6 +107,12 @@ export function FranchiseArc({
     ),
   ].filter(Boolean);
 
+  const offWindow = points.filter((p) => {
+    const cp = p.capplus.state !== 'blank' && offScale(p.capplus.value);
+    const tr = p.teamRating.state !== 'blank' && offScale(p.teamRating.value);
+    return Boolean(cp || tr);
+  });
+
   const legend: LegendItem[] = [
     { swatch: 'solid', label: 'Cap+', tone: 'accent' },
     {
@@ -94,6 +123,9 @@ export function FranchiseArc({
     { swatch: 'benchmark', label: '100 = league average', tone: 'benchmark' },
     { swatch: 'hatch', label: 'Season not covered', tone: 'absence' },
   ];
+  if (offWindow.length) {
+    legend.push({ swatch: 'offscale', label: 'Off scale — true value printed', tone: 'absence' });
+  }
   if (provisional.length) {
     legend.push({
       swatch: 'provisional',
@@ -105,14 +137,27 @@ export function FranchiseArc({
   return (
     <div>
       <div className={css.atMobile}>
-        <ArcSvg points={points} team={team} geo={MOBILE} provisional={provisional} />
+        <div className={css.plotScroll}>
+          <ArcSvg points={points} team={team} geo={MOBILE} provisional={provisional} />
+        </div>
       </div>
       <div className={css.atDesktop}>
-        <ArcSvg points={points} team={team} geo={DESKTOP} provisional={provisional} />
+        <div className={css.plotScroll}>
+          <ArcSvg points={points} team={team} geo={DESKTOP} provisional={provisional} />
+        </div>
       </div>
       <Legend items={legend} />
       {/* §4.4 — always present, never a tooltip. */}
       <ChartCaption>{bridgeSentence}</ChartCaption>
+      {offWindow.length ? (
+        <ChartCaption>
+          The index window is fixed at {INDEX_DOMAIN[0]}–{INDEX_DOMAIN[1]} so that any two clubs can
+          be read against one another. {offWindow.length} season
+          {offWindow.length === 1 ? '' : 's'} on this chart fall outside it; each is marked at the
+          boundary with its true value printed, never clamped onto the axis as though it had been
+          measured there.
+        </ChartCaption>
+      ) : null}
       <ChartCaption>{coverage.statement}</ChartCaption>
       {blanks.map((b) => (
         <ChartCaption key={b}>{b}</ChartCaption>
@@ -181,10 +226,26 @@ function ArcSvg({
   const grid = gridValues(INDEX_DOMAIN, 4).filter((v) => Math.abs(v - 100) > 3);
   const valueTicks = [80, 90, 110, 120];
 
+  // Every season whose measured value lies outside the fixed window, on either
+  // series. The chevron is drawn from the SAME points the paths are drawn from,
+  // so a mark can never disagree with the line it belongs to.
+  const offMarks: { season: number; series: 'capplus' | 'rating'; dir: 'above' | 'below'; value: number }[] =
+    [];
+  for (const p of capplusPoints) {
+    const dir = p.y === null ? null : offScale(p.y);
+    if (p.y !== null && dir) offMarks.push({ season: p.x, series: 'capplus', dir, value: p.y });
+  }
+  for (const p of ratingPoints) {
+    const dir = p.y === null ? null : offScale(p.y);
+    if (p.y !== null && dir) offMarks.push({ season: p.x, series: 'rating', dir, value: p.y });
+  }
+
   return (
     <>
       <svg
-        className={css.svg}
+        className={css.svgFixed}
+        width={w}
+        height={h}
         viewBox={`0 0 ${w} ${h}`}
         role="img"
         aria-label={`${team} — Cap+ and Team Rating, 1999 to 2025`}
@@ -327,6 +388,41 @@ function ArcSvg({
               />
             ))}
           </g>
+
+          {/* §2 / §5.2 THE OFF-SCALE MARK. A clipped path that simply stops at
+            the plate edge says nothing; this says how far past it the season
+            went, in the series' own colour, on a dashed absence stem, with the
+            measured figure printed beside it. */}
+          {offMarks.map((m) => (
+            <g key={`off-${m.series}-${m.season}`}>
+              <line
+                x1={px(m.season)}
+                x2={px(m.season)}
+                y1={m.dir === 'above' ? 0 : innerH}
+                y2={m.dir === 'above' ? 10 : innerH - 10}
+                stroke="var(--yy-fg-dim)"
+                strokeWidth={1}
+                style={{ strokeDasharray: 'var(--yy-dash-absence)' }}
+              />
+              <path
+                d={
+                  m.dir === 'above'
+                    ? `M${px(m.season) - 5},6 L${px(m.season)},0 L${px(m.season) + 5},6 Z`
+                    : `M${px(m.season) - 5},${innerH - 6} L${px(m.season)},${innerH} L${px(m.season) + 5},${innerH - 6} Z`
+                }
+                fill={m.series === 'capplus' ? 'var(--yy-accent)' : 'var(--yy-compare)'}
+              />
+              <text
+                className={css.micro}
+                x={px(m.season) + 8}
+                y={m.dir === 'above' ? 8 : innerH - 2}
+                textAnchor="start"
+                fill={m.series === 'capplus' ? 'var(--yy-accent)' : 'var(--yy-compare)'}
+              >
+                {m.value.toFixed(1)}
+              </text>
+            </g>
+          ))}
 
           {/* §5.2 provisional — the normal mark plus a 1px provisional outline */}
           {provisional.map((s) => {
