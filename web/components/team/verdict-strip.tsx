@@ -232,7 +232,7 @@ function Reconcile(p: VerdictProps) {
   const body = reasons.length
     ? ` because ${reasons.join(', and ')}.`
     : ' because it scores point differential and EPA margin as well as wins.';
-  const tail = ' Cost per win counts only wins, and pays them in cash rather than cap.';
+  const tail = ' Cost per win counts wins only, and prices them in cash, not cap.';
 
   return (
     <p className={`yy-caption ${css.verdictReconcile}`}>
@@ -241,7 +241,7 @@ function Reconcile(p: VerdictProps) {
       {body}
       {tail}
       {p.qbTimingPts !== null
-        ? ` The quarterback’s contract accounts for ${signedIndex(p.qbTimingPts)} of the ${signedIndex(cp.capplus - 100)}.`
+        ? ` Of the ${signedIndex(cp.capplus - 100)}, the quarterback’s contract accounts for ${signedIndex(p.qbTimingPts)}.`
         : ''}
     </p>
   );

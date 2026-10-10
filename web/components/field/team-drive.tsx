@@ -3,7 +3,7 @@
  * `SPEC.md` §4, `CHART_ANATOMY.md` §7, `DECISIONS.md` 43.
  *
  * DECISION (review D #6): the Drive is no longer its own card. It is the
- * "Read as field" view of `FranchiseArc`. As a separate card it redrew the
+ * "Field" view of `FranchiseArc`. As a separate card it redrew the
  * arc's line directly underneath the arc, with 14 of its 27 seasons empty
  * field and the goal line at the top — the same chart with yard numbers. Cutting
  * it would drop one of the two field surfaces `SPEC.md` §4 names, so it is
@@ -23,7 +23,7 @@
  *
  * Unchanged anatomy: the Cap+ axis is printed conventionally beneath the
  * field (§7: the field is the second encoding, never the only one); blank
- * seasons are hatched, labelled rows, never interpolated; no turf, no crowd.
+ * seasons are hatched, labeled rows, never interpolated; no turf, no crowd.
  * The 50–150 domain contains 100% of `capplus_official` (62.9 to 138.1).
  */
 
@@ -60,8 +60,8 @@ export function driveGeometry(width: number): DriveGeometry {
 }
 
 export const DRIVE_LEGEND: LegendItem[] = [
-  { swatch: 'dot', label: 'Cap+ as field position — the ball', tone: 'accent' },
-  { swatch: 'benchmark', label: 'Midfield — Cap+ 100, league average', tone: 'benchmark' },
+  { swatch: 'dot', label: 'The ball (Cap+ as field position)', tone: 'accent' },
+  { swatch: 'benchmark', label: 'Midfield (Cap+ 100, league average)', tone: 'benchmark' },
   { swatch: 'hatch', label: 'Season not covered', tone: 'absence' },
 ];
 
@@ -203,7 +203,7 @@ export function DriveSvg({
                     style={{ strokeDasharray: 'var(--yy-dash-absence)' }}
                   />
                   <text className={`${chart.micro} ${chart.microOnSunken}`} x={innerW / 2} y={cy + 3.5} textAnchor="middle">
-                    No full-32 table — not covered
+                    No league-wide table — not covered
                   </text>
                 </g>
               );
@@ -282,8 +282,8 @@ export function DriveSvg({
         {points[points.length - 1]?.season}. The field runs from the club&rsquo;s own goal line at
         Cap+ {FIELD_CAPPLUS_DOMAIN[0]} on the left to the opponent&rsquo;s at Cap+{' '}
         {FIELD_CAPPLUS_DOMAIN[1]} on the right; midfield is Cap+ 100, the league average. Each
-        covered season is drawn as a carry from midfield to its Cap+ spot. Seasons with no
-        league-wide dead-money table are hatched rows and are never interpolated.
+        covered season is drawn as a carry from midfield to its Cap+ spot. Seasons without a
+        league-wide dead-money table appear as hatched rows, never interpolated.
       </p>
     </>
   );

@@ -52,7 +52,7 @@ export function FutureMortgage({
       <p className={css.mortHead}>
         <span className={`yy-num ${css.mortFigure}`}>{usdShort(usd)}</span>
         <span className={`yy-label ${css.mortUnit}`}>
-          charged to future seasons · {Math.round(share * 100)}% of one league cap
+          {`charged to future seasons (the “mortgage”) · ${Math.round(share * 100)}% of one league cap`}
           {rank !== null ? ` · ${ordinal(rank)}-largest of ${n}` : ''}
         </span>
       </p>
@@ -88,7 +88,7 @@ export function FutureMortgage({
       <p className={`yy-caption ${css.fine}`}>
         {FUTURE_MORTGAGE_CAVEAT}
         {rowsUnknown > 0
-          ? ` ${rowsUnknown} contract row${rowsUnknown === 1 ? '' : 's'} on this roster carry no contract length and count as zero.`
+          ? ` ${rowsUnknown} contract row${rowsUnknown === 1 ? '' : 's'} on this roster ${rowsUnknown === 1 ? 'has' : 'have'} no contract length and ${rowsUnknown === 1 ? 'counts' : 'count'} as zero.`
           : ''}
       </p>
 

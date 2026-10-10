@@ -109,15 +109,13 @@ export function CapPlusContextBody({
               qbNeutral={ix.value.capplusQbNeutral}
             />
             <p className={`yy-caption ${css.caption}`}>
-              QB contract timing is worth {signedIndex(ix.value.qbTimingPts)} here. For a rookie-deal
-              starter it averages about three points (+{ROOKIE_WINDOW_MEAN_QB_PTS} across{' '}
-              {ROOKIE_WINDOW_N} team-seasons since 2013) — a fifth of one standard deviation. Cap+
-              rewards a cheap quarterback far less than the debate assumes; it rewards winning.
-              {strata.state !== 'blank' &&
-              strata.value.rookieWindow.state !== 'blank' &&
-              strata.value.veteran.state !== 'blank'
-                ? ` In ${season}: rookie-window clubs ${signedIndex(strata.value.rookieWindow.value.meanQbTimingPts)} on average (${strata.value.rookieWindow.value.n} clubs), veteran-QB clubs ${signedIndex(strata.value.veteran.value.meanQbTimingPts)} (${strata.value.veteran.value.n}).`
-                : ''}
+              {`QB contract timing is worth ${signedIndex(ix.value.qbTimingPts)} here${
+                strata.state !== 'blank' &&
+                strata.value.rookieWindow.state !== 'blank' &&
+                strata.value.veteran.state !== 'blank'
+                  ? `, against ${season} averages of ${signedIndex(strata.value.rookieWindow.value.meanQbTimingPts)} for clubs with a rookie-deal starter (${strata.value.rookieWindow.value.n}) and ${signedIndex(strata.value.veteran.value.meanQbTimingPts)} for veteran-QB clubs (${strata.value.veteran.value.n})`
+                  : ''
+              }. Since 2013, rookie-deal starters average +${ROOKIE_WINDOW_MEAN_QB_PTS} across ${ROOKIE_WINDOW_N} team-seasons, a fifth of one standard deviation (15 points), so Cap+ pays a cheap quarterback far less than the debate assumes and mostly rewards winning.`}
             </p>
           </>
         )}
@@ -149,9 +147,7 @@ export function CapPlusContextBody({
           <>
             <QbWindowTimeline series={series.value} currentSeason={season} teamName={teamName} />
             <p className={`yy-caption ${css.caption}`}>
-              Where the two lines part, the quarterback&rsquo;s contract moved Cap+.{' '}
-              {windowSentence(series.value)} The record starts in 2013, the first season with
-              league-wide contract data.
+              {`Where the two lines part, the quarterback’s contract moved Cap+; the record starts in 2013, the first season with league-wide contract data. ${windowSentence(series.value)}`}
             </p>
           </>
         )}
@@ -168,5 +164,5 @@ function windowSentence(rows: CapPlusContext[]): string {
   }
   const gaps = rookie.map((r) => (r.indices.state === 'blank' ? 0 : r.indices.value.qbTimingPts));
   const mean = gaps.reduce((a, b) => a + b, 0) / gaps.length;
-  return `Across ${rookie.length} covered rookie-deal season${rookie.length === 1 ? '' : 's'} the gap averages ${signedIndex(mean)} points.`;
+  return `Across ${rookie.length} covered rookie-deal season${rookie.length === 1 ? '' : 's'}, the gap averages ${signedIndex(mean)} points.`;
 }

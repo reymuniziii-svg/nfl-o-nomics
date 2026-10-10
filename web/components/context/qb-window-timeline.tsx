@@ -172,7 +172,7 @@ export function QbWindowTimeline({
                     textAnchor="middle"
                     transform={`rotate(-90 ${cx} ${innerH / 2})`}
                   >
-                    No full-32 table
+                    No league-wide table
                   </text>
                 ) : null}
               </g>
@@ -275,7 +275,7 @@ export function QbWindowTimeline({
       </p>
       <p className={`yy-label ${css.rKey}`}>
         <span className={css.rSwatch} aria-hidden="true" />
-        Shaded — starting QB on his rookie deal (R)
+        Shaded seasons mark a starting QB on his rookie deal (R)
       </p>
       <Legend
         items={[

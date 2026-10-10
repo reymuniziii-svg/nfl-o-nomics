@@ -13,8 +13,8 @@
  *
  * Rules kept:
  *  - NINE GROUPS in the fixed §2.6 order, never sorted by value.
- *  - §7.2 THE COLOUR RULING: over/under-allocation is not favourable or
- *    unfavourable. Both directions take the same neutral ink; nothing is lime
+ *  - §7.2 THE COLOR RULING: over/under-allocation is not favorable or
+ *    unfavorable. Both directions take the same neutral ink; nothing is lime
  *    unless `selected`, and nothing is red.
  *  - The zero axis is GOLD: it is the league average.
  *  - The delta axis is FIXED at ±15 points for every club (it was fitted to
@@ -34,8 +34,8 @@ import { chartId } from './chart-kit';
 
 /** §7.3 — rendered on the chart, always. Never "share of cap by position group". */
 export const ALLOCATION_CAVEAT =
-  'Share of cap held by players on the roster — not share of cap. The denominator inherits the ' +
-  'dead-money omission. Position is as of the deal then in force.';
+  'Shares are out of the cap held by players on the roster, which leaves out dead money. ' +
+  'Each player counts at the position of the deal then in force.';
 
 /** Fixed delta window, in share points. */
 const SPAN = 0.15;

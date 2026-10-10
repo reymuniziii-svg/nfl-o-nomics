@@ -42,8 +42,8 @@ import { useMeasuredWidth } from '@/lib/hooks/use-measured-width';
 
 /** Always beneath the plot. */
 export const DOT_PLOT_CAPTION =
-  'Each dot is a separate dated reading, taken at a different point in a different league year. ' +
-  'They are not a trend and are deliberately not connected.';
+  'Each dot is its own dated reading, taken at a different point in a different league year. ' +
+  'Dots are not a trend, so nothing connects them.';
 
 /** `SPEC.md` §1.1 — the first season of player-level economics. */
 const TIER2_FIRST_SEASON = 2013;
@@ -91,8 +91,8 @@ export function DeadMoneyDots({
   const [dRef, dW] = useMeasuredWidth<HTMLDivElement>(DESKTOP.w);
 
   const legend: LegendItem[] = [
-    { swatch: 'dot', label: 'Dated reading — all 32 clubs', tone: 'partial' },
-    { swatch: 'ring', label: 'Not a 32-team reading — or, on the baseline, no reading', tone: 'absence' },
+    { swatch: 'dot', label: 'Dated reading, all 32 clubs', tone: 'partial' },
+    { swatch: 'ring', label: 'Not a 32-team reading (on the baseline: no reading)', tone: 'absence' },
   ];
 
   // The reduced mobile domain: Tier 2 onward. Nothing is hidden by it — no
@@ -116,9 +116,7 @@ export function DeadMoneyDots({
         </div>
         {reduced ? (
           <ChartCaption>
-            At this width the axis runs {mobileDomain[0]}–{mobileDomain[mobileDomain.length - 1]} so
-            that every dot keeps its own date. No reading is hidden by the reduction: dead money is
-            recorded from {TIER2_FIRST_SEASON} onward and there is none before it.
+            {`At this width the axis runs ${mobileDomain[0]}–${mobileDomain[mobileDomain.length - 1]} so every dot keeps its own date. Nothing is hidden: dead money is recorded from ${TIER2_FIRST_SEASON} onward, and no reading exists before it.`}
           </ChartCaption>
         ) : null}
       </div>
@@ -138,9 +136,8 @@ export function DeadMoneyDots({
       <ChartCaption>{DOT_PLOT_CAPTION}</ChartCaption>
       {anyLeadersOnly ? (
         <ChartCaption>
-          A reading drawn as an open ring comes from a published leaders list rather than a
-          league-wide table. It is a real, dated figure for this club and it is not comparable with
-          the other 31.
+          An open ring is a reading from a published leaders list, not a league-wide table. It is a
+          real, dated figure for this club, but it can&rsquo;t be compared with the other 31.
         </ChartCaption>
       ) : null}
       <ChartCaption>{coverage.statement}</ChartCaption>
@@ -339,10 +336,10 @@ function DotsSvg({
         </text>
       </svg>
       <p id={`${id}-d`} className="yy-visually-hidden">
-        A dot plot of individually dated dead-money readings. The points are deliberately not
-        connected: each is a separate press snapshot taken at a different point in a different
-        league year. A filled dot is a reading from a league-wide table; an open dashed ring is a
-        reading from a leaders list, which is not a 32-team reading.
+        A dot plot of dated dead-money readings, deliberately not connected: each is a separate
+        press snapshot from a different point in a different league year. A filled dot is a
+        reading from a league-wide table. An open dashed ring is a reading from a leaders list,
+        which is not a 32-team reading.
       </p>
     </>
   );

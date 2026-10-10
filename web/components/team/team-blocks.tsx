@@ -25,14 +25,14 @@ import type { LedgerRow, Lens } from "@/lib/data/team";
 /**
  * THE DUAL NAMING (`DECISIONS.md` 83). The badge's label is not always `CAP+`:
  *
- *  - 2013–2025, covered      → `CAP+`, band-coloured
+ *  - 2013–2025, covered      → `CAP+`, band-colored
  *  - 2013–2025, blanked      → `CAP+` and `—`, neutral, blank reason beneath
  *  - 1999–2012               → `TEAM RATING` + `PERFORMANCE ONLY`, **never
- *    band-coloured** — the bands are a Cap+ encoding, and applying them to a
+ *    band-colored** — the bands are a Cap+ encoding, and applying them to a
  *    performance-only rating tells the reader the two numbers are the same
  *    metric.
  *
- * The two indexes never share a badge, a colour or a label.
+ * The two indexes never share a badge, a color or a label.
  */
 export function TeamHeader({
   name,
@@ -85,7 +85,7 @@ export function TeamHeader({
         team-season. `CAPPLUS_MEMO.md` §4: "The four uncovered seasons inside
         the Cap+ era get the same treatment" as the pre-2013 pages. So the Cap+
         slot states its blank in full, and Team Rating renders beside it under
-        its own name and without band colour (`DECISIONS.md` 83). */}
+        its own name and without band color (`DECISIONS.md` 83). */}
         <div className={css.badges}>
           <IndexBadge
             metric={inTier2 ? capplus : teamRating}
@@ -146,14 +146,14 @@ export function ThreeLens({ lenses }: { lenses: Lens[] }) {
                 {/* `SPEC.md` §2.8 / `CAPPLUS_MEMO.md` §3 — the season's league
                   median renders BESIDE the figure. $85.2M is an indictment on
                   its own and an unremarkable number against a $50.3M median,
-                  and the memo's defence of λ=1.5 rests on the reader seeing the
+                  and the memo's defense of λ=1.5 rests on the reader seeing the
                   second one. */}
                 {lens.leagueMedianUsd !== null ? (
                   <span className={`yy-label ${css.lensBenchmark}`}>
                     League median {usdShort(lens.leagueMedianUsd)} this season
                   </span>
                 ) : null}
-                {/* `SPEC.md` §1.2 — a partial season is labelled partial. A
+                {/* `SPEC.md` §1.2 — a partial season is labeled partial. A
                   leaders-list figure looks exactly like a league-wide one
                   unless the surface says otherwise. */}
                 {lens.amount.state === "partial" ? (
@@ -212,7 +212,7 @@ export interface LedgerViewRow extends LedgerRow {
 export function DeadMoneyLedger({ rows }: { rows: LedgerViewRow[] }) {
   if (!rows.length) {
     return (
-      <BlankReason reason="Not available — no marquee dead-money charge in the ledger attaches to this club." />
+      <BlankReason reason="Not available — the ledger lists no marquee dead-money charge for this club." />
     );
   }
 

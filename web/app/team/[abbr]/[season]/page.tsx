@@ -85,7 +85,7 @@ export async function generateMetadata({
   if (!team) return {};
   const id = eraIdentity(team, Number(season));
   const path = `/team/${abbr.toLowerCase()}/${season}`;
-  const description = `${id.name}, ${season}: what the club spent, what it got, and where the record stops.`;
+  const description = `${id.name}, ${season}: what the club spent, what it got, and what the numbers can't see.`;
   return {
     title: `${id.name} · ${season}`,
     description,
@@ -187,7 +187,7 @@ export default async function TeamSeasonPage({
   /** THE INDEX RULE, `COMPONENTS.md` §3: which index the header badge carries is
    *  decided by the SEASON, not by whether a value happens to exist. Inside
    *  Tier 2 a blanked season renders `CAP+ —` with its reason; before it, the
-   *  badge is Team Rating and is never band-coloured. */
+   *  badge is Team Rating and is never band-colored. */
   const capplusIndex: Metric<number> = mapMetric(b.capplus, (c) => c.capplus);
 
   const teamOptions = [...meta.values()]
@@ -217,12 +217,12 @@ export default async function TeamSeasonPage({
   const missingBurden = dots.filter((d) => d.burden === null).length;
 
   const dotCoverage = [
-    'Readings exist only for seasons in which a league-wide table or a published leaders list named this club.',
+    'A reading exists only where a league-wide table or a published leaders list named this club.',
     b.deadMoney.emptyBlankSeasons.length
-      ? `${listSeasons(b.deadMoney.emptyBlankSeasons)} carry neither and are drawn as empty rings on the baseline.`
+      ? `${listSeasons(b.deadMoney.emptyBlankSeasons)} have neither and show as empty rings on the baseline.`
       : '',
     missingBurden
-      ? `${missingBurden} reading${missingBurden === 1 ? '' : 's'} carry no published burden denominator and therefore take no position on this axis.`
+      ? `${missingBurden} reading${missingBurden === 1 ? '' : 's'} can't be placed on this axis: no published burden denominator.`
       : '',
   ]
     .filter(Boolean)
@@ -276,10 +276,10 @@ export default async function TeamSeasonPage({
         />
       </Card>
 
-      {/* ── 3. THE ROSTER RECEIPT — the itemised bill, beside the verdict ── */}
+      {/* ── 3. THE ROSTER RECEIPT — the itemized bill, beside the verdict ── */}
       {inTier2 ? (
         <Card ariaLabel="Roster receipt">
-          <CardHeader eyebrow={`The itemised bill · ${season}`} title="ROSTER RECEIPT" />
+          <CardHeader eyebrow={`The itemized bill · ${season}`} title="ROSTER RECEIPT" />
           <div className={css.receiptPaper}>
             <RosterReceipt receipt={rosterReceipt} size="column" fallbackTitle={`${b.identity.name} · ${season}`} />
           </div>
@@ -304,7 +304,7 @@ export default async function TeamSeasonPage({
           <p className={`yy-caption ${css.limeNote}`}>
             <span className={css.limeKey} aria-hidden="true" />
             Lime marks {b.identity.name} on this card, whatever it paid. On the league and division
-            views lime means cheaper than average; here cheap or dear is read against the gold league
+            pages, lime means cheaper than average. Here, read cheap or dear against the gold league
             line.
           </p>
         </div>
@@ -376,15 +376,11 @@ export default async function TeamSeasonPage({
           <ChartCaption>{ARC_FIELD_NOTE}</ChartCaption>
           {offWindow ? (
             <ChartCaption>
-              The index window is fixed at {INDEX_DOMAIN[0]}–{INDEX_DOMAIN[1]} so any two clubs can be
-              read against one another. {offWindow} season{offWindow === 1 ? '' : 's'} here fall
-              outside it; each is marked at the edge with its true value printed, never clamped onto
-              the axis as though measured there.
+              {`The index axis is fixed at ${INDEX_DOMAIN[0]}–${INDEX_DOMAIN[1]} so any two clubs read on the same scale. ${offWindow} ${offWindow === 1 ? 'season here falls' : 'seasons here fall'} outside it, marked at the edge with the true value printed rather than clamped onto the axis.`}
             </ChartCaption>
           ) : null}
           <ChartCaption>
-            Team Rating covers 1999–2025. Cap+ covers 2014–2025; 2013, 2016, 2020 and 2021 have no
-            league-wide dead-money table and are blanked whole-season. {BLANK_REASON.NO_DM_TABLE}
+            {`Team Rating covers 1999–2025; Cap+ covers 2014–2025, minus 2013, 2016, 2020 and 2021, which are blank for the whole season. ${BLANK_REASON.NO_DM_TABLE}`}
           </ChartCaption>
         </FinePrint>
       </Card>
@@ -422,8 +418,8 @@ export default async function TeamSeasonPage({
                 ], [
                   `YIELD/YARD — ${b.identity.name} ${season} allocation`,
                   'source mart: position_allocation',
-                  'Share of cap held by players on the roster - not share of cap. The denominator inherits the dead-money omission.',
-                  'Position is as of the deal then in force.',
+                  'Shares are out of the cap held by players on the roster, which leaves out dead money.',
+                  'Each player counts at the position of the deal then in force.',
                 ])}
               />
             ) : undefined
@@ -434,7 +430,7 @@ export default async function TeamSeasonPage({
             bars={b.allocation.value}
             team={b.team}
             coverage={{
-              statement: `Nine position groups, ${season}, in a fixed order that never changes between clubs — which is what makes two clubs comparable. The delta axis is fixed at ±15 points for every club.`,
+              statement: `Nine position groups, ${season}, in the same order for every club, so any two compare side by side. The delta axis is fixed at ±15 points for every club.`,
             }}
           />
         ) : (
@@ -476,7 +472,7 @@ export default async function TeamSeasonPage({
           currentSeason={season}
           coverage={{
             statement:
-              'The coaching record begins in 2000; Houston enters in 2002. A dead-money reading after a regime change exists only where a league-wide table was published that year.',
+              'The coaching record starts in 2000; Houston joins in 2002. A dead-money reading after a regime change exists only where a league-wide table was published that year.',
           }}
         />
       </Card>
@@ -589,8 +585,8 @@ export default async function TeamSeasonPage({
       </Card>
 
       <ChartCaption>
-        Franchise continuity is preserved, geography is not: {b.identity.name} is the identity this
-        franchise carried in {season}, and the route key is the current one.
+        A franchise keeps one history across moves. {b.identity.name} is the name it used in {season};
+        the URL uses the current team code.
       </ChartCaption>
     </>
   );
@@ -661,27 +657,23 @@ function DraftBody({
       >
         {d.nExcludedNoGsis > 0 ? (
           <ChartCaption>
-            {d.nExcludedNoGsis} pick{d.nExcludedNoGsis === 1 ? '' : 's'} carr
-            {d.nExcludedNoGsis === 1 ? 'ies' : 'y'} no gsis_id and{' '}
-            {d.nExcludedNoGsis === 1 ? 'is' : 'are'} excluded from the return join. They remain in
-            the capital total.
+            {`${d.nExcludedNoGsis} pick${d.nExcludedNoGsis === 1 ? '' : 's'} ${d.nExcludedNoGsis === 1 ? 'has' : 'have'} no gsis_id, the player ID the return join needs, so ${d.nExcludedNoGsis === 1 ? 'it is' : 'they are'} left out of return. ${d.nExcludedNoGsis === 1 ? 'It stays' : 'They stay'} in the capital total.`}
           </ChartCaption>
         ) : null}
         <ChartCaption>
-          The chart is used in preference to the Jimmy Johnson chart because its values are anchored
-          to surplus value against rookie-contract cost — the same economics as the rest of this
-          product — rather than a 1990s trade-negotiation heuristic never calibrated to on-field
-          outcome.
+          We use this chart over the Jimmy Johnson chart. Its values track surplus value, what a pick
+          returns beyond its rookie-contract cost, which is the economics the rest of the site uses;
+          the Johnson chart is a 1990s trade-negotiation heuristic never tied to on-field results.
         </ChartCaption>
         <ChartCaption>
-          Capital and realised return are Tier 1 and run the full record. Any framing of a draft
-          class in dollars is Tier 2 and renders only for 2013 onward.{' '}
+          Capital and realized return are Tier 1 and run the full record; dollar framings of a draft
+          class are Tier 2 and start in 2013.{' '}
           {dollarFraming.state === 'blank'
             ? dollarFraming.reason
-            : 'It is available for this class but is not surfaced on this card.'}
+            : 'A dollar view exists for this class, but this card does not show it.'}
         </ChartCaption>
         {med ? (
-          <ChartCaption>League medians are taken across the {med.n} clubs with a draft class this season.</ChartCaption>
+          <ChartCaption>League medians cover the {med.n} clubs with a draft class this season.</ChartCaption>
         ) : null}
       </FinePrint>
     </>
@@ -742,11 +734,11 @@ function AlternateReadings({
       </ul>
       <p className="yy-caption">
         {chosen
-          ? `The figure above (${usdShort(chosen.usd)}, ${chosen.asOf.date}) is the one the pinned resolution selected: broadest coverage class first, then the latest as-of date. `
+          ? `The figure above (${usdShort(chosen.usd)}, ${chosen.asOf.date}) won on two rules: broadest coverage first, then latest as-of date. `
           : ''}
-        Readings are never averaged and never merged. Each is true of the date it carries, and
-        same-season drift is real — a preseason table and a season-final one are different
-        measurements, not a disagreement to be split.
+        Readings are never averaged or merged. Each is true as of its date, and readings drift
+        within a season, so a preseason table and a season-final one are different
+        measurements, not a disagreement.
       </p>
     </details>
   );
@@ -754,18 +746,17 @@ function AlternateReadings({
 
 /** Visible beside BRIDGE_SENTENCE — the corrected definition (SPEC §2.2, §2.4). */
 const ARC_SHORT =
-  'Cap+ divides a performance composite — win %, point differential and EPA margin — by cap cost; ' +
-  'Team Rating is the same composite with no cost. Hatched seasons are not covered.';
+  'Cap+ divides that score (win %, point differential and EPA margin) by cap cost; Team Rating ' +
+  'leaves cost out. Hatched seasons fall outside coverage.';
 
 /** v1 said Cap+ "scores wins produced per dollar". It does not: wins are one of three inputs. */
 const ARC_BRIDGE =
-  'Two metrics are plotted. Team Rating (1999–2025) scores performance only: an equal blend of ' +
-  'win %, point differential per game and EPA margin per play, standardised within each season. ' +
-  'Cap+ (2014–2025) is that same composite divided by what the roster cost against the cap, with ' +
-  'dead money weighted 1.5×. They are shown together on the overlap so you can see where cost ' +
-  'moved a club — not because they measure the same thing.';
+  'Team Rating (1999–2025) scores performance only: equal parts win %, point differential per ' +
+  'game and EPA margin per play (expected points added, offense minus defense), standardized ' +
+  'within each season. Cap+ (2014–2025) divides that score by roster cost against the cap, with ' +
+  'dead money weighted 1.5×. Together they show where cost moved a club; they don’t measure the same thing.';
 
 const ARC_FIELD_NOTE =
-  '“Read as field” redraws Cap+ as a drive: midfield is Cap+ 100, one index point is one yard, ' +
-  'and each season is a carry from midfield to its spot. It covers the Cap+ era only, 2013–2025; ' +
-  'Team Rating has no place on the field.';
+  '“Field” redraws Cap+ as a drive: midfield is Cap+ 100, one index point is one yard, ' +
+  'and each season is a carry from midfield to its spot. It covers 2013–2025, the Cap+ era; ' +
+  'Team Rating stays off the field.';

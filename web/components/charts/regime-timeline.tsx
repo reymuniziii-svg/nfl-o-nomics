@@ -176,7 +176,7 @@ export function RegimeTimeline({
                           stroke={isCurrent && !lime ? 'var(--yy-fg-1)' : undefined}
                           strokeWidth={isCurrent && !lime ? 1.5 : undefined}
                         />
-                        {/* Colour comes from a CLASS, not a presentation
+                        {/* Color comes from a CLASS, not a presentation
                           attribute: `.micro` used to declare `fill` and a CSS
                           declaration always beats an attribute, so the
                           on-accent ink never reached the element. */}
@@ -242,24 +242,21 @@ export function RegimeTimeline({
           </g>
         </svg>
         <p id={`${id}-d`} className="yy-visually-hidden">
-          Three bands showing head coach, offensive coordinator and defensive coordinator tenure
-          runs across the season axis, with a marker at each head-coach change.
+          Three bands show tenure runs for the head coach (HC), offensive coordinator (OC) and
+          defensive coordinator (DC) across the season axis. A marker sits at each head-coach
+          change.
         </p>
       </ScrollToX>
 
       <Legend
         items={[
           { swatch: 'solid', label: `Head coach in ${currentSeason}`, tone: 'accent' },
-          { swatch: 'absence', label: 'Head-coach change (dashed = in-season)', tone: 'absence' },
+          { swatch: 'absence', label: 'Head-coach change (solid = offseason, dashed = in-season)', tone: 'absence' },
         ]}
       />
 
       <ChartCaption>
-        Lime is the head coach in {currentSeason}; that season&rsquo;s coordinators are outlined.
-        A regime marker is a head-coach change — an event, not a judgement, and it is never drawn in
-        the negative colour. Solid marks an offseason change, dashed marks an in-season one. The two
-        dated dead-money readings that follow each change are printed below — they are never behind
-        a tap.
+        {`Lime marks the ${currentSeason} head coach; that season’s coordinators are outlined. A new regime starts with each head-coach change, an event rather than a verdict, so its marker never takes the negative color; the two dated dead-money readings after each change are listed below in plain view.`}
       </ChartCaption>
 
       <ul className={shell.list}>
@@ -273,7 +270,7 @@ export function RegimeTimeline({
                 {r.incomingHc}
               </p>
               {/* Changes whose two follow-on seasons both lack a reading are
-                  summarised ONCE below — v1 printed the same reason ten times. */}
+                  summarized ONCE below — v1 printed the same reason ten times. */}
               {allBlank
                 ? null
                 : dms.map((dm, i) => (

@@ -91,7 +91,7 @@ export function CapPlusDecomposition({
         <span />
       </div>
       <p className={`yy-label ${css.wfNeutral}`}>
-        {`${CAPPLUS_QB_NEUTRAL_LABEL} ${qbNeutral.toFixed(1)} — the same season with a median starter’s cap number in place of this one`}
+        {`${CAPPLUS_QB_NEUTRAL_LABEL} ${qbNeutral.toFixed(1)} swaps in a median starter’s cap number for this club’s own`}
       </p>
     </div>
   );

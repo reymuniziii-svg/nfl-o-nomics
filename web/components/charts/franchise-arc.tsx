@@ -7,9 +7,9 @@
  * THE THREE RULES THIS CHART EXISTS TO OBEY
  *  1. **The hard break at 2013.** A full-height rule at `x(2013)`; no series
  *     path crosses it. Team Rating terminates at 2012; Cap+ begins at 2014.
- *  2. **Both lines on the 2014–2025 overlap**, told apart by colour, stroke
+ *  2. **Both lines on the 2014–2025 overlap**, told apart by color, stroke
  *     width and dash, plus a direct label at each terminus.
- *  3. **The four blanked Cap+ seasons are labelled gaps**, one `<path>` per
+ *  3. **The four blanked Cap+ seasons are labeled gaps**, one `<path>` per
  *     run, never `defined()` on one path.
  *
  * WHAT CHANGED (review D #6, #7, #9; bug sweep)
@@ -168,7 +168,7 @@ export function FranchiseArc({
             season < TIER2_BREAK
               ? 'Not available — before 2013'
               : p.capplus.state === 'blank'
-                ? 'Not covered — no full-32 table'
+                ? 'Not covered — no league-wide table'
                 : `${p.capplus.value.toFixed(1)}${d?.capplusRank ? ` · ${ordinal(d.capplusRank)} of 32` : ''}${
                     p.capplus.state === 'value' && p.capplus.provisional ? ' · provisional' : ''
                   }`
@@ -217,7 +217,7 @@ export function FranchiseArc({
     <div>
       <div className={team.arcBar}>
         <p className={`yy-label ${team.arcHint}`}>
-          Tap or hover a season to read it · select to open it
+          Hover or tap a season to read it. Click or tap again to open it.
         </p>
         {hasField ? (
           <div className={team.segmented} role="radiogroup" aria-label="Read the history as">
@@ -246,7 +246,7 @@ export function FranchiseArc({
                 }}
                 tabIndex={effectiveMode === m ? 0 : -1}
               >
-                {m === 'index' ? 'Index' : 'Read as field'}
+                {m === 'index' ? 'Index' : 'Field'}
               </button>
             ))}
           </div>
@@ -393,7 +393,7 @@ function IndexView({
   }
 
   /* Tick labels: the budget, plus the page's own season, which is always
-     labelled; any budget tick within 26px of it gives way. */
+     labeled; any budget tick within 26px of it gives way. */
   const budget = thinTicks(seasons, tickBudget(innerW));
   const ticks = budget.filter(
     (s) =>
@@ -404,7 +404,7 @@ function IndexView({
   const grid = gridValues(INDEX_DOMAIN, 4).filter((v) => Math.abs(v - 100) > 3);
   const valueTicks = [80, 90, 110, 120];
 
-  /* Off-scale marks. Same-edge neighbours closer than a label's width
+  /* Off-scale marks. Same-edge neighbors closer than a label's width
      stagger to a second line — the 130.5 / 127.3 overprint at 375. */
   type Off = { season: number; series: 'capplus' | 'rating'; dir: 'above' | 'below'; value: number; row: number };
   const offMarks: Off[] = [];
@@ -502,7 +502,7 @@ function IndexView({
                     transform={`rotate(-90 ${cx} ${innerH / 2})`}
                     dy={3.5}
                   >
-                    No full-32 table
+                    No league-wide table
                   </text>
                 ) : null}
               </g>
@@ -731,9 +731,9 @@ function IndexView({
         width={w}
       />
       <p id={`${id}-d`} className="yy-visually-hidden">
-        Two indices against a continuous season axis with a hard break at 2013. Team Rating scores
-        performance only and runs 1999 to 2025; Cap+ divides the same performance composite by cap
-        cost and runs 2014 to 2025 with four seasons blanked as hatched gaps, never interpolated.
+        Two indices on one season axis, with a hard break at 2013. Team Rating scores performance
+        only and runs 1999 to 2025. Cap+ divides the same performance score by cap cost and runs
+        2014 to 2025; its four blanked seasons show as hatched gaps and are never interpolated.
         The {currentSeason} season is marked. Each season below the chart is a link with its values.
       </p>
     </div>
