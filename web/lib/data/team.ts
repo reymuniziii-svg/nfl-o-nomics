@@ -25,6 +25,7 @@ import {
 } from '@/lib/metric';
 import { eraIdentity, type EraIdentity, type TeamAbbr } from '@/lib/teams';
 import { isSeeded } from './registry';
+import { getLeagueAvgCostPerWin } from './league';
 import { seasonsForTeam } from './seasons';
 import {
   CAPPLUS_BLANK_SEASONS,
@@ -708,4 +709,573 @@ export async function getTeamBundle(
     deadMoney,
     draft,
   };
+}
+
+/* ------------------------------------------------------------------ */
+/* 10. The Roster Receipt — the itemized bill (review E1)               */
+/* ------------------------------------------------------------------ */
+
+/**
+ * One rostered contract on the bill. Cap and games sit SIDE BY SIDE and are
+ * never divided: a player's cap over his production is a player grade, which
+ * `SPEC.md` forbids. `games` is the club's games for this player that season
+ * (`player_season_availability`), blank when no snap row links to the contract.
+ */
+export interface RosterReceiptLine {
+  player: string;
+  positionGroup: string | null;
+  capHit: number;
+  games: Metric<number>;
+}
+
+/** A dead-money VOID line: the charge, and the charge at the Cap+ weight. */
+export interface RosterVoidLine {
+  label: string;
+  usd: number;
+  weighted: number;
+}
+
+export type ReceiptVerdictLabel = 'STEAL' | 'WORTH IT' | 'FAIR PRICE' | 'OVERPAID' | 'MONEY PIT';
+
+/**
+ * The stamp. Cutoffs are the SEASON'S quintiles of cap-per-win across every
+ * club with at least one win (zero-win clubs are excluded from ratio-ranked
+ * orderings, `SPEC.md` §2.5) — computed from the data, never round numbers.
+ */
+export interface ReceiptVerdict {
+  label: ReceiptVerdictLabel;
+  /** 1 = cheapest fifth of the league per win … 5 = dearest. */
+  quintile: 1 | 2 | 3 | 4 | 5;
+  /** The four cut points, USD per win, ascending (20th/40th/60th/80th pct). */
+  cutoffs: [number, number, number, number];
+  /** 1 = cheapest per win. */
+  rank: number;
+  /** Clubs ranked (zero-win clubs excluded). */
+  of: number;
+  rule: string;
+}
+
+export interface RosterReceipt {
+  team: TeamAbbr;
+  season: number;
+  identity: EraIdentity;
+  /** Head coach(es) of record, in stint order: "Andy Reid". */
+  regime: Metric<string>;
+  /** The dated dead-money snapshot the bill (and Cap+) reads. */
+  snapshot: AsOf | null;
+  lines: RosterReceiptLine[];
+  /** Everyone below the top 12, as one line, so the subtotal reconciles. */
+  others: { count: number; capHit: number };
+  /** = team_season_cap.cap_used_total (rostered players, season-final). */
+  rosterSubtotal: number;
+  rosterCount: number;
+  leagueCap: number;
+  dead: Metric<{
+    lines: RosterVoidLine[];
+    total: number;
+    weighted: number;
+    note: string | null;
+  }>;
+  /**
+   * Cap+ floors the cost index at the season's 25th percentile: a club that
+   * spent below it is charged the floor anyway. The gap, in dollars at the
+   * league cap, is the "unspent cap, no credit" line. `null` when not floored.
+   */
+  unspent: number | null;
+  /** (cap + 1.5 × dead [+ unspent]) — the cost Cap+ divides by. Cap+ seasons only. */
+  charged: Metric<number>;
+  results: TeamResults;
+  epa: Metric<TeamEpa>;
+  capplus: Metric<CapPlusValue>;
+  /** Cap hit ÷ wins — the bill's own currency. Zero-win rule applies. */
+  costPerWin: Metric<CostPerWin>;
+  leagueCostPerWin: Metric<number>;
+  verdict: Metric<ReceiptVerdict>;
+  numeratorCaveat: string;
+}
+
+export const RECEIPT_TOP_N = 12;
+export const DEAD_MONEY_WEIGHT = 1.5;
+
+const VERDICT_LABELS: readonly ReceiptVerdictLabel[] = [
+  'STEAL',
+  'WORTH IT',
+  'FAIR PRICE',
+  'OVERPAID',
+  'MONEY PIT',
+];
+
+/** Type-7 (linear interpolation) quantile of an ascending array. */
+function quantileSorted(xs: readonly number[], q: number): number {
+  const h = (xs.length - 1) * q;
+  const lo = Math.floor(h);
+  const hi = Math.ceil(h);
+  return xs[lo] + (h - lo) * (xs[hi] - xs[lo]);
+}
+
+const seasonCapPerWinCache = new Map<number, Promise<Map<string, number>>>();
+
+/** Every club's cap-per-win for one season (wins > 0 only). Memoised per season. */
+function seasonCapPerWin(season: number): Promise<Map<string, number>> {
+  let p = seasonCapPerWinCache.get(season);
+  if (!p) {
+    p = (async () => {
+      const db = await getDb();
+      const rows = await db
+        .select({
+          team: s.teamSeasonCap.team,
+          cap: s.teamSeasonCap.capUsedTotal,
+          wins: s.teamSeasonResults.wins,
+        })
+        .from(s.teamSeasonCap)
+        .innerJoin(
+          s.teamSeasonResults,
+          and(
+            eq(s.teamSeasonResults.season, s.teamSeasonCap.season),
+            eq(s.teamSeasonResults.team, s.teamSeasonCap.team),
+          ),
+        )
+        .where(eq(s.teamSeasonCap.season, season));
+      return new Map(rows.filter((r) => r.wins > 0).map((r) => [r.team, r.cap / r.wins]));
+    })();
+    seasonCapPerWinCache.set(season, p);
+  }
+  return p;
+}
+
+/** The verdict for one club, or the reason there is none. */
+export async function getReceiptVerdict(
+  season: number,
+  team: string,
+): Promise<Metric<ReceiptVerdict>> {
+  if (season < TIER2_FIRST_SEASON) return blank(BLANK_REASON.PRE_TIER2);
+  const all = await seasonCapPerWin(season);
+  const mine = all.get(team);
+  if (mine === undefined) {
+    return blank('No verdict — a club with 0 wins is excluded from per-win rankings.');
+  }
+  const sorted = [...all.values()].sort((a, b) => a - b);
+  if (sorted.length < 5) return blank(NOT_A_32_TEAM_READING);
+  const cutoffs = [0.2, 0.4, 0.6, 0.8].map((q) => quantileSorted(sorted, q)) as [
+    number,
+    number,
+    number,
+    number,
+  ];
+  const idx = cutoffs.findIndex((c) => mine <= c);
+  const quintile = (idx === -1 ? 5 : idx + 1) as ReceiptVerdict['quintile'];
+  const rank = sorted.filter((x) => x < mine).length + 1;
+  return value<ReceiptVerdict>({
+    label: VERDICT_LABELS[quintile - 1],
+    quintile,
+    cutoffs,
+    rank,
+    of: sorted.length,
+    rule: `Verdict = ${season} quintiles of cap hit per win across ${sorted.length} clubs (0-win clubs excluded).`,
+  });
+}
+
+/**
+ * The Roster Receipt for one team-season. Blank before 2013 (no contract data)
+ * and wherever the cap mart has no row — never a zero-line bill.
+ */
+export async function getRosterReceipt(
+  season: number,
+  team: TeamAbbr,
+): Promise<Metric<RosterReceipt>> {
+  if (season < TIER2_FIRST_SEASON) return blank(BLANK_REASON.PRE_TIER2);
+  if (!(await isSeeded('team_season_cap')) || !(await isSeeded('player_season_cap'))) {
+    return blank(BLANK_REASON.MART_ABSENT);
+  }
+  const db = await getDb();
+
+  const [capRow] = await db
+    .select()
+    .from(s.teamSeasonCap)
+    .where(and(eq(s.teamSeasonCap.team, team), eq(s.teamSeasonCap.season, season)))
+    .limit(1);
+  const [res] = await db
+    .select()
+    .from(s.teamSeasonResults)
+    .where(and(eq(s.teamSeasonResults.team, team), eq(s.teamSeasonResults.season, season)))
+    .limit(1);
+  if (!capRow || !res) return blank(BLANK_REASON.PRE_TIER2);
+
+  /* --- line items: every rostered contract, cap hit desc --- */
+  const contracts = await db
+    .select({
+      player: s.playerSeasonCap.player,
+      positionGroup: s.playerSeasonCap.positionGroup,
+      capHit: s.playerSeasonCap.capNumber,
+      gsisId: s.playerSeasonCap.gsisId,
+      games: s.playerSeasonAvailability.games,
+      linked: s.playerSeasonAvailability.gsisId,
+    })
+    .from(s.playerSeasonCap)
+    .leftJoin(
+      s.playerSeasonAvailability,
+      and(
+        eq(s.playerSeasonAvailability.gsisId, s.playerSeasonCap.gsisId),
+        eq(s.playerSeasonAvailability.season, s.playerSeasonCap.season),
+        eq(s.playerSeasonAvailability.team, s.playerSeasonCap.team),
+      ),
+    )
+    .where(and(eq(s.playerSeasonCap.team, team), eq(s.playerSeasonCap.season, season)))
+    .orderBy(desc(s.playerSeasonCap.capNumber));
+
+  const top = contracts.slice(0, RECEIPT_TOP_N);
+  const lines: RosterReceiptLine[] = top.map((c) => ({
+    player: c.player ?? 'Unnamed contract',
+    positionGroup: c.positionGroup,
+    capHit: c.capHit,
+    games:
+      c.linked && c.games !== null
+        ? value(c.games)
+        : blank(
+            c.gsisId
+              ? 'No snap record for this player with this club this season.'
+              : 'This contract has no player id linking it to snap records.',
+          ),
+  }));
+  const topSum = top.reduce((a, c) => a + c.capHit, 0);
+  // The subtotal is the MART's figure, not a re-sum: the "others" line absorbs
+  // the remainder so the bill reconciles to `team_season_cap` to the dollar.
+  const others = {
+    count: Math.max(0, contracts.length - top.length),
+    capHit: capRow.capUsedTotal - topSum,
+  };
+
+  /* --- regime: the head coach(es) of record --- */
+  const hcRows = await db
+    .select({ name: s.coachingStaff.coachName, stint: s.coachingStaff.stint })
+    .from(s.coachingStaff)
+    .where(
+      and(
+        eq(s.coachingStaff.season, season),
+        eq(s.coachingStaff.role, 'HC'),
+        sql`coalesce(${s.coachingStaff.teamCurrent}, ${s.coachingStaff.team}) = ${team}`,
+      ),
+    )
+    .orderBy(asc(s.coachingStaff.stint));
+  const coaches = hcRows.map((r) => r.name).filter((n) => n && n !== 'NONE');
+  const regime: Metric<string> = coaches.length
+    ? value(coaches.join(' → '))
+    : blank('No head coach of record in the coaching mart.');
+
+  /* --- Cap+ and the dead-money snapshot it read --- */
+  const capplus = await getCapPlus(season, team);
+  const [dm] = (await isSeeded('dead_money_display'))
+    ? await db
+        .select()
+        .from(s.deadMoneyDisplay)
+        .where(and(eq(s.deadMoneyDisplay.team, team), eq(s.deadMoneyDisplay.season, season)))
+        .limit(1)
+    : [];
+
+  // Cap+ seasons read the figure Cap+ itself used; others read the display row.
+  const deadUsd =
+    capplus.state === 'value' ? capplus.value.deadMoneyRec : (dm?.deadMoneyUsd ?? null);
+  const snapshot: AsOf | null =
+    capplus.state === 'value'
+      ? (capplus.asOf ?? null)
+      : asOfOf(dm?.asofDate ?? null, dm?.asofStage ?? null);
+
+  let dead: RosterReceipt['dead'];
+  if (deadUsd === null || !snapshot) {
+    dead = blank(dm?.blankReason ?? BLANK_REASON.NO_DM_TABLE);
+  } else {
+    const voidLines: RosterVoidLine[] = [];
+    let note: string | null = null;
+    const attributed = dm?.ledgerUsdAttributed ?? 0;
+    const named = dm?.ledgerPlayers ?? null;
+    if (named && dm?.ledgerSplitAllEstablished && attributed > 0 && attributed <= deadUsd) {
+      voidLines.push({ label: named, usd: attributed, weighted: attributed * DEAD_MONEY_WEIGHT });
+      const rest = deadUsd - attributed;
+      if (rest > 0) {
+        voidLines.push({
+          label: 'All other dead money',
+          usd: rest,
+          weighted: rest * DEAD_MONEY_WEIGHT,
+        });
+      }
+    } else {
+      voidLines.push({ label: 'Dead money', usd: deadUsd, weighted: deadUsd * DEAD_MONEY_WEIGHT });
+      if (named && attributed > deadUsd) {
+        note = `${named}'s verified charge is larger than this dated snapshot; the snapshot pre-dates it.`;
+      } else if (named && !dm?.ledgerSplitAllEstablished) {
+        note = `Includes ${named}; per-season split not established.`;
+      }
+    }
+    dead = value(
+      { lines: voidLines, total: deadUsd, weighted: deadUsd * DEAD_MONEY_WEIGHT, note },
+      snapshot,
+    );
+  }
+
+  const leagueCap = capRow.leagueCap;
+  const unspent =
+    capplus.state === 'value' && capplus.value.wasFloored
+      ? (capplus.value.costFloor - capplus.value.costRec) * leagueCap
+      : null;
+  const charged: Metric<number> =
+    capplus.state === 'value'
+      ? value(Math.max(capplus.value.costRec, capplus.value.costFloor) * leagueCap)
+      : blank(capplus.reason);
+
+  const [epaRow] = await db
+    .select()
+    .from(s.teamSeasonEpa)
+    .where(and(eq(s.teamSeasonEpa.team, team), eq(s.teamSeasonEpa.season, season)))
+    .limit(1);
+
+  const [costPerWin, leagueCostPerWin, verdict] = await Promise.all([
+    getCostPerWin(season, team, 'cap'),
+    getLeagueAvgCostPerWin(season, 'cap'),
+    getReceiptVerdict(season, team),
+  ]);
+
+  return value<RosterReceipt>(
+    {
+      team,
+      season,
+      identity: eraIdentity(team, season),
+      regime,
+      snapshot,
+      lines,
+      others,
+      rosterSubtotal: capRow.capUsedTotal,
+      rosterCount: contracts.length,
+      leagueCap,
+      dead,
+      unspent,
+      charged,
+      results: {
+        season: res.season,
+        team: res.team as TeamAbbr,
+        games: res.games,
+        wins: res.wins,
+        losses: res.losses,
+        ties: res.ties,
+        winPct: res.winPct,
+        pointsFor: res.pointsFor,
+        pointsAgainst: res.pointsAgainst,
+        pointDiff: res.pointDiff,
+      },
+      epa: epaRow
+        ? value({
+            offPlays: epaRow.offPlays,
+            defPlays: epaRow.defPlays,
+            offEpaPerPlay: epaRow.offEpaPerPlay,
+            defEpaPerPlay: epaRow.defEpaPerPlay,
+            epaMarginPerPlay: epaRow.epaMarginPerPlay,
+            offEpaTotal: epaRow.offEpaTotal,
+            defEpaTotal: epaRow.defEpaTotal,
+          })
+        : blank(BLANK_REASON.MART_ABSENT),
+      capplus,
+      costPerWin,
+      leagueCostPerWin,
+      verdict,
+      numeratorCaveat: NUMERATOR_CAVEAT.cap,
+    },
+    snapshot ?? undefined,
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* 11. Team-season page support — verdict, arc inspection, draft bench  */
+/*     (added for the team-page upgrade; read-only, display arithmetic) */
+/* ------------------------------------------------------------------ */
+
+/** One season of a franchise, as the arc's inspection layer repeats it. */
+export interface FranchiseSeasonFact {
+  season: number;
+  wins: number;
+  losses: number;
+  ties: number;
+  /** Cash to rostered players, USD. Blank before 2013. */
+  cashSpend: Metric<number>;
+  /** League cash ÷ league wins for the same season. Blank before 2013. */
+  leagueCashPerWin: Metric<number>;
+}
+
+/**
+ * Every season's record and cash spend for one franchise, with the league's
+ * cash-per-win for that season beside it. Sums of mart columns only — the same
+ * arithmetic `getLeagueAvgCostPerWin` does, done once for all seasons.
+ */
+export async function getFranchiseSeasonFacts(team: TeamAbbr): Promise<FranchiseSeasonFact[]> {
+  const db = await getDb();
+  const results = await db
+    .select()
+    .from(s.teamSeasonResults)
+    .where(eq(s.teamSeasonResults.team, team))
+    .orderBy(asc(s.teamSeasonResults.season));
+
+  const capSeeded = await isSeeded('team_season_cap');
+  const cash = new Map<number, number>();
+  const league = new Map<number, { spend: number; wins: number; n: number }>();
+  if (capSeeded) {
+    const rows = await db
+      .select({
+        season: s.teamSeasonCap.season,
+        team: s.teamSeasonCap.team,
+        cash: s.teamSeasonCap.cashSpentTotal,
+        wins: s.teamSeasonResults.wins,
+      })
+      .from(s.teamSeasonCap)
+      .innerJoin(
+        s.teamSeasonResults,
+        and(
+          eq(s.teamSeasonResults.season, s.teamSeasonCap.season),
+          eq(s.teamSeasonResults.team, s.teamSeasonCap.team),
+        ),
+      );
+    for (const r of rows) {
+      if (r.team === team) cash.set(r.season, r.cash);
+      const l = league.get(r.season) ?? { spend: 0, wins: 0, n: 0 };
+      l.spend += r.cash;
+      l.wins += r.wins;
+      l.n += 1;
+      league.set(r.season, l);
+    }
+  }
+
+  return results.map((r) => {
+    const l = league.get(r.season);
+    const pre = r.season < TIER2_FIRST_SEASON;
+    const cashSpend: Metric<number> = pre
+      ? blank(BLANK_REASON.PRE_TIER2)
+      : cash.has(r.season)
+        ? value(cash.get(r.season) as number)
+        : blank(BLANK_REASON.MART_ABSENT);
+    const leagueCashPerWin: Metric<number> = pre
+      ? blank(BLANK_REASON.PRE_TIER2)
+      : !l || l.wins === 0
+        ? blank(BLANK_REASON.MART_ABSENT)
+        : l.n < 32
+          ? partial(l.spend / l.wins, l.n, 32, `Not a full-league reading — ${l.n} of 32 clubs.`)
+          : value(l.spend / l.wins);
+    return {
+      season: r.season,
+      wins: r.wins,
+      losses: r.losses,
+      ties: r.ties,
+      cashSpend,
+      leagueCashPerWin,
+    };
+  });
+}
+
+/** Where a club's three performance inputs placed it in its own season. */
+export interface SeasonInputRanks {
+  n: number;
+  winPctRank: number;
+  pointDiffRank: number;
+  /** Blank where the EPA mart has no row for the club. */
+  epaMarginRank: Metric<number>;
+}
+
+/**
+ * Rank (1 = best) of the club's win %, point differential per game and EPA
+ * margin per play among that season's clubs. The three inputs of `SPEC.md`
+ * §2.4, read from their marts and ordered — nothing is standardised or blended
+ * here, so no index is recomputed. Ties share the better rank.
+ */
+export async function getSeasonInputRanks(
+  season: number,
+  team: TeamAbbr,
+): Promise<Metric<SeasonInputRanks>> {
+  const db = await getDb();
+  const res = await db
+    .select()
+    .from(s.teamSeasonResults)
+    .where(eq(s.teamSeasonResults.season, season));
+  const me = res.find((r) => r.team === team);
+  if (!me) return blank(BLANK_REASON.MART_ABSENT);
+
+  const rankOf = (vals: number[], v: number) => 1 + vals.filter((x) => x > v).length;
+  const winPctRank = rankOf(
+    res.map((r) => r.winPct),
+    me.winPct,
+  );
+  const pdg = (r: (typeof res)[number]) => r.pointDiff / Math.max(1, r.games);
+  const pointDiffRank = rankOf(res.map(pdg), pdg(me));
+
+  const epa = await db
+    .select({ team: s.teamSeasonEpa.team, m: s.teamSeasonEpa.epaMarginPerPlay })
+    .from(s.teamSeasonEpa)
+    .where(eq(s.teamSeasonEpa.season, season));
+  const myEpa = epa.find((r) => r.team === team);
+  const epaMarginRank: Metric<number> = myEpa
+    ? value(
+        rankOf(
+          epa.map((r) => r.m),
+          myEpa.m,
+        ),
+      )
+    : blank(BLANK_REASON.MART_ABSENT);
+
+  return value({ n: res.length, winPctRank, pointDiffRank, epaMarginRank });
+}
+
+/** The league's draft-class medians for one season — the draft card's benchmark. */
+export interface DraftLeagueMedians {
+  n: number;
+  capital: number;
+  returnWAv: Metric<number>;
+  returnGames: Metric<number>;
+}
+
+function medianOf(xs: number[]): number | null {
+  if (!xs.length) return null;
+  const v = [...xs].sort((a, b) => a - b);
+  const m = Math.floor(v.length / 2);
+  return v.length % 2 ? v[m] : (v[m - 1] + v[m]) / 2;
+}
+
+/** Medians of published `draft_class_summary` columns across the season's clubs. */
+export async function getDraftLeagueMedians(season: number): Promise<Metric<DraftLeagueMedians>> {
+  if (!(await isSeeded('draft_class_summary'))) return blank(BLANK_REASON.MART_ABSENT);
+  const db = await getDb();
+  const rows = await db
+    .select()
+    .from(s.draftClassSummary)
+    .where(eq(s.draftClassSummary.season, season));
+  const capital = medianOf(rows.map((r) => r.capital));
+  if (capital === null) return blank('Not available — the draft record begins in 2000.');
+  const wav = medianOf(rows.map((r) => r.returnWAv).filter((v): v is number => v !== null));
+  const games = medianOf(rows.map((r) => r.returnGames).filter((v): v is number => v !== null));
+  return value({
+    n: rows.length,
+    capital,
+    returnWAv: wav === null ? blank(BLANK_REASON.MART_ABSENT) : value(wav),
+    returnGames: games === null ? blank(BLANK_REASON.MART_ABSENT) : value(games),
+  });
+}
+
+/** One team-season's results row — the light read the share cards need. */
+export async function getTeamSeasonResults(
+  team: TeamAbbr,
+  season: number,
+): Promise<Metric<TeamResults>> {
+  const db = await getDb();
+  const [r] = await db
+    .select()
+    .from(s.teamSeasonResults)
+    .where(and(eq(s.teamSeasonResults.team, team), eq(s.teamSeasonResults.season, season)))
+    .limit(1);
+  if (!r) return blank('Not available — no results row exists for this team-season.');
+  return value<TeamResults>({
+    season: r.season,
+    team: r.team as TeamAbbr,
+    games: r.games,
+    wins: r.wins,
+    losses: r.losses,
+    ties: r.ties,
+    winPct: r.winPct,
+    pointsFor: r.pointsFor,
+    pointsAgainst: r.pointsAgainst,
+    pointDiff: r.pointDiff,
+  });
 }

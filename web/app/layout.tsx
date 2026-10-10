@@ -13,6 +13,30 @@ export const metadata: Metadata = {
   description:
     'NFL team economics, 1999–2025: what a team spent, what it got, and where the record stops.',
   icons: { icon: '/brand/monogram.svg' },
+  /**
+   * Absolute base for every og:/twitter: URL. NEXT_PUBLIC_SITE_URL wins when a
+   * custom domain lands; until then the production deployment.
+   */
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? 'https://nfl-o-nomics.vercel.app'),
+  /**
+   * Site-wide defaults. Team-season and division routes add their own card via
+   * `opengraph-image.tsx` (file-based metadata wins over these); compare points
+   * at `/share/og/compare` from its own metadata.
+   */
+  openGraph: {
+    type: 'website',
+    siteName: 'YIELD/YARD',
+    locale: 'en_US',
+    title: 'YIELD/YARD',
+    description:
+      'NFL team economics, 1999–2025: what a team spent, what it got, and where the record stops.',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'YIELD/YARD',
+    description:
+      'NFL team economics, 1999–2025: what a team spent, what it got, and where the record stops.',
+  },
 };
 
 export const viewport: Viewport = {

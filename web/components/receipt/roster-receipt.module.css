@@ -1,0 +1,443 @@
+/* THE ROSTER RECEIPT — `roster-receipt.tsx`.
+ *
+ * Paper is a FIXED light surface in both themes (blind proposal §2: "off-white
+ * paper on the dark page"), so every colour below is a light-ink token, never a
+ * theme-switching semantic one. Figures are columnar, so they take
+ * `--yy-font-num` with tabular figures (TYPE.md §5); labels take the athletic
+ * face; the club name takes the display face.
+ */
+
+/* ── PAPER ────────────────────────────────────────────────────────────────── */
+
+.paper {
+  /* the edge that survives a light feed (SCREENSHOT_VARIANTS §2) — a filter,
+     because the mask below clips any border */
+  filter: drop-shadow(0 0 1px var(--yy-card-border-export-light)) drop-shadow(var(--yy-shadow));
+  min-width: 0;
+}
+
+.sheet {
+  --tooth: 10px;
+  --r-ink-1: var(--yy-ink-light-1);
+  --r-ink-2: var(--yy-ink-light-2);
+  --r-ink-3: var(--yy-ink-light-3);
+  --r-rule: var(--yy-line-card-light);
+
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--yy-space-2);
+  background: var(--yy-paper);
+  color: var(--r-ink-1);
+  font-family: var(--yy-font-athletic);
+  font-weight: var(--yy-weight-label);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1;
+  padding: calc(var(--yy-space-5) + 4px) var(--yy-space-4) calc(var(--yy-space-5) + 4px);
+  /* punched tear-off edges, top and bottom */
+  -webkit-mask:
+    radial-gradient(circle at 50% 0, transparent 4px, #000 4.5px) top / var(--tooth) 51% repeat-x,
+    radial-gradient(circle at 50% 100%, transparent 4px, #000 4.5px) bottom / var(--tooth) 51%
+      repeat-x;
+  mask:
+    radial-gradient(circle at 50% 0, transparent 4px, #000 4.5px) top / var(--tooth) 51% repeat-x,
+    radial-gradient(circle at 50% 100%, transparent 4px, #000 4.5px) bottom / var(--tooth) 51%
+      repeat-x;
+}
+
+/* column: 390px-first, fluid, never wider than a till roll */
+.column {
+  width: 100%;
+  max-width: 440px;
+}
+.column .sheet {
+  --rx-body: 14px;
+  --rx-small: 11px;
+  --rx-team: 34px;
+  --rx-big: 22px;
+}
+
+/* portrait: the 1080 × 1350 feed crop at devicePixelRatio 2. Fixed, never
+   reflowed — the crop is the deliverable. */
+.portrait {
+  width: 540px;
+  min-width: 540px;
+}
+.portrait .sheet {
+  height: 675px;
+  gap: 3px;
+  padding: 16px 24px 12px;
+  --rx-body: 12.5px;
+  --rx-small: 11px;
+  --rx-team: 30px;
+  --rx-big: 19px;
+  --rx-row: 1.15;
+}
+.portrait .items td {
+  padding: 0;
+}
+.portrait .rule,
+.portrait .ruleDouble {
+  margin: 1px 0;
+}
+
+/* ── HEADER ───────────────────────────────────────────────────────────────── */
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.kicker {
+  display: flex;
+  justify-content: space-between;
+  margin: 0;
+  font-size: var(--rx-small);
+  letter-spacing: var(--yy-track-label-wide);
+  text-transform: uppercase;
+  color: var(--r-ink-2);
+}
+
+.team {
+  margin: 2px 0 0;
+  font-family: var(--yy-font-display);
+  font-weight: var(--yy-weight-display);
+  font-size: var(--rx-team);
+  line-height: var(--yy-lh-display);
+  letter-spacing: var(--yy-track-display);
+  text-transform: uppercase;
+  color: var(--r-ink-1);
+}
+
+.meta {
+  margin: 0;
+  font-size: var(--rx-small);
+  letter-spacing: var(--yy-track-label);
+  text-transform: uppercase;
+  color: var(--r-ink-2);
+}
+
+.rule {
+  width: 100%;
+  margin: 2px 0;
+  border: 0;
+  border-top: 1px dashed var(--r-ink-3);
+}
+
+.ruleDouble {
+  width: 100%;
+  margin: 2px 0;
+  border: 0;
+  border-top: 3px double var(--r-ink-1);
+}
+
+/* ── LINE ITEMS ───────────────────────────────────────────────────────────── */
+
+.items {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-size: var(--rx-body);
+}
+
+.items th {
+  font-weight: var(--yy-weight-label);
+  font-size: var(--rx-small);
+  letter-spacing: var(--yy-track-label);
+  text-transform: uppercase;
+  color: var(--r-ink-3);
+  padding-bottom: 2px;
+}
+
+.items td {
+  padding: 1px 0;
+  line-height: var(--rx-row, 1.25);
+  vertical-align: baseline;
+}
+
+.colPos {
+  width: 2.6em;
+  text-align: left;
+  color: var(--r-ink-2);
+  font-size: var(--rx-small);
+  letter-spacing: var(--yy-track-label);
+}
+
+.colItem {
+  text-align: left;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.colNum {
+  width: 5.2em;
+  text-align: right;
+  font-family: var(--yy-font-num);
+  font-weight: var(--yy-weight-metric);
+  font-size: calc(var(--rx-body) - 1px);
+}
+.colNum:nth-child(3) {
+  width: 2.6em;
+  padding-right: 0.4em;
+  color: var(--r-ink-2);
+  font-weight: var(--yy-weight-body);
+}
+
+/* dotted leader from the name to the figures */
+.leader {
+  display: flex;
+  gap: 4px;
+  align-items: baseline;
+  overflow: hidden;
+}
+.leader::after {
+  content: '';
+  flex: 1 1 auto;
+  min-width: 8px;
+  border-bottom: 1px dotted var(--r-ink-3);
+  transform: translateY(-3px);
+}
+
+.others td {
+  color: var(--r-ink-2);
+}
+
+/* ── SUMS, VOIDS, PLAIN LINES ─────────────────────────────────────────────── */
+
+.sum,
+.line,
+.void {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--yy-space-2);
+  font-size: var(--rx-body);
+  line-height: 1.3;
+}
+
+.sum {
+  font-weight: var(--yy-weight-metric);
+  text-transform: uppercase;
+  letter-spacing: var(--yy-track-label);
+  font-size: calc(var(--rx-body) - 1px);
+  border-top: 1px solid var(--r-ink-1);
+  padding-top: 3px;
+}
+
+.line {
+  text-transform: uppercase;
+  letter-spacing: var(--yy-track-label);
+  font-size: calc(var(--rx-body) - 1px);
+}
+
+.num {
+  font-family: var(--yy-font-num);
+  font-weight: var(--yy-weight-metric);
+  letter-spacing: 0;
+  white-space: nowrap;
+  text-transform: none;
+}
+
+.voids {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+/* VOID = dead money, weighted ×1.5. A genuine negative, so red ink. */
+.void {
+  color: var(--yy-red-ink);
+}
+.voidTag {
+  flex: none;
+  font-weight: var(--yy-weight-metric);
+  font-size: var(--rx-small);
+  letter-spacing: var(--yy-track-label-wide);
+  border: 1px solid currentColor;
+  border-radius: var(--yy-radius-mark);
+  padding: 0 4px;
+}
+.voidLabel {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: calc(var(--rx-body) - 1px);
+}
+.voidLabel s {
+  text-decoration-thickness: 1.5px;
+}
+.void .num {
+  color: var(--yy-red-ink);
+}
+
+/* ── YOU GOT / TOTAL ──────────────────────────────────────────────────────── */
+
+.section {
+  margin: 0 0 2px;
+  font-family: var(--yy-font-display);
+  font-weight: var(--yy-weight-display);
+  font-size: calc(var(--rx-body) + 4px);
+  letter-spacing: var(--yy-track-display-wide);
+  color: var(--r-ink-1);
+}
+
+.got {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.total {
+  position: relative;
+  display: flex;
+  gap: var(--yy-space-3);
+  align-items: center;
+}
+
+.totalFigures {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.big {
+  font-family: var(--yy-font-num);
+  font-weight: 700;
+  font-size: var(--rx-big);
+  line-height: 1.1;
+  letter-spacing: var(--yy-track-metric);
+  white-space: nowrap;
+}
+
+.totalLabel {
+  display: flex;
+  flex-direction: column;
+  white-space: nowrap;
+}
+
+.cap100 {
+  font-size: var(--rx-small);
+  color: var(--r-ink-2);
+  letter-spacing: var(--yy-track-label);
+}
+
+.prov {
+  font-size: var(--rx-small);
+  color: var(--yy-gold-ink);
+}
+
+.bench {
+  color: var(--yy-gold-ink);
+}
+
+/* ── STAMP ────────────────────────────────────────────────────────────────── */
+
+.stamp {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 6px 10px 5px;
+  border: 3px double currentColor;
+  border-radius: var(--yy-radius-control);
+  transform: rotate(-8deg);
+  mix-blend-mode: multiply;
+  opacity: 0.92;
+}
+.stampLabel {
+  font-family: var(--yy-font-display);
+  font-weight: var(--yy-weight-display);
+  font-size: calc(var(--rx-big) + 6px);
+  line-height: 1;
+  letter-spacing: var(--yy-track-display-wide);
+  white-space: nowrap;
+}
+.stampRank {
+  font-size: var(--rx-small);
+  letter-spacing: var(--yy-track-label);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.toneGood {
+  color: var(--yy-lime-ink);
+}
+.toneMid {
+  color: var(--yy-slate-ink);
+}
+.toneBad {
+  color: var(--yy-red-ink);
+}
+
+/* ── FINE PRINT ───────────────────────────────────────────────────────────── */
+
+.foot {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.fine,
+.blank {
+  margin: 0;
+  font-family: var(--yy-font-body);
+  font-weight: var(--yy-weight-body);
+  font-size: var(--rx-small);
+  line-height: 1.35;
+  color: var(--r-ink-2);
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.blank {
+  font-size: var(--rx-body);
+  color: var(--r-ink-1);
+}
+
+.mark {
+  align-self: flex-end;
+  font-family: var(--yy-font-display);
+  font-weight: var(--yy-weight-display);
+  font-size: var(--yy-size-mark);
+  letter-spacing: var(--yy-track-display);
+  line-height: 1;
+  color: color-mix(in srgb, var(--r-ink-1) 55%, transparent);
+}
+.markSlash {
+  color: var(--yy-lime-ink);
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .stamp {
+    animation: stamp var(--yy-dur-slow) var(--yy-ease-snap) both;
+  }
+}
+@keyframes stamp {
+  from {
+    transform: rotate(-8deg) scale(1.25);
+    opacity: 0;
+  }
+}
+
+/* portrait has the width to keep each total label on one line */
+.portrait .totalLabel {
+  flex-direction: row;
+  align-items: baseline;
+  gap: var(--yy-space-1);
+}
