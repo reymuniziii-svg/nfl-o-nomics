@@ -416,6 +416,41 @@ count printed on the card.
 
 ---
 
+### 2.10 Cap+ context — the gate #1 reopen (2026-10-10)
+
+> ## GATE #1 REOPENED 2026-10-10
+> Reopened by the product owner. **`capplus_official` is unchanged and still renders as Cap+.**
+> The reopen publishes a companion mart (§7.13) and a candidate replacement flagship that is
+> **not rendered as "Cap+" until the gate clears again.** Evidence: `CAPPLUS_MEMO.md` §8.
+
+The audit behind the reopen found two things, both asserted by `tests/test_contracts.py`:
+
+1. **Cap+ is 0.95-correlated with Team Rating** (performance only). Every team spends roughly
+   the cap, the floor compresses what is left, so `R` varies by ~0.05 within a season while
+   performance varies by ~0.15. Cap+ moves a team 2.2 rank places from its performance rank on
+   average. It is an honest "what this season's wins cost" number; it is **not** an efficiency
+   or front-office-skill metric and the product must stop implying it is.
+2. **The rookie-QB lever is small.** Swapping the starter's cap number for the season's median
+   starter moves Cap+ by +2.8 points on average for rookie-window teams, a fifth of one SD.
+   Rookie-window teams average *below* 100 because they are, on average, worse teams.
+
+The dollars that do vary are the ones Cap+ cannot see: **cash paid** (within-season SD 0.12 of
+cap) and **prorated bonus already charged to future seasons** (SD 0.16 — three times the
+spread of cap consumed). Four measures ship, per team-season, 2013–2025:
+
+| Measure | Definition | Status |
+|---|---|---|
+| `qb_rookie_window` | drafted, still on the contract signed in the draft year, ≤ 4 seasons after the draft | fact |
+| `capplus_qb_neutral` | Cap+ with the starter's cap number replaced by the season-median starter; same pooled SD as Cap+, season mean 100 | published beside Cap+ |
+| `qb_timing_pts` / `roster_pts` | `capplus − capplus_qb_neutral` and `capplus_qb_neutral − 100`; sum to `capplus − 100` exactly | published beside Cap+ |
+| `future_mortgage_usd` | Σ rostered `prorated_bonus × contract seasons remaining after this one` | fact (flat-proration estimate; blind to void years) |
+| `capplus_obligation` | Cap+ with `cost = (cap + 1.5·dead money + α·mortgage) ÷ league cap`, α = 0.5, floored and calibrated like Cap+ | **CANDIDATE — owner decision** |
+
+`stratum_rank` ranks rookie-window teams against each other and veteran-QB teams against
+each other. **α = 0.5 is a candidate, not a published claim**, and the product never labels
+`capplus_obligation` "Cap+" until gate #1 clears; it may render as "Cap+ (obligation)" only on
+a surface that also shows Cap+.
+
 ## 3. Views
 
 Mobile-first at **390px**; every layout below is specified at that width first, then relaxes.
@@ -1050,6 +1085,32 @@ type PositionGroup = 'QB'|'RB'|'WR'|'TE'|'OL'|'DL'|'LB'|'DB'|'ST';
 ```
 
 ---
+
+### 7.13 `capplus_context` — 416 rows, grain `(season, team)`, 2013–2025
+
+The gate #1 reopen mart (§2.10). Facts for all 13 seasons; every index column is **NULL in the
+four Cap+-blank seasons** and only there.
+
+```ts
+interface CapPlusContext {
+  season: Season; team: TeamAbbr;
+  starting_qb: string; starting_qb_gsis_id: string | null; starting_qb_otc_id: number;
+  qb_starter_method: 'snaps' | 'cap';     // most offensive snaps; cap-number fallback
+  qb_cap_number: number; qb_cap_share: number;   // share of LEAGUE cap
+  qb_contract_year_signed: number; qb_draft_year: number | null; qb_draft_round: number | null;
+  qb_rookie_window: boolean;
+  league_median_starter_qb_cap: number;
+  stratum_size: number; stratum_rank: number | null;
+  perf_index: number; perf_rank: number;
+  capplus: number | null; capplus_rank: number | null;        // COPIES of §7.4
+  capplus_qb_neutral: number | null; qb_neutral_rank: number | null;
+  qb_timing_pts: number | null; roster_pts: number | null;    // capplus = neutral + timing
+  cash_share: number;
+  future_mortgage_usd: number; future_mortgage_share: number; mortgage_rows_unknown: number;
+  mortgage_alpha: number;                                     // 0.5 — candidate
+  capplus_obligation: number | null; obligation_rank: number | null;   // CANDIDATE
+}
+```
 
 ## 8. Cross-cutting requirements
 

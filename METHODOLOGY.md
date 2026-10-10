@@ -245,3 +245,23 @@ line here and be wrong about what it means.
 
 If a number here is wrong, tell us and we will fix it, note what changed, and say when — the
 correction stays on the page.
+
+
+## What Cap+ is, and is not (added 2026-10-10)
+
+Across the 288 team-seasons it covers, Cap+ correlates **0.95** with Team Rating, the
+performance-only score. That is not an accident of the formula; it is the salary cap. Every
+team spends close to the cap, so "performance per dollar" is mostly performance. Cap+ moves a
+team about two places from its on-field rank. Read it as **what this season's wins cost**, not
+as a grade of the front office.
+
+Two things people assume about it are measured and published beside it:
+
+- **Rookie-contract quarterbacks.** Swapping each team's starter for a league-median-priced
+  starter moves Cap+ by about three points on average for teams with a QB on a rookie deal.
+  Those teams average *below* 100, because they are usually still bad. We show the QB-neutral
+  number and the rookie-window flag so you can check.
+- **Money borrowed from future seasons.** Signing-bonus money already charged to future caps
+  varies three times as much between teams as cap spending does, and Cap+ cannot see it. We
+  publish it as "future-cap mortgage" and, as a candidate under review, a version of Cap+ that
+  charges half of it to this season. It is an estimate: flat proration, no void years.

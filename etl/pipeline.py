@@ -26,7 +26,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from . import availability, capplus, coaching, config, contracts, curated
+from . import availability, capplus, capplus_context, coaching, config, contracts, curated
 from . import deadmoney, draft, images, io_utils, performance, pins
 
 
@@ -123,6 +123,10 @@ MARTS = [
          note="SPEC §7.4 — 288 rows, nine seasons, gate #1 promotion"),
     Mart("team_rating", capplus.mart_team_rating,
          note='SPEC §2.3 — "Team Rating (performance only)", all 861 team-seasons'),
+    Mart("capplus_context", capplus_context.mart_capplus_context,
+         aliases=("qb_neutral", "mortgage"),
+         note="SPEC §7.13 — 416 rows: starting QB, rookie window, QB-neutral Cap+, "
+              "future-cap mortgage, Cap+ (obligation) candidate; gate #1 reopened"),
     # --- coaching -----------------------------------------------------------
     Mart("coaching_staff", coaching.mart_coaching_staff,
          note="SPEC §7.7 — 2,612 rows, ERA-CORRECT codes + surrogate coach_id"),

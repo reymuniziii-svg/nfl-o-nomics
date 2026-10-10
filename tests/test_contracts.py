@@ -172,6 +172,38 @@ REGISTRY: tuple[Mart, ...] = (
              "Promoted from capplus_candidates.csv, which the app never reads.",
     ),
     Mart(
+        key="capplus_context",
+        spec_ref="SPEC §7.13",
+        candidates=("capplus_context",),
+        columns={
+            "season": SEASON, "team": _team(),
+            "starting_qb": Col("str"), "starting_qb_gsis_id": Col("str", NULLABLE),
+            "starting_qb_otc_id": Col("int"),
+            "qb_starter_method": Col("str", REQUIRED, frozenset({"snaps", "cap"})),
+            "qb_cap_number": Col("number"), "qb_cap_share": Col("float"),
+            "qb_contract_year_signed": Col("int"),
+            "qb_draft_year": Col("int", NULLABLE), "qb_draft_round": Col("int", NULLABLE),
+            "qb_rookie_window": Col("bool"),
+            "league_median_starter_qb_cap": Col("number"),
+            "stratum_size": Col("int"), "stratum_rank": Col("int", NULLABLE),
+            "perf_index": Col("float"), "perf_rank": Col("int"),
+            # NULL in the four Cap+-blank seasons — blanking is whole-season.
+            "capplus": Col("float", NULLABLE), "capplus_rank": Col("int", NULLABLE),
+            "capplus_qb_neutral": Col("float", NULLABLE),
+            "qb_neutral_rank": Col("int", NULLABLE),
+            "qb_timing_pts": Col("float", NULLABLE), "roster_pts": Col("float", NULLABLE),
+            "cash_share": Col("float"),
+            "future_mortgage_usd": Col("number"), "future_mortgage_share": Col("float"),
+            "mortgage_rows_unknown": Col("int"),
+            "mortgage_alpha": Col("float"),
+            # CANDIDATE flagship — published for the gate #1 reopen, not rendered as Cap+.
+            "capplus_obligation": Col("float", NULLABLE),
+            "obligation_rank": Col("int", NULLABLE),
+        },
+        grain=("season", "team"), rows=416, seasons=(2013, 2025),
+        note="gate #1 reopened 2026-10-10 — DECISIONS 100-103",
+    ),
+    Mart(
         key="team_rating",
         spec_ref="SPEC §7.4 (companion)",
         candidates=("team_rating", "team_season_rating"),
@@ -1075,3 +1107,77 @@ def test_capplus_candidates_is_not_treated_as_a_mart():
         "capplus_candidates is expected to be the wide backtest artefact; if it has "
         "narrowed, it may have been confused with capplus_official"
     )
+
+
+# --------------------------------------------------------------------------
+# capplus_context — the gate #1 reopen (SPEC §2.10 / §7.13, DECISIONS 100-103)
+# --------------------------------------------------------------------------
+
+def _context():
+    return resolve(REGISTRY_BY_KEY["capplus_context"])
+
+
+def test_capplus_context_index_columns_blank_exactly_in_the_four_blank_seasons():
+    """Blanking is whole-season (SPEC §2.2). The QB and mortgage facts exist for all
+    13 seasons; every index column is NULL in 2013/2016/2020/2021 and only there."""
+    path, df = _context()
+    blank = {2013, 2016, 2020, 2021}
+    for c in ("capplus", "capplus_qb_neutral", "qb_timing_pts", "roster_pts",
+              "capplus_obligation", "stratum_rank", "obligation_rank"):
+        null_seasons = set(df.loc[df[c].isna(), "season"].unique())
+        assert null_seasons == blank, f"{rel(path)}: {c} null in {sorted(null_seasons)}"
+    assert df.starting_qb.notna().all() and df.future_mortgage_usd.notna().all()
+
+
+def test_capplus_context_decomposition_adds_up_and_is_centred():
+    """capplus = capplus_qb_neutral + qb_timing_pts, exactly; roster_pts = neutral - 100;
+    both the neutral and the obligation index average exactly 100 every season."""
+    path, df = _context()
+    d = df.dropna(subset=["capplus"])
+    assert (d.capplus - d.capplus_qb_neutral - d.qb_timing_pts).abs().max() < 1e-5
+    assert (d.capplus_qb_neutral - 100 - d.roster_pts).abs().max() < 1e-5
+    for c in ("capplus_qb_neutral", "capplus_obligation"):
+        means = d.groupby("season")[c].mean()
+        assert (means - 100).abs().max() < 1e-4, f"{rel(path)}: {c} season means {means.round(3).to_dict()}"
+
+
+def test_capplus_context_capplus_matches_official():
+    """The `capplus` column is a copy of capplus_official.capplus, not a recomputation."""
+    _, ctx = _context()
+    _, off = resolve(REGISTRY_BY_KEY["capplus_official"])
+    j = ctx.dropna(subset=["capplus"]).merge(off[["season", "team", "capplus"]],
+                                             on=["season", "team"], suffixes=("", "_off"))
+    assert len(j) == 288
+    assert (j.capplus - j.capplus_off).abs().max() < 1e-6
+
+
+def test_capplus_context_rookie_window_known_cases():
+    """Mahomes: rookie window 2018-2019, extension signed 2020. Purdy: 2023-2024 rookie
+    window, extended 2025. Alex Smith was never in a rookie window in this window."""
+    _, df = _context()
+    k = df.set_index(["season", "team"])
+    assert k.loc[(2018, "KC"), "qb_rookie_window"] and k.loc[(2019, "KC"), "qb_rookie_window"]
+    assert not k.loc[(2022, "KC"), "qb_rookie_window"]
+    assert k.loc[(2023, "SF"), "starting_qb"] == "Brock Purdy" and k.loc[(2023, "SF"), "qb_rookie_window"]
+    assert not k.loc[(2025, "SF"), "qb_rookie_window"]
+    assert not k.loc[(2015, "KC"), "qb_rookie_window"]
+    assert set(df.groupby("season").qb_rookie_window.sum()) <= set(range(1, 32))
+
+
+def test_capplus_context_stratum_ranks_are_complete_within_stratum():
+    _, df = _context()
+    d = df.dropna(subset=["stratum_rank"])
+    for (s, r), g in d.groupby(["season", "qb_rookie_window"]):
+        assert sorted(g.stratum_rank.astype(int)) == list(range(1, len(g) + 1)), (s, r)
+        assert (g.stratum_size == len(g)).all()
+
+
+def test_capplus_context_the_reopen_finding_holds():
+    """The finding that reopened gate #1 (CAPPLUS_MEMO §8): Cap+ is 0.95-correlated
+    with the performance-only Team Rating, and the rookie-QB lever averages under
+    5 index points. If either stops being true the memo's text is stale."""
+    _, df = _context()
+    d = df.dropna(subset=["capplus"])
+    assert d.capplus.corr(d.perf_index) > 0.9
+    assert abs(d.loc[d.qb_rookie_window, "qb_timing_pts"].mean()) < 5
+    assert d.capplus_obligation.corr(d.perf_index) < d.capplus.corr(d.perf_index)

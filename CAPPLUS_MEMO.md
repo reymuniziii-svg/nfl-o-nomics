@@ -114,3 +114,99 @@ All 32 teams read from one snapshot date per season; season mean exactly 100; on
 4. **Publish the weighted cost and the plain cap-consumed percentage side by side.** At λ=1.5, 44.1% of team-seasons exceed 1.00 [new], so the weighted figure is a cost index and must never be labelled "% of cap used."
 5. **The recommended build now ships in the repo — RESOLVED 2026-07-25.** Raised because `audit/capplus_backtest.py` shipped only C-pos at λ=1 with no floor. λ=1.5, the 25th-percentile floor and the same-stage snapshot rule are now implemented in that script and the backtest has been re-run: see BT §15 for the reproducible tables, and `capplus_rec` / `capplus_rec_lam10` / `capplus_rec_lam20` plus the R components (`cost_rec`, `cost_floor`, `R_rec`, `dm_rec_asof_date`) in `data/marts/capplus_candidates.csv`. Every [new] figure above reproduces from the script — all ten sniff values within 0.05 index points, every rank exact, all §3.2 diagnostics to the printed precision — with the single λ=1.0 correction recorded there.
 6. **Frame Cap+ as single-season resource accounting**, never "well-run front office," and publish the adjustment's +0.158 year-over-year persistence ourselves.
+
+
+---
+
+## 8. REOPENED — 2026-10-10
+
+**For:** Rey · **Trigger:** your question whether teams with a high-performing QB on a rookie
+contract "basically always have an edge" in Cap+. **Decision asked of you:** §8.5.
+Reproduces from `python -m etl.pipeline --mart capplus_context`; every figure below is in the
+build's printed stats and `data/marts/manifest.json` → `checks.capplus_context`.
+
+### 8.1 The hypothesis, measured
+
+Starting QB = most offensive snaps (416 of 416 team-seasons resolve by snaps). Rookie window =
+drafted, still on the draft-year contract, ≤ 4 seasons after the draft. 100 of the 288 Cap+
+team-seasons are rookie-window.
+
+| | n | mean Cap+ | mean Team Rating | mean QB-timing points |
+|---|---:|---:|---:|---:|
+| Rookie-window QB | 100 | 98.0 | 97.4 | **+2.8** |
+| Veteran-deal QB | 188 | 101.1 | 101.4 | −1.5 |
+
+Rookie-window teams are *below* average on Cap+ because they are below average on the field.
+Replacing the starter's cap number with the season's median starter moves them +2.8 points —
+a fifth of one SD. The 2019 Chiefs move **−2.4** (they were floored: cost below the 25th
+percentile earns no further credit, so a cheap QB bought them nothing Cap+ could see). Within a
+season, corr(Cap+, QB cap share) is **positive** every year (+0.12 to +0.45): expensive QBs are
+expensive because they are good, and the good outweighs the expensive at the team-total level.
+
+**Verdict on the hypothesis: not supported.** The sniff table did use rookie-QB champions as
+targets (§3.1), but the formula does not reward them for being cheap; it rewards them for
+winning.
+
+### 8.2 What the measurement exposed instead
+
+| | value |
+|---|---:|
+| corr(Cap+, Team Rating), 288 team-seasons | **0.950** |
+| mean \|Cap+ rank − performance rank\| | 2.23 places |
+| within-season SD of `R_rec` (the denominator) | 0.048 |
+| within-season SD of `perf_index ÷ 100` (the numerator) | 0.148 |
+
+Every team spends roughly the cap; the floor removes the bottom quartile's variance; dead money
+at λ = 1.5 is the only term that moves the denominator. **Cap+ is Team Rating with a small
+cost adjustment.** That is a legitimate descriptive number — "what this season's wins cost" —
+but the product's framing ("was it worth it?") reads as a judgment of front-office skill, and
+the formula cannot support that reading.
+
+Where the money *does* vary between teams, within a season:
+
+| measure | SD (share of league cap) | corr with Team Rating |
+|---|---:|---:|
+| cap consumed (what Cap+ sees) | 0.055 | +0.27 |
+| cash paid | 0.120 | +0.27 |
+| **prorated bonus charged to future caps** | **0.158** | +0.28 |
+
+The mortgage also carries a faint "pay later" signal: corr(mortgage share, next-season change
+in Team Rating) = −0.12. §7 already conceded that "Cap+ cannot see mortgaged future cap, so
+all-in teams are flattered." The mortgage is now measured.
+
+### 8.3 The candidate: Cap+ (obligation)
+
+`cost = (cap charged to rostered players + 1.5 × dead money + α × future mortgage) ÷ league cap`,
+floored at the 25th percentile and calibrated exactly like Cap+.
+
+| α | SD(R) | corr with Team Rating | mean rank shift vs performance | corr with mortgage |
+|---:|---:|---:|---:|---:|
+| 0 (= Cap+) | 0.048 | 0.950 | 2.23 | +0.26 |
+| 0.25 | 0.056 | 0.934 | 2.72 | +0.07 |
+| **0.5** | **0.073** | **0.889** | **3.60** | **−0.09** |
+| 1.0 | 0.104 | 0.794 | 5.01 | −0.30 |
+
+2025, α = 0.5: LA #2 → **#1** (Stafford, 20% of a cap mortgaged), HOU #7 → #4, LAC #8 → #5;
+**BUF #3 → #16** (92% of a cap already charged to future seasons), KC #16 → #22, SF #23 → #27,
+DAL #20 → #25. The Chiefs' arc becomes #3 (2022) → #7 → #11 → #22 — the bill arriving.
+
+Caveats that ship with it: flat-proration estimate; blind to void years and to restructures not
+yet signed; 504 of 32,105 player-season rows have no `contract_years` and contribute zero
+(counted per team-season in `mortgage_rows_unknown`).
+
+### 8.4 What ships now, unconditionally
+
+`capplus_context` (SPEC §7.13): starting QB, rookie window, QB-neutral Cap+, the two-term
+decomposition, stratum rank, cash share, the mortgage in dollars and as a share of cap, and
+`capplus_obligation` at α = 0.5 **as a candidate column**. `capplus_official` is byte-identical.
+`METHODOLOGY.md` states the 0.95 correlation and what Cap+ is and is not.
+
+### 8.5 Decision
+
+1. **Approve α = 0.5 and promote `capplus_obligation` to the flagship** (recommended), keeping
+   Cap+ as the "this season only" companion the way `cap_consumed_rec` sits beside `cost_rec`; or
+2. keep Cap+ as the flagship and render the obligation index as a labelled second column; or
+3. send α back.
+
+Not rendering a 0.95-correlated performance ranking as an economics verdict is the one thing
+this memo asks you not to choose.
