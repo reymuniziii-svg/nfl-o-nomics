@@ -154,7 +154,7 @@ export function PlayerSearch({
 
       {showNoMatch ? (
         <p className={`yy-caption ${css.population}`}>
-          No player in the v1 population matches “{deferred.trim()}”.
+          No searchable player matches “{deferred.trim()}”.
         </p>
       ) : null}
 

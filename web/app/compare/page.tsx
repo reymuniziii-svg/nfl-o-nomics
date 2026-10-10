@@ -32,7 +32,7 @@ import { and, eq } from 'drizzle-orm';
 export const revalidate = 31536000;
 
 const DESCRIPTION =
-  'Two team-seasons, each scored against its own season’s league — which is what makes a 2003 team and a 2024 team comparable.';
+  'Two team-seasons, each scored against its own season’s league. That is why a 2003 team and a 2024 team can sit side by side.';
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
@@ -133,11 +133,11 @@ export default async function ComparePage({
   return (
     <>
       <Card ariaLabel="Choose two team-seasons">
-        <CardHeader eyebrow="Curated pickers only" title="HEAD-TO-HEAD" />
+        <CardHeader eyebrow="Curated lists only" title="HEAD-TO-HEAD" />
         <ComparePicker teams={teamOptions} seasons={seasons} a={a} b={b} />
         <ChartCaption>
-          Two team-seasons, one at a time on each side. There is no free-form query builder in v1:
-          every selection here is a curated list.
+          Pick one team and one season per side. There is no free-form query builder in v1; every
+          list is curated.
         </ChartCaption>
       </Card>
 
@@ -218,13 +218,13 @@ export default async function ComparePage({
             bundle={bundle}
             coverage={{
               statement:
-                'Every row is drawn against the league average of its own season. Rows where one side has no Tier 2 coverage render the boundary on that side only — the available side is unchanged and neither side renders zero.',
+                'Every row is measured against the league average of its own season. Where one side has no cap or cash data, only that side shows the boundary message; the other side is unchanged and neither side shows zero.',
             }}
           />
         </Card>
       ) : (
         <Card ariaLabel="Comparison">
-          <BoundaryMessage body="One of these team-seasons is not in the snapshot. Pick another pair above; every season 1999–2025 exists for every franchise that played it." />
+          <BoundaryMessage body="One of those team-seasons is not in the data. Pick another pair above. Every franchise has every season it played, 1999–2025." />
         </Card>
       )}
     </>

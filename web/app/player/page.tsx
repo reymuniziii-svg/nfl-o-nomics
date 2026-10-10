@@ -22,12 +22,12 @@ export const dynamic = 'force-static';
 export const metadata: Metadata = {
   title: 'Players',
   description:
-    'Search the 251 audited players in the v1 population — contract terms, cap versus cash, availability.',
+    'Search 251 audited players. See contract terms, cap versus cash, and availability.',
 };
 
 export const POPULATION_STATEMENT =
-  'Search covers the 251 players in the v1 population — 2021–2025 top-cap plus marquee dead-money ' +
-  'names. Every one of them has verified image and licence status.';
+  'Search covers 251 players: the 2021–2025 top cap hits plus the marquee dead-money names. ' +
+  'Every one has a verified image and license status.';
 
 export default async function PlayerIndexPage() {
   const season = await latestSeason();
@@ -36,7 +36,7 @@ export default async function PlayerIndexPage() {
   return (
     <>
       <Card ariaLabel="Player search">
-        <CardHeader eyebrow="The v1 population" title="PLAYERS" />
+        <CardHeader eyebrow="Who is covered" title="PLAYERS" />
         <div className={css.searchBlock}>
           <PlayerSearch
             players={pop.map((p) => ({
@@ -48,8 +48,8 @@ export default async function PlayerIndexPage() {
             populationStatement={POPULATION_STATEMENT}
           />
           <ChartCaption>
-            There is no composite player rating, letter grade, star count or worth-it verdict on any
-            player surface in this product. That is a published commitment, not an omission.
+            No player page here carries a composite rating, letter grade, star count or worth-it
+            verdict. That is a published commitment, not a gap in the data.
           </ChartCaption>
         </div>
       </Card>
@@ -85,7 +85,7 @@ export default async function PlayerIndexPage() {
             </ol>
           )}
           <ChartCaption>
-            {`Cap number held against the ${season} cap, among the 251 players with a page. Share is of the club’s adjusted cap.`}
+            {`${season} cap hits among the 251 players with a page. Cap number is what a player counts against the cap; percent is of the club’s adjusted cap.`}
           </ChartCaption>
         </Card>
 
@@ -123,8 +123,9 @@ export default async function PlayerIndexPage() {
             </ol>
           )}
           <ChartCaption>
-            The largest single charges in the marquee ledger, each with the date it was verified.
-            The club named is the one that ate the charge.
+            The largest single charges in the marquee ledger, each with its verification date. Dead
+            money is cap you still pay for players who are gone; the club named is the one that ate
+            the charge.
           </ChartCaption>
         </Card>
       </div>

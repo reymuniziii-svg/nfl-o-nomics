@@ -23,7 +23,7 @@ import { csvTable } from '@/lib/csv';
  * `SPEC.md` §6 — `/player/{id}` where `{id}` is `otc_id`. Static, 251 pages.
  *
  * `DECISIONS.md` 53 caps the v1 population at the 251 audited players, so every
- * page has known image status and known licence metadata.
+ * page has known image status and known license metadata.
  *
  * **NO VALUE GRADE. EVER** (`SPEC.md` §3.3 item 7, `DECISIONS.md` 51). There is
  * no composite, no letter grade, no verdict and no star count on this page —
@@ -74,15 +74,15 @@ export default async function PlayerPage({ params }: { params: Promise<{ id: str
     b.position ??
     ''
   ).toUpperCase();
-  const OFFENCE = new Set(['QB', 'RB', 'WR', 'TE', 'OL', 'FB', 'T', 'G', 'C']);
-  const DEFENCE = new Set(['DL', 'LB', 'DB', 'DE', 'DT', 'CB', 'S', 'EDGE', 'ILB', 'OLB']);
+  const OFFENSE = new Set(['QB', 'RB', 'WR', 'TE', 'OL', 'FB', 'T', 'G', 'C']);
+  const DEFENSE = new Set(['DL', 'LB', 'DB', 'DE', 'DT', 'CB', 'S', 'EDGE', 'ILB', 'OLB']);
   const anyNonZero = (k: 'offSnaps' | 'defSnaps' | 'stSnaps') =>
     availRows.some((r) => (r[k] ?? 0) > 0);
   const snapCols = (
     [
-      { key: 'offSnaps', label: 'Off snaps', own: OFFENCE.has(group) },
-      { key: 'defSnaps', label: 'Def snaps', own: DEFENCE.has(group) },
-      { key: 'stSnaps', label: 'ST snaps', own: group === 'ST' || (!OFFENCE.has(group) && !DEFENCE.has(group)) },
+      { key: 'offSnaps', label: 'Off snaps', own: OFFENSE.has(group) },
+      { key: 'defSnaps', label: 'Def snaps', own: DEFENSE.has(group) },
+      { key: 'stSnaps', label: 'ST snaps', own: group === 'ST' || (!OFFENSE.has(group) && !DEFENSE.has(group)) },
     ] as const
   ).filter((c) => c.own || anyNonZero(c.key));
   const hiddenSnapCols = (['offSnaps', 'defSnaps', 'stSnaps'] as const).filter(
@@ -96,7 +96,7 @@ export default async function PlayerPage({ params }: { params: Promise<{ id: str
     <>
       {/* ── 2. IDENTITY CHIP — the credit line renders VISIBLY, beneath the
           mark, inside the chip's own box. 223 of 244 assets legally require it
-          and a credit behind a hover is a licence violation. ─────────────── */}
+          and a credit behind a hover is a license violation. ─────────────── */}
       <Card ariaLabel={b.name}>
         <div className={css.identity}>
           <PlayerMark
@@ -116,9 +116,9 @@ export default async function PlayerPage({ params }: { params: Promise<{ id: str
               </Link>
             ) : null}
             <p className={`yy-caption ${css.pledge}`}>
-              This product publishes no composite player rating, letter grade, star count or
-              worth-it verdict — here or anywhere. What a club paid and what the player was
-              available for are facts; the judgment is the reader&rsquo;s.
+              No composite player rating, letter grade, star count or worth-it verdict appears here
+              or anywhere on this site. What a club paid and how often the player was available are
+              facts. The judgment is the reader&rsquo;s.
             </p>
           </div>
         </div>
@@ -198,8 +198,8 @@ export default async function PlayerPage({ params }: { params: Promise<{ id: str
           </div>
         )}
         <ChartCaption>
-          Contract terms are the published top-level columns of the deal in force. They are not
-          re-derived from year-by-year cap numbers, and no term is inferred where a source is silent.
+          Terms are the published top-level columns of the deal in force. We do not re-derive them
+          from year-by-year cap numbers, and we infer nothing where a source is silent.
         </ChartCaption>
       </Card>
 
@@ -248,18 +248,17 @@ export default async function PlayerPage({ params }: { params: Promise<{ id: str
             points={capRows}
             playerName={b.name}
             coverage={{
-              statement: `Seasons ${capRows[0]?.season ?? ''}–${capRows[capRows.length - 1]?.season ?? ''} from the contract record. Where a source is silent the year carries no bar rather than a zero.`,
+              statement: `Seasons ${capRows[0]?.season ?? ''}–${capRows[capRows.length - 1]?.season ?? ''}, from the contract record. When a source is silent, the year gets no bar, not a zero.`,
             }}
           />
         )}
         {deadCharges.length ? (
           <ChartCaption>
-            {deadCharges.length} season{deadCharges.length === 1 ? '' : 's'} carry a charge from the
-            marquee ledger:{' '}
+            Dead-money charges from the marquee ledger land in {deadCharges.length} season{deadCharges.length === 1 ? '' : 's'}:{' '}
             {deadCharges
               .map(
                 (r) =>
-                  `${r.season} — ${r.deadMoney?.team ?? 'unknown club'}${
+                  `${r.season} ${r.deadMoney?.team ?? 'unknown club'}${
                     r.deadMoney?.usd ? ` (${usdShort(r.deadMoney.usd)})` : ''
                   }`,
               )
@@ -272,7 +271,7 @@ export default async function PlayerPage({ params }: { params: Promise<{ id: str
       {/* ── 5. AVAILABILITY ──────────────────────────────────────────────── */}
       <Card ariaLabel="Availability">
         <CardHeader
-          eyebrow="Games and snaps"
+          eyebrow="Games and snaps (plays on the field)"
           title="AVAILABILITY"
           right={
             availRows.length ? (
@@ -374,7 +373,7 @@ export default async function PlayerPage({ params }: { params: Promise<{ id: str
               const words = hiddenSnapCols
                 .map((k) => (k === 'offSnaps' ? 'offensive' : k === 'defSnaps' ? 'defensive' : 'special-teams'))
                 .join(' and ');
-              return `${words.charAt(0).toUpperCase()}${words.slice(1)} snaps are zero or unrecorded in every season for this ${group || 'player'}, so they are left out of the table; the CSV carries them.`;
+              return `${words.charAt(0).toUpperCase()}${words.slice(1)} snaps are zero or unrecorded in every season for this ${group || 'player'}. The table skips them; the CSV keeps them.`;
             })()}
           </ChartCaption>
         ) : null}
@@ -397,26 +396,26 @@ export default async function PlayerPage({ params }: { params: Promise<{ id: str
               ) : null}
             </p>
             <p className="yy-caption">
-              The file is stored byte-untouched and the duotone treatment is applied in CSS at
-              render time, so no fixed derivative is created.{' '}
+              We store the file untouched. The duotone, a two-color tint, is applied in CSS when the
+              page renders, so no edited copy exists.{' '}
               {mark.shareAlike ? 'This asset is ShareAlike.' : null}
             </p>
             <div style={{ display: 'flex', gap: 'var(--yy-space-2)', flexWrap: 'wrap' }}>
-              <Chip kind="verified" title="Image and licence status audited" />
+              <Chip kind="verified" title="Image and license status audited" />
             </div>
             <Link className="yy-label" href="/credits">
-              Full credits and licences →
+              Full credits and licenses →
             </Link>
           </>
         ) : (
           <>
             <p className="yy-caption">
-              No usable photograph clears this product&rsquo;s resolution floor and licence audit for
-              this player, so the identity chip renders the designed roster card instead. It is a
-              designed state, not a missing image.
+              No usable photograph clears this site&rsquo;s resolution floor and license audit for
+              this player, so the identity chip shows the designed roster card instead. The card is
+              deliberate, not a broken image.
             </p>
             <Link className="yy-label" href="/credits">
-              Full credits and licences →
+              Full credits and licenses →
             </Link>
           </>
         )}
@@ -424,8 +423,8 @@ export default async function PlayerPage({ params }: { params: Promise<{ id: str
 
       {/* ── 6. PRODUCTION LINE ───────────────────────────────────────────── */}
       <Card ariaLabel="Production">
-        <CardHeader eyebrow="Position-appropriate" title="PRODUCTION" />
-        <BoundaryMessage body="Not available — per-player production (passing, rushing, receiving, defensive counts) is not in the current data snapshot. Nothing here is estimated to fill the gap." />
+        <CardHeader eyebrow="By position" title="PRODUCTION" />
+        <BoundaryMessage body="Not available — per-player production (passing, rushing, receiving, defensive counts) is not in this data snapshot. Nothing here is estimated to fill the gap." />
       </Card>
     </>
   );

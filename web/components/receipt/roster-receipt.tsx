@@ -19,10 +19,10 @@ import { DEAD_MONEY_WEIGHT } from '@/lib/data/team';
  *
  * Two sizes, one composition:
  *   column   — fluid, 390px-first, caps at 440px. The in-page receipt.
- *   portrait — fixed 540 × 675 CSS px; rasterise at devicePixelRatio 2 for the
+ *   portrait — fixed 540 × 675 CSS px; rasterize at devicePixelRatio 2 for the
  *              1080 × 1350 portrait-feed PNG.
  *
- * The paper is a fixed light surface in both themes, so every colour on it is
+ * The paper is a fixed light surface in both themes, so every color on it is
  * an `-ink` / `ink-light` token, never a theme-switching one.
  */
 
@@ -255,7 +255,7 @@ export function RosterReceipt({
             <div
               className={`${css.stamp} ${STAMP_TONE[verdict.quintile]}`}
               role="img"
-              aria-label={`Verdict: ${verdict.label}, ${verdict.rank} of ${verdict.of} on cap hit per win`}
+              aria-label={`Verdict: ${verdict.label}, ranked ${verdict.rank} of ${verdict.of} on cap hit per win`}
             >
               <span className={css.stampLabel}>{verdict.label}</span>
               <span className={css.stampRank}>
@@ -275,9 +275,10 @@ export function RosterReceipt({
             </p>
           ) : null}
           <p className={css.fine}>
-            Cap = season-final cap hit of rostered players; dead money is billed separately as VOID
-            at the Cap+ weight (×{DEAD_MONEY_WEIGHT}). Games sit beside cap and are never divided
-            into it: a bill, not a player grade.
+            Cap = season-final cap hit of rostered players. Dead money, cap paid for players who are
+            gone, bills separately as VOID at the Cap+ weight (×{DEAD_MONEY_WEIGHT}). Games sit
+            beside cap, never divided into it: a bill, not a player grade. Quintiles split the
+            league into fifths.
             {unlinkedGames ? ' *n/r: no snap record links to this contract.' : ''}
           </p>
           <span className={css.mark} aria-hidden="true">

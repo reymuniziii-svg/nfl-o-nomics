@@ -1,7 +1,7 @@
 /**
  * `CapVsCash` — the player view's two-series chart. `SPEC.md` §3.3 item 4.
  *
- * Two series per season, told apart by colour AND pattern AND a direct label.
+ * Two series per season, told apart by color AND pattern AND a direct label.
  * **Dead-money markers** sit above the season they attach to, drawn in the VOID
  * grammar (`--yy-void-rule`, `CHART_ANATOMY.md` §5.1) — this is the one case
  * where a dashed salmon rule is correct, because a contract year that lapses
@@ -87,7 +87,7 @@ export function CapVsCash({
   if (points.some((p) => p.deadMoney)) {
     legend.push({
       swatch: 'absence',
-      label: 'Void / dead — a charge from the ledger',
+      label: 'Dead money (ledger charge)',
       tone: 'absence',
     });
   }
@@ -108,9 +108,9 @@ export function CapVsCash({
       </div>
       <Legend items={legend} />
       <ChartCaption>
-        Cap number is what the player held against the cap that season; cash paid is what the club
-        actually paid out. A dead-money marker names the club that ate the charge, which is not
-        always the club on the player&rsquo;s row for that year.
+        Cap number is what the player counted against the cap that season; cash paid is what the
+        club actually paid out. A dead-money marker (cap still owed for a player who is gone) names
+        the club that ate the charge, which may not be the club on the player&rsquo;s row.
       </ChartCaption>
       {spikeSeasons.length ? (
         <ChartCaption>
@@ -118,7 +118,7 @@ export function CapVsCash({
           {spikeSeasons
             .map((p) => `${p.season} (+${usdShort((p.cashPaid ?? 0) - p.capNumber)})`)
             .join(', ')}
-          . Cash ahead of cap is a bonus paid that year and charged across later cap years; the
+          . Cash ahead of cap means a bonus paid that year and charged across later cap years; the
           record does not say whether it came from a new deal or a restructure.
         </ChartCaption>
       ) : null}
@@ -347,8 +347,8 @@ function CapVsCashSvg({
               y={l.y}
               textAnchor="middle"
               fill={l.fill}
-              // A halo in the card colour keeps a label legible where it
-              // overhangs the neighbouring bar on a narrow band.
+              // A halo in the card color keeps a label legible where it
+              // overhangs the neighboring bar on a narrow band.
               stroke="var(--yy-bg-card-flat)"
               strokeWidth={3}
               strokeLinejoin="round"
@@ -410,7 +410,7 @@ function CapVsCashSvg({
             Season · US dollars
           </text>
 
-          {/* zero is labelled: a cost axis always starts at it */}
+          {/* zero is labeled: a cost axis always starts at it */}
           <text className={css.tick} x={-8} y={innerH + 4} textAnchor="end">
             $0
           </text>
@@ -423,8 +423,8 @@ function CapVsCashSvg({
       </svg>
       <div id={`${id}-d`} className="yy-visually-hidden">
         <p>
-          Paired bars per season. Cap number is drawn solid; cash paid is drawn hatched. Seasons
-          carrying a dead-money charge from the ledger are marked in the void grammar.
+          Paired bars for each season: cap number solid, cash paid hatched. Seasons with a
+          dead-money charge from the ledger carry a dashed marker above the bars.
         </p>
         <ul>
           {points.map((p) => (

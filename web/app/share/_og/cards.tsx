@@ -360,7 +360,7 @@ export function TeamOg({ card }: { card: TeamCard }) {
           </span>
         </div>
         <Reason>
-          Performance only. No field position and no receipt: Cap+ needs contract data, which begins in
+          Results only. No field position, no receipt: Cap+ needs contract data, and that starts in
           2013.
         </Reason>
       </div>
@@ -384,7 +384,7 @@ export function TeamOg({ card }: { card: TeamCard }) {
       <Line
         label="Cap hit per win"
         value={cpw.value}
-        aside={cpw.lg && cpw.perWin ? `LG ${cpw.lg}` : undefined}
+        aside={cpw.lg && cpw.perWin ? `LEAGUE ${cpw.lg}` : undefined}
       />
       <Line
         label="You got · EPA/play"
@@ -538,7 +538,7 @@ export function DivisionOg({ card }: { card: DivisionCard }) {
       band={band}
       panel={panel}
       dated={datedLine(asOf)}
-      method="Cap per win = rostered cap hit ÷ wins · verdict = season quintiles"
+      method="Cap per win = rostered cap hit ÷ wins · stamp = season quintile"
     />
   );
 }
