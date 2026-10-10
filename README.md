@@ -1,11 +1,16 @@
 # YIELD/YARD
 
-**Twenty-five seasons of what NFL teams spent, and what they got for it.** Every surface answers
-one question — *was it worth it?* — for one team, one season, one contract, or one pair of teams.
+**NFL team economics, 1999 through 2025: what a win costs.** Results cover every season;
+contract data starts in 2013. Every surface answers one question for one team, one season, one
+contract, or one pair of teams.
 
-The flagship metric is **Cap+**: on-field performance per dollar actually spent, indexed so that
-100 is that season's league average, rendered as field position on exactly two surfaces
-(`METHODOLOGY.md`).
+The flagship metric is **Cap+**: on-field performance against the cap money a team carried,
+indexed so 100 is that season's league average, drawn as field position on the league Field and
+the team Drive. It is a descriptive price tag, not a front-office grade. It correlates 0.95
+with the performance-only Team Rating, and `METHODOLOGY.md` says why.
+
+**Live:** https://nfl-o-nomics.vercel.app (v2, deployed on Vercel). Gate #1 on Cap+ is
+reopened (2026-10-10); `capplus_official` is unchanged and still renders as Cap+.
 
 ---
 
@@ -14,9 +19,9 @@ The flagship metric is **Cap+**: on-field performance per dollar actually spent,
 | Path | What it is |
 |---|---|
 | `etl/` | Python production ETL. Reads nflverse releases remotely plus `data/curated/`, writes `data/marts/*.csv`. Offline, idempotent, **byte-stable**. |
-| `data/` | `curated/` — hand-built sources, every row carrying a `source_url`. `marts/` — the 20 marts that are the entire contract surface with the app. `raw/` — **empty by design**, and the pipeline asserts it. |
+| `data/` | `curated/` — hand-built sources, every row carrying a `source_url`. `marts/` — the 21 marts that are the entire contract surface with the app, including `capplus_context` (QB window, QB-neutral Cap+, future-cap mortgage, the Cap+ (obligation) candidate). `raw/` — **empty by design**, and the pipeline asserts it. |
 | `web/` | The Next.js App Router front end. Reads **precomputed marts only** — no fetch, no parquet, no metric computed at request time. |
-| `design/` | The Phase A handoff and the Phase B design system: `system/tokens.css` + `tokens.json`, the component and chart anatomy specs, and `system/RESOLUTIONS.md`, which rules every divergence. |
+| `design/` | The Phase A handoff and the Phase B design system: `system/tokens.css` + `tokens.json`, the component and chart anatomy specs, and `system/RESOLUTIONS.md`, which rules every divergence. `reviews/` holds the 2026-10-10 critique of shipped v1 and the blind visualization proposals that drove v2. |
 | `audit/` | The frozen Phase-0 evidence record and its findings files. **Read, imported and copied from — never written to.** |
 | `tests/` | The CI harness: golden facts, structural invariants, per-mart schema contracts. Committed files only, no network. |
 | `assets/` | The identity-asset pipeline — TeamMark (32 club logos), PlayerMark (Wikimedia Commons photos), and the `/credits` data. Nothing is ever hotlinked. |
@@ -44,27 +49,32 @@ npm run seed                      # marts -> database (PGlite by default)
 npm run dev
 ```
 
-`npm run seed` writes an in-process Postgres to `.data/` — **no provisioned service is needed to
-develop or build.** `npm run build` produces 1,168 static units.
+`npm run seed` writes an in-process Postgres to `.data/`. **No provisioned service is needed to
+develop or build.** `npm run build` produces a static build. `prepare.mjs` runs before `dev` and
+`build`; it mirrors `METHODOLOGY.md`, the asset manifests and the flags into `web/lib/generated/`.
+`.claude/launch.json` defines `web-dev` (port 3000) and `web-prod` (port 3005) for the preview
+tools.
 
 ---
 
 ## Tests
 
 ```bash
-pytest tests/ -v                          # 182 passed, ~0.4s
+pytest tests/ -v                          # 195 passed
 cd web && npm run lint && npm run typecheck
 python3 design/system/verify_tokens.py    # CI gate: tokens.json mirrors tokens.css
 python3 web/scripts/verify.py             # Playwright: both canvases, both themes (needs a build)
 ```
 
 CI (`.github/workflows/ci.yml`) gates every push on **two** of these: the design-token mirror
-assert, then the pytest suite. Both read **committed files only** — a test that fetches from the
-network is testing nflverse's uptime, not this pipeline.
+assert, then the pytest suite. Both read **committed files only**. A test that fetches from the
+network tests nflverse's uptime, not this pipeline.
 
-The suite is three things: 18 externally-verified golden facts (money at ±1%, everything else
-exact, currently returning delta zero and $0), 11 structural invariants over whole marts, and a
-schema contract per mart. `tests/README.md` explains how to add to each.
+The suite has three layers: externally verified golden facts (money at ±1%, everything else
+exact), structural invariants over whole marts, and a schema contract per mart.
+`test_contracts.py` also pins the Cap+ context finding (Cap+ above 0.9 correlated with Team
+Rating, the obligation index below it), so the reopen's evidence can't quietly erode. `tests/README.md` explains how to add
+to each layer.
 
 ---
 
@@ -80,21 +90,25 @@ Read together; they cross-reference each other by filename.
 | `RISKS.md` | What can go wrong, ranked by expected damage, each with a named owner and a mitigation. |
 | `DECISIONS.md` | What was settled and why — one line each, dated, so a maintainer can tell a decision from an accident. |
 | `DATA_AUDIT.md` | The evidence gate: coverage tables, the golden facts and their sources, and the **thirteen traps register** — required reading before writing a query. |
-| `CAPPLUS_MEMO.md` | The Cap+ formula, its backtest, and the reasoning behind λ = 1.5. |
-| `METHODOLOGY.md` | What the public is told. Becomes `/methodology`. |
+| `CAPPLUS_MEMO.md` | The Cap+ formula, its backtest, the reasoning behind λ = 1.5, and §8, the 2026-10-10 reopen. |
+| `METHODOLOGY.md` | What the public is told. `prepare.mjs` copies it into the app and it renders at `/methodology`. Edit the root file, never the generated copy. |
 
 ---
 
 ## Deploy
 
-**`DATABASE_URL` unset → PGlite. Set it to a Neon connection string and re-run
-`npm run seed && npm run build` — same Drizzle schema, same seed program, same queries, no code
-change.** Use a read-write role for the seed job and a read-only role for the app
-(`ARCHITECTURE.md` §8); see `web/.env.example`.
+Production runs on Vercel at https://nfl-o-nomics.vercel.app. `web/vercel.json` builds with
+`npm run prepare:assets && npm run seed && npm run build`, so each deploy seeds from the
+committed marts and ships a static build.
 
-The app deploys to Vercel as a static build. Neither the Neon project nor the Vercel project is
-provisioned yet — both are open items in `BUILD_PLAN.md`, and until the Vercel project exists,
-local verification stands in for deploy verification.
+**`DATABASE_URL` unset means PGlite**, an in-process Postgres loaded from a dump the seed writes.
+Set it to a Postgres connection string and re-run `npm run seed && npm run build` for the same
+Drizzle schema, seed program and queries on a hosted database, with no code change. Use a
+read-write role for the seed job and a read-only role for the app (`ARCHITECTURE.md` §8). See
+`web/.env.example`. Neon is the intended host if that swap happens, and it isn't provisioned.
+
+`NEXT_PUBLIC_SITE_URL` overrides the base for `og:` and `twitter:` URLs when a custom domain
+lands.
 
 ---
 
@@ -112,8 +126,8 @@ local verification stands in for deploy verification.
   load-bearing** — it is never hidden behind a hover or an "info" affordance. `/credits` carries
   the deduplicated author list. Photos are served as Commons published them, untransformed, with
   the treatment applied by CSS at render time (`RISKS.md` risk 3).
-- **Team logos** are self-hosted from the nflverse colour/logo file behind the
+- **Team logos** are self-hosted from the nflverse color/logo file behind the
   `TEAMMARK_KILLSWITCH` flag, with a typographic fallback chip (`RISKS.md` risk 2).
 - **Fonts — Bebas Neue, Rajdhani, Inter.** All three under **SIL OFL 1.1**, self-hosted as
-  latin-subset WOFF2 in `web/public/fonts/` with their licences and a reproducible subset
+  latin-subset WOFF2 in `web/public/fonts/` with their licenses and a reproducible subset
   command. There are no third-party font requests anywhere in the product.

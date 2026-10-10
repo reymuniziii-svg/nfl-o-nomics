@@ -147,7 +147,7 @@ a.row:hover {
 }
 
 /* §1.5 — top-3 in BENCHMARK mode take the accent. It is a rank encoding, not a
-   favourability one, so it follows the rank and not the bar's colour. In
+   favorability one, so it follows the rank and not the bar's color. In
    subject mode no rank is coloured. */
 .rankTop {
   color: var(--yy-accent);

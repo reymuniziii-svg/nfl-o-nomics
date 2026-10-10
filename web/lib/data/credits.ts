@@ -7,7 +7,7 @@
  *
  * Attribution is the DEFAULT, not the exception: 91.4% of assets legally require
  * it, so every credit here is meant to render VISIBLY. Hiding a credit behind a
- * hover or an "info" affordance is a licence violation for those assets.
+ * hover or an "info" affordance is a license violation for those assets.
  *
  * `restrictions = personality` (12 files) is operator-facing and is NOT exposed
  * by this module.
