@@ -17,9 +17,10 @@
  *  - **The printed figure IS the plotted figure**: the delta is printed large,
  *    the raw value small beneath it.
  *  - **Every row names its better direction.** Money rows run the other way:
- *    this product measures what wins cost, so less spent is better. Cap held by
- *    rostered players has no defensible better direction and is shown as
- *    context, outside the tally.
+ *    this product measures what wins cost, so a lower cost per win or dead-money
+ *    burden is better. Raw cash spent and cap held are shown as context,
+ *    outside the tally: cost per win already carries the cost side, and scoring
+ *    raw spend would reward being cheap regardless of result.
  *  - **A tally headline** states the verdict the rows add up to.
  *
  * Colour roles (`DECISIONS.md` 69): side A is `--yy-accent` with a round dot and
@@ -55,7 +56,7 @@ const AXIS: Record<string, { half: number; better: Better }> = {
   epa_margin: { half: 0.35, better: 'higher' },
   team_rating: { half: 40, better: 'higher' },
   capplus: { half: 40, better: 'higher' },
-  cash_spent: { half: 0.5, better: 'lower' },
+  cash_spent: { half: 0.5, better: null },
   cap_used: { half: 0.35, better: null },
   cost_per_win: { half: 0.36, better: 'lower' },
   dead_money: { half: 0.25, better: 'lower' },
@@ -258,8 +259,9 @@ export function HeadToHead({ bundle, coverage }: { bundle: CompareBundle; covera
       <ChartCaption>
         Each row is drawn on its own fixed scale, the same for every pair of team-seasons, so a dot
         near the edge is near the most extreme season on record. Higher is better on results rows;
-        on money rows less spent is better, because this site measures what wins cost. Cap held by
-        rostered players has no better direction and is not scored.
+        lower is better for cost per win and dead money, because this site measures what wins cost.
+        Cash spent and cap held are context, not scored: cost per win already carries the cost
+        side, and scoring raw spend would reward being cheap regardless of result.
       </ChartCaption>
       <ChartCaption>{coverage.statement}</ChartCaption>
     </div>
