@@ -6,11 +6,14 @@ contract, or one pair of teams.
 
 The flagship metric is **Cap+**: on-field performance against the cap money a team carried,
 indexed so 100 is that season's league average, drawn as field position on the league Field and
-the team Drive. It is a descriptive price tag, not a front-office grade. It correlates 0.95
-with the performance-only Team Rating, and `METHODOLOGY.md` says why.
+the team Drive. It is a descriptive price tag, not a front-office grade. It correlates 0.96
+with the performance-only Team Rating, and `METHODOLOGY.md` says why. It covers all 13 contract
+seasons, 2013–2025: ten measured, three (2016, 2020, 2021) built on estimated dead money and
+badged as such.
 
-**Live:** https://nfl-o-nomics.vercel.app (v2, deployed on Vercel). Gate #1 on Cap+ is
-reopened (2026-10-10); `capplus_official` is unchanged and still renders as Cap+.
+**Live:** https://nfl-o-nomics.vercel.app (v2, deployed on Vercel). Gate #1 on Cap+ was reopened
+and ruled on 2026-10-10 (λ = 1, opponent-adjusted EPA, obligation index retired, the blank
+seasons filled; `CAPPLUS_MEMO.md` §9). The marts carry the ruled build.
 
 ---
 
@@ -19,7 +22,7 @@ reopened (2026-10-10); `capplus_official` is unchanged and still renders as Cap+
 | Path | What it is |
 |---|---|
 | `etl/` | Python production ETL. Reads nflverse releases remotely plus `data/curated/`, writes `data/marts/*.csv`. Offline, idempotent, **byte-stable**. |
-| `data/` | `curated/` — hand-built sources, every row carrying a `source_url`. `marts/` — the 21 marts that are the entire contract surface with the app, including `capplus_context` (QB window, QB-neutral Cap+, future-cap mortgage, the Cap+ (obligation) candidate). `raw/` — **empty by design**, and the pipeline asserts it. |
+| `data/` | `curated/` — hand-built sources, every row carrying a `source_url`. `marts/` — the 21 marts that are the entire contract surface with the app, including `capplus_context` (QB window, QB-neutral Cap+, future-cap mortgage). `raw/` — **empty by design**, and the pipeline asserts it. |
 | `web/` | The Next.js App Router front end. Reads **precomputed marts only** — no fetch, no parquet, no metric computed at request time. |
 | `design/` | The Phase A handoff and the Phase B design system: `system/tokens.css` + `tokens.json`, the component and chart anatomy specs, and `system/RESOLUTIONS.md`, which rules every divergence. `reviews/` holds the 2026-10-10 critique of shipped v1 and the blind visualization proposals that drove v2. |
 | `audit/` | The frozen Phase-0 evidence record and its findings files. **Read, imported and copied from — never written to.** |
@@ -60,7 +63,7 @@ tools.
 ## Tests
 
 ```bash
-pytest tests/ -v                          # 195 passed
+pytest tests/ -v                          # 225 passed
 cd web && npm run lint && npm run typecheck
 python3 design/system/verify_tokens.py    # CI gate: tokens.json mirrors tokens.css
 python3 web/scripts/verify.py             # Playwright: both canvases, both themes (needs a build)
@@ -73,7 +76,8 @@ network tests nflverse's uptime, not this pipeline.
 The suite has three layers: externally verified golden facts (money at ±1%, everything else
 exact), structural invariants over whole marts, and a schema contract per mart.
 `test_contracts.py` also pins the Cap+ context finding (Cap+ above 0.9 correlated with Team
-Rating, the obligation index below it), so the reopen's evidence can't quietly erode. `tests/README.md` explains how to add
+Rating, the rookie-QB lever under 5 points), so the reopen's evidence can't quietly erode, and
+`test_capplus_v3.py` pins the 2026-10-10 rulings, including the SAFE-tier reversal. `tests/README.md` explains how to add
 to each layer.
 
 ---
@@ -90,7 +94,7 @@ Read together; they cross-reference each other by filename.
 | `RISKS.md` | What can go wrong, ranked by expected damage, each with a named owner and a mitigation. |
 | `DECISIONS.md` | What was settled and why — one line each, dated, so a maintainer can tell a decision from an accident. |
 | `DATA_AUDIT.md` | The evidence gate: coverage tables, the golden facts and their sources, and the **thirteen traps register** — required reading before writing a query. |
-| `CAPPLUS_MEMO.md` | The Cap+ formula, its backtest, the reasoning behind λ = 1.5, and §8, the 2026-10-10 reopen. |
+| `CAPPLUS_MEMO.md` | The Cap+ formula and its backtest (the July λ = 1.5 build), §8 the 2026-10-10 reopen, and §9 the rulings that closed it (λ = 1). |
 | `METHODOLOGY.md` | What the public is told. `prepare.mjs` copies it into the app and it renders at `/methodology`. Edit the root file, never the generated copy. |
 
 ---
@@ -120,8 +124,10 @@ lands.
 - **Draft value chart — Fitzgerald–Spielberger** (Over The Cap), a curated file with a per-row
   `source_url`, cited on `/methodology`.
 - **Dead money — dated press snapshots**, per-row citations, tiered SAFE/REVIEW in
-  `data/curated/`. The REVIEW tier is subject to an open licensing conversation (`RISKS.md`
-  risk 1); `DEAD_MONEY_TIER=safe` is the one-line reversal.
+  `data/curated/`, plus the curated estimate for 2016, 2020 and 2021
+  (`dead_money_estimated.csv`, written by `etl/deadmoney_estimate.py`). The REVIEW tier is
+  subject to an open licensing conversation (`RISKS.md` risk 1); `DEAD_MONEY_TIER=safe` is the
+  one-line reversal, and it withdraws the estimate too.
 - **Images — Wikimedia Commons.** Attribution is required on **223 of 244 assets and is legally
   load-bearing** — it is never hidden behind a hover or an "info" affordance. `/credits` carries
   the deduplicated author list. Photos are served as Commons published them, untransformed, with

@@ -11,7 +11,7 @@ network.** CI has no secrets and no outbound access; a golden test that re-pulls
 remote asset is testing nflverse's uptime, not this pipeline. If you need a fact
 that only exists remotely, commit the receipt and score against that.
 
-Current state (2026-07-26): **182 passed, 0 skipped.** Every mart is built, so
+Current state (2026-10-10): **225 passed, 0 skipped.** Every mart is built, so
 every declared contract now validates for real.
 
 Historically the count was 92 passed / 77 skipped, and a skip meant one thing —
@@ -27,6 +27,7 @@ a skip reappearing means a mart went missing.
 | `test_golden.py` | 18 externally-verified facts + test 16b (negative) + the hand-computed cost-per-win | `DATA_AUDIT.md` §3, §3.1, §3.2 · `audit/golden_facts_sources.md` |
 | `test_structural.py` | S1–S11, the whole-mart invariants | `DATA_AUDIT.md` §4, §4.1 |
 | `test_contracts.py` | Schema contracts for every mart in SPEC §7 | `SPEC.md` §7 |
+| `test_capplus_v3.py` | The 2026-10-10 Cap+ rulings: λ = 1 identity, adjusted-EPA P, measured-only calibration, 2013 provisional override, estimated-season provenance, the SAFE-tier reversal (subprocess) | `DECISIONS.md` 109–114 · `CAPPLUS_MEMO.md` §9 |
 | `conftest.py` | Fixtures, tolerance helpers, audit-receipt parsers | — |
 
 ### `test_golden.py`

@@ -118,52 +118,70 @@ verbatim with credit to Dan Graziano, ESPN**:
    → $91.8M final (+59%); the 2018 league total reads $155.2M in March and $348.5M in July, a
    2.2× swing from measurement date alone.
 
-Coverage, stated as a fact wherever dead money appears: **full 32 teams for nine seasons —
-2014, 2015, 2017, 2018, 2019, 2022, 2023, 2024, 2025.** Four seasons are explicit blanks at
-the team level: **2013 (5 teams published), 2016 (8), 2020 (5), 2021 (10)**. Those seasons
-render a "biggest hits" leaderboard labelled as such, or nothing. A leaders-only list is
-never rendered as a 32-team view with 22+ silent gaps.
+Coverage, stated as a fact wherever dead money appears: **measured, full 32 teams, for ten
+seasons — 2013, 2014, 2015, 2017, 2018, 2019, 2022, 2023, 2024, 2025** (2013 added 2026-10-10).
+**Three seasons are estimated: 2016 (8 teams published), 2020 (11), 2021 (10)**; the rest of
+each is modeled from contract data, badged `estimated`, and a modeled figure always renders
+with its 80% range (§2.2, §7.5). A leaders-only list — which survives only under the SAFE-only
+licensing reversal — is labelled as such and never rendered as a 32-team view with silent
+gaps.
 
 ### 2.2 Cap+ — the flagship metric
 
-> ## APPROVED (gate #1, 2026-07-25)
-> **Rey signed the formula in `CAPPLUS_MEMO.md` §7 on 2026-07-25. The render block is
-> cleared** — the promotion to `capplus_official` and the routes that render a Cap+ number are
-> no longer gated on approval. The promotion itself still runs in ETL Phase 1
-> (`BUILD_PLAN.md` Phase 1); Cap+ renders from `capplus_official` once it has. See
-> `BUILD_PLAN.md` gate #1.
-
-The recommended build from `CAPPLUS_MEMO.md` §7, formula block reproduced verbatim:
+> ## APPROVED (gate #1, 2026-07-25) — AMENDED 2026-10-10
+> **Rey signed the formula in `CAPPLUS_MEMO.md` §7 on 2026-07-25** and ruled four amendments
+> on 2026-10-10 (`CAPPLUS_MEMO.md` §9, `DECISIONS.md` 109–114): λ = 1, opponent-adjusted EPA in
+> P, the obligation blend retired, and the four blank seasons filled. The build below is the
+> amended one and is what `capplus_official` ships.
 
 ```
 Cap+ = (100 + 15 × P) ÷ R
 R    = team cost ÷ league-average cost, floored at the season's 25th percentile
-cost = (cap charged to rostered players + 1.5 × dead money) ÷ league cap
+cost = (cap charged to rostered players + dead money) ÷ league cap
 ```
 
 Implementation rules, all mandatory:
 
+- **Dead money counts once (λ = 1).** At λ > 1 a dead dollar is charged twice: once in cost and
+  again through the weaker roster it bought. λ = 1.5 had been chosen to satisfy the brief's
+  "2022 Atlanta rates poorly" requirement; **that requirement is struck.** With λ = 1,
+  `cost_rec == cap_consumed_rec` by construction. Both columns still ship (contract), and the
+  methodology prints λ = 1.5 and 2.0 beside it (`config.LAMBDA_COMPARISON`).
 - **One snapshot per season.** All 32 teams read from the same dated dead-money table. 2018 is
   the only season with two full-league tables; the later one (2018-07-14) is used.
 - **The floor** is applied to the *cost* measure, and the league average is taken **after** the
   floor, so `mean(R)` is exactly 1.000 every season and `R = 1.00` still reads as
   "league-average cost". Eight of 32 teams are floored every season by construction.
-- **Calibration.** Demeaned within season so each season's mean is exactly 100.000, then
-  divided by **one single pooled within-season SD** across the whole window, so the pooled SD
-  is exactly 15.000 and individual seasons are free to be tighter or wider.
-- **Coverage: nine seasons, 288 of 416 team-seasons (69.2%)** — 2014, 2015, 2017, 2018, 2019,
-  2022, 2023, 2024, 2025.
-- **Four explicit blanks.** 2013, 2016, 2020 and 2021 render the literal sentence
-  **"Not available — no league-wide dead-money table was published for this season."**
-  Never a dash, never a blank cell, never a zero. Blanking is whole-season: where coverage is
-  partial, the entire season is blank, not just the unlisted teams.
-- **2014 and 2019 ship badged `provisional`.** Their tables were published before the league
-  year opened — median team charge $4.0M and $3.4M against $50.3M in 2024. The badge carries
-  a one-line explanation on hover and in the print/screenshot variant: *"published before the
-  league year opened; understates the final figure."*
-- **Publish the weighted cost and the plain cap-consumed percentage side by side.** At λ=1.5,
-  44.1% of team-seasons exceed a cost of 1.00, so the weighted figure is a **cost index** and
-  must never be labelled "% of cap used". Both ship: `cost_rec` and `cap_consumed_rec`.
+- **Calibration on the measured seasons only.** Demeaned within season so each season's mean is
+  exactly 100.000, then divided by **one pooled within-season SD taken over the ten measured
+  seasons** (2013–2015, 2017–2019, 2022–2025), so that pooled SD is exactly 15.000. The three
+  estimated seasons are divided by **the same SD**, so a point means the same thing in every
+  season; their own spread is free (14.7 pooled). Asserted in the build.
+- **Coverage: all thirteen Tier 2 seasons, 416 of 416 team-seasons.**
+  - **2013** ships from a measured full-32 table, the Houston Press reproduction of Spotrac
+    dated 2013-03-18 (`REVIEW_SPOTRAC`).
+  - **2016, 2020 and 2021** ship from the curated estimate
+    (`data/curated/dead_money_estimated.csv`, `audit/findings_deadmoney_estimate.md`): one
+    32-team table per season as of the published list's date (2016-10-05, 2020-06-02,
+    2021-09-06). The 8 / 11 / 10 published teams are carried as-is; the rest are modeled from
+    contract data, each with an 80% range.
+- **Badges** — vocabulary `provisional | preseason | in_season | estimated`; each ships with a
+  one-line reason (`badge_reason`) on hover and in the print/screenshot variant:
+  - `provisional` — **2014 and 2019** (*"published before the league year opened; understates the
+    final figure."*) and **2013** by a one-season override (*"published one week into the league
+    year; understates the final figure."*; the date rule alone would badge it `preseason`).
+    Median team charge $5.9M, $4.0M and $3.4M against $50.3M in 2024.
+  - `estimated` — **2016, 2020, 2021**: *"Estimated — {n} of 32 teams are published figures; the
+    rest are modeled from contract data."* with n = 8 / 11 / 10. A modeled team's dollar figure
+    never renders without its range.
+- **Blanking stays whole-season** and the approved sentence stays defined: under the SAFE-only
+  licensing reversal (`DEAD_MONEY_TIER=safe`) the REVIEW tables, the 2013 table and the whole
+  estimate withdraw (the model trains on full-tier tables), Cap+ collapses to 2014–2015, and every
+  other season renders **"Not available — no league-wide dead-money table was published for this
+  season."** Never a dash, never a blank cell, never a zero.
+- **Publish the cost and the plain cap-consumed percentage side by side.** At λ = 1 they are the
+  same number: rostered cap plus dead money as a share of the league cap. 12.5% of team-seasons
+  exceed 1.00, because a team's adjusted cap can sit above the league figure.
 
 ### 2.3 Team Rating (performance only) — the 1999–2012 fallback
 
@@ -179,12 +197,13 @@ Labelling rules, from `CAPPLUS_MEMO.md` §4, all mandatory:
 - Team Rating renders in **visibly different styling** from Cap+ — different series colour
   role, different line weight, its own legend entry.
 - Any franchise time series carries a **hard visual break at 2013**.
-- **On the 2014–2025 overlap, plot both lines** — Team Rating *and* Cap+ — so the gap between
-  them is visible before the Cap+ line stops.
+- **On the 2013–2025 overlap, plot both lines** — Team Rating *and* Cap+ — so the gap between
+  them is visible.
 - One honest bridge sentence renders on the page: *both are built from the identical
   performance composite; only the cap adjustment starts in 2013.*
-- The scenario brackets in the backtest for the four uncovered seasons are scenarios, not
-  measurements, and **never ship as values**.
+- The backtest's scenario brackets for the formerly uncovered seasons are scenarios, not
+  measurements, and **never ship as values**. The 2016, 2020 and 2021 values that do ship come
+  from the validated estimate (§2.2), badged `estimated`.
 
 ### 2.4 Performance composite P
 
@@ -193,13 +212,24 @@ Within-season z-blend, **equal weights (1/3, 1/3, 1/3)**, of three inputs:
 1. `win_pct` — **a tie counts as half a win**: `(wins + 0.5 × ties) / games`. Per-team game
    counts drive this, never a constant: 2022 BUF and 2022 CIN played 16 games, not 17.
 2. `point_diff_per_game` — `(points_for − points_against) / games`.
-3. `epa_margin_per_play` — offensive EPA/play minus defensive EPA/play, **`play_type IN
-   ('pass','run')` only** (`play_type` is `'run'`, never `'rush'`), **REG only**.
+3. `epa_margin_per_play_adj` — **opponent-adjusted** offensive EPA/play minus defensive
+   EPA/play, **`play_type IN ('pass','run')` only** (`play_type` is `'run'`, never `'rush'`),
+   **REG only** (2026-10-10, `DECISIONS.md` 110). Per season, game-level offensive EPA/play is
+   fitted as `league + offense_i + defense_j` by play-weighted least squares with sum-to-zero
+   team effects; the adjusted rate is the team's raw mean plus its effect, so each season's
+   mean is preserved exactly (`etl/performance.py`). Max shift 0.097 EPA/play on the margin;
+   corr(adjusted, raw) > 0.9 every season.
 
 ```
-P_raw = (1/3)·z(win_pct) + (1/3)·z(point_diff_per_game) + (1/3)·z(epa_margin_per_play)
+P_raw = (1/3)·z(win_pct) + (1/3)·z(point_diff_per_game) + (1/3)·z(epa_margin_per_play_adj)
 P     = z(P_raw)          # both z's taken WITHIN season
 ```
+
+> **ETL implementation note.** `etl/capplus.load_perf` maps `epa_margin_per_play_adj` onto the
+> column name `audit/capplus_backtest.build_performance` reads, so the imported maths is
+> unchanged; the raw margin stays in `team_season_epa` and is no longer an input. Team Rating
+> moves for all 861 team-seasons as a result (corr 0.997 with the raw-EPA build, mean shift
+> 1.0 point, 0.66 rank places).
 
 All SDs are sample SDs (`ddof=1`). P has mean 0 and SD 1 in every season by construction.
 
@@ -208,9 +238,10 @@ the default build is ≥ 0.9968 and mean absolute within-season rank shift never
 places. No sniff-table verdict changes under any weighting. The three inputs correlate
 0.87–0.97 with each other. **Spend no further product time on the weights.**
 
-EPA is opponent- and era-unadjusted; league-mean offensive EPA/play drifts from −0.0561 (1999)
-to +0.0314 (2020). Within-season z-scoring is what makes cross-era comparison legitimate, and
-that is the sentence the head-to-head view prints (§3.4).
+EPA is opponent-adjusted but era-unadjusted; league-mean offensive EPA/play drifts from −0.0561
+(1999) to +0.0314 (2020), and the adjustment preserves each season's mean. Within-season
+z-scoring is what makes cross-era comparison legitimate, and that is the sentence the
+head-to-head view prints (§3.4).
 
 ### 2.5 Cost per win / point / EPA-point
 
@@ -418,25 +449,24 @@ count printed on the card.
 
 ### 2.10 Cap+ context — the gate #1 reopen (2026-10-10)
 
-> ## GATE #1 REOPENED 2026-10-10
-> Reopened by the product owner. **`capplus_official` is unchanged and still renders as Cap+.**
-> The reopen publishes a companion mart (§7.13) and a candidate replacement flagship that is
-> **not rendered as "Cap+" until the gate clears again.** Evidence: `CAPPLUS_MEMO.md` §8.
+> ## GATE #1 REOPENED AND RULED 2026-10-10
+> Reopened by the product owner and ruled the same day (`CAPPLUS_MEMO.md` §9, `DECISIONS.md`
+> 109–114). The companion mart (§7.13) ships; **the obligation candidate is retired**.
 
 The audit behind the reopen found two things, both asserted by `tests/test_contracts.py`:
 
-1. **Cap+ is 0.95-correlated with Team Rating** (performance only). Every team spends roughly
-   the cap, the floor compresses what is left, so `R` varies by ~0.05 within a season while
-   performance varies by ~0.15. Cap+ moves a team 2.2 rank places from its performance rank on
-   average. It is an honest "what this season's wins cost" number; it is **not** an efficiency
-   or front-office-skill metric and the product must stop implying it is.
+1. **Cap+ is 0.96-correlated with Team Rating** (performance only; 0.95 in the July λ = 1.5
+   build). Every team spends roughly the cap and the floor compresses what is left, so `R` varies
+   by ~0.04 within a season while performance varies by ~0.15. Cap+ moves a team 1.9 rank places
+   from its performance rank on average. It is an honest "what this season's wins cost" number;
+   it is **not** an efficiency or front-office-skill metric and the product must not imply it is.
 2. **The rookie-QB lever is small.** Swapping the starter's cap number for the season's median
-   starter moves Cap+ by +2.8 points on average for rookie-window teams, a fifth of one SD.
+   starter moves Cap+ by +3.2 points on average for rookie-window teams, about a fifth of one SD.
    Rookie-window teams average *below* 100 because they are, on average, worse teams.
 
 The dollars that do vary are the ones Cap+ cannot see: **cash paid** (within-season SD 0.12 of
 cap) and **prorated bonus already charged to future seasons** (SD 0.16 — three times the
-spread of cap consumed). Four measures ship, per team-season, 2013–2025:
+spread of cap consumed). Per team-season, 2013–2025:
 
 | Measure | Definition | Status |
 |---|---|---|
@@ -444,12 +474,18 @@ spread of cap consumed). Four measures ship, per team-season, 2013–2025:
 | `capplus_qb_neutral` | Cap+ with the starter's cap number replaced by the season-median starter; same pooled SD as Cap+, season mean 100 | published beside Cap+ |
 | `qb_timing_pts` / `roster_pts` | `capplus − capplus_qb_neutral` and `capplus_qb_neutral − 100`; sum to `capplus − 100` exactly | published beside Cap+ |
 | `future_mortgage_usd` | Σ rostered `prorated_bonus × contract seasons remaining after this one` | fact (flat-proration estimate; blind to void years) |
-| `capplus_obligation` | Cap+ with `cost = (cap + 1.5·dead money + α·mortgage) ÷ league cap`, α = 0.5, floored and calibrated like Cap+ | **CANDIDATE — owner decision** |
 
 `stratum_rank` ranks rookie-window teams against each other and veteran-QB teams against
-each other. **α = 0.5 is a candidate, not a published claim**, and the product never labels
-`capplus_obligation` "Cap+" until gate #1 clears; it may render as "Cap+ (obligation)" only on
-a surface that also shows Cap+.
+each other.
+
+**The obligation blend is retired** (`DECISIONS.md` 111). `capplus_obligation` added
+α × the mortgage to cost. Cap is an accrual: a signing bonus is charged in equal slices over the
+contract. Cash is cash: the bonus is paid when signed. **The mortgage is the reconciling item
+between them — cash already paid ahead of the cap it will be charged to.** Folding it into a
+cap-based cost mixed the two bases. The product's two honest lenses are **cap per win** and
+**cash per win**, and the mortgage publishes beside them as the bridge, in dollars and as a share
+of the cap. `capplus_obligation`, `obligation_rank`, `mortgage_alpha` and
+`config.MORTGAGE_ALPHA` are removed.
 
 ## 3. Views
 
@@ -484,7 +520,7 @@ season with complete data (2025 at launch).
 1. **Header.** TeamMark (§5.1) + era-correct franchise name for that season + record + index
    badge (Cap+ where covered, Team Rating where not, each under its own name and styling).
 2. **25-season history.** The franchise's full 1999–2025 arc. **Hard visual break at 2013.**
-   **Both lines plotted on the 2014–2025 overlap** — Team Rating and Cap+ — per
+   **Both lines plotted on the 2013–2025 overlap** — Team Rating and Cap+ — per
    `CAPPLUS_MEMO.md` §4. Four Cap+ seasons render as labelled gaps with the blank-reason text,
    not as interpolated segments. The bridge sentence renders beneath the chart.
 3. **Three-lens summary.** Cap hit / cash / dead money as a labelled trio (§2.1), each with its
@@ -795,35 +831,41 @@ interface TeamSeasonCap {
 `dead_money_total` and `dead_money_pct` are typed `null`, not `number | null`, so any code that
 tries to read a dead-money value from this mart fails to compile. Dead money comes from §7.5.
 
-### 7.4 `capplus_official` — 288 rows, grain `(season, team)`, nine seasons
+### 7.4 `capplus_official` — 416 rows, grain `(season, team)`, thirteen seasons
 
-Promoted from `capplus_candidates.csv`. **Approval gate #1 cleared 2026-07-25**; the promotion
-runs in ETL Phase 1. The app never reads
-`capplus_candidates` — that file is a backtest artefact with 69 columns of alternates.
+Promoted from the gate #1 build. **Approval gate #1 cleared 2026-07-25; amended 2026-10-10**
+(§2.2). The app never reads `capplus_candidates` — that file is the frozen July 2026 evidence
+record of the λ = 1.5 / raw-EPA build, 69 columns of alternates, and is no longer reproduced by
+the pipeline (`DECISIONS.md` 114).
 
 ```ts
 interface CapPlusOfficial {
   season: Season; team: TeamAbbr;
   capplus: number;                    // the flagship value
   perf_index: number;                 // 100 + 15*P — also the Team Rating value
-  P: number;                          // within-season z, mean 0 SD 1
-  cost_rec: number;                   // weighted COST INDEX — never "% of cap used"
+  P: number;                          // within-season z, mean 0 SD 1 (adjusted-EPA input)
+  cost_rec: number;                   // cost ÷ league cap; at λ = 1 identical to cap_consumed_rec
   cap_consumed_rec: number;           // plain cap-consumed share — published beside cost_rec
   cost_floor: number;                 // season 25th percentile
   R_rec: number;                      // cost ÷ league-average cost, after the floor
   was_floored: boolean;               // 8 of 32 every season
-  dead_money_rec: number;             // USD, the resolved same-stage figure
+  dead_money_rec: number;             // USD, the resolved same-stage figure (modeled where dm_is_modeled)
   dm_asof: AsOf;                      // ALWAYS present — a row without it is a bug
-  badge: 'provisional' | 'preseason' | 'in_season';   // 2014 & 2019 = provisional
+  dm_is_modeled: boolean;             // true = a modeled value in an estimated season
+  badge: 'provisional' | 'preseason' | 'in_season' | 'estimated';
+                                      // 2013, 2014, 2019 = provisional; 2016, 2020, 2021 = estimated
+  badge_reason: string;               // the badge's sentence; '' for preseason / in_season
   season_rank: number;                // 1…32 within season
 }
 ```
 
-> **ETL implementation note (Phase 1).** `dm_asof` lands in the CSV flattened as
-> `dm_asof_date` + `dm_asof_stage`; the seed reassembles the `AsOf`. The mart also
-> carries `league_median_dead_money_usd` (the memo's day-one disclosure publishes
-> the median beside the value) and `license_tier` (so the `DEAD_MONEY_TIER` filter
-> reaches this mart without re-joining §7.5).
+> **ETL implementation note.** `dm_asof` lands in the CSV flattened as
+> `dm_asof_date` + `dm_asof_stage`; the seed reassembles the `AsOf`. In an estimated season it
+> is the estimate's reference date and stage for every team (the per-team reading dates live in
+> `dead_money_display`). The mart also carries `league_median_dead_money_usd` (the memo's
+> day-one disclosure publishes the median beside the value) and `license_tier` (so the
+> `DEAD_MONEY_TIER` filter reaches this mart without re-joining §7.5); a modeled value's tier is
+> `'MODELED'`.
 
 Companion `team_rating` covers all 861 team-seasons:
 ```ts
@@ -831,12 +873,13 @@ interface TeamRating { season: Season; team: TeamAbbr; perf_index: number; P: nu
                        season_rank: number }
 ```
 
-Seasons **2013, 2016, 2020, 2021** have **no rows** in `capplus_official`. The data layer
-exposes `getCapPlus(season, team): Metric<CapPlusOfficial>` which returns
+Under the shipping tier **no season is blank**. The data layer keeps
+`getCapPlus(season, team): Metric<CapPlusOfficial>` returning
 `{state:'blank', reason:'Not available — no league-wide dead-money table was published for this season.'}`
-for those four, and the 1999–2012 reason string for pre-Tier-2 seasons.
+for any Tier 2 season with no rows (the SAFE-only reversal leaves only 2014–2015), and the
+1999–2012 reason string for pre-Tier-2 seasons.
 
-### 7.5 `dead_money_team_season` — 370 rows, grain `(season, team, asof_date)`
+### 7.5 `dead_money_team_season` — 402 rows, grain `(season, team, asof_date)`
 
 ```ts
 interface DeadMoneyTeamSeason {
@@ -851,26 +894,41 @@ interface DeadMoneyTeamSeason {
 }
 ```
 
-**`license_tier` is a new column that ETL must add** (derived deterministically from
-`source_url`) and it is the mechanism for the legal contingency in `RISKS.md` risk 1. A single
-runtime flag `DEAD_MONEY_TIER ∈ {SAFE_ONLY, ALL}` filters the mart at seed time. Tier counts
-from `DATA_AUDIT.md` §5: SAFE-league-official 69 rows, SAFE-editorial 45, REVIEW-Spotrac 64,
-REVIEW-OTC 192.
+**`license_tier` is derived deterministically from `source_url`** and it is the mechanism for the
+legal contingency in `RISKS.md` risk 1. A single runtime flag `DEAD_MONEY_TIER ∈ {SAFE_ONLY, ALL}`
+filters the mart at seed time. Tier counts: DATA_AUDIT §5's SAFE-league-official 69,
+SAFE-editorial 45, REVIEW-Spotrac 64, REVIEW-OTC 192, **plus the 32 rows of the 2013 Houston Press
+table (2013-03-18, REVIEW-Spotrac) added 2026-10-10** — REVIEW-Spotrac 96, 402 rows in all.
 
-Multiple rows exist per `(season, team)` — 370 rows over 316 distinct team-seasons. The UI
+Multiple rows exist per `(season, team)` — 402 rows over 343 distinct team-seasons. The UI
 selects one snapshot per season by the same-stage resolution used by Cap+ and **shows the
 others as alternate readings on request**, never averaged, never merged.
 
-> **ETL implementation note (Phase 1).** The resolution is pinned and emitted, not implied.
-> `dead_money_snapshot_resolution` records the chosen `asof_date`/`asof_stage` **per season**
-> under one rule — *broadest coverage class present (`full32`), then latest `asof_date`* —
-> which is what settles the two 2018 tables that are both `full32` **and** both `preseason`
-> (2018-03-01 vs 2018-07-14, 2.25× apart, so `asof_stage` cannot break the tie). It is also
-> where the whole-season blank sentence lives, once per season.
-> `dead_money_display` is the resolved view: **316 rows, grain `(season, team)`** — the 288
-> team-seasons of the nine covered seasons plus the 28 published leaders of the four blank
-> ones, each labelled `season_coverage = 'leaders_only'`. Blank seasons have **no team rows**
-> beyond those leaders; the data layer synthesises the blank, exactly as it does for §7.4.
+The second curated input is **`data/curated/dead_money_estimated.csv`** (128 rows; written by
+`etl/deadmoney_estimate.py`, never by the pipeline): one 32-team table per formerly blank season,
+with `dead_money_usd_est`, `lo_usd`/`hi_usd` (80% range), `method`
+(`measured_full32 | reading_ref_date | reading_other_date | ridge_z_anchor_level`),
+`anchor_asof_date` and `source_url` for a published reading, and `ref_asof_date`/`ref_asof_stage`.
+A season falls back to it only when it has no `full32` snapshot (2016, 2020, 2021); it withdraws
+whole under `DEAD_MONEY_TIER=safe`.
+
+> **ETL implementation note.** The resolution is pinned and emitted, not implied.
+> `dead_money_snapshot_resolution` (13 rows) records the chosen `asof_date`/`asof_stage`
+> **per season** under one rule — *broadest coverage class present (`full32`), then latest
+> `asof_date`; no `full32` table → the curated estimate* — which is what settles the two 2018
+> tables that are both `full32` **and** both `preseason` (2018-03-01 vs 2018-07-14, 2.25×
+> apart). It carries `coverage_class` (`full32 | partial | top5 | estimated`), `badge`,
+> `badge_reason` and `n_published_teams`, and it is where the whole-season blank sentence lives,
+> once per season, when a season does not resolve.
+> `dead_money_display` is the resolved view: **416 rows, grain `(season, team)`** — 320 from
+> the ten measured seasons (`season_coverage = 'full32'`) and 96 from the estimated seasons
+> (`season_coverage = 'estimated'`, `coverage = 'estimated'`). Per-team provenance:
+> `method` (`measured` for a measured season's reading, else the estimator's method),
+> `is_modeled`, `anchor_asof_date` (the reading's own date; null where modeled), `lo_usd`/`hi_usd`
+> (estimated seasons only). A published row's `asof_date` is its own reading's date; a modeled
+> row's is the season's reference date, its `source_url` is null and its `license_tier` is
+> `'MODELED'`. The view prints *"estimated as of {asof_date}, 80% range $lo–$hi"* for a modeled
+> row. `leaders_only` rows reappear only under the SAFE-only reversal.
 
 ### 7.6 `dead_money_ledger` — 21 rows
 
@@ -1088,8 +1146,8 @@ type PositionGroup = 'QB'|'RB'|'WR'|'TE'|'OL'|'DL'|'LB'|'DB'|'ST';
 
 ### 7.13 `capplus_context` — 416 rows, grain `(season, team)`, 2013–2025
 
-The gate #1 reopen mart (§2.10). Facts for all 13 seasons; every index column is **NULL in the
-four Cap+-blank seasons** and only there.
+The gate #1 reopen mart (§2.10). Facts and index columns for all 13 seasons; an index column is
+NULL only where Cap+ itself is blank (the SAFE-only reversal), and then for the whole season.
 
 ```ts
 interface CapPlusContext {
@@ -1107,10 +1165,11 @@ interface CapPlusContext {
   qb_timing_pts: number | null; roster_pts: number | null;    // capplus = neutral + timing
   cash_share: number;
   future_mortgage_usd: number; future_mortgage_share: number; mortgage_rows_unknown: number;
-  mortgage_alpha: number;                                     // 0.5 — candidate
-  capplus_obligation: number | null; obligation_rank: number | null;   // CANDIDATE
 }
 ```
+
+`capplus_obligation`, `obligation_rank` and `mortgage_alpha` were removed 2026-10-10
+(`DECISIONS.md` 111); the contract forbids them.
 
 ## 8. Cross-cutting requirements
 

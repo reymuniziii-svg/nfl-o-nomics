@@ -1,9 +1,23 @@
-"""Estimated per-team dead money for the four Cap+-blank seasons (2013, 2016, 2020, 2021).
+"""Estimated per-team dead money for the seasons without a league-wide table.
 
-STAGING ONLY. Nothing here feeds a mart; `main()` writes
-`data/curated/staging/dead_money_estimated.csv` for the Cap+ chain to consume if
-and when the owner approves an "estimated" badge. Write-up and evidence:
-`audit/findings_deadmoney_estimate.md`.
+**A curated-input generator, not a mart.** `main()` writes
+`data/curated/dead_money_estimated.csv`, which `etl/deadmoney.py` reads as a
+curated source of record (DECISIONS 113, approved 2026-10-10): 2016, 2020 and
+2021 ship from it badged `estimated`. The pipeline never runs this module; re-run
+it by hand and commit the output. Write-up and evidence:
+`audit/findings_deadmoney_estimate.md` (frozen).
+
+The file also carries 2013, as the measured Houston Press table
+(`method = measured_full32`). That table now lives in
+`dead_money_team_season.csv` and 2013 resolves from there; the copy here is
+asserted equal to it.
+
+**Training set pinned to the nine seasons the findings validated** (2014, 2015,
+2017, 2018, 2019, 2022-2025). The 2013 table became a measured season after the
+validation ran; it is excluded from training so the shipped estimate is the
+validated one, byte for byte. Its candidate readings are read from
+`data/curated/staging/dead_money_candidates_blank_seasons.csv`; only this
+generator reads staging, never the pipeline.
 
 What it estimates
 -----------------
@@ -52,7 +66,7 @@ re-derived).
 
 Deterministic: no randomness anywhere.
 
-Run:  python3 -m etl.deadmoney_estimate          (writes the staging CSV)
+Run:  python3 -m etl.deadmoney_estimate          (writes the curated CSV)
       python3 -m etl.deadmoney_estimate --report (also prints the evidence tables)
 """
 
@@ -74,13 +88,13 @@ import capplus_backtest as bt  # noqa: E402  (audit/capplus_backtest.py, read-on
 # constants
 # --------------------------------------------------------------------------- #
 BLANK_SEASONS = (2013, 2016, 2020, 2021)
-LAMBDA_SENS = 1.0            # the sensitivity weight (another workstream moves λ to 1.0)
-LAMBDA_SECONDARY = 1.5       # the currently approved weight, reported alongside
+LAMBDA_SENS = config.LAMBDA_DEAD   # 1.0, the shipping weight (DECISIONS 109)
+LAMBDA_SECONDARY = 1.5       # the retired weight, reported alongside
 ALPHA_GRID = (0.3, 1.0, 3.0, 10.0, 30.0, 100.0)
 INTERVAL_Q = (0.10, 0.90)    # 80% interval from the LOSO residual distribution
 BAR_MEDIAN_RANK, BAR_P90_RANK = 1.5, 4.0
 
-OUT = config.STAGING / "dead_money_estimated.csv"
+OUT = config.CURATED / "dead_money_estimated.csv"
 OUT_2013_MODEL = config.STAGING / "dead_money_estimated_2013_model.csv"
 CANDIDATES = config.STAGING / "dead_money_candidates_blank_seasons.csv"
 
@@ -172,6 +186,8 @@ def build_panel() -> pd.DataFrame:
     players = io_utils.read_csv(config.MARTS / "player_season_cap.csv")
     rating = io_utils.read_csv(config.MARTS / "team_rating.csv")
     same, _ = deadmoney.resolve_same_stage(deadmoney.load_team_season())
+    # Train on the nine validated seasons only (module docstring).
+    same = same[~same["season"].isin(BLANK_SEASONS)]
 
     d = cap[["season", "team", "cap_used_total", "league_cap",
              "unaccounted_vs_adjusted"]].copy()
@@ -742,9 +758,23 @@ def pooled_sd_shift(panel: pd.DataFrame, est: pd.DataFrame, lam: float = LAMBDA_
 # --------------------------------------------------------------------------- #
 # main
 # --------------------------------------------------------------------------- #
-OUT_COLUMNS = ["season", "team", "dead_money_usd_est", "lo_usd", "hi_usd", "method",
-               "anchor_used", "features_note", "anchor_asof_date", "ref_asof_date",
-               "ref_asof_stage"]
+OUT_COLUMNS = deadmoney.ESTIMATED_COLUMNS
+
+
+def attach_source_urls(est: pd.DataFrame, readings: pd.DataFrame) -> pd.DataFrame:
+    """Each real reading carries its source's URL (so `etl/deadmoney.py` can
+    tier it by exact URL); a modeled row carries none."""
+    r = readings[["season", "team", "asof_date", "source_url", "dead_money_usd"]].rename(
+        columns={"asof_date": "anchor_asof_date"})
+    out = est.merge(r, on=["season", "team", "anchor_asof_date"], how="left",
+                    validate="m:1")
+    pub = out["anchor_used"].astype(bool)
+    if out.loc[pub, "source_url"].isna().any():
+        raise AssertionError("a published row in the estimate has no source reading")
+    if (out.loc[pub, "dead_money_usd"].round() != out.loc[pub, "dead_money_usd_est"]).any():
+        raise AssertionError("a published row in the estimate is not its source's value")
+    out.loc[~pub, "source_url"] = ""
+    return out.drop(columns=["dead_money_usd"])
 
 
 def run(report: bool = False) -> dict:
@@ -777,11 +807,11 @@ def run(report: bool = False) -> dict:
         results[season]["baseline"] = shift_summary(s0)
         results[season]["baseline_err"] = error_summary(p0)
 
-    est = estimate_blank_seasons(panel, readings, intervals)
+    est = attach_source_urls(estimate_blank_seasons(panel, readings, intervals), readings)
     if len(est) != 128 or est.groupby("season")["team"].nunique().ne(32).any():
         raise AssertionError("estimate is not 4 x 32")
     io_utils.write_csv(est[OUT_COLUMNS], OUT, sort=["season", "team"])
-    est13 = model_2013(panel, readings, intervals[2013])
+    est13 = attach_source_urls(model_2013(panel, readings, intervals[2013]), readings)
     io_utils.write_csv(est13[OUT_COLUMNS], OUT_2013_MODEL, sort=["season", "team"])
 
     out = {"panel": panel, "readings": readings, "results": results, "intervals": intervals,

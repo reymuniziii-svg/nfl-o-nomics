@@ -237,7 +237,7 @@ def dm_ledger() -> pd.DataFrame:
 
 @pytest.fixture(scope="session")
 def dm_team_season() -> pd.DataFrame:
-    """data/curated/dead_money_team_season.csv — 370 dated snapshot rows."""
+    """data/curated/dead_money_team_season.csv — 402 dated snapshot rows."""
     return load("data/curated/dead_money_team_season.csv")
 
 

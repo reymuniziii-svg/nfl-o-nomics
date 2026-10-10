@@ -50,7 +50,12 @@ ERA_TEAM_ABBRS = TEAM_ABBRS | {"STL", "SD", "OAK"}
 ASOF_STAGES = {"preseason", "midseason", "late_season", "final"}
 COVERAGE_FLAGS = {"full32", "partial", "top5"}
 LICENSE_TIERS = {"SAFE_LEAGUE", "SAFE_EDITORIAL", "REVIEW_SPOTRAC", "REVIEW_OTC"}
-CAPPLUS_BADGES = {"provisional", "preseason", "in_season"}
+CAPPLUS_BADGES = {"provisional", "preseason", "in_season", "estimated"}
+# A MODELED dead-money value has no source URL and therefore no source tier; it
+# carries this label instead and withdraws under DEAD_MONEY_TIER=safe.
+MODELED_TIER = "MODELED"
+DM_METHODS = {"measured", "measured_full32", "reading_ref_date", "reading_other_date",
+              "ridge_z_anchor_level"}
 POSITION_GROUPS = {"QB", "RB", "WR", "TE", "OL", "DL", "LB", "DB", "ST"}
 VERIFICATION_METHODS = {
     "wikidata_p18_team", "wikipedia_lead_image", "none", "api_error",
@@ -168,6 +173,10 @@ REGISTRY: tuple[Mart, ...] = (
             "was_floored": Col("bool"),
             "dead_money_rec": Col("float"),
             "badge": Col("str", REQUIRED, frozenset(CAPPLUS_BADGES)),
+            # The badge's sentence (provisional/estimated); empty otherwise.
+            "badge_reason": Col("str", NULLABLE),
+            # True where dead_money_rec is a MODELED value (estimated seasons).
+            "dm_is_modeled": Col("bool"),
             "season_rank": Col("int"),
             # ETL implementation note (SPEC §7.4). Two columns the memo's own
             # conditions require to travel with the value:
@@ -178,13 +187,13 @@ REGISTRY: tuple[Mart, ...] = (
             #     DEAD_MONEY_TIER seed filter (SPEC §7.5) must be able to see its
             #     tier without re-joining the source.
             "league_median_dead_money_usd": Col("number"),
-            "license_tier": Col("str", REQUIRED, frozenset(LICENSE_TIERS)),
+            "license_tier": Col("str", REQUIRED, frozenset(LICENSE_TIERS | {MODELED_TIER})),
         },
         # `dm_asof: AsOf` is nested in TS; a flat file must carry the pair.
         one_of=(("dm_asof_date", "dm_asof_stage"), ("dm_asof",)),
-        grain=("season", "team"), rows=288,
-        note="Nine seasons only; 2013/2016/2020/2021 have NO rows. "
-             "Promoted from capplus_candidates.csv, which the app never reads.",
+        grain=("season", "team"), rows=416, seasons=(2013, 2025),
+        note="All thirteen seasons (2026-10-10 rulings, DECISIONS 109-114); 2016, "
+             "2020, 2021 badged estimated. The app never reads capplus_candidates.csv.",
     ),
     Mart(
         key="capplus_context",
@@ -202,7 +211,8 @@ REGISTRY: tuple[Mart, ...] = (
             "league_median_starter_qb_cap": Col("number"),
             "stratum_size": Col("int"), "stratum_rank": Col("int", NULLABLE),
             "perf_index": Col("float"), "perf_rank": Col("int"),
-            # NULL in the four Cap+-blank seasons — blanking is whole-season.
+            # Populated in all 13 seasons under the shipping tier; NULL only where
+            # Cap+ itself is blank (the SAFE-only reversal) — whole-season.
             "capplus": Col("float", NULLABLE), "capplus_rank": Col("int", NULLABLE),
             "capplus_qb_neutral": Col("float", NULLABLE),
             "qb_neutral_rank": Col("int", NULLABLE),
@@ -210,13 +220,12 @@ REGISTRY: tuple[Mart, ...] = (
             "cash_share": Col("float"),
             "future_mortgage_usd": Col("number"), "future_mortgage_share": Col("float"),
             "mortgage_rows_unknown": Col("int"),
-            "mortgage_alpha": Col("float"),
-            # CANDIDATE flagship — published for the gate #1 reopen, not rendered as Cap+.
-            "capplus_obligation": Col("float", NULLABLE),
-            "obligation_rank": Col("int", NULLABLE),
         },
+        # Retired 2026-10-10 (DECISIONS 111): the obligation blend mixed cap
+        # (accrual) with the mortgage (cash paid ahead of cap).
+        forbidden=("capplus_obligation", "obligation_rank", "mortgage_alpha"),
         grain=("season", "team"), rows=416, seasons=(2013, 2025),
-        note="gate #1 reopened 2026-10-10 — DECISIONS 100-103",
+        note="gate #1 reopened 2026-10-10 — DECISIONS 100-103, 111",
     ),
     Mart(
         key="team_rating",
@@ -242,8 +251,8 @@ REGISTRY: tuple[Mart, ...] = (
             "note": Col("str", NULLABLE),
         },
         pending={"license_tier": Col("str", REQUIRED, frozenset(LICENSE_TIERS))},
-        grain=("season", "team", "asof_date"), rows=370, seasons=(2013, 2025),
-        note="Multiple rows per (season, team) are correct — 370 rows over 316 "
+        grain=("season", "team", "asof_date"), rows=402, seasons=(2013, 2025),
+        note="Multiple rows per (season, team) are correct — 402 rows over 343 "
              "team-seasons, individually dated readings.",
     ),
     Mart(
@@ -601,18 +610,25 @@ REGISTRY: tuple[Mart, ...] = (
             "dead_money_usd": Col("number"),
             "asof_date": Col("date"),
             "asof_stage": Col("str", REQUIRED, frozenset(ASOF_STAGES)),
-            "coverage": Col("str", REQUIRED, frozenset(COVERAGE_FLAGS)),
+            # `estimated` marks every row of a season resolved from the
+            # curated estimate (2016, 2020, 2021).
+            "coverage": Col("str", REQUIRED, frozenset(COVERAGE_FLAGS | {"estimated"})),
             # ETL implementation note (SPEC §7.5 + §2.1 + §2.7).
             #   license_tier / source_url / note — every row that carries a
             #     reading declares its licensing tier and its per-row citation,
             #     so the DEAD_MONEY_TIER filter works on this mart directly.
-            #   season_coverage — 'full32' or 'leaders_only'. This is what makes
-            #     §2.1's rule structural: the 28 rows from 2013/2016/2020/2021
-            #     are a "biggest hits" leaderboard LABELLED AS SUCH, never a
-            #     32-team view with 22+ silent gaps. The whole-season blank
+            #   season_coverage — 'full32', 'estimated' or 'leaders_only'. A
+            #     leaders list only survives in a season that did not resolve
+            #     (the SAFE-only reversal now); it is LABELLED AS SUCH, never a
+            #     32-team view with silent gaps. The whole-season blank
             #     statement lives once per season in
             #     dead_money_snapshot_resolution, not duplicated onto team rows.
-            #   badge — provisional/preseason/in_season for the resolved season.
+            #   badge / badge_reason — the resolved season's badge and sentence.
+            #   method / is_modeled / anchor_asof_date / lo_usd / hi_usd — the
+            #     per-team provenance of an estimated season: a published row
+            #     carries its own reading date (= asof_date); a modeled row
+            #     carries the season's reference date, no anchor date, and its
+            #     80% range.
             #   n_alternate_readings — how many OTHER dated snapshots exist for
             #     this team-season; the UI shows them on request, never averaged.
             #   burden_* + both denominators — SPEC §2.7 makes burden divide by
@@ -622,10 +638,16 @@ REGISTRY: tuple[Mart, ...] = (
             #   ledger_* — the §7.6 marquee charges attaching to this
             #     team-season; `ledger_split_all_established` is false wherever
             #     Dareus/BUF's unguessed split is involved.
-            "license_tier": Col("str", REQUIRED, frozenset(LICENSE_TIERS)),
+            "license_tier": Col("str", REQUIRED, frozenset(LICENSE_TIERS | {MODELED_TIER})),
             "season_coverage": Col("str", REQUIRED,
-                                   frozenset({"full32", "leaders_only"})),
+                                   frozenset({"full32", "estimated", "leaders_only"})),
             "badge": Col("str", NULLABLE, frozenset(CAPPLUS_BADGES)),
+            "badge_reason": Col("str", NULLABLE),
+            "method": Col("str", REQUIRED, frozenset(DM_METHODS)),
+            "is_modeled": Col("bool"),
+            "anchor_asof_date": Col("date", NULLABLE),
+            "lo_usd": Col("number", NULLABLE),
+            "hi_usd": Col("number", NULLABLE),
             "n_alternate_readings": Col("int"),
             "league_median_usd": Col("number", NULLABLE),
             "team_adjusted_cap_implied": Col("number"),
@@ -636,16 +658,45 @@ REGISTRY: tuple[Mart, ...] = (
             "ledger_players": Col("str", NULLABLE),
             "ledger_usd_attributed": Col("number", NULLABLE),
             "ledger_split_all_established": Col("bool"),
-            "source_url": Col("str"),
+            # Null only on a MODELED row: it has no source reading to cite.
+            "source_url": Col("str", NULLABLE),
             "note": Col("str", NULLABLE),
         },
-        grain=("season", "team"), rows=316, seasons=(2013, 2025),
-        note="The resolved one-snapshot-per-team-season view. Grain MUST be unique "
+        grain=("season", "team"), rows=416, seasons=(2013, 2025),
+        note="The resolved one-value-per-team-season view. Grain MUST be unique "
              "on (season, team) — that is the whole point of the resolution — and "
              "every row still carries its as-of date, because these values are never "
              "connected by a line in a time-series chart.",
     ),
-)
+
+    Mart(
+        key="dead_money_snapshot_resolution",
+        spec_ref="SPEC §7.5 (resolution) + DECISIONS 97, 113",
+        candidates=("dead_money_snapshot_resolution",),
+        columns={
+            "season": SEASON,
+            # `estimated` = resolved from the curated estimate (no full32 table).
+            "coverage_class": Col("str", REQUIRED, frozenset(COVERAGE_FLAGS | {"estimated"})),
+            "resolvable": Col("bool"), "resolved": Col("bool"),
+            "chosen_asof_date": Col("date", NULLABLE),
+            "chosen_asof_stage": Col("str", NULLABLE, frozenset(ASOF_STAGES)),
+            "badge": Col("str", NULLABLE, frozenset(CAPPLUS_BADGES)),
+            "badge_reason": Col("str", NULLABLE),
+            "chosen_license_tier": Col("str", NULLABLE, frozenset(LICENSE_TIERS | {MODELED_TIER})),
+            "chosen_n_teams": Col("int", NULLABLE),
+            "n_published_teams": Col("int", NULLABLE),
+            "n_candidate_snapshots": Col("int", NULLABLE),
+            "n_full32_snapshots": Col("int"), "n_partial_snapshots": Col("int"),
+            "n_top5_snapshots": Col("int"),
+            "median_dead_money_usd": Col("number", NULLABLE),
+            "total_dead_money_usd": Col("number", NULLABLE),
+            "rule": Col("str"),
+            "blank_reason": Col("str", NULLABLE),
+            "chosen_source_url": Col("str", NULLABLE),
+        },
+        grain=("season",), rows=13, seasons=(2013, 2025),
+        note="One row per Tier 2 season: what the pinned rule chose and why.",
+    ),)
 
 REGISTRY_BY_KEY = {m.key: m for m in REGISTRY}
 IDS = [m.key for m in REGISTRY]
@@ -895,8 +946,9 @@ def test_pending_spec_columns(mart: Mart):
 
 
 def test_license_tier_row_counts_when_present():
-    """Once `license_tier` lands, its distribution must match DATA_AUDIT §5:
-    SAFE_LEAGUE 69, SAFE_EDITORIAL 45, REVIEW_SPOTRAC 64, REVIEW_OTC 192.
+    """Once `license_tier` lands, its distribution must match DATA_AUDIT §5 —
+    SAFE_LEAGUE 69, SAFE_EDITORIAL 45, REVIEW_SPOTRAC 64, REVIEW_OTC 192 — plus
+    the 32 Spotrac-derived rows of the 2013 Houston Press table (REVIEW_SPOTRAC 96).
 
     This is the mechanism the legal contingency in RISKS.md risk 1 depends on —
     a miscount here silently ships REVIEW-tier rows under a SAFE_ONLY flag.
@@ -910,7 +962,7 @@ def test_license_tier_row_counts_when_present():
     counts = df.license_tier.value_counts().to_dict()
     expected = {
         "SAFE_LEAGUE": 69, "SAFE_EDITORIAL": 45,
-        "REVIEW_SPOTRAC": 64, "REVIEW_OTC": 192,
+        "REVIEW_SPOTRAC": 96, "REVIEW_OTC": 192,
     }
     assert counts == expected, f"license tier counts changed: {counts} != {expected}"
 
@@ -932,21 +984,20 @@ def test_league_cap_null_is_2010_only(league_cap):
     assert capped.sort_values("year").cap_usd.is_monotonic_increasing is False or True
 
 
-def test_capplus_official_blank_seasons_have_no_rows():
-    """SPEC §7.4 — seasons 2013, 2016, 2020, 2021 have NO rows in capplus_official.
-
-    The data layer returns a `blank` Metric with a reason string for those four.
-    A row appearing for them means a dead-money table was invented.
-    """
+def test_capplus_official_has_no_blank_seasons_under_the_full_tier():
+    """SPEC §7.4 (2026-10-10 rulings) — all thirteen Tier 2 seasons carry Cap+,
+    32 teams each. 2013 is a measured table badged provisional; 2016, 2020 and
+    2021 are badged estimated. The blank state now arises only under the
+    SAFE-only reversal (tests/test_capplus_v3.py)."""
     mart = REGISTRY_BY_KEY["capplus_official"]
     path, df = resolve(mart)
-    blank = sorted(set(df.season.unique()) & {2013, 2016, 2020, 2021})
-    assert not blank, (
-        f"{rel(path)}: capplus_official must have NO rows for 2013/2016/2020/2021 — "
-        f"found rows for {blank}. No league-wide dead-money table was published."
-    )
-    assert sorted(df.season.unique()) == [2014, 2015, 2017, 2018, 2019, 2022, 2023, 2024, 2025]
+    assert sorted(df.season.unique()) == list(range(2013, 2026)), (
+        f"{rel(path)}: seasons {sorted(df.season.unique())}")
     assert set(df.groupby("season").team.nunique()) == {32}
+    badges = df.groupby("season").badge.first().to_dict()
+    assert sorted(s for s, b in badges.items() if b == "provisional") == [2013, 2014, 2019]
+    assert sorted(s for s, b in badges.items() if b == "estimated") == [2016, 2020, 2021]
+    assert (df.groupby("season").badge.nunique() == 1).all(), "badge is per season"
 
 
 def test_capplus_official_every_row_carries_dm_asof():
@@ -1022,36 +1073,35 @@ def test_position_allocation_groups_are_complete_and_shares_close():
 
 
 def test_dead_money_display_resolves_to_one_row_per_team_season():
-    """The display mart is the RESOLVED view: exactly one snapshot per
+    """The display mart is the RESOLVED view: exactly one value per
     (season, team), each still carrying its own as-of date.
 
-    Source §7.5 has 370 rows over 316 team-seasons; the resolution must reduce
-    that to 316 rows without averaging or merging readings.
+    Source §7.5 has 402 rows over 343 team-seasons. The ten measured seasons
+    resolve to 320 rows without averaging or merging readings; the three
+    estimated seasons add their 96 rows from the curated estimate, every one
+    labelled.
     """
     mart = REGISTRY_BY_KEY["dead_money_display"]
     path, df = resolve(mart)
     assert df.duplicated(["season", "team"]).sum() == 0
-    assert len(df) == 316, (
-        f"{rel(path)}: expected 316 resolved rows (one per distinct team-season in "
-        f"dead_money_team_season), found {len(df)}"
-    )
-    src = pd.read_csv(
-        find_mart("dead_money_team_season")
-    )
+    assert len(df) == 416, f"{rel(path)}: expected 416 resolved rows, found {len(df)}"
+    src = pd.read_csv(find_mart("dead_money_team_season"))
+    est_seasons = {2016, 2020, 2021}
     src_keys = set(zip(src.season, src.team))
     out_keys = set(zip(df.season, df.team))
-    assert out_keys == src_keys, (
-        "the display mart must resolve exactly the team-seasons that exist in the "
-        "source — no invented rows, no dropped ones"
-    )
-    # Each resolved value must be one of the source readings, never an average.
-    merged = df.merge(
+    assert src_keys <= out_keys, "a source team-season was dropped"
+    invented = {k for k in out_keys - src_keys if k[0] not in est_seasons}
+    assert not invented, f"rows invented outside the estimated seasons: {sorted(invented)[:5]}"
+    # Each measured value must be one of the source readings, never an average.
+    meas = df[~df.season.isin(est_seasons)]
+    merged = meas.merge(
         src, on=["season", "team", "asof_date"], suffixes=("_disp", "_src"), how="left"
     )
     assert merged.dead_money_usd_src.notna().all(), (
         "a resolved row does not correspond to any dated source reading — snapshots "
         "are individually dated readings and must never be averaged or merged"
     )
+    assert (merged.dead_money_usd_src == merged.dead_money_usd_disp).all()
 
 
 def test_player_images_licence_block_complete_where_a_photo_exists():
@@ -1087,33 +1137,35 @@ def test_player_images_licence_block_complete_where_a_photo_exists():
     )
 
 
-def test_dead_money_display_labels_the_leaders_only_seasons():
-    """SPEC §2.1 — the four seasons without a league-wide table render a
-    'biggest hits' leaderboard LABELLED AS SUCH, never a 32-team view with 22+
-    silent gaps.
-
-    The label is `season_coverage`, and it must be exactly the four blank seasons
-    that carry it. The whole-season blank sentence itself lives once per season
-    in dead_money_snapshot_resolution, not duplicated onto team rows.
+def test_dead_money_display_labels_every_season():
+    """SPEC §2.1 — no season is silently partial. Under the shipping tier every
+    season is either a measured league-wide table (`full32`) or the curated
+    estimate (`estimated`), 32 teams each; no leaders-only rows remain. In the
+    estimated seasons the published teams are exactly 8 / 11 / 10 and every
+    other team is modeled, with its range.
     """
     mart = REGISTRY_BY_KEY["dead_money_display"]
     path, df = resolve(mart)
-    leaders = df[df.season_coverage == "leaders_only"]
-    assert sorted(leaders.season.unique()) == [2013, 2016, 2020, 2021], (
-        f"{rel(path)}: leaders_only must mark exactly the four blank seasons, "
-        f"found {sorted(leaders.season.unique())}"
-    )
-    assert leaders.groupby("season").size().to_dict() == {
-        2013: 5, 2016: 8, 2020: 5, 2021: 10
-    }, "the published leader counts per blank season changed"
+    assert (df.season_coverage == "leaders_only").sum() == 0
+    assert set(df.groupby("season").team.nunique()) == {32}
     full = df[df.season_coverage == "full32"]
-    assert set(full.groupby("season").team.nunique()) == {32}
+    estd = df[df.season_coverage == "estimated"]
     assert sorted(full.season.unique()) == [
-        2014, 2015, 2017, 2018, 2019, 2022, 2023, 2024, 2025
-    ]
-    # Every leaders-only row keeps the source's own partial-coverage label.
-    assert set(leaders.coverage.unique()) <= {"top5", "partial"}
+        2013, 2014, 2015, 2017, 2018, 2019, 2022, 2023, 2024, 2025]
+    assert sorted(estd.season.unique()) == [2016, 2020, 2021]
     assert set(full.coverage.unique()) == {"full32"}
+    assert set(estd.coverage.unique()) == {"estimated"}
+    pub = estd[~estd.is_modeled.astype(bool)]
+    assert pub.groupby("season").size().to_dict() == {2016: 8, 2020: 11, 2021: 10}
+    mod = df[df.is_modeled.astype(bool)]
+    assert set(mod.season.unique()) == {2016, 2020, 2021}
+    assert mod.lo_usd.notna().all() and mod.hi_usd.notna().all()
+    assert ((mod.lo_usd <= mod.dead_money_usd) & (mod.dead_money_usd <= mod.hi_usd)).all()
+    assert mod.anchor_asof_date.isna().all() and (mod.license_tier == MODELED_TIER).all()
+    # A published row prints its own reading's date and cites its source.
+    real = df[~df.is_modeled.astype(bool)]
+    assert (real.anchor_asof_date == real.asof_date).all()
+    assert real.source_url.notna().all() and mod.source_url.isna().all()
 
 
 def test_team_season_cap_dead_money_columns_stay_null(cap):
@@ -1147,28 +1199,26 @@ def _context():
     return resolve(REGISTRY_BY_KEY["capplus_context"])
 
 
-def test_capplus_context_index_columns_blank_exactly_in_the_four_blank_seasons():
-    """Blanking is whole-season (SPEC §2.2). The QB and mortgage facts exist for all
-    13 seasons; every index column is NULL in 2013/2016/2020/2021 and only there."""
+def test_capplus_context_has_no_blank_seasons_under_the_full_tier():
+    """All thirteen seasons carry Cap+ now (2026-10-10), so every index column is
+    populated everywhere; the QB and mortgage facts exist for all 13 seasons."""
     path, df = _context()
-    blank = {2013, 2016, 2020, 2021}
     for c in ("capplus", "capplus_qb_neutral", "qb_timing_pts", "roster_pts",
-              "capplus_obligation", "stratum_rank", "obligation_rank"):
+              "stratum_rank", "qb_neutral_rank", "capplus_rank"):
         null_seasons = set(df.loc[df[c].isna(), "season"].unique())
-        assert null_seasons == blank, f"{rel(path)}: {c} null in {sorted(null_seasons)}"
+        assert not null_seasons, f"{rel(path)}: {c} null in {sorted(null_seasons)}"
     assert df.starting_qb.notna().all() and df.future_mortgage_usd.notna().all()
 
 
 def test_capplus_context_decomposition_adds_up_and_is_centred():
     """capplus = capplus_qb_neutral + qb_timing_pts, exactly; roster_pts = neutral - 100;
-    both the neutral and the obligation index average exactly 100 every season."""
+    the neutral index averages exactly 100 every season."""
     path, df = _context()
     d = df.dropna(subset=["capplus"])
     assert (d.capplus - d.capplus_qb_neutral - d.qb_timing_pts).abs().max() < 1e-5
     assert (d.capplus_qb_neutral - 100 - d.roster_pts).abs().max() < 1e-5
-    for c in ("capplus_qb_neutral", "capplus_obligation"):
-        means = d.groupby("season")[c].mean()
-        assert (means - 100).abs().max() < 1e-4, f"{rel(path)}: {c} season means {means.round(3).to_dict()}"
+    means = d.groupby("season")["capplus_qb_neutral"].mean()
+    assert (means - 100).abs().max() < 1e-4, f"{rel(path)}: season means {means.round(3).to_dict()}"
 
 
 def test_capplus_context_capplus_matches_official():
@@ -1177,7 +1227,7 @@ def test_capplus_context_capplus_matches_official():
     _, off = resolve(REGISTRY_BY_KEY["capplus_official"])
     j = ctx.dropna(subset=["capplus"]).merge(off[["season", "team", "capplus"]],
                                              on=["season", "team"], suffixes=("", "_off"))
-    assert len(j) == 288
+    assert len(j) == 416
     assert (j.capplus - j.capplus_off).abs().max() < 1e-6
 
 
@@ -1203,11 +1253,13 @@ def test_capplus_context_stratum_ranks_are_complete_within_stratum():
 
 
 def test_capplus_context_the_reopen_finding_holds():
-    """The finding that reopened gate #1 (CAPPLUS_MEMO §8): Cap+ is 0.95-correlated
-    with the performance-only Team Rating, and the rookie-QB lever averages under
-    5 index points. If either stops being true the memo's text is stale."""
+    """The finding that reopened gate #1 (CAPPLUS_MEMO §8, restated in §9 for the
+    2026-10-10 build): Cap+ is > 0.9-correlated with the performance-only Team
+    Rating (0.96 at λ = 1), and the rookie-QB lever averages under 5 index
+    points. If either stops being true the memo's text is stale. The obligation
+    candidate is retired (DECISIONS 111) and must not come back unannounced."""
     _, df = _context()
     d = df.dropna(subset=["capplus"])
     assert d.capplus.corr(d.perf_index) > 0.9
     assert abs(d.loc[d.qb_rookie_window, "qb_timing_pts"].mean()) < 5
-    assert d.capplus_obligation.corr(d.perf_index) < d.capplus.corr(d.perf_index)
+    assert not {"capplus_obligation", "obligation_rank", "mortgage_alpha"} & set(df.columns)

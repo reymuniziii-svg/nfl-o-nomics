@@ -490,8 +490,11 @@ def test_s10_coaching_completeness(coaching):
 # S11 — dead-money coverage shape and as-of discipline
 # ==========================================================================
 
-FULL32_SEASONS = [2014, 2015, 2017, 2018, 2019, 2022, 2023, 2024, 2025]
-PARTIAL_SEASONS = {2013: 5, 2016: 8, 2020: 5, 2021: 10}
+# 2013 joined the full-32 seasons 2026-10-10: the Houston Press 2013-03-18
+# table (DECISIONS 112). The three remaining partial seasons ship from the
+# curated estimate, not from this source (DECISIONS 113).
+FULL32_SEASONS = [2013, 2014, 2015, 2017, 2018, 2019, 2022, 2023, 2024, 2025]
+PARTIAL_SEASONS = {2016: 8, 2020: 5, 2021: 10}
 VALID_STAGES = {"preseason", "midseason", "late_season", "final"}
 VALID_COVERAGE = {"full32", "partial", "top5"}
 
@@ -502,11 +505,11 @@ KNOWN_STAGE_AMBIGUITY = {(2018, "preseason", "full32"): ["2018-03-01", "2018-07-
 
 
 def test_s11_dead_money_coverage_shape(dm_team_season):
-    """S11a 370 rows over 316 distinct team-seasons; 9 full-32 seasons and 4
+    """S11a 402 rows over 343 distinct team-seasons; 10 full-32 seasons and 3
     partial; no season in 2013-2025 has zero rows."""
     dm = dm_team_season
-    assert len(dm) == 370, f"dead_money_team_season has {len(dm)} rows"
-    assert dm.groupby(["season", "team"]).ngroups == 316
+    assert len(dm) == 402, f"dead_money_team_season has {len(dm)} rows"
+    assert dm.groupby(["season", "team"]).ngroups == 343
     assert dm.season.min() == 2013 and dm.season.max() == 2025
 
     seasons_present = set(dm.season.unique())
@@ -565,8 +568,8 @@ def test_s11_every_row_has_asof_date_and_stage(dm_team_season):
 def test_s11_grain_is_unique_on_season_team_asof_date(dm_team_season):
     """S11c The declared grain (season, team, asof_date) is unique (SPEC §7.5).
 
-    Multiple rows per (season, team) are EXPECTED and correct — 370 rows over
-    316 team-seasons — because they are individually dated readings, never to be
+    Multiple rows per (season, team) are EXPECTED and correct — 402 rows over
+    343 team-seasons — because they are individually dated readings, never to be
     averaged, merged, or connected by a line.
     """
     dm = dm_team_season

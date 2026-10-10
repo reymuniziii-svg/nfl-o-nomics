@@ -99,27 +99,54 @@ DOLLAR_FRAMING_START = 2013       # DECISIONS 41 — draft dollars are Tier 2 on
 EXCLUDED_SEASON = 2026            # games.csv carries 272 unplayed 2026 rows
 
 # --------------------------------------------------------------------------- #
-# Cap+ — CAPPLUS_MEMO.md §7, approved gate #1 2026-07-25 (DECISIONS 12, 61)
+# Cap+ — CAPPLUS_MEMO.md §7, approved gate #1 2026-07-25 (DECISIONS 12, 61);
+# second reopen ruled 2026-10-10 (CAPPLUS_MEMO.md §9, DECISIONS 109-114)
 # --------------------------------------------------------------------------- #
-LAMBDA_DEAD = 1.5     # published economic claim, NOT a tuning knob (DECISIONS 13)
-LAMBDA_COMPARISON = (1.0, 2.0)  # published beside it in the methodology only
+#: Dead money counts ONCE (DECISIONS 109). At λ > 1 a dead dollar is charged
+#: twice: once in cost and again through the weaker roster it bought. With
+#: λ = 1, `cost_rec == cap_consumed_rec` by construction.
+LAMBDA_DEAD = 1.0
+LAMBDA_COMPARISON = (1.5, 2.0)  # published beside it in the methodology only
 COST_FLOOR_Q = 0.25   # season 25th percentile, applied to COST (DECISIONS 14)
 INDEX_MEAN = 100.0    # season mean exactly 100
-INDEX_SD = 15.0       # ONE pooled within-season SD across the whole window
+INDEX_SD = 15.0       # ONE pooled within-season SD, over the MEASURED seasons
 FLOORED_TEAMS_PER_SEASON = 8    # 8 of 32 every season, by construction
-#: Gate #1 reopened 2026-10-10 (DECISIONS 100-103). α is a CANDIDATE weight on
-#: prorated bonus still owed to future caps; published, not approved.
-MORTGAGE_ALPHA = 0.5
+#: P's EPA input is the opponent-adjusted margin (DECISIONS 110). The mart
+#: column is mapped onto the name `audit/capplus_backtest.build_performance`
+#: reads, so the imported maths is unchanged.
+PERF_EPA_INPUT = "epa_margin_per_play_adj"
 #: A drafted QB is in his rookie window through the 4th season after the draft
 #: (admits the fifth-year option) while still on the contract signed that year.
 ROOKIE_WINDOW_MAX_YEARS = 4
 
-#: The nine covered seasons. 288 of 416 team-seasons (69.2%).
-CAPPLUS_SEASONS = (2014, 2015, 2017, 2018, 2019, 2022, 2023, 2024, 2025)
-#: Whole-season blanks. Blanking is whole-season, never per-team (DECISIONS 16).
-CAPPLUS_BLANK_SEASONS = (2013, 2016, 2020, 2021)
-#: Tables published before the league year opened — badged `provisional`.
-CAPPLUS_PROVISIONAL_SEASONS = (2014, 2019)
+#: All thirteen Tier 2 seasons carry Cap+ (DECISIONS 112, 113). 416 rows.
+CAPPLUS_SEASONS = tuple(range(2013, 2026))
+#: Whole-season blanks under the shipping tier: none. The SAFE-only licensing
+#: reversal still blanks seasons (it withdraws the REVIEW tables, 2013's
+#: Houston Press table and the whole estimate), and blanking stays whole-season
+#: (DECISIONS 16).
+CAPPLUS_BLANK_SEASONS: tuple = ()
+#: Tables read too early in the league year to see its cuts — badged
+#: `provisional`. 2014 and 2019 were published before the league year opened;
+#: 2013's table one week into it (a per-season override of the badge text).
+CAPPLUS_PROVISIONAL_SEASONS = (2013, 2014, 2019)
+#: Seasons with no league-wide table, filled from the curated estimate
+#: (`data/curated/dead_money_estimated.csv`) and badged `estimated`.
+CAPPLUS_ESTIMATED_SEASONS = (2016, 2020, 2021)
+#: The seasons that set the scale: Cap+ is calibrated (season mean 100, pooled
+#: within-season SD 15) on these ten only; the estimated seasons are divided by
+#: the same pooled SD so a point means the same thing (DECISIONS 113).
+CAPPLUS_MEASURED_SEASONS = tuple(s for s in CAPPLUS_SEASONS
+                                 if s not in CAPPLUS_ESTIMATED_SEASONS)
+#: Published teams per estimated season (the rest are modeled). Asserted.
+ESTIMATED_PUBLISHED_TEAMS = {2016: 8, 2020: 11, 2021: 10}
+#: `license_tier` carried by a MODELED dead-money value. It is not a source
+#: tier (no URL), it is never in the SAFE set, and the estimate it labels is
+#: withdrawn whole under `DEAD_MONEY_TIER='safe'` because it trains on
+#: full-tier tables.
+MODELED_LICENSE_TIER = "MODELED"
+#: Badge vocabulary for a resolved dead-money season.
+CAPPLUS_BADGES = ("provisional", "preseason", "in_season", "estimated")
 #: The league year opens mid-March; a table dated before it cannot see that
 #: season's cuts and restructures at all, so its level is a floor.
 LEAGUE_YEAR_OPENS_MMDD = "-03-15"
@@ -168,6 +195,17 @@ BLANK_REASON_PRE_TIER2 = (
 BLANK_REASON_NO_DM_TABLE_FOR = "no league-wide dead-money table published for {season}"
 PROVISIONAL_BADGE_COPY = (
     "published before the league year opened; understates the final figure."
+)
+#: One-season overrides of the provisional badge text. 2013's table is dated
+#: 2013-03-18, after the league year opened, so the default sentence would be
+#: false; the date rule alone would badge it `preseason`.
+PROVISIONAL_BADGE_OVERRIDE = {
+    2013: "published one week into the league year; understates the final figure.",
+}
+#: The `estimated` badge's reason sentence; `{n}` = published teams that season.
+ESTIMATED_BADGE_COPY = (
+    "Estimated — {n} of 32 teams are published figures; the rest are modeled "
+    "from contract data."
 )
 TEAM_RATING_NAME = "Team Rating (performance only)"
 
@@ -224,14 +262,14 @@ EXPECTED_ROWS = {
     "team_season_results": 861,
     "team_season_epa": 861,
     "team_season_cap": 416,
-    "capplus_candidates": 861,
-    "capplus_official": 288,
+    "capplus_official": 416,
     "capplus_context": 416,
     "team_rating": 861,
     "team_season_stability": 830,
-    "dead_money_team_season": 370,
+    "dead_money_team_season": 402,  # 370 + the 2013 Houston Press table
     "dead_money_ledger": 21,
-    "dead_money_display": 316,   # 288 full32 + 28 published leaders
+    "dead_money_display": 416,   # 320 measured full32 + 96 in the estimated seasons
+    "dead_money_estimated": 128,
     "coaching_staff": 2612,
     "league_cap": 32,
     "draft_pick": 6644,

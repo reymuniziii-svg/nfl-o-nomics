@@ -15,8 +15,11 @@ import pytest
 
 from conftest import find_mart, read_any
 
-# The four seasons with no league-wide dead-money table (DECISIONS.md 16).
-BLANK_SEASONS = [2013, 2016, 2020, 2021]
+# The three seasons with no league-wide dead-money table. Since 2026-10-10 they
+# ship from the curated estimate (DECISIONS 113): 32 teams each, the published
+# teams as real readings and the rest modeled with a range. 2013 became a
+# measured season (DECISIONS 112).
+ESTIMATED_SEASONS = [2016, 2020, 2021]
 
 
 @pytest.fixture(scope="session")
@@ -63,33 +66,30 @@ def test_a_franchise_has_many_readings_not_one(dm_display):
             assert per_team[club] >= 9, f"{club} has {per_team[club]} readings"
 
 
-def test_leaders_only_rows_are_labelled_as_such(dm_display):
-    """`SPEC.md` §1.2 — a partial season is labelled partial. The view maps
-    `season_coverage == 'leaders_only'` onto `Metric.partial`, so the column has
-    to keep saying it, and it has to keep landing only inside the four blanked
-    seasons: a leaders-list row in a full-32 season would mean the resolution
-    rule picked the wrong snapshot."""
-    leaders = dm_display[dm_display.season_coverage == "leaders_only"]
-    assert not leaders.empty, "no leaders_only rows — the partial state has no live case"
-    stray = sorted(set(leaders.season) - set(BLANK_SEASONS))
-    assert not stray, f"leaders_only rows in a covered season: {stray}"
+def test_no_silent_partial_season_under_the_full_tier(dm_display):
+    """`SPEC.md` §1.2 — a partial season is labelled partial. Under the shipping
+    tier no season is partial any more: every season is a measured full-32 table
+    or the curated estimate, and `leaders_only` (the `Metric.partial` case)
+    survives only under the SAFE-only reversal. A leaders-list row here would
+    mean the resolution rule picked the wrong snapshot."""
+    assert (dm_display.season_coverage == "leaders_only").sum() == 0
+    assert set(dm_display.groupby("season").team.nunique()) == {32}
 
 
-def test_blank_seasons_split_cleanly_into_ring_and_reading(dm_display):
-    """The two marks the dot plot draws for a blanked season are MUTUALLY
-    EXCLUSIVE by construction: a club either appears in that season's leaders
-    list (and gets its reading drawn in the not-a-32-team ring style) or it does
-    not (and gets an empty ring on the baseline). Drawing both at one coordinate
-    asserted, at the same x, that the season has no reading and that it has one.
-    """
-    for season in BLANK_SEASONS:
+def test_estimated_seasons_split_cleanly_into_reading_and_model(dm_display):
+    """In an estimated season every club is EITHER a published reading (its own
+    date, no range) OR a modeled value (the season's reference date, an 80%
+    range, no reading date) — never both. The view draws the two differently and
+    must never print a modeled dollar figure without its range."""
+    for season in ESTIMATED_SEASONS:
         rows = dm_display[dm_display.season == season]
-        assert rows.season_coverage.eq("leaders_only").all(), (
-            f"{season} is a blanked season but carries a non-leaders reading"
-        )
-        assert 0 < len(rows) < 32, (
-            f"{season} has {len(rows)} clubs; a blanked season is neither empty nor full"
-        )
+        assert len(rows) == 32 and rows.season_coverage.eq("estimated").all()
+        mod = rows[rows.is_modeled.astype(bool)]
+        pub = rows[~rows.is_modeled.astype(bool)]
+        assert 0 < len(pub) < 32, f"{season}: {len(pub)} published clubs"
+        assert mod.anchor_asof_date.isna().all() and mod.lo_usd.notna().all()
+        assert (pub.anchor_asof_date == pub.asof_date).all()
+        assert (mod.asof_date.nunique() == 1), f"{season}: modeled rows span dates"
 
 
 def test_the_field_domain_contains_every_published_capplus():

@@ -1,30 +1,204 @@
 {
   "checks": {
     "capplus": {
-      "blank_seasons": [
-        2013,
+      "blank_seasons": [],
+      "coverage": "416 of 416 team-seasons (100.0%)",
+      "diagnostics": {
+        "all_time_bottom10": [
+          {
+            "badge": "preseason",
+            "capplus": 65.7,
+            "season": 2023,
+            "season_rank": 32,
+            "team": "CAR"
+          },
+          {
+            "badge": "estimated",
+            "capplus": 67.5,
+            "season": 2016,
+            "season_rank": 32,
+            "team": "CLE"
+          },
+          {
+            "badge": "in_season",
+            "capplus": 68.0,
+            "season": 2025,
+            "season_rank": 32,
+            "team": "LV"
+          },
+          {
+            "badge": "estimated",
+            "capplus": 70.2,
+            "season": 2016,
+            "season_rank": 31,
+            "team": "LA"
+          },
+          {
+            "badge": "preseason",
+            "capplus": 70.9,
+            "season": 2018,
+            "season_rank": 32,
+            "team": "ARI"
+          },
+          {
+            "badge": "estimated",
+            "capplus": 71.2,
+            "season": 2016,
+            "season_rank": 30,
+            "team": "SF"
+          },
+          {
+            "badge": "estimated",
+            "capplus": 71.2,
+            "season": 2021,
+            "season_rank": 32,
+            "team": "JAX"
+          },
+          {
+            "badge": "in_season",
+            "capplus": 71.4,
+            "season": 2025,
+            "season_rank": 31,
+            "team": "NYJ"
+          },
+          {
+            "badge": "preseason",
+            "capplus": 71.6,
+            "season": 2017,
+            "season_rank": 32,
+            "team": "CLE"
+          },
+          {
+            "badge": "estimated",
+            "capplus": 72.6,
+            "season": 2020,
+            "season_rank": 32,
+            "team": "JAX"
+          }
+        ],
+        "all_time_top10": [
+          {
+            "badge": "provisional",
+            "capplus": 140.2,
+            "season": 2019,
+            "season_rank": 1,
+            "team": "BAL"
+          },
+          {
+            "badge": "preseason",
+            "capplus": 135.4,
+            "season": 2023,
+            "season_rank": 1,
+            "team": "SF"
+          },
+          {
+            "badge": "provisional",
+            "capplus": 132.9,
+            "season": 2014,
+            "season_rank": 1,
+            "team": "SEA"
+          },
+          {
+            "badge": "preseason",
+            "capplus": 132.4,
+            "season": 2022,
+            "season_rank": 1,
+            "team": "SF"
+          },
+          {
+            "badge": "estimated",
+            "capplus": 132.4,
+            "season": 2016,
+            "season_rank": 1,
+            "team": "NE"
+          },
+          {
+            "badge": "in_season",
+            "capplus": 132.3,
+            "season": 2024,
+            "season_rank": 1,
+            "team": "DET"
+          },
+          {
+            "badge": "preseason",
+            "capplus": 130.0,
+            "season": 2022,
+            "season_rank": 2,
+            "team": "BUF"
+          },
+          {
+            "badge": "provisional",
+            "capplus": 130.0,
+            "season": 2013,
+            "season_rank": 1,
+            "team": "CAR"
+          },
+          {
+            "badge": "preseason",
+            "capplus": 129.8,
+            "season": 2017,
+            "season_rank": 1,
+            "team": "MIN"
+          },
+          {
+            "badge": "in_season",
+            "capplus": 129.4,
+            "season": 2025,
+            "season_rank": 1,
+            "team": "SEA"
+          }
+        ],
+        "arcs": {
+          "BUF": "13:#16 14:#16 15:#12 16:#14 17:#16 18:#24 19:#7 20:#9 21:#3 22:#2 23:#6 24:#4 25:#4",
+          "KC": "13:#14 14:#11 15:#6 16:#4 17:#10 18:#2 19:#2 20:#8 21:#2 22:#3 23:#7 24:#7 25:#18",
+          "PHI": "13:#11 14:#12 15:#28 16:#19 17:#5 18:#13 19:#9 20:#26 21:#13 22:#4 23:#18 24:#2 25:#8",
+          "SF": "13:#3 14:#17 15:#29 16:#30 17:#18 18:#31 19:#11 20:#19 21:#10 22:#1 23:#1 24:#18 25:#19"
+        },
+        "corr_capplus_vs_team_rating": 0.9646,
+        "corr_capplus_vs_team_rating_measured": 0.9608,
+        "mean_abs_rank_shift_vs_perf": 1.87,
+        "mean_abs_rank_shift_vs_perf_measured": 1.92,
+        "within_season_sd_by_badge": {
+          "estimated": 14.74,
+          "measured": 15.0
+        }
+      },
+      "estimated_seasons": [
         2016,
         2020,
         2021
       ],
-      "coverage": "288 of 416 team-seasons (69.2%)",
-      "pct_cost_over_1": 0.441,
+      "lambda_dead": 1.0,
+      "pct_cost_over_1": 0.125,
+      "perf_epa_input": "epa_margin_per_play_adj",
+      "pooled_sd_measured_raw": 14.611541,
       "provisional_seasons": [
+        2013,
         2014,
         2019
       ],
       "seasons": [
+        2013,
         2014,
         2015,
+        2016,
         2017,
         2018,
         2019,
+        2020,
+        2021,
         2022,
         2023,
         2024,
         2025
       ],
       "snapshots": [
+        {
+          "asof_date": "2013-03-18",
+          "asof_stage": "preseason",
+          "badge": "provisional",
+          "season": 2013
+        },
         {
           "asof_date": "2014-02-18",
           "asof_stage": "preseason",
@@ -36,6 +210,12 @@
           "asof_stage": "midseason",
           "badge": "in_season",
           "season": 2015
+        },
+        {
+          "asof_date": "2016-10-05",
+          "asof_stage": "midseason",
+          "badge": "estimated",
+          "season": 2016
         },
         {
           "asof_date": "2017-07-05",
@@ -54,6 +234,18 @@
           "asof_stage": "preseason",
           "badge": "provisional",
           "season": 2019
+        },
+        {
+          "asof_date": "2020-06-02",
+          "asof_stage": "preseason",
+          "badge": "estimated",
+          "season": 2020
+        },
+        {
+          "asof_date": "2021-09-06",
+          "asof_stage": "preseason",
+          "badge": "estimated",
+          "season": 2021
         },
         {
           "asof_date": "2022-07-05",
@@ -82,136 +274,165 @@
       ],
       "sniff": [
         {
-          "expected": 133.9,
+          "expected": 135.4,
           "expected_rank": 1,
-          "got": 133.9,
+          "got": 135.4,
           "pass": true,
           "rank": 1,
           "season": 2023,
           "team": "SF"
         },
         {
-          "expected": 77.2,
-          "expected_rank": 31,
-          "got": 77.2,
+          "expected": 77.3,
+          "expected_rank": 30,
+          "got": 77.3,
           "pass": true,
-          "rank": 31,
+          "rank": 30,
           "season": 2022,
           "team": "CHI"
         },
         {
-          "expected": 104.4,
-          "expected_rank": 13,
-          "got": 104.4,
+          "expected": 111.8,
+          "expected_rank": 10,
+          "got": 111.8,
           "pass": true,
-          "rank": 13,
+          "rank": 10,
           "season": 2024,
           "team": "DEN"
         },
         {
-          "expected": 118.4,
+          "expected": 121.6,
           "expected_rank": 3,
-          "got": 118.4,
+          "got": 121.6,
           "pass": true,
           "rank": 3,
           "season": 2014,
           "team": "NE"
         },
         {
-          "expected": 114.7,
-          "expected_rank": 7,
-          "got": 114.7,
+          "expected": 117.7,
+          "expected_rank": 5,
+          "got": 117.7,
           "pass": true,
-          "rank": 7,
+          "rank": 5,
           "season": 2017,
           "team": "PHI"
         },
         {
-          "expected": 72.9,
+          "expected": 71.6,
           "expected_rank": 32,
-          "got": 72.9,
+          "got": 71.6,
           "pass": true,
           "rank": 32,
           "season": 2017,
           "team": "CLE"
         },
         {
-          "expected": 89.5,
-          "expected_rank": 27,
-          "got": 89.5,
+          "expected": 96.2,
+          "expected_rank": 20,
+          "got": 96.2,
           "pass": true,
-          "rank": 27,
+          "rank": 20,
           "season": 2022,
           "team": "ATL"
         },
         {
-          "expected": 122.6,
-          "expected_rank": 3,
-          "got": 122.6,
+          "expected": 125.5,
+          "expected_rank": 2,
+          "got": 125.5,
           "pass": true,
-          "rank": 3,
+          "rank": 2,
           "season": 2019,
           "team": "KC"
         },
         {
-          "expected": 85.7,
-          "expected_rank": 27,
-          "got": 85.7,
+          "expected": 93.1,
+          "expected_rank": 23,
+          "got": 93.1,
           "pass": true,
-          "rank": 27,
+          "rank": 23,
           "season": 2025,
           "team": "NO"
         },
         {
-          "expected": 95.2,
-          "expected_rank": 20,
-          "got": 95.2,
+          "expected": 107.5,
+          "expected_rank": 10,
+          "got": 107.5,
           "pass": true,
-          "rank": 20,
+          "rank": 10,
           "season": 2023,
           "team": "LA"
+        },
+        {
+          "expected": 104.1,
+          "expected_rank": 13,
+          "got": 104.1,
+          "pass": true,
+          "rank": 13,
+          "season": 2016,
+          "team": "NO"
+        },
+        {
+          "expected": 87.5,
+          "expected_rank": 24,
+          "got": 87.5,
+          "pass": true,
+          "rank": 24,
+          "season": 2020,
+          "team": "CAR"
+        },
+        {
+          "expected": 105.7,
+          "expected_rank": 13,
+          "got": 105.7,
+          "pass": true,
+          "rank": 13,
+          "season": 2021,
+          "team": "PHI"
         }
       ]
     },
     "capplus_context": {
       "by_stratum": {
         "False": {
-          "mean_capplus": 101.08,
-          "mean_perf": 101.36,
-          "mean_qb_timing_pts": -1.5,
-          "n": 188.0
+          "mean_capplus": 101.18,
+          "mean_perf": 101.39,
+          "mean_qb_timing_pts": -1.74,
+          "n": 270.0
         },
         "True": {
-          "mean_capplus": 97.97,
-          "mean_perf": 97.44,
-          "mean_qb_timing_pts": 2.81,
-          "n": 100.0
+          "mean_capplus": 97.83,
+          "mean_perf": 97.43,
+          "mean_qb_timing_pts": 3.22,
+          "n": 146.0
         }
       },
-      "capplus_reproduction_drift": 7.2e-05,
-      "corr_capplus_vs_perf_index": 0.9496,
+      "capplus_reproduction_drift": 6.9e-05,
+      "corr_capplus_vs_perf_index": 0.9646,
       "corr_capplus_vs_qb_cap_share_by_season": {
-        "2014": 0.255,
-        "2015": 0.133,
-        "2017": 0.151,
-        "2018": 0.275,
-        "2019": 0.12,
-        "2022": 0.23,
-        "2023": 0.448,
-        "2024": 0.43,
-        "2025": 0.145
+        "2013": 0.097,
+        "2014": 0.238,
+        "2015": 0.201,
+        "2016": 0.328,
+        "2017": 0.157,
+        "2018": 0.232,
+        "2019": 0.115,
+        "2020": 0.361,
+        "2021": 0.226,
+        "2022": 0.161,
+        "2023": 0.422,
+        "2024": 0.38,
+        "2025": 0.116
       },
-      "corr_obligation_vs_perf_index": 0.8893,
-      "index_rows": 288,
+      "corr_mortgage_share_vs_perf_index": 0.2421,
+      "index_rows": 416,
       "mean_abs_rank_shift_vs_perf": {
-        "capplus": 2.23,
-        "capplus_obligation": 3.6
+        "capplus": 1.87
       },
       "mortgage": {
         "rows": 32105,
         "rows_without_contract_years": 504
       },
-      "mortgage_alpha": 0.5,
       "rookie_window_teams_per_season": {
         "2013": 12,
         "2014": 9,
@@ -232,21 +453,42 @@
         "snaps": 416
       },
       "within_season_sd": {
-        "R_rec": 0.0485,
-        "cash_share": 0.1205,
-        "future_mortgage_share": 0.1585,
+        "R_rec": 0.038,
+        "cash_share": 0.1234,
+        "future_mortgage_share": 0.1579,
         "qb_cap_share": 0.0506
       }
     },
     "dead_money_display": {
       "blank_season_statement_lives_in": "dead_money_snapshot_resolution",
-      "blank_seasons": [
+      "blank_seasons": [],
+      "covered_seasons": [
         2013,
+        2014,
+        2015,
+        2016,
+        2017,
+        2018,
+        2019,
+        2020,
+        2021,
+        2022,
+        2023,
+        2024,
+        2025
+      ],
+      "estimated_modeled_rows": 67,
+      "estimated_rows": 96,
+      "estimated_seasons": [
         2016,
         2020,
         2021
       ],
-      "covered_seasons": [
+      "full32_rows": 320,
+      "leaders_only_by_season": {},
+      "leaders_only_rows": 0,
+      "measured_seasons": [
+        2013,
         2014,
         2015,
         2017,
@@ -257,16 +499,15 @@
         2024,
         2025
       ],
-      "full32_rows": 288,
-      "leaders_only_by_season": {
-        "2013": 5,
-        "2016": 8,
-        "2020": 5,
-        "2021": 10
-      },
-      "leaders_only_rows": 28,
-      "rows": 316,
+      "rows": 416,
       "snapshots": [
+        {
+          "asof_date": "2013-03-18",
+          "asof_stage": "preseason",
+          "badge": "provisional",
+          "median_dead_money_M": 5.9,
+          "season": 2013
+        },
         {
           "asof_date": "2014-02-18",
           "asof_stage": "preseason",
@@ -280,6 +521,13 @@
           "badge": "in_season",
           "median_dead_money_M": 14.3,
           "season": 2015
+        },
+        {
+          "asof_date": "2016-10-05",
+          "asof_stage": "midseason",
+          "badge": "estimated",
+          "median_dead_money_M": 8.2,
+          "season": 2016
         },
         {
           "asof_date": "2017-07-05",
@@ -301,6 +549,20 @@
           "badge": "provisional",
           "median_dead_money_M": 3.4,
           "season": 2019
+        },
+        {
+          "asof_date": "2020-06-02",
+          "asof_stage": "preseason",
+          "badge": "estimated",
+          "median_dead_money_M": 11.7,
+          "season": 2020
+        },
+        {
+          "asof_date": "2021-09-06",
+          "asof_stage": "preseason",
+          "badge": "estimated",
+          "median_dead_money_M": 11.1,
+          "season": 2021
         },
         {
           "asof_date": "2022-07-05",
@@ -425,14 +687,14 @@
     },
     "regime_events": {
       "aggregate": {
-        "mean_vs_league_median": 1.3231,
-        "median_vs_league_median": 1.1202,
-        "n_pairs": 171,
-        "pct_above_league_median": 0.5556,
+        "mean_vs_league_median": 1.3621,
+        "median_vs_league_median": 1.1357,
+        "n_pairs": 187,
+        "pct_above_league_median": 0.5561,
         "wording": "association, never cause"
       },
-      "dm_next1_value": 87,
-      "dm_next2_value": 84,
+      "dm_next1_value": 94,
+      "dm_next2_value": 93,
       "events": 214,
       "in_season": 54,
       "offseason": 160
@@ -458,7 +720,59 @@
     }
   },
   "data_version": {
+    "capplus_estimated_seasons": [
+      2016,
+      2020,
+      2021
+    ],
+    "capplus_seasons": [
+      2013,
+      2014,
+      2015,
+      2016,
+      2017,
+      2018,
+      2019,
+      2020,
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
     "coaching_window": "2000-2025",
+    "dead_money_blank_seasons": [],
+    "dead_money_covered_seasons": [
+      2013,
+      2014,
+      2015,
+      2016,
+      2017,
+      2018,
+      2019,
+      2020,
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "dead_money_resolved_rows": 416,
+    "dead_money_snapshots": {
+      "2013": "2013-03-18 (preseason, provisional)",
+      "2014": "2014-02-18 (preseason, provisional)",
+      "2015": "2015-10-28 (midseason, in_season)",
+      "2016": "2016-10-05 (midseason, estimated)",
+      "2017": "2017-07-05 (preseason, preseason)",
+      "2018": "2018-07-14 (preseason, preseason)",
+      "2019": "2019-03-10 (preseason, provisional)",
+      "2020": "2020-06-02 (preseason, estimated)",
+      "2021": "2021-09-06 (preseason, estimated)",
+      "2022": "2022-07-05 (preseason, preseason)",
+      "2023": "2023-07-14 (preseason, preseason)",
+      "2024": "2024-11-27 (late_season, in_season)",
+      "2025": "2025-12-17 (late_season, in_season)"
+    },
     "draft_window": "2000-2025",
     "excluded_season": 2026,
     "league_cap_window": "1994-2025",
@@ -495,17 +809,20 @@
         "cash_share",
         "future_mortgage_usd",
         "future_mortgage_share",
-        "mortgage_rows_unknown",
-        "mortgage_alpha",
-        "capplus_obligation",
-        "obligation_rank"
+        "mortgage_rows_unknown"
       ],
-      "contract": "SPEC §7.13 — 416 rows: starting QB, rookie window, QB-neutral Cap+, future-cap mortgage, Cap+ (obligation) candidate; gate #1 reopened",
+      "contract": "SPEC §7.13 — 416 rows: starting QB, rookie window, QB-neutral Cap+, future-cap mortgage (the cash-vs-cap bridge)",
       "file": "data/marts/capplus_context.csv",
-      "md5": "59dc223e9bc978f7b650545f2cc84005",
-      "n_columns": 30,
+      "md5": "83bbd6636862343fad6dc03886c110b3",
+      "n_columns": 27,
       "rows": 416,
-      "source_data": []
+      "source_data": [
+        {
+          "rows": 416,
+          "source": "capplus_official + team_rating + team_season_cap + player_season_cap + player_season_availability + draft_pick",
+          "window": "2013-2025 (13 seasons; index columns null only where Cap+ is blank)"
+        }
+      ]
     },
     "capplus_official": {
       "columns": [
@@ -522,21 +839,23 @@
         "dead_money_rec",
         "dm_asof_date",
         "dm_asof_stage",
+        "dm_is_modeled",
         "league_median_dead_money_usd",
         "license_tier",
         "badge",
+        "badge_reason",
         "season_rank"
       ],
-      "contract": "SPEC §7.4 — 288 rows, nine seasons, gate #1 promotion",
+      "contract": "SPEC §7.4 — 416 rows, thirteen seasons, λ = 1, adjusted-EPA P",
       "file": "data/marts/capplus_official.csv",
-      "md5": "d3bf7a62486ada0f0651bcc46e0f0d91",
-      "n_columns": 17,
-      "rows": 288,
+      "md5": "9503bb2ed381f71fe03b169d3b454cb1",
+      "n_columns": 19,
+      "rows": 416,
       "source_data": [
         {
-          "rows": 288,
-          "source": "team_season_results + team_season_epa + team_season_cap + curated dead-money same-stage snapshots",
-          "window": "2014-2025 (9 seasons)"
+          "rows": 416,
+          "source": "team_season_results + team_season_epa (adjusted margin) + team_season_cap + curated dead-money same-stage snapshots + curated estimate",
+          "window": "2013-2025 (13 seasons)"
         }
       ]
     },
@@ -576,6 +895,12 @@
         "license_tier",
         "season_coverage",
         "badge",
+        "badge_reason",
+        "method",
+        "is_modeled",
+        "anchor_asof_date",
+        "lo_usd",
+        "hi_usd",
         "n_alternate_readings",
         "league_median_usd",
         "team_adjusted_cap_implied",
@@ -589,15 +914,15 @@
         "source_url",
         "note"
       ],
-      "contract": "416 render-ready rows; four blank seasons explicit",
+      "contract": "416 render-ready rows; 320 measured + 96 estimated with provenance",
       "file": "data/marts/dead_money_display.csv",
-      "md5": "a1c60c0b0456a43ade4b39327ef67f25",
-      "n_columns": 21,
-      "rows": 316,
+      "md5": "f020ca5ffaaf26f16d756d7eb5427385",
+      "n_columns": 27,
+      "rows": 416,
       "source_data": [
         {
-          "rows": 370,
-          "source": "curated dead-money snapshots + team_season_cap",
+          "rows": 498,
+          "source": "curated dead-money snapshots + curated estimate + team_season_cap",
           "window": "tier=full"
         }
       ]
@@ -636,8 +961,10 @@
         "chosen_asof_date",
         "chosen_asof_stage",
         "badge",
+        "badge_reason",
         "chosen_license_tier",
         "chosen_n_teams",
+        "n_published_teams",
         "n_candidate_snapshots",
         "n_full32_snapshots",
         "n_partial_snapshots",
@@ -648,14 +975,14 @@
         "blank_reason",
         "chosen_source_url"
       ],
-      "contract": "the pinned same-stage rule's chosen date+stage per season",
+      "contract": "the pinned same-stage rule's chosen date+stage per season; estimated fallback for 2016/2020/2021",
       "file": "data/marts/dead_money_snapshot_resolution.csv",
-      "md5": "cca3dab9cb6a5087644e3cf199831193",
-      "n_columns": 18,
+      "md5": "819ee3c5ac66e14bd98eb311ca405857",
+      "n_columns": 20,
       "rows": 13,
       "source_data": [
         {
-          "rows": 370,
+          "rows": 402,
           "source": "curated dead_money_team_season.csv",
           "window": "tier=full"
         }
@@ -673,14 +1000,14 @@
         "note",
         "license_tier"
       ],
-      "contract": "SPEC §7.5 — 370 dated snapshots + the derived license_tier",
+      "contract": "SPEC §7.5 — 402 dated snapshots + the derived license_tier",
       "file": "data/marts/dead_money_team_season.csv",
-      "md5": "9e98a474ee1659ec1870a855df948f6d",
+      "md5": "4316e152f7704ac8edeb94ef7b07dc3c",
       "n_columns": 9,
-      "rows": 370,
+      "rows": 402,
       "source_data": [
         {
-          "rows": 370,
+          "rows": 402,
           "source": "curated dead_money_team_season.csv (press snapshots)",
           "window": "tier=full"
         }
@@ -967,7 +1294,7 @@
       ],
       "contract": "SPEC §7.7 — HC identity changes + dated s+1/s+2 dead-money links",
       "file": "data/marts/regime_events.csv",
-      "md5": "c9584ac42659d5ba87b86653154c6f00",
+      "md5": "e2410cf72c35c015c85cbe22f263f76a",
       "n_columns": 20,
       "rows": 214,
       "source_data": [
@@ -988,13 +1315,13 @@
       ],
       "contract": "SPEC §2.3 — \"Team Rating (performance only)\", all 861 team-seasons",
       "file": "data/marts/team_rating.csv",
-      "md5": "d4fc577709552389c43c1b095932cb12",
+      "md5": "ee2c9f975db60bf45ac096dcf23691ba",
       "n_columns": 5,
       "rows": 861,
       "source_data": [
         {
           "rows": 861,
-          "source": "team_season_results + team_season_epa",
+          "source": "team_season_results + team_season_epa (adjusted margin)",
           "window": "1999-2025"
         }
       ]
@@ -1133,7 +1460,8 @@
     "DEAD_MONEY_TIER": "full",
     "IMAGE_MIN_WIDTH_PX": 300,
     "IMAGE_TREATMENT_MODE": "css_filter_only",
-    "LAMBDA_DEAD": 1.5,
+    "LAMBDA_DEAD": 1.0,
+    "PERF_EPA_INPUT": "epa_margin_per_play_adj",
     "TEAMMARK_KILLSWITCH": false,
     "license_tiers_shipped": [
       "REVIEW_OTC",
@@ -1142,15 +1470,5 @@
       "SAFE_LEAGUE"
     ]
   },
-  "verified_not_rewritten": {
-    "capplus_candidates": {
-      "columns": 69,
-      "file": "data/marts/capplus_candidates.csv",
-      "max_capplus_delta": 4.997747993229495e-07,
-      "max_perf_index_delta": 4.99841391388145e-07,
-      "md5": "7c31c0e93bea6b0c3c97f5d78ee0d208",
-      "mode": "verified_not_rewritten",
-      "rows": 861
-    }
-  }
+  "verified_not_rewritten": {}
 }
