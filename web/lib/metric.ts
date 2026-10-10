@@ -103,6 +103,20 @@ export const PROVISIONAL_BADGE_COPY =
 /** SPEC §2.3 — never "Cap+ (performance only)", anywhere, in any surface. */
 export const TEAM_RATING_NAME = 'Team Rating (performance only)';
 
+/**
+ * SPEC §2.10 — the gate #1 reopen labels. `capplus_obligation` is a CANDIDATE:
+ * it renders under this label only, and only on a surface that also shows Cap+.
+ * Never "Cap+" alone until the gate clears.
+ */
+export const CAPPLUS_OBLIGATION_LABEL = 'Cap+ (obligation)';
+
+/** SPEC §2.10 — Cap+ with the starter's cap number swapped for the season-median starter. */
+export const CAPPLUS_QB_NEUTRAL_LABEL = 'QB-neutral Cap+';
+
+/** SPEC §2.10 — travels with every rendering of `future_mortgage_usd` / `_share`. */
+export const FUTURE_MORTGAGE_CAVEAT =
+  'Estimate: prorated bonus already charged to future seasons, flat proration, blind to void years.';
+
 /** SPEC §3.4 — rendered in the UI on the head-to-head view, not buried. */
 export const CROSS_ERA_STATEMENT =
   'Both teams are scored against their own season’s league. Every input is standardized ' +
