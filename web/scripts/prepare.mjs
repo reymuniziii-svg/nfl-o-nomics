@@ -43,10 +43,20 @@ async function mirrorAssets() {
     log(`no repo-root public/assets — skipping mirror (existing mirror kept: ${existsSync(dest)})`);
     return;
   }
-  const srcStat = await stat(src);
-  if (existsSync(dest)) {
-    const destStat = await stat(dest);
-    if (destStat.mtimeMs >= srcStat.mtimeMs) {
+  // A directory's mtime only changes when its OWN entries change, so compare
+  // the manifests (regenerated on every asset run) rather than the folders —
+  // otherwise a refreshed playermarks set is silently skipped (2026-10-10).
+  const stamps = ['playermarks/manifest.json', 'teammarks/manifest.json'];
+  const newest = async (root) => {
+    let t = (await stat(root)).mtimeMs;
+    for (const rel of stamps) {
+      const p = path.join(root, rel);
+      if (existsSync(p)) t = Math.max(t, (await stat(p)).mtimeMs);
+    }
+    return t;
+  };
+  if (existsSync(dest) && stamps.every((rel) => existsSync(path.join(dest, rel)))) {
+    if ((await newest(dest)) >= (await newest(src))) {
       log('asset mirror up to date');
       return;
     }
