@@ -62,6 +62,33 @@ export default async function PlayerPage({ params }: { params: Promise<{ id: str
   const availRows = b.availability.state === 'blank' ? [] : b.availability.value;
   const deadCharges = capRows.filter((r) => r.deadMoney);
 
+  /**
+   * SNAP COLUMNS BY POSITION GROUP. A quarterback's defensive and special-teams
+   * snap columns are zeros by role, and a column of zeros reads as a finding.
+   * A column shows when it is the position group's own phase, OR when any
+   * season actually records a non-zero count there — so a two-way or
+   * special-teams contribution is never hidden. The CSV keeps every column.
+   */
+  const group = (
+    capRows[capRows.length - 1]?.positionGroup ??
+    b.position ??
+    ''
+  ).toUpperCase();
+  const OFFENCE = new Set(['QB', 'RB', 'WR', 'TE', 'OL', 'FB', 'T', 'G', 'C']);
+  const DEFENCE = new Set(['DL', 'LB', 'DB', 'DE', 'DT', 'CB', 'S', 'EDGE', 'ILB', 'OLB']);
+  const anyNonZero = (k: 'offSnaps' | 'defSnaps' | 'stSnaps') =>
+    availRows.some((r) => (r[k] ?? 0) > 0);
+  const snapCols = (
+    [
+      { key: 'offSnaps', label: 'Off snaps', own: OFFENCE.has(group) },
+      { key: 'defSnaps', label: 'Def snaps', own: DEFENCE.has(group) },
+      { key: 'stSnaps', label: 'ST snaps', own: group === 'ST' || (!OFFENCE.has(group) && !DEFENCE.has(group)) },
+    ] as const
+  ).filter((c) => c.own || anyNonZero(c.key));
+  const hiddenSnapCols = (['offSnaps', 'defSnaps', 'stSnaps'] as const).filter(
+    (k) => !snapCols.some((c) => c.key === k),
+  );
+
   /** A cell the source does not record. Never a dash on its own, never a zero. */
   const notRecorded = <span className="yy-label">Not recorded</span>;
 
@@ -296,7 +323,7 @@ export default async function PlayerPage({ params }: { params: Promise<{ id: str
               />
             </StatGrid>
             <div className={css.tableScroll}>
-              <table className={css.table}>
+              <table className={`${css.table} ${snapCols.length <= 1 ? css.tableCompact : ''}`}>
                 <thead>
                   <tr>
                     <th scope="col" className="yy-label-lg">
@@ -308,15 +335,11 @@ export default async function PlayerPage({ params }: { params: Promise<{ id: str
                     <th scope="col" className={`yy-label-lg ${css.num}`}>
                       Games
                     </th>
-                    <th scope="col" className={`yy-label-lg ${css.num}`}>
-                      Off snaps
-                    </th>
-                    <th scope="col" className={`yy-label-lg ${css.num}`}>
-                      Def snaps
-                    </th>
-                    <th scope="col" className={`yy-label-lg ${css.num}`}>
-                      ST snaps
-                    </th>
+                    {snapCols.map((c) => (
+                      <th key={c.key} scope="col" className={`yy-label-lg ${css.num}`}>
+                        {c.label}
+                      </th>
+                    ))}
                   </tr>
                 </thead>
                 <tbody>
@@ -331,9 +354,11 @@ export default async function PlayerPage({ params }: { params: Promise<{ id: str
                         the boundary is stated once, beneath the table, where it
                         is true of the whole card rather than of a row. */}
                       <td className={`yy-num ${css.num}`}>{r.games ?? notRecorded}</td>
-                      <td className={`yy-num ${css.num}`}>{r.offSnaps ?? notRecorded}</td>
-                      <td className={`yy-num ${css.num}`}>{r.defSnaps ?? notRecorded}</td>
-                      <td className={`yy-num ${css.num}`}>{r.stSnaps ?? notRecorded}</td>
+                      {snapCols.map((c) => (
+                        <td key={c.key} className={`yy-num ${css.num}`}>
+                          {r[c.key] ?? notRecorded}
+                        </td>
+                      ))}
                     </tr>
                   ))}
                 </tbody>
@@ -343,6 +368,16 @@ export default async function PlayerPage({ params }: { params: Promise<{ id: str
         )}
         {/* The boundary is stated, not absorbed. */}
         <ChartCaption>{b.snapsBoundaryNote}</ChartCaption>
+        {availRows.length && hiddenSnapCols.length ? (
+          <ChartCaption>
+            {(() => {
+              const words = hiddenSnapCols
+                .map((k) => (k === 'offSnaps' ? 'offensive' : k === 'defSnaps' ? 'defensive' : 'special-teams'))
+                .join(' and ');
+              return `${words.charAt(0).toUpperCase()}${words.slice(1)} snaps are zero or unrecorded in every season for this ${group || 'player'}, so they are left out of the table; the CSV carries them.`;
+            })()}
+          </ChartCaption>
+        ) : null}
       </Card>
 
       {/* ── image provenance ─────────────────────────────────────────────── */}
