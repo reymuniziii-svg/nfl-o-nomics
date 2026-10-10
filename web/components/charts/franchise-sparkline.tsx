@@ -7,7 +7,7 @@
  * 1px `--yy-fg-dim` vertical.
  *
  * Blanked seasons BREAK the path; they are **not** hatched at this size — there
- * is no room for the label, and an unlabelled hatch is worse than a visible gap.
+ * is no room for the label, and an unlabeled hatch is worse than a visible gap.
  * Nothing animates.
  */
 
@@ -67,7 +67,7 @@ export function FranchiseSparkline({
       className={css.spark}
       viewBox={`0 0 ${W} ${H}`}
       role="img"
-      aria-label={`${label}: ${hasCapPlus ? 'Cap+' : 'Team rating'} by season, 100 is league average`}
+      aria-label={`${label}: ${hasCapPlus ? 'Cap+' : 'Team Rating'} by season, 100 = league average`}
     >
       {/* the single gold tick at the 100 baseline */}
       <line

@@ -24,8 +24,10 @@ import {
   BLANK_REASON,
   CROSS_ERA_STATEMENT,
   NOT_A_32_TEAM_READING,
+  badged,
   blank,
   mapMetric,
+  modeledRangeLabel,
   partial,
   value,
   type AsOfStage,
@@ -39,6 +41,11 @@ import {
   getCostPerWin,
   type CostPerWin,
 } from './metrics';
+
+/** `$7.2M` — the range label's money form (lib/display.usdShort, kept server-side here). */
+function usdM(n: number): string {
+  return n >= 1e6 ? `$${(n / 1e6).toFixed(1)}M` : `$${(n / 1e3).toFixed(0)}K`;
+}
 
 export interface TeamSeasonRef {
   team: TeamAbbr;
@@ -115,7 +122,7 @@ export interface CompareBundle {
   rows: BenchmarkRow[];
 }
 
-/** League averages for one season, from the marts. Memoised per process. */
+/** League averages for one season, from the marts. Memoized per process. */
 const seasonAvgCache = new Map<number, Promise<Record<string, number | null>>>();
 
 function seasonAverages(season: number): Promise<Record<string, number | null>> {
@@ -131,7 +138,7 @@ function seasonAverages(season: number): Promise<Record<string, number | null>> 
         .from(s.teamSeasonResults)
         .where(eq(s.teamSeasonResults.season, season));
       const [epa] = await db
-        .select({ epaMargin: avg(s.teamSeasonEpa.epaMarginPerPlay) })
+        .select({ epaMargin: avg(s.teamSeasonEpa.epaMarginPerPlayAdj) })
         .from(s.teamSeasonEpa)
         .where(eq(s.teamSeasonEpa.season, season));
 
@@ -199,7 +206,7 @@ function seasonAverages(season: number): Promise<Record<string, number | null>> 
       }
 
       return {
-        // Both indices are centred on 100 by construction; the league average is
+        // Both indices are centered on 100 by construction; the league average is
         // read from the definition, not recomputed from the rows.
         index: 100,
         winPct: num(res?.winPct),
@@ -260,7 +267,7 @@ async function sideOf(
 function costRatio(m: Metric<CostPerWin>): Metric<number> {
   if (m.state !== 'value') return m as Metric<number>;
   return m.value.perWin === null
-    ? blank(m.value.zeroWinLabel ?? '0 wins — the ratio is suppressed by rule.')
+    ? blank(m.value.zeroWinLabel ?? '0 wins, so no cost per win is shown.')
     : value(m.value.perWin);
 }
 
@@ -305,11 +312,11 @@ export async function getCompareBundle(
   });
   rows.push({
     key: 'epa_margin',
-    label: 'EPA margin per play',
+    label: 'EPA margin per play, opponent-adjusted',
     tier: 1,
     unit: 'rate',
-    a: await sideOf(a, ta.epa ? value(ta.epa.epaMarginPerPlay) : blank(BLANK_REASON.MART_ABSENT), 'epaMargin'),
-    b: await sideOf(b, tb.epa ? value(tb.epa.epaMarginPerPlay) : blank(BLANK_REASON.MART_ABSENT), 'epaMargin'),
+    a: await sideOf(a, ta.epa ? value(ta.epa.epaMarginPerPlayAdj) : blank(BLANK_REASON.MART_ABSENT), 'epaMargin'),
+    b: await sideOf(b, tb.epa ? value(tb.epa.epaMarginPerPlayAdj) : blank(BLANK_REASON.MART_ABSENT), 'epaMargin'),
   });
 
   /* ---- The index row: Cap+ where each side is covered ---- */
@@ -421,7 +428,7 @@ export async function getCompareBundle(
     if (m.state !== 'value') return m;
     if (!leagueCap) {
       return blank(
-        'Not available — no league cap is recorded for this season, so the ratio cannot be put on a comparable scale.',
+        'Not available — no league cap is on record for this season, so the ratio can’t be scaled to its own cap.',
       );
     }
     return value(m.value / leagueCap);
@@ -479,7 +486,20 @@ export async function getCompareBundle(
               32,
               `${NOT_A_32_TEAM_READING} — this figure comes from a published leaders list, not a league-wide table.`,
             )
-          : value<number>(row.burdenOfAdjustedCap, asOf),
+          : row.isModeled && row.loUsd !== null && row.hiUsd !== null
+            ? // SPEC §2.2 — a modeled figure never renders bare: it carries the
+              // estimated badge with its range as the reason.
+              badged<number>(
+                row.burdenOfAdjustedCap,
+                asOf,
+                'estimated',
+                `Estimated — no published figure for this club; ${modeledRangeLabel(
+                  row.asofDate,
+                  usdM(row.loUsd),
+                  usdM(row.hiUsd),
+                )}.`,
+              )
+            : value<number>(row.burdenOfAdjustedCap, asOf),
       usd: row.deadMoneyUsd,
     };
   };

@@ -4,7 +4,7 @@
  * `FinePrint` — the inline expand of `MOBILE_PATTERNS.md` §3.1, for a chart's
  * method note (review D #9: "caveat prose outweighs the charts").
  *
- * THE DISCLOSURE PROHIBITION (§3.4) is honoured by construction: `short` is
+ * THE DISCLOSURE PROHIBITION (§3.4) is honored by construction: `short` is
  * always visible and must be a complete statement on its own; the region only
  * adds precision. Export scopes force it open (`.yy-export`), so a screenshot
  * never hides a caveat.

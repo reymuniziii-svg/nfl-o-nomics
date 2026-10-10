@@ -122,15 +122,28 @@
 }
 
 /* SPEC §2.8 step 7 — the league median for the same season, beside the figure.
-   Never coloured and never band-coded: it is the context that keeps a large
+   Never colored and never band-coded: it is the context that keeps a large
    dead-money number from reading as a verdict. */
+.lensModeled {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--yy-space-1) var(--yy-space-2);
+}
+
+.lensModeledStamp {
+  color: var(--yy-fg-2);
+  text-transform: none;
+  white-space: normal;
+}
+
 .lensBenchmark {
   color: var(--yy-fg-3);
   display: block;
   letter-spacing: var(--yy-track-label);
 }
 
-/* SPEC §1.2 — a partial season is labelled partial, in words, beside the value
+/* SPEC §1.2 — a partial season is labeled partial, in words, beside the value
    and not only in a caption. */
 .lensPartial {
   color: var(--yy-fg-2);
@@ -535,6 +548,7 @@
 .verdictUnit {
   color: var(--yy-fg-3);
   letter-spacing: var(--yy-track-label-wide);
+  white-space: normal;
 }
 
 .verdictBlank {

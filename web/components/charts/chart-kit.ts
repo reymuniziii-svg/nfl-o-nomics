@@ -7,7 +7,7 @@
  * emit SVG that never hydrates. The one exception is `useChartTooltip` at the
  * foot of the file, which only a `'use client'` chart calls.
  *
- * COLOUR NEVER APPEARS HERE. SVG accepts `fill="var(--yy-accent)"`, so every
+ * COLOR NEVER APPEARS HERE. SVG accepts `fill="var(--yy-accent)"`, so every
  * mark binds a custom property directly and a theme flip needs no re-render
  * (`CHART_ANATOMY.md` §8, "Theming").
  */
@@ -104,7 +104,7 @@ export function runsOf(points: SeriesPoint[]): { x: number; y: number }[][] {
   return runs;
 }
 
-/** The contiguous spans where a series has NO value — each one a labelled gap. */
+/** The contiguous spans where a series has NO value — each one a labeled gap. */
 export function gapsOf(points: SeriesPoint[]): { from: number; to: number }[] {
   const gaps: { from: number; to: number }[] = [];
   let start: number | null = null;

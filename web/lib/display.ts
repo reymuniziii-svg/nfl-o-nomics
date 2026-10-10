@@ -2,17 +2,59 @@
  * Display helpers for the designed components.
  *
  * Presentation only — nothing here changes a value, and nothing here decides a
- * colour: a component asks for a BAND NAME (`above` | `mid` | `below`) and binds
+ * color: a component asks for a BAND NAME (`above` | `mid` | `below`) and binds
  * it to a semantic token in its own stylesheet. Hex never appears in TypeScript
  * either (`SPEC.md` §4).
  */
 
 import { eraIdentity, type TeamAbbr } from './teams';
-import type { Metric } from './metric';
+import { modeledRangeLabel, type Metric } from './metric';
 
 /* ------------------------------------------------------------------ */
 /* Records and names                                                    */
 /* ------------------------------------------------------------------ */
+
+/** The deepest postseason round, in words. Context only — never an index input. */
+export type PlayoffResultCode =
+  | 'none'
+  | 'wild_card'
+  | 'divisional'
+  | 'conference'
+  | 'super_bowl_loss'
+  | 'super_bowl_win';
+
+const PLAYOFF_WORDS: Record<PlayoffResultCode, string> = {
+  none: 'missed playoffs',
+  wild_card: 'lost Wild Card',
+  divisional: 'lost Divisional',
+  conference: 'lost Conference Championship',
+  super_bowl_loss: 'lost Super Bowl',
+  super_bowl_win: 'Super Bowl champion',
+};
+
+/** `lost Divisional` / `Super Bowl champion` / `missed playoffs`. */
+export function playoffWords(result: PlayoffResultCode): string {
+  return PLAYOFF_WORDS[result] ?? PLAYOFF_WORDS.none;
+}
+
+/** `12–5 · lost Divisional`, or `Super Bowl champion · 15–2` for a title season. */
+export function recordWithPlayoffs(
+  wins: number,
+  losses: number,
+  ties: number,
+  result: PlayoffResultCode,
+): string {
+  const rec = recordDash(wins, losses, ties);
+  return `${rec} · ${playoffWords(result)}`;
+}
+
+/**
+ * A modeled dead-money figure, never bare (SPEC §2.2 / §7.5):
+ * `$9.9M estimated as of 2016-10-05, 80% range $7.2M–$16.4M`.
+ */
+export function modeledDeadMoney(usd: number, asOfDate: string, lo: number, hi: number): string {
+  return `${usdShort(usd)} ${modeledRangeLabel(asOfDate, usdShort(lo), usdShort(hi))}`;
+}
 
 /** `13–4` (en dash), `9–7–1` when the season had a tie. `TYPE.md`-set figure. */
 export function recordDash(wins: number, losses: number, ties: number): string {
@@ -64,7 +106,7 @@ export function pctVsLeague(v: number, benchmark: number): string {
   return `${pct}% ${rel < 0 ? 'BELOW' : 'ABOVE'} LEAGUE`;
 }
 
-/** `+3.6` / `−2.3` — allocation bars. Never coloured (`COMPONENTS.md` §7.2). */
+/** `+3.6` / `−2.3` — allocation bars. Never colored (`COMPONENTS.md` §7.2). */
 export function signedPoints(fraction: number, digits = 1): string {
   const v = fraction * 100;
   const sign = v > 0 ? '+' : v < 0 ? '−' : '';
@@ -82,7 +124,7 @@ export function stageWords(stage: string): string {
 }
 
 /* ------------------------------------------------------------------ */
-/* Index bands — the product's core colour-encoding rule                */
+/* Index bands — the product's core color-encoding rule                */
 /* ------------------------------------------------------------------ */
 
 export type Band = 'above' | 'mid' | 'below';
@@ -95,10 +137,10 @@ export function indexBand(v: number): Band {
 }
 
 /* ------------------------------------------------------------------ */
-/* Favourability — only ever applied where a benchmark renders            */
+/* Favorability — only ever applied where a benchmark renders            */
 /* ------------------------------------------------------------------ */
 
-export type Favourability = 'cheap' | 'mid' | 'dear';
+export type Favorability = 'cheap' | 'mid' | 'dear';
 
 /**
  * `COMPONENTS.md` §1.3, benchmark mode. "At average" is a ±2% band so a club a
@@ -106,7 +148,7 @@ export type Favourability = 'cheap' | 'mid' | 'dear';
  * 72 makes red conditional on the benchmark actually rendering, which is the
  * caller's job: pass `null` and everything comes back `mid`.
  */
-export function favourability(v: number, benchmark: number | null): Favourability {
+export function favorability(v: number, benchmark: number | null): Favorability {
   if (benchmark === null || !Number.isFinite(benchmark) || benchmark === 0) return 'mid';
   const rel = (v - benchmark) / benchmark;
   if (rel < -0.02) return 'cheap';

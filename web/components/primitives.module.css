@@ -74,6 +74,44 @@
   border-color: var(--yy-provisional-stroke);
 }
 
+.chipEstimated {
+  color: var(--yy-fg-1);
+  border: 1px dashed var(--yy-fg-2);
+}
+
+/* BadgeChip — the reason sentence is visible only in the print/screenshot
+   variant; on screen it is the chip's hover title and accessible text. */
+.badgeChipWrap {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--yy-space-1) var(--yy-space-2);
+  max-width: 100%;
+}
+
+.badgeChipSentence {
+  display: none;
+  color: var(--yy-fg-2);
+  text-transform: none;
+  white-space: normal;
+}
+
+.badgeChipSentenceInline,
+:global(.yy-export) .badgeChipSentence {
+  display: inline;
+}
+
+@media print {
+  .badgeChipSentence {
+    display: inline;
+  }
+}
+
+.chipEarly {
+  color: var(--yy-fg-2);
+  border-color: var(--yy-fg-3);
+}
+
 .chipProjected {
   color: var(--yy-provisional);
   border-color: var(--yy-provisional-stroke);
@@ -214,7 +252,7 @@
   color: var(--yy-negative-text);
 }
 
-/* DECISIONS 83 — Team Rating is NEVER band-coloured. */
+/* DECISIONS 83 — Team Rating is NEVER band-colored. */
 .badgeNeutral {
   color: var(--yy-fg-1);
 }
@@ -375,7 +413,7 @@
   max-width: var(--yy-measure);
 }
 
-/* ── Section — a labelled block on a view ───────────────────────────────── */
+/* ── Section — a labeled block on a view ───────────────────────────────── */
 
 .sectionLabel {
   color: var(--yy-fg-3);

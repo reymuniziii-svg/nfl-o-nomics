@@ -78,13 +78,13 @@ export function receiptRows(division: ReceiptSource, linked = true): CpwRow[] {
 export function receiptCoverage(season: number, teams: number): Coverage {
   return {
     statement:
-      `Cost per win for ${teams} clubs in ${season}. Contract, cap and cash coverage begins in 2013; ` +
-      'a club with no wins shows its total spend and is excluded from the ratio ranking.',
+      `Cost per win for ${teams} clubs in ${season}. Contract, cap and cash data start in 2013. ` +
+      'A club with no wins shows its total spend and sits out the ratio ranking.',
   };
 }
 
 /** `SPEC.md` §3.1 item 1 — stated below the division picker, always. */
-export const ALIGNMENT_NOTE = 'Current alignment only. The 2002 realignment is not modelled.';
+export const ALIGNMENT_NOTE = 'Current alignment only. We don’t model the 2002 realignment.';
 
 export function teamHref(abbr: TeamAbbr | string, season: number): string {
   return `/team/${String(abbr).toLowerCase()}/${season}`;

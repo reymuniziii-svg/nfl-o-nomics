@@ -111,7 +111,7 @@
   transform: translateY(1px);
 }
 
-/* The receipt is a fixed light paper in both themes; centred, never stretched. */
+/* The receipt is a fixed light paper in both themes; centered, never stretched. */
 .receiptPaper {
   display: flex;
   justify-content: center;

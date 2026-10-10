@@ -4,7 +4,7 @@
  * A DIVERGING DOT PLOT. Per metric row, both team-seasons sit on ONE shared
  * axis whose zero is each side's OWN season league average, so the reader
  * compares two distances-from-average — never two raw numbers drawn as if they
- * were one scale. The v1 butterfly normalised every row to its own leader (so
+ * were one scale. The v1 butterfly normalized every row to its own leader (so
  * every leader drew full width) and printed raw values beside bars that encoded
  * deltas. Both faults are gone:
  *
@@ -23,9 +23,9 @@
  *    raw spend would reward being cheap regardless of result.
  *  - **A tally headline** states the verdict the rows add up to.
  *
- * Colour roles (`DECISIONS.md` 69): side A is `--yy-accent` with a round dot and
+ * Color roles (`DECISIONS.md` 69): side A is `--yy-accent` with a round dot and
  * a solid stem; side B is `--yy-compare` with a diamond and a dashed stem. Shape
- * and stroke carry the distinction, so colour is never the sole carrier. **Red
+ * and stroke carry the distinction, so color is never the sole carrier. **Red
  * does not appear on `/compare`.** Gold is the league average and nothing else:
  * one 2px rule per row, at the shared zero, named once in words above the plot.
  *
@@ -34,7 +34,7 @@
  */
 
 import css from './head-to-head.module.css';
-import { ChartCaption, Legend, type LegendItem } from '../primitives';
+import { BadgeChip, ChartCaption, Legend, type LegendItem } from '../primitives';
 import { usdShort } from '@/lib/display';
 import type { BenchmarkRow, BenchmarkSide, CompareBundle } from '@/lib/data/compare';
 import type { Coverage } from '@/lib/display';
@@ -156,22 +156,22 @@ export function HeadToHead({ bundle, coverage }: { bundle: CompareBundle; covera
 
   const headline =
     scored === 0
-      ? 'No measure is comparable on both sides'
+      ? 'No measure covers both teams'
       : aWins === bWins
         ? `${aTag} and ${bTag} split ${aWins}–${bWins}`
         : aWins > bWins
-          ? `${aTag} better on ${aWins} of ${scored}`
-          : `${bTag} better on ${bWins} of ${scored}`;
+          ? `${aTag} ahead on ${aWins} of ${scored}`
+          : `${bTag} ahead on ${bWins} of ${scored}`;
 
   const subParts = [
     aWins > bWins && bWins
-      ? `${bTag} better on ${bWins}`
+      ? `${bTag} ahead on ${bWins}`
       : bWins > aWins && aWins
-        ? `${aTag} better on ${aWins}`
+        ? `${aTag} ahead on ${aWins}`
         : null,
     level ? `${level} level` : null,
     uncovered ? `${uncovered} not covered on one side` : null,
-    context ? `${context} shown as context, not scored` : null,
+    context ? `${context} context rows, not scored` : null,
   ].filter(Boolean);
 
   const legend: LegendItem[] = [
@@ -186,7 +186,7 @@ export function HeadToHead({ bundle, coverage }: { bundle: CompareBundle; covera
   if (offScale) {
     legend.push({
       swatch: 'offscale',
-      label: 'Beyond the axis — the printed figure is exact',
+      label: 'Off the axis; the printed figure is exact',
       tone: 'compare',
     });
   }
@@ -215,7 +215,7 @@ export function HeadToHead({ bundle, coverage }: { bundle: CompareBundle; covera
       <div
         className={css.plot}
         role="img"
-        aria-label={`${headline}. ${bundle.rows.length} measures, each drawn as the distance from that side’s own season league average.`}
+        aria-label={`${headline}. ${bundle.rows.length} measures, each plotted as its distance from that side’s own season league average.`}
         aria-describedby={descId}
       >
         <div className={css.scaleRow} aria-hidden="true">
@@ -235,8 +235,7 @@ export function HeadToHead({ bundle, coverage }: { bundle: CompareBundle; covera
             <p className={`yy-label ${css.tierHead}`}>Money · 2013 onward</p>
             {oneSided ? (
               <p className={`yy-caption ${css.tierNote}`}>
-                Player-level economics begin in 2013. {olderSide.team} {yy(olderSide.season)} has
-                team results only.
+                Cap and cash data start in 2013. {olderSide.team} {yy(olderSide.season)} shows team results only.
               </p>
             ) : null}
             <ul className={css.rows}>
@@ -257,11 +256,11 @@ export function HeadToHead({ bundle, coverage }: { bundle: CompareBundle; covera
 
       <Legend items={legend} />
       <ChartCaption>
-        Each row is drawn on its own fixed scale, the same for every pair of team-seasons, so a dot
-        near the edge is near the most extreme season on record. Higher is better on results rows;
-        lower is better for cost per win and dead money, because this site measures what wins cost.
-        Cash spent and cap held are context, not scored: cost per win already carries the cost
-        side, and scoring raw spend would reward being cheap regardless of result.
+        Every row uses one fixed scale for all pairings, so a dot near the edge sits near the most
+        extreme season on record. Higher wins on results rows. Lower wins on cost per win and on
+        dead money, the cap you still pay for players who are gone. Cash spent and cap held are
+        context only, because cost per win already covers cost and raw spend rewards cheap teams
+        whether or not they won.
       </ChartCaption>
       <ChartCaption>{coverage.statement}</ChartCaption>
     </div>
@@ -270,7 +269,7 @@ export function HeadToHead({ bundle, coverage }: { bundle: CompareBundle; covera
 
 function sideSentence(row: BenchmarkRow, side: BenchmarkSide): string {
   const who = tag(side);
-  if (side.raw.state === 'blank') return `${who} not covered (${side.raw.reason})`;
+  if (side.raw.state === 'blank') return `${who} not covered. ${side.raw.reason}`;
   const raw = rawText(row.unit, side.raw.value);
   if (side.delta === null) return `${who} ${raw}, no comparable league benchmark`;
   const d = deltaParts(row.unit, side.delta);
@@ -284,7 +283,8 @@ function rowSentence(row: BenchmarkRow): string {
     better === 'higher' ? 'Higher is better.' : better === 'lower' ? 'Lower is better.' : 'Context only, not scored.';
   const verdict =
     e === 1 ? `${tag(row.a)} ahead.` : e === -1 ? `${tag(row.b)} ahead.` : e === 0 ? 'Level.' : '';
-  return `${row.label}: ${sideSentence(row, row.a)}; ${sideSentence(row, row.b)}. ${dir} ${verdict}`.trim();
+  const end = (s: string) => (s.endsWith('.') ? s : `${s}.`);
+  return `${row.label}. ${end(sideSentence(row, row.a))} ${end(sideSentence(row, row.b))} ${dir} ${verdict}`.trim();
 }
 
 /** Position on the track, 0–100%, and whether the value ran off the axis. */
@@ -386,7 +386,6 @@ function Readout({ row, side }: { row: BenchmarkRow; side: 'a' | 'b' }) {
   const raw = rawText(row.unit, s.raw.value);
   const usd = s.secondaryUsd !== null && s.secondaryUsd !== undefined ? usdShort(s.secondaryUsd) : null;
   const lg = s.leagueAvg !== null ? rawText(row.unit, s.leagueAvg) : null;
-  const provisional = s.raw.state === 'value' && s.raw.provisional;
 
   return (
     <div className={cls}>
@@ -403,7 +402,7 @@ function Readout({ row, side }: { row: BenchmarkRow; side: 'a' | 'b' }) {
       )}
       <span className={`yy-label ${css.raw}`}>
         <span className="yy-num">{raw}</span>
-        {lg ? <> · lg {lg}</> : null}
+        {lg ? <> · avg {lg}</> : null}
         {s.raw.state === 'partial' ? (
           <span className={css.partialMark}>
             {' '}
@@ -412,9 +411,9 @@ function Readout({ row, side }: { row: BenchmarkRow; side: 'a' | 'b' }) {
         ) : null}
       </span>
       {usd ? <span className={`yy-label ${css.raw}`}>{usd}</span> : null}
-      {provisional ? (
-        <span className={`yy-label ${css.provisional}`}>Provisional</span>
-      ) : null}
+      {/* Provisional / Estimated, with the reason on hover; a modeled dead-money
+          figure prints its range in full, since it never renders bare. */}
+      <BadgeChip metric={s.raw} sentence={row.key === 'dead_money' ? 'inline' : 'export'} />
       {s.raw.state === 'partial' ? (
         <span className={`yy-label ${css.raw}`}>{s.raw.reason}</span>
       ) : null}

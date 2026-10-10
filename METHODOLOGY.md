@@ -1,267 +1,290 @@
 # Methodology
 
-*This is the public methodology page — the draft that becomes `/methodology`.*
-
-YIELD/YARD asks one question about every NFL team: **was it worth it?** This page explains how
-we answer it, what our numbers can and cannot see, and where every figure comes from.
+YIELD/YARD asks one question about every NFL team season: what did the wins cost? This page
+shows how we answer it, what our numbers can't see, and where each figure comes from.
 
 ---
 
 ## What Cap+ is
 
-**Cap+ measures how much on-field performance a team got for the money it actually spent, with
-100 as the league average for that season.**
+**Cap+ measures how much on-field performance a team got for the cap money it carried, with 100
+as that season's league average.**
 
-Think of it as field position. **100 is midfield.** Every 15 points of Cap+ is 15 yards. A team
-at 130 is inside the opponent's 20 — red zone, elite. A team at 50 is on its own goal line,
-about to give up a safety. A team at 100 got exactly league-average results for
-league-average money.
+Think of it as field position. 100 is midfield, and every 15 points is 15 yards. A team at 130
+sits at the opponent's 20. A team at 70 is pinned at its own 20. Each team is measured against
+its own season's league, so a 2015 team and a 2024 team compare directly.
 
-Because Cap+ is centred on each season's league average, a 2015 team and a 2024 team can be
-compared directly. Both are measured against the league they actually played in.
+Cap+ is a price tag, not a grade.
 
----
+## How it's computed
 
-## How Cap+ is computed
+Performance, called P, blends three measures with equal weights: win percentage (a tie counts as
+half a win), point differential per game, and EPA margin per play. Each is compared with the rest
+of that season. EPA, expected points added, is how many points a play added beyond what the
+down, distance and field position predicted. The margin is offensive EPA per play minus
+defensive EPA per play, on runs and passes. Regular season only. Alternate weightings correlate
+at least 0.9968 with this one and shift teams 0.74 places or less on average.
 
-**In words.** We build one performance score for each team from three things: how often it won,
-how badly it beat or lost to its opponents, and how much better or worse its offence and defence
-were than the opposition on a per-play basis. We compare each team to the rest of its own
-season on all three, then average them equally. That gives us the numerator.
+The EPA margin is adjusted for opponents. Gaining 0.1 EPA a play against the league's best
+defenses is worth more than doing it against the worst, so we fit every game's offense and
+defense at once and credit each team for who it played. Each season's average doesn't move. Most
+teams shift a little; the biggest single move is under a tenth of an EPA point per play.
 
-For the denominator, we add up what the team's cap actually carried that year: the money
-committed to players on the roster, plus dead money — the cap charges left behind by players
-who are no longer on the team. We count each dead dollar at one and a half times a live one.
-Then we compare that total to what the average team spent that season. A team that spent
-league-average money has a denominator of 1.00.
-
-Divide the first number by the second, and you have Cap+.
-
-**The math.**
+Cost is the cap charged to rostered players plus dead money, the cap you still pay for players
+who are gone. A dead dollar counts once, like any other cap dollar. We divide by the league cap,
+compare with the season's average, and apply a floor.
 
 ```
 Cap+ = (100 + 15 × P) ÷ R
 
-P    = the performance score: an equal-weight blend of win percentage,
-       point differential per game, and EPA margin per play, each measured
-       against that season's league
+P    = equal-weight blend of win percentage, point differential per game
+       and opponent-adjusted EPA margin per play, each within its season
 
-R    = the team's cost ÷ the league-average cost that season,
-       with a floor (see below)
+R    = team cost ÷ league-average cost, floored at the season's 25th percentile
 
-cost = (cap charged to players on the roster + 1.5 × dead money) ÷ league cap
+cost = (cap charged to rostered players + dead money) ÷ league cap
 ```
 
-Regular season only. A tie counts as half a win. EPA is measured on running and passing plays.
+Each season's mean is exactly 100. The ten seasons with a measured dead-money table set the
+spread: one pooled standard deviation across them is 15 points. The three estimated seasons
+use that same 15, so a point means the same thing in every year.
 
-### Why a dead dollar counts as one and a half
+### Why a dead dollar counts once
 
-This is a claim about football economics, and we would rather state it plainly than bury it in
-the arithmetic:
+We used to count each dead dollar as $1.50, on the theory that it buys no player and blocks a
+roster spot. That charges it twice. The dollar is in the cost once already, and the weaker
+roster it left behind is already in the team's performance. So it counts once.
 
-> **A dollar of dead cap costs a team half again what a live dollar does, because it buys no
-> player and it blocks a roster spot.**
+Here's what the other weights would do. The middle column is the average move for each season's
+three biggest dead-money teams, against their on-field rank.
 
-That is a judgement, not a measurement, and it changes the answer. So we publish the
-alternative: **a comparison table showing every team's Cap+ if a dead dollar were counted as
-exactly one dollar** sits alongside this page. The short version — at one-to-one, the teams
-with the biggest dead-money charges drop about half a place and one point on average, which is
-to say the dead money does almost nothing. At one-and-a-half, they drop about three places and
-five and a half points. We chose the weight that makes the number mean what the page says it
-means, and we are showing our work.
+| Weight on a dead dollar | Top-3 dead-money teams | 2022 ATL |
+|---|---|---|
+| **$1.00 (ours)** | **down 0.56 places, 0.9 points** | **96.2 (20th)** |
+| $1.50 | down 3.69 places, 5.3 points | 89.3 (27th) |
+| $2.00 | down 5.51 places, 9.0 points | 82.5 (29th) |
 
-### The floor: you get no credit for money you never spent
+Atlanta was 24th on the field in 2022 and lands 20th. The $1.50 weight was picked partly so that
+Atlanta would rate poorly, and that's the wrong way to choose a number. Denver carried $85.2M
+as of 2024-11-27, against a $50.3M league median, and still rates 10th, because its cap
+consumption was the 2024 median. At $2.00 it would drop to 20th.
 
-A pure efficiency ratio has an obvious flaw — a team can improve its score by simply not
-spending. Left alone, that arithmetic rewards a team for gutting its roster.
+### The floor
 
-So we apply a floor. **No team's cost is counted as lower than the 25th percentile of that
-season.** If you spent less than three-quarters of the league, you are treated as if you spent
-at that line. It applies to all 32 teams, every season, in the same way. Eight teams a season
-sit on the floor by construction.
+A pure ratio rewards a team for not spending. So no team's cost counts as lower than the 25th
+percentile of its season. That puts eight teams a season on the floor by construction. The
+league average is taken after the floor, so R = 1.00 still means league-average cost. The floor
+is why the 0-16 Browns of 2017 rate 32nd. Without it, they'd rate 24th for not spending.
 
-This is what puts the 0-16 2017 Browns 32nd, where they belong. Without it, the same arithmetic
-rated them mid-pack for the crime of not spending money.
+With dead money counted once, cost is just cap consumed: rostered cap plus dead money as a share
+of the league cap. 12.5% of team-seasons come in above 1.00, because a team's adjusted cap can
+sit above the league figure.
 
-### One date per season, printed beside every number
+### One date per season
 
-Dead money is not a season total that sits still. It accumulates through the league year as
-players are released and traded, so the same team can read $57.6 million before the season and
-$91.8 million once it is over. The figure depends entirely on when someone measured it.
+Dead money piles up through the league year as players are cut and traded. Chicago's 2022 figure
+reads $57.6 million in the preseason and $91.8 million once the year is over. So every team in a
+season is read from one dated table (2013-03-18 for 2013, 2025-12-17 for 2025), and the date is
+printed next to every dead-money figure. We never connect those figures across seasons with a
+line. They're dated readings, not a trend.
 
-So we do two things. **Every team in a season is read from the same dated table** — you are
-never comparing one team's December to another team's July. And **the date is printed next to
-the number**, every time, everywhere. If you see a dead-money figure on this site without a
-date beside it, that is a bug and we want to hear about it.
-
-For the same reason, **we never draw a line connecting dead-money figures across seasons.**
-They are individual dated readings, not a trend, and connecting them would invent a story the
-data cannot support.
-
-**Two seasons carry a "provisional" badge: 2014 and 2019.** Those tables were published before
-the league year opened, so they understate the final figures — the median team charge reads
-$4.0 million and $3.4 million, against $50.3 million in 2024. That is a measurement-date
-effect, not a league that got less disciplined.
+Three tables came out early, so they understate the final figures, and those seasons carry a
+"provisional" badge. The 2014 and 2019 tables were published before the league year opened. The
+2013 table came out one week into it. Their median team charge reads $5.9 million (2013),
+$4.0 million (2014) and $3.4 million (2019), against $50.3 million in 2024.
 
 ---
 
 ## What Cap+ is not
 
-**It is not a front-office grade.** Cap+ measures one season's resources against one season's
-results. It does not measure whether a team is well run. We know this because we checked: the
-cap adjustment — the part of Cap+ that is not just performance — **repeats from one season to
-the next at only +0.158**. Dead money is genuinely a one-year event. A team can be terrible on
-Cap+ one year and fine the next, and that is the metric working correctly, not failing.
+**It isn't a front-office grade.** Across the 416 team-seasons it covers, Cap+ correlates **0.96**
+with Team Rating, the same performance score with no money in it. The reason is the salary cap.
+Every team spends close to it, so cost varies by about 0.04 within a season and performance by
+about 0.15. Cap+ is Team Rating with a small cost adjustment. It moves a team 1.9 places from its
+on-field rank, on average. Read it as what this season's wins cost.
 
-We are publishing that number ourselves, up front, because it is the first thing a careful
-reader would compute and we would rather they read it here.
+**It doesn't repeat.** The cost adjustment, Cap+ minus performance, carries from one season to
+the next at only +0.07. Dead money is a one-year event.
 
-**It cannot see mortgaged future cap.** Cap+ measures the cap a team consumed this year, not
-the cap it borrowed against. A team that restructures every contract to win now looks
-efficient today and pays for it in a season this metric will score separately. When you see an
-all-in team rating well, that is the limit of the measurement, not an endorsement of the
-strategy.
+**It can't see borrowed cap.** Cap+ counts the cap a team used this year, not the cap it
+borrowed against. The next sections measure that gap.
 
-**It is not available for every season.** Cap+ covers **nine seasons: 2014, 2015, 2017, 2018,
-2019, 2022, 2023, 2024 and 2025.** For **2013, 2016, 2020 and 2021**, no league-wide dead-money
-table was published, and we will not fill four seasons with estimates. Those seasons say so.
+## The rookie-QB finding
 
-For **1999 through 2012**, league-wide contract data does not exist, so Cap+ does not exist
-either. Those seasons show **Team Rating (performance only)** — the same performance score,
-with no money in it, clearly labelled and visibly styled differently. It is not Cap+ with a
-qualifier; it is a different number with a different name. Where the two overlap, we plot both,
-so you can see the gap between them before the Cap+ line stops.
+The theory says a team with a quarterback on his first contract has a built-in edge. We tested it.
+The starting QB is the one with the most offensive snaps. He's in his rookie window if the team
+drafted him and he's still on his draft-year contract. The season must fall within four seasons
+of the draft, which admits the fifth-year option. Of the 416 Cap+ team-seasons, 146 have a starter
+in his rookie window. We call that a rookie-deal starter.
 
-The honest bridge: both are built from the identical performance score. Only the money
-adjustment starts in 2013.
+| | Teams | Avg Cap+ | Avg Team Rating | QB-timing points |
+|---|---:|---:|---:|---:|
+| Rookie-deal QB | 146 | 97.8 | 97.4 | +3.2 |
+| Veteran-deal QB | 270 | 101.2 | 101.4 | −1.7 |
+
+Teams with a rookie-deal starter average below 100 because they're usually still bad. Their cheap
+quarterbacks add 3.2 points on average, about a fifth of one standard deviation. Give each a
+league-median-priced starter and Cap+ falls by that much. The 2019 Chiefs score −1.4: their cost
+was already under the floor, so a cheap quarterback bought them nothing Cap+ could see. Within
+each season, Cap+ and QB share of the cap correlate positively, from +0.10 to +0.42.
+
+## QB-neutral Cap+
+
+We recompute Cap+ as if each team had paid the season's median starting QB, on the same scale.
+It sits beside Cap+ and splits it into two parts that add up exactly.
+
+```
+Cap+ − 100 = QB-timing points + roster points
+
+QB-timing points = Cap+ − QB-neutral Cap+
+roster points    = QB-neutral Cap+ − 100
+```
+
+QB-timing points are what the quarterback's contract was worth. Roster points are everything
+else. Teams with a rookie-deal starter are also ranked against each other, and teams with a
+veteran-deal starter likewise.
+
+## The future-cap mortgage
+
+A signing bonus is paid when the deal is signed, but it's charged to the cap in equal yearly
+slices. The slices that land in later seasons are the future-cap mortgage. For each rostered
+player we multiply his prorated bonus by the contract seasons left after this one, then add up
+the team.
+
+This is where the money varies. As a share of one league cap, the mortgage has a within-season
+standard deviation of 0.16, against 0.05 for cap consumed and 0.12 for cash paid.
+
+It's an estimate. It assumes flat proration. It can't see void years, the dummy contract years
+that push cap hits later, or restructures not yet signed. It counts 504 of 32,105 player-seasons
+as zero for lack of a contract length.
+
+## Cap or cash: the mortgage is the bridge
+
+Cap and cash keep different books. Cap spreads a bonus over the contract. Cash counts it the day
+it's paid. The mortgage is the difference between them: money a team has already paid out that
+the cap hasn't charged yet.
+
+So we don't fold it into Cap+. Adding a cash item to a cap number mixes two sets of books. We
+price a win both ways instead, cap per win and cash per win, and put the mortgage beside them so
+you can see why the two differ. A team whose cash runs well ahead of its cap has usually paid
+bonuses the cap will charge later, and its mortgage shows it.
 
 ---
 
-## The three money lenses
+## Thirteen seasons, three of them estimated, and Team Rating
 
-Every dollar figure on this site is one of three things, and we always say which.
+Cap+ covers **every season from 2013 to 2025**, all 416 team-seasons.
 
-**Cap hit** — what a player counted against his team's salary cap. These are settled,
-end-of-year figures: a player's cap number is restated through the league year, and what we
-show is where it landed. Patrick Mahomes' 2023 cap hit is $37,133,824, the September rework —
-not the $49.3 million he was originally scheduled for. There is no "as of Week 8" cap view on
-this site, because the underlying data does not support one.
+**Ten seasons are measured:** 2013, 2014, 2015, 2017, 2018, 2019, 2022, 2023, 2024 and 2025. Each
+has a published dead-money table for all 32 teams.
 
-**Cash spent** — what a team actually paid out in a given year. Signing bonuses are paid up
-front and charged to the cap over time, so cash and cap tell genuinely different stories, and
-cash is usually the better answer to "what did this cost." One thing it does not include: money
-paid to players the team released during the year.
+**Three are estimated: 2016, 2020 and 2021.** Nobody published a full table for them. We have
+real figures for 8, 11 and 10 teams, from published lists. For everyone else we estimate dead
+money from the contract record: how much unexplained room sat under each team's adjusted cap,
+how much cap its roster used, which players with bonus money still owed had just left, and the
+team's dead money the year before or after. The published lists pin the season's level. Every
+estimate carries an 80% range, and we never show an estimated dollar figure without it. We
+tested the method by hiding each measured season and estimating it: the typical team's Cap+ rank
+moved one place. These seasons carry an "estimated" badge that says how many teams are real.
+For 2016 it reads:
 
-**Dead money** — the cap charges left behind by players who are gone. We use the standard
-definition, from Dan Graziano at ESPN:
+> Estimated — 8 of 32 teams are published figures; the rest are modeled from contract data.
+
+If the licensing of the review-tier tables ever forces us to drop them, the estimate goes too,
+because it learns from those tables. Seasons without a table would then go blank, and say why:
+
+> Not available — no league-wide dead-money table was published for this season.
+
+League-wide contract data doesn't exist before 2013, so neither does Cap+. For **1999 through
+2012**, the Cap+ slot says:
+
+> Not available — league-wide contract coverage begins in 2013.
+
+Those years show **Team Rating (performance only)**, which is 100 + 15 × P for all 861
+team-seasons. It has its own name and styling, and it's never "Cap+ without the money."
+Franchise timelines break at 2013. From 2013 to 2025 we plot both lines, so you can see the gap
+between them.
+
+## Three kinds of money
+
+**Cap hit** is what a player counted against his team's salary cap. These are settled,
+end-of-year figures. Patrick Mahomes' 2023 cap hit is $37,133,824, the September rework, not the
+$49.3 million he was first scheduled for. We have no "as of Week 8" cap view because the data
+can't support one. The cap total we can see covers players on the roster only. It runs 15% to
+22% below a team's true cap because dead money sits outside it, so we never call it "cap used."
+
+**Cash spent** is what the team paid out in a year. Signing bonuses are paid up front but charged
+to the cap over time, so cash and cap differ. Cash leaves out money paid to players released
+during the year.
+
+**Dead money** is cap you still pay for players who are gone. Dan Graziano of ESPN defines it:
 
 > "A dead money charge is a charge on an NFL team's salary cap for a player who is no longer
 > on the roster. It represents any remaining signing bonus proration that was not accounted
 > for prior to the player's release or trade. It is not a cash payment..."
 
-That last sentence matters. Dead money is not a cheque anyone writes. It is roster-building
-capacity that has already been spent and cannot be spent again.
+Nobody writes a check for it. It's roster room already spent.
 
-One more thing worth knowing about cap figures: the cap number we can see is the money
-committed to players **on the roster**. It runs consistently below a team's true cap, because
-dead money sits outside it — which is exactly why we add dead money back in when computing
-Cap+, and why we never label a roster-cap total "cap used."
+## Cost per win and the receipt verdict
+
+Cost per win divides spending by wins. The team page defaults to cash and says "cash per win."
+The roster receipt and the share cards price a win in cap, because every receipt line is a cap
+hit. Both name the currency beside the figure. The 2023 49ers paid $258,275,910 in cash over 12
+wins, or $21.52M per win. A team with zero wins gets no ratio, only its spending and a "0 wins"
+label.
+
+The **receipt verdict** sorts every club in a season by cap per win and cuts the list at that
+season's quintiles, or fifths. From cheapest to costliest, the labels are STEAL, WORTH IT, FAIR PRICE,
+OVERPAID and MONEY PIT. Zero-win clubs are excluded. The cutoffs reset every season, so a verdict
+means cheap or expensive for that year's league. It judges the price of wins, which Cap+
+doesn't, so the two can disagree.
 
 ---
 
 ## Where the data comes from
 
-**Game results, play-by-play and EPA, draft picks, rosters and snap counts** come from
+**Results, play-by-play, draft picks, rosters and snap counts** come from
 [nflverse](https://nflverse.nflverse.com/), an open NFL data project. Results and play-by-play
-cover **1999 through 2025** with no gaps — 861 team-seasons.
+cover **1999 through 2025** with no gaps, 861 team-seasons. The data is a snapshot, not a live
+feed. The 2026 season is excluded until it's complete.
 
-**Contract and salary figures** are derived from Over The Cap data published through nflverse.
-**Player-by-player contract detail begins in 2013.** Before that, the record is a sample of
-notable deals rather than a roster — in 2012 it covers 43 players per team against a 53-man
-roster, and by 2004 it covers under 15% of a team's cap. That is fine for asking about star
-contracts and useless for asking what a team spent, so we do not use it for team totals and
-we say so on every page where the boundary bites.
+**Contract and salary figures** come from Over The Cap data published through nflverse.
+**Player-level contract detail begins in 2013.** Before that, the record samples notable
+deals: 43 players per team against a 53-man roster in 2012, under 15% of a team's cap by 2004.
+We don't use it for team totals.
 
-**League salary cap ceilings, 1994–2025**, and **dead money by team** are compiled by hand from
-public reporting, with a **source link on every single row**. Nothing is estimated and nothing
-is filled in. Dead money by team is available for **2014, 2015, 2017, 2018, 2019, 2022, 2023,
-2024 and 2025** — nine seasons, all 32 teams, each from one dated table. **Four seasons — 2013,
-2016, 2020 and 2021 — are honestly blank**, because only a handful of teams were ever
-published and a leaders list is not a league table.
+**League salary-cap ceilings, 1994–2025**, and **dead money by team** are compiled by hand from
+public reporting, with a source link on every row. The one exception is the modeled dead money
+in 2016, 2020 and 2021, which is labeled as an estimate, carries its range, and has no source
+link because it isn't a reading.
 
 **Draft pick value** uses the [Fitzgerald–Spielberger NFL Draft Trade Value
-Chart](https://overthecap.com/draft-trade-value-chart), published at Over The Cap. Every "capital"
-figure on a draft card is the summed chart value of the picks a team made. We chose it over the
-better-known Jimmy Johnson chart because its units are dollars of surplus value produced by a pick
-relative to what its rookie contract costs — the same units as the rest of this site — where the
-Johnson chart is a 1990s trade-negotiation heuristic that was never calibrated against what players
-actually went on to do.
+Chart](https://overthecap.com/draft-trade-value-chart), published at Over The Cap. Its units are
+dollars of surplus value, like the rest of this site, which the 1990s Jimmy Johnson chart's
+aren't. On a draft card, **capital counts every pick a team made, while realized return counts
+only picks that carry a `gsis_id`, the player ID the join needs.** Excluded picks are counted
+beside it.
 
-Two figures on that card are measured over different sets of picks, and the card says so: **capital
-counts every pick a team made, while realised return counts only the picks that carry a `gsis_id` to
-join on.** Where any pick is excluded, the count is printed beside the figures.
+**Coaching staffs for every team from 2000 to 2025** (head coach and both coordinators) are
+compiled row by row with sources. Every head-coach row was checked against an independent
+franchise record, and a 10% sample of coordinators against a second source.
 
-**Coaching staffs — head coach, offensive coordinator and defensive coordinator for every team
-from 2000 to 2025** — are compiled the same way, row by row with sources. Every head-coach row
-was cross-checked against an independent franchise record, and a random 10% sample of
-coordinators was verified against a second independent source. Where sources genuinely
-disagree, we keep the disagreement in the notes rather than picking a winner quietly.
+**Games played and snap counts run 2013 to 2025.** The 2012 snap file has no rows, and the games
+column stops at 2013, so a games total counts only that window and the page says so. Tom Brady's
+card shows 158 games over 10 seasons because that's what the record holds.
 
-**Availability — games played and snap counts — runs 2013 to 2025.** The 2012 snap file exists
-upstream and contains no rows, and the games column in the same table does not reach back past 2013
-either. So a player's "games" total on this site is his games *inside that window*, and the page
-labels it that way. Tom Brady's card says 158 games over 10 seasons because that is what the record
-holds, not because he played 158 games. We would rather tell you that than let a total imply
-otherwise.
-
-**Player photographs** come from [Wikimedia Commons](https://commons.wikimedia.org/), used
-under their own licences with the photographer credited. Every photograph on this site is
-credited, and the full list is at [/credits](/credits). Where no freely licensed photograph of
-a player exists, we show a designed card rather than a stock image or a guess.
-
-**Team marks** are the clubs' own, used to identify the teams they belong to.
+**Player photographs** come from [Wikimedia Commons](https://commons.wikimedia.org/), used under
+their own licenses with the photographer credited. The full list is at [/credits](/credits).
+Where no free photograph exists, we show a designed card. **Team marks** are the clubs' own.
 
 ---
 
-## What we will never do
+## What we won't do
 
-**We will never invent a player grade.** No letter grades, no star ratings, no proprietary
-"player value score," no verdict on whether a contract was good. Every number attached to a
-player on this site is something he did or something someone paid him.
+We won't invent a player grade. Every number attached to a player is something he did or
+something he was paid. Where we made a call (the dead-dollar weight, the floor, the equal
+weights, the estimated seasons), we show the alternative. A missing season says so and says why, a
+dated figure carries its date, and a chart starts where coverage does.
 
-**We will never publish a number we cannot defend.** Every figure traces to a source you can
-open. Where we make a judgement call — the weight on a dead dollar, the spending floor, the
-equal weighting of the performance inputs — we tell you it is a judgement call and we show you
-what the alternative looks like.
-
-**We will never show partial data silently.** If a metric does not exist for a season, that
-season says so and says why. If a figure was measured on a particular date, the date is next to
-it. If coverage starts in 2013, the chart starts in 2013. You will never look at an unbroken
-line here and be wrong about what it means.
-
----
-
-## Corrections
-
-If a number here is wrong, tell us and we will fix it, note what changed, and say when — the
-correction stays on the page.
-
-
-## What Cap+ is, and is not (added 2026-10-10)
-
-Across the 288 team-seasons it covers, Cap+ correlates **0.95** with Team Rating, the
-performance-only score. That is not an accident of the formula; it is the salary cap. Every
-team spends close to the cap, so "performance per dollar" is mostly performance. Cap+ moves a
-team about two places from its on-field rank. Read it as **what this season's wins cost**, not
-as a grade of the front office.
-
-Two things people assume about it are measured and published beside it:
-
-- **Rookie-contract quarterbacks.** Swapping each team's starter for a league-median-priced
-  starter moves Cap+ by about three points on average for teams with a QB on a rookie deal.
-  Those teams average *below* 100, because they are usually still bad. We show the QB-neutral
-  number and the rookie-window flag so you can check.
-- **Money borrowed from future seasons.** Signing-bonus money already charged to future caps
-  varies three times as much between teams as cap spending does, and Cap+ cannot see it. We
-  publish it as "future-cap mortgage" and, as a candidate under review, a version of Cap+ that
-  charges half of it to this season. It is an estimate: flat proration, no void years.
+If a number here is wrong, tell us. We'll fix it, note what changed and when, and leave the
+correction on the page.

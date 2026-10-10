@@ -20,6 +20,17 @@ predecessor's exit criteria are met. The dates are the commitment.
 
 ---
 
+## Status — 2026-10-10
+
+**v2 is merged to `main` and live at nfl-o-nomics.vercel.app** (PR #2). Since the 2026-07-26 status
+below: the Vercel project exists and deploys from `main` (PGlite seeded at build, no Neon); gate #1
+was **reopened on evidence** (`CAPPLUS_MEMO.md` §8, DECISIONS 100–107) and the `capplus_context`
+mart ships beside an unchanged `capplus_official`; two Opus design reviews (`design/reviews/`) drove
+the v2 surfaces: verdict-first team page, roster receipt, OG share cards, league Field with Review
+control, frontier scatter, compare as a diverging dot plot. **Still Rey's:** the α = 0.5 ruling on
+Cap+ (obligation); the domain (gate #2); the dead-money licensing conversation (gate #3); gate #4,
+the public push. Phase 4's soft-launch circle has not been assembled.
+
 ## Status — 2026-07-26
 
 **Phases 1, 2 and 3 are complete, roughly a month ahead of the schedule above.** The dates in

@@ -4,6 +4,8 @@
 
 **APPROVED — gate #1 cleared by Rey, 2026-07-25.** The recommended build in §7 (Total-Cost, λ=1.5, floored, one snapshot per season, nine seasons) is the shipping formula.
 
+**AMENDED 2026-10-10 — see §9.** λ = 1.0, opponent-adjusted EPA in P, the obligation candidate retired, all thirteen seasons (2013 measured and provisional; 2016, 2020, 2021 estimated). §§1–8 are the July record and are left as written.
+
 Sources: `audit/findings_capplus_backtest.md` (**BT §n**), `audit/findings_contracts.md`, `audit/findings_deadmoney_sourcing.md`, `data/marts/capplus_candidates.csv`. Numbers marked **[new]** were recomputed 2026-07-25 from the candidates mart plus `data/curated/dead_money_team_season.csv`; they are now **reproduced by `audit/capplus_backtest.py`**, which ships the recommended build and re-derives every [new] figure below (see condition 5, and BT §15). Reconciliation moved every sniff value by less than 0.05 index points and changed no rank; it corrected exactly one [new] figure, the λ=1.0 cell in §3.2, which is flagged there.
 
 ---
@@ -210,3 +212,118 @@ decomposition, stratum rank, cash share, the mortgage in dollars and as a share 
 
 Not rendering a 0.95-correlated performance ranking as an economics verdict is the one thing
 this memo asks you not to choose.
+
+---
+
+## 9. Second reopen — 2026-10-10 rulings
+
+**Ruled by Rey, 2026-10-10** (`DECISIONS.md` 109–114). §7's formula stands with one constant
+changed and one input swapped; §8.5's question is answered by retiring the candidate. Reproduces
+from `python -m etl.pipeline --mart capplus_official --mart capplus_context`; every figure below
+is in the build's printed stats and `data/marts/manifest.json` → `checks.capplus`.
+
+```
+Cap+ = (100 + 15 × P) ÷ R
+R    = team cost ÷ league-average cost, floored at the season's 25th percentile
+cost = (cap charged to rostered players + dead money) ÷ league cap
+P    = equal-weight within-season z of win %, point diff/game, opponent-adjusted EPA margin/play
+```
+
+### 9.1 The four rulings
+
+1. **λ = 1.0.** Dead money counts once. At λ > 1 a dead dollar is charged twice: once in cost
+   and again through the weaker roster it bought. 1.5 was chosen to make "2022 Atlanta rates
+   poorly" pass (§7); **that requirement is struck.** Atlanta is now 20th, against 24th on the
+   field. With λ = 1 the cost index *is* cap consumed: `cost_rec == cap_consumed_rec`, asserted.
+   λ = 1.5 and 2.0 publish beside it in the methodology.
+2. **P reads opponent-adjusted EPA** (`epa_margin_per_play_adj`). Team Rating moves for all 861
+   team-seasons: corr 0.997 with the raw build, mean shift 1.0 point, 0.66 rank places.
+3. **Cap+ (obligation) is retired.** Cap is accrual, cash is cash, and the mortgage is the
+   reconciling item between them: cash paid ahead of the cap it will be charged to. Folding it into
+   a cap-based cost mixed bases. The two honest lenses are cap per win and cash per win; the
+   mortgage publishes beside them as the bridge.
+4. **The four blank seasons are filled.** 2013 ships as a measured full-32 table (Houston Press,
+   2013-03-18, Spotrac-derived), badged `provisional` with its own sentence: *"published one week
+   into the league year; understates the final figure."* 2016, 2020 and 2021 ship from the
+   validated estimate (`audit/findings_deadmoney_estimate.md`), badged `estimated`: 8, 11 and 10
+   published teams, the rest modeled with an 80% range. **Calibration uses the ten measured
+   seasons only**; the estimated seasons are divided by the same pooled SD (their own pooled SD
+   comes out 14.7).
+
+The July evidence record, `capplus_candidates.csv`, is frozen and no longer reproduced
+(DECISIONS 114). Coverage is now **416 of 416 Tier 2 team-seasons**.
+
+### 9.2 Sniff table — old vs new
+
+Index value and rank in season. "Old" is the July build (§3.1: λ = 1.5, raw EPA, nine seasons).
+"New" is frozen as the regression guard (`etl/capplus.SNIFF`, tolerance 0.05 points, exact rank).
+
+| Case | Old | New | Field rank | Dead money |
+|---|---:|---:|---:|---:|
+| 2023 SF | 133.9 (#1) | **135.4 (#1)** | #2 | $17.2M |
+| 2022 CHI | 77.2 (#31) | **77.3 (#30)** | #31 | $57.6M |
+| 2024 DEN | 104.4 (#13) | **111.8 (#10)** | #9 | $85.2M |
+| 2014 NE | 118.4 (#3) | **121.6 (#3)** | #4 | $8.5M |
+| 2017 PHI | 114.7 (#7) | **117.7 (#5)** | #1 | $14.0M |
+| 2017 CLE | 72.9 (#32) | **71.6 (#32)** | #32 | $11.5M |
+| 2022 ATL | 89.5 (#27) | **96.2 (#20)** | #24 | $63.2M |
+| 2019 KC | 122.6 (#3) | **125.5 (#2)** | #5 | $0.9M |
+| 2025 NO | 85.7 (#27) | **93.1 (#23)** | #23 | $107.8M |
+| 2023 LA | 95.2 (#20) | **107.5 (#10)** | #9 | $74.2M |
+| 2016 NO | blank | **104.1 (#13)** · estimated | #17 | $37.9M published |
+| 2020 CAR | blank | **87.5 (#24)** · estimated | #23 | $48.0M published |
+| 2021 PHI | blank | **105.7 (#13)** · estimated | #13 | $50.0M published |
+
+The big dead-money teams move most, as they should when the double charge comes off: Atlanta,
+New Orleans 2025, the 2023 Rams and the 2024 Broncos now sit within a place or two of their
+field rank. The Browns stay 32nd (the floor, not λ, puts them there).
+
+### 9.3 Diagnostics
+
+| | July build (288) | 2026-10-10 build (416) |
+|---|---:|---:|
+| corr(Cap+, Team Rating) | 0.950 | **0.965** (0.961 on the ten measured seasons) |
+| mean \|Cap+ rank − field rank\| | 2.23 | **1.87** (1.92 measured) |
+| team-seasons with cost > 1.00 | 44.1% | **12.5%** (cost = cap consumed) |
+| year-over-year persistence of the cost adjustment | +0.158 | **+0.071** |
+| pooled within-season SD, estimated seasons | — | 14.7 (measured fixed at 15.0) |
+
+Against the July build, on the 288 shared team-seasons, Cap+ correlates 0.981 and moves teams
+1.5 rank places on average (max 10). Most of that is λ: with raw EPA and λ = 1 the move is 1.3
+places; with adjusted EPA and λ = 1.5 it is 0.7.
+
+The honest consequence: **Cap+ is now even closer to Team Rating.** λ = 1.5 was the term that
+pulled them apart, and it pulled them apart by charging dead money twice. §8.2's reading stands
+and is stronger: Cap+ is "what this season's wins cost," a descriptive number, not a
+front-office grade.
+
+**Arcs** (rank in season, 2013 → 2025; 2016, 2020, 2021 estimated):
+
+| Team | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21 | 22 | 23 | 24 | 25 |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| KC | 14 | 11 | 6 | 4 | 10 | 2 | 2 | 8 | 2 | 3 | 7 | 7 | 18 |
+| SF | 3 | 17 | 29 | 30 | 18 | 31 | 11 | 19 | 10 | 1 | 1 | 18 | 19 |
+| BUF | 16 | 16 | 12 | 14 | 16 | 24 | 7 | 9 | 3 | 2 | 6 | 4 | 4 |
+| PHI | 11 | 12 | 28 | 19 | 5 | 13 | 9 | 26 | 13 | 4 | 18 | 2 | 8 |
+
+The Chiefs' §7 story survives — #2 in 2019, #3 in 2022, falling to #18 by 2025.
+
+**All-time top 10:** 2019 BAL 140.2, 2023 SF 135.4, 2014 SEA 132.9, 2022 SF 132.4, 2016 NE 132.4
+(estimated), 2024 DET 132.3, 2022 BUF 130.0, 2013 CAR 130.0 (provisional), 2017 MIN 129.8,
+2025 SEA 129.4.
+
+**All-time bottom 10:** 2023 CAR 65.7, 2016 CLE 67.5 (estimated), 2025 LV 68.0, 2016 LA 70.2
+(estimated), 2018 ARI 70.9, 2016 SF 71.2 (estimated), 2021 JAX 71.2 (estimated), 2025 NYJ 71.4,
+2017 CLE 71.6, 2020 JAX 72.6 (estimated).
+
+Estimated seasons hold 1 of the top 10 and 5 of the bottom 10. The estimate does not put them
+there: all five bottom entries are 30th–32nd on the field (2016 CLE 1-15, LA 4-12, SF 2-14; 2020
+JAX 1-15; 2021 JAX 3-14), and four of the five sit on the cost floor, where dead money cannot
+move them. Cleveland 2016 and Jacksonville 2020 are published figures, not modeled.
+
+### 9.4 The rookie-QB finding at the new build (`capplus_context`)
+
+Now over 416 team-seasons: 146 rookie-window, 270 veteran. Rookie-window teams average 97.8 on
+Cap+ and 97.4 on Team Rating; QB-timing points average **+3.2** (veterans −1.7). Still about a
+fifth of one SD. The 2019 Chiefs score −1.4 (floored, as before). Within each season,
+corr(Cap+, QB cap share) runs +0.10 to +0.42. §8.1's verdict stands.

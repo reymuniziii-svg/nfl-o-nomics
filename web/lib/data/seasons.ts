@@ -3,7 +3,7 @@
  *
  * Every list here comes from the seeded marts, so the static param sets are
  * exactly the team-seasons and players that exist in the snapshot. Results are
- * memoised per process: `next build` calls these once per render worker.
+ * memoized per process: `next build` calls these once per render worker.
  */
 
 import { and, desc, eq, max, sql } from 'drizzle-orm';

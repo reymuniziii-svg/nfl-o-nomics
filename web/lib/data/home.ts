@@ -12,10 +12,12 @@ import * as s from '@/db/schema';
 import {
   BLANK_REASON,
   TEAM_RATING_NAME,
+  badged,
   blank,
   value,
   type AsOf,
   type AsOfStage,
+  type CapPlusBadge,
   type Metric,
 } from '@/lib/metric';
 import { divisionName, eraIdentity, type DivisionSlug, type TeamAbbr } from '@/lib/teams';
@@ -47,6 +49,12 @@ export interface LeaderboardRow {
   indexName: 'Cap+' | typeof TEAM_RATING_NAME;
   rank: number | null;
   provisional: boolean;
+  /** The season's Cap+ badge; null for a Team Rating row. */
+  badge: CapPlusBadge | null;
+  /** The badge's sentence (provisional / estimated); null otherwise. */
+  badgeReason: string | null;
+  /** true = this club's dead money in Cap+ is modeled (estimated season). */
+  dmIsModeled: boolean;
   asOf: AsOf | null;
 }
 
@@ -95,13 +103,17 @@ export async function getLeagueLeaderboard(season: number): Promise<Leaderboard>
     let index: Metric<number>;
     let rank: number | null = null;
     let provisional = false;
+    let badge: CapPlusBadge | null = null;
+    let badgeReason: string | null = null;
     let asOf: AsOf | null = null;
 
     if (covered) {
       if (cp) {
         asOf = { date: cp.dmAsofDate, stage: cp.dmAsofStage as AsOfStage };
-        provisional = cp.badge === 'provisional';
-        index = value(cp.capplus, asOf, provisional);
+        badge = cp.badge as CapPlusBadge;
+        badgeReason = cp.badgeReason;
+        provisional = badge === 'provisional';
+        index = badged(cp.capplus, asOf, badge, badgeReason);
         rank = cp.seasonRank;
       } else {
         index = blank(BLANK_REASON.NO_DM_TABLE);
@@ -124,6 +136,9 @@ export async function getLeagueLeaderboard(season: number): Promise<Leaderboard>
       indexName: covered ? 'Cap+' : TEAM_RATING_NAME,
       rank,
       provisional,
+      badge,
+      badgeReason,
+      dmIsModeled: cp?.dmIsModeled ?? false,
       asOf,
     };
   });
@@ -134,8 +149,8 @@ export async function getLeagueLeaderboard(season: number): Promise<Leaderboard>
     season,
     capplusCovered: covered,
     caption: covered
-      ? '100 = league average. Cap+ is a season-relative index, not a front-office grade.'
-      : `100 = league average. ${TEAM_RATING_NAME}: no cap adjustment exists before 2013.`,
+      ? '100 = league average. Read Cap+ as what this season’s wins cost, not as a front-office grade.'
+      : `100 = league average. ${TEAM_RATING_NAME} has no cap adjustment before 2013.`,
     rows,
   };
 }

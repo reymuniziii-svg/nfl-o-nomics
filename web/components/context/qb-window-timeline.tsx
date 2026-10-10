@@ -11,7 +11,7 @@
  *
  * Grammar shared with `FranchiseArc`: fixed 76–124 window (never fitted),
  * gold 100, one lime series (Cap+), Team-Rating-style dashed second series,
- * blank seasons hatched and named, one `<path>` per run, the page's season
+ * a blank season (SAFE-only reversal) hatched and named, one `<path>` per run, the page's season
  * marked. Measured width at scale 1.0, so no sideways scroller and no type
  * below the floor.
  */
@@ -98,7 +98,7 @@ export function QbWindowTimeline({
         height={h}
         viewBox={`0 0 ${w} ${h}`}
         role="img"
-        aria-label={`${teamName} — Cap+ and ${CAPPLUS_QB_NEUTRAL_LABEL} by season, ${seasons[0]} to ${seasons[seasons.length - 1]}, rookie-QB seasons shaded`}
+        aria-label={`${teamName} — Cap+ and ${CAPPLUS_QB_NEUTRAL_LABEL} by season, ${seasons[0]} to ${seasons[seasons.length - 1]}, rookie-deal seasons shaded`}
         aria-describedby={`${id}-d`}
       >
         <defs>
@@ -172,7 +172,7 @@ export function QbWindowTimeline({
                     textAnchor="middle"
                     transform={`rotate(-90 ${cx} ${innerH / 2})`}
                   >
-                    No full-32 table
+                    No league-wide table
                   </text>
                 ) : null}
               </g>
@@ -268,21 +268,24 @@ export function QbWindowTimeline({
         {series
           .map((r) =>
             r.indices.state === 'blank'
-              ? `${r.season}: ${r.startingQb}${r.qbRookieWindow ? ', rookie window' : ''}; not covered.`
-              : `${r.season}: ${r.startingQb}${r.qbRookieWindow ? ', rookie window' : ''}; Cap+ ${r.indices.value.capplus.toFixed(1)}, ${CAPPLUS_QB_NEUTRAL_LABEL} ${r.indices.value.capplusQbNeutral.toFixed(1)}.`,
+              ? `${r.season}: ${r.startingQb}${r.qbRookieWindow ? ', rookie deal' : ''}; not covered.`
+              : `${r.season}: ${r.startingQb}${r.qbRookieWindow ? ', rookie deal' : ''}; Cap+ ${r.indices.value.capplus.toFixed(1)}, ${CAPPLUS_QB_NEUTRAL_LABEL} ${r.indices.value.capplusQbNeutral.toFixed(1)}.`,
           )
           .join(' ')}
       </p>
       <p className={`yy-label ${css.rKey}`}>
         <span className={css.rSwatch} aria-hidden="true" />
-        Shaded — starting QB on his rookie deal (R)
+        Shaded seasons mark a starting QB on his rookie deal (R)
       </p>
       <Legend
         items={[
           { swatch: 'solid', label: 'Cap+', tone: 'accent' },
           { swatch: 'dashed', label: CAPPLUS_QB_NEUTRAL_LABEL, tone: 'compare' },
           { swatch: 'benchmark', label: '100 = league average', tone: 'benchmark' },
-          { swatch: 'hatch', label: 'Season not covered', tone: 'absence' },
+          // Hatching appears only where a season's indices are blank (SAFE-only reversal).
+          ...(series.some((r) => r.indices.state === 'blank')
+            ? [{ swatch: 'hatch', label: 'Season not covered', tone: 'absence' } as const]
+            : []),
         ]}
       />
     </div>

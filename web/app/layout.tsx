@@ -11,7 +11,7 @@ export const metadata: Metadata = {
     template: '%s · YIELD/YARD',
   },
   description:
-    'NFL team economics, 1999–2025: what a team spent, what it got, and where the record stops.',
+    "NFL team economics, 1999–2025: what a win cost, what Cap+ can and can't see, and where the record stops.",
   icons: { icon: '/brand/monogram.svg' },
   /**
    * Absolute base for every og:/twitter: URL. NEXT_PUBLIC_SITE_URL wins when a
@@ -29,13 +29,13 @@ export const metadata: Metadata = {
     locale: 'en_US',
     title: 'YIELD/YARD',
     description:
-      'NFL team economics, 1999–2025: what a team spent, what it got, and where the record stops.',
+      "NFL team economics, 1999–2025: what a win cost, what Cap+ can and can't see, and where the record stops.",
   },
   twitter: {
     card: 'summary_large_image',
     title: 'YIELD/YARD',
     description:
-      'NFL team economics, 1999–2025: what a team spent, what it got, and where the record stops.',
+      "NFL team economics, 1999–2025: what a win cost, what Cap+ can and can't see, and where the record stops.",
   },
 };
 
@@ -43,7 +43,7 @@ export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
   /**
-   * The one literal colour in the app, and it cannot be anything else: the
+   * The one literal color in the app, and it cannot be anything else: the
    * browser paints its own chrome from this meta tag before any stylesheet
    * loads, so it takes no custom property. It is `--yy-surface-app`, the dark
    * flagship's page ground.

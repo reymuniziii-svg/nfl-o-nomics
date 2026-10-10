@@ -239,7 +239,7 @@
   color: var(--yy-negative-text);
 }
 
-/* DECISIONS 83 — Team Rating is never band-coloured. */
+/* DECISIONS 83 — Team Rating is never band-colored. */
 .indexNeutral {
   color: var(--yy-fg-1);
 }
@@ -249,7 +249,7 @@
   font-size: var(--yy-size-label);
 }
 
-/* §2.3 — blanks sort to a LABELLED group at the bottom */
+/* §2.3 — blanks sort to a LABELED group at the bottom */
 .blankGroup {
   margin-top: var(--yy-space-4);
   padding-top: var(--yy-space-3);

@@ -56,7 +56,7 @@ export function SeasonScrubber({
           step={1}
           value={value}
           aria-label={label}
-          aria-valuetext={`${value}${blank.has(value) ? ' — not published this season' : ''}`}
+          aria-valuetext={`${value}${blank.has(value) ? ', not published this season' : ''}`}
           onChange={(e) => onChange(Number(e.target.value))}
         />
         <div className={css.scrubStops} aria-hidden="true">

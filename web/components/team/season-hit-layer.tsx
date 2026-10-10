@@ -31,7 +31,7 @@ import css from './team.module.css';
 export interface HitSeason {
   season: number;
   /**
-   * Centre of the season's band along the season axis: px from the layer's
+   * Center of the season's band along the season axis: px from the layer's
    * left edge for a column chart (`axis="x"`), from its top for a row chart.
    */
   x: number;

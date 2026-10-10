@@ -112,7 +112,7 @@ const nextConfig: NextConfig = {
    * ever created. Running them through the image optimizer would create one —
    * a re-encode is a derivative work — and would also add a runtime dependency
    * to a static-first build whose assets are already self-hosted and sized.
-   * `COMPONENTS.md` §10 is written against this behaviour.
+   * `COMPONENTS.md` §10 is written against this behavior.
    */
   images: {
     unoptimized: true,

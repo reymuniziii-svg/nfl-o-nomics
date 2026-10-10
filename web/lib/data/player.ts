@@ -2,7 +2,7 @@
  * Player bundle — `SPEC.md` §3.3.
  *
  * THE POPULATION IS FIXED. DECISIONS 53: the v1 player population is the 251
- * audited players, so every player page has known image status and known licence
+ * audited players, so every player page has known image status and known license
  * metadata. `getPlayerPopulation()` is the enumeration `generateStaticParams`
  * uses; it never falls back to "every otc_id in player_season_cap".
  *
@@ -28,7 +28,7 @@ export const SNAPS_FIRST_SEASON = 2013;
  * truncated at exactly the same boundary as snaps, not carried "the full
  * record". Saying otherwise turned Tom Brady's 23-season, 335-game career into
  * a "Games 158" tile with a caption asserting completeness, which is precisely
- * the failure `SPEC.md` §1.2 forbids. Both figures are labelled with the window
+ * the failure `SPEC.md` §1.2 forbids. Both figures are labeled with the window
  * they actually cover.
  */
 export const AVAILABILITY_FIRST_SEASON = 2013;
@@ -184,7 +184,7 @@ export async function getPlayerBundle(playerId: string): Promise<PlayerBundle | 
         guaranteed: latest.contractGuaranteed,
         apyCapPct: latest.contractApyCapPct,
       })
-    : blank('Not available — no contract row is recorded for this player.');
+    : blank('Not available — no contract is on record for this player.');
 
   /* --- cap vs cash by year, with dead-money markers --- */
   const capVsCash: Metric<CapVsCashPoint[]> = capRows.length
@@ -231,9 +231,9 @@ export async function getPlayerBundle(playerId: string): Promise<PlayerBundle | 
             offPct: a.offPct,
           })),
         )
-      : blank('Not available — no availability rows are recorded for this player.');
+      : blank('Not available — no games or snaps are on record for this player.');
   } else if (!gsisId) {
-    availability = blank('Not available — this player has no gsis_id, so snap counts cannot be joined.');
+    availability = blank('Not available — this player has no GSIS ID (the NFL’s player ID), so snap counts can’t be matched.');
   }
 
   return {
@@ -258,9 +258,8 @@ export async function getPlayerBundle(playerId: string): Promise<PlayerBundle | 
     capVsCash,
     availability,
     snapsBoundaryNote:
-      `Availability runs ${AVAILABILITY_WINDOW}. Games and snap counts share that window: ` +
-      'the record does not extend earlier and the 2012 snap source file is empty. Seasons a ' +
-      'player played before it are not counted here and are not estimated.',
+      `Availability runs ${AVAILABILITY_WINDOW}, and games and snap counts share that window. ` +
+      'Seasons before it are not counted or estimated, and the 2012 snap source file is empty.',
     noValueGrade: true,
   };
 }
@@ -384,7 +383,7 @@ export async function getFeaturedPlayers(season: number, limit = 8): Promise<Fea
             };
           }),
         )
-      : blank(`Not available — no ${season} cap row is recorded for the v1 population.`);
+      : blank(`Not available — no ${season} cap data is on record for the players this site covers.`);
   }
 
   if (await isSeeded('dead_money_ledger')) {

@@ -5,7 +5,7 @@
  *
  * **All 32 rows. Not a top-10.** Two compositions, one dataset: the row-card
  * list below 1024px and the real table at 1024+. Clubs whose index is `blank`
- * sort to a labelled group at the bottom, never interleaved, never zero.
+ * sort to a labeled group at the bottom, never interleaved, never zero.
  *
  * What the 2026-10-10 review changed (B.6, D #9, D #10):
  *   - THE RANK FOLLOWS THE SORT. Sorted by $/win, `#1` is the cheapest club,
@@ -23,23 +23,23 @@
  *   - The `R` chip names a rookie-window starting QB, and a split view ranks
  *     the two strata separately, each against its own mean.
  *   - The Review control (on the Field) swaps the index column to QB-neutral
- *     Cap+ or the CANDIDATE obligation index, with raw Cap+ kept beside it.
+ *     Cap+, with raw Cap+ kept beside it.
+ *   - An Estimated or Provisional season tags every row's index with its chip;
+ *     the reason sentence is the hover title and prints in the export variant.
  */
 
 import { Fragment, useLayoutEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import Link from 'next/link';
 import css from './leaderboard.module.css';
-import { CapPlusCaption } from '../primitives';
+import { BadgeChip, CapPlusCaption } from '../primitives';
 import { Segmented } from '../field/season-scrubber';
 import { indexBand, usdShort } from '@/lib/display';
-import type { Metric } from '@/lib/metric';
+import { badgeNote, type Metric } from '@/lib/metric';
 import { REVIEW_NAME, useLeagueLink, useUrlParam, type ReviewMode } from './league-link';
 
 export interface LeaderboardContext {
   qbn: number;
   qbnRank: number;
-  obl: number;
-  oblRank: number;
   stratumRank: number;
 }
 
@@ -85,7 +85,7 @@ const SORT_PARAMS = (['index', 'cpw', 'wins', 'spend', 'team', 'delta'] as const
 
 function modeValue(r: LeaderboardViewRow, mode: ReviewMode): number | null {
   if (mode === 'raw' || !r.ctx) return r.index.state === 'blank' ? null : r.index.value;
-  return mode === 'qbn' ? r.ctx.qbn : r.ctx.obl;
+  return r.ctx.qbn;
 }
 
 function sortValue(r: LeaderboardViewRow, key: SortKey, n: Numerator, mode: ReviewMode) {
@@ -232,6 +232,8 @@ export function CapPlusLeaderboard({
   // the change column is always RAW Cap+ against its last covered season
   const deltaHead = `${mode === 'raw' ? '' : 'Cap+ '}${priorSeason ? `Δ vs ’${String(priorSeason).slice(2)}` : 'Δ'}`;
   const rookieCount = rows.filter((r) => r.rookie).length;
+  // The badge is whole-season: one row carries the season's chip and sentence.
+  const seasonBadge = isCapPlus ? rows.find((r) => badgeNote(r.index) !== null) : undefined;
 
   const rowEvents = (team: string) => ({
     onPointerEnter: () => setHot(team),
@@ -268,7 +270,7 @@ export function CapPlusLeaderboard({
           onChange={setSplit}
           label="Leaderboard view"
           disabled={!splitAvailable}
-          names={{ all: 'All 32', split: 'By QB deal' }}
+          names={{ all: 'All 32', split: 'QB deal' }}
         />
         {fieldSeason !== season ? (
           <span className={`yy-label ${css.seasonNote}`}>Table shows {season}</span>
@@ -294,7 +296,7 @@ export function CapPlusLeaderboard({
               <SortHeader label="Team" k="team" active={key === 'team'} dir={dir} onSort={onSort} />
               <SortHeader label={`$/win`} k="cpw" active={key === 'cpw'} dir={dir} onSort={onSort} align="right" />
               <SortHeader
-                label={mode === 'raw' ? idxHead : mode === 'qbn' ? 'QB-n' : 'Obl.*'}
+                label={mode === 'raw' ? idxHead : 'QB-n*'}
                 k="index"
                 active={key === 'index'}
                 dir={dir}
@@ -336,7 +338,7 @@ export function CapPlusLeaderboard({
           <div className={css.tableWrap}>
             <table className={css.table}>
               <caption className="yy-visually-hidden">
-                {indexName} for all 32 clubs, {season}. 100 is league average. Sorted by{' '}
+                {indexName} for all 32 clubs, {season}. 100 = league average. Sorted by{' '}
                 {SORT_LABEL[key]}, {dir === BEST_FIRST[key] ? 'best first' : 'worst first'}.
               </caption>
               <thead>
@@ -414,7 +416,7 @@ export function CapPlusLeaderboard({
 
           {blanked.length ? (
             <>
-              <p className={`yy-label ${css.blankGroup}`}>Not covered — {blanked.length} clubs</p>
+              <p className={`yy-label ${css.blankGroup}`}>Not covered · {blanked.length} clubs</p>
               <p className={`yy-caption ${css.blankReason}`}>{blankReason}</p>
               <ul className={css.blankList}>
                 {blanked.map((r) => (
@@ -446,18 +448,19 @@ export function CapPlusLeaderboard({
         ) : null}
       </ul>
       <p className={`yy-caption ${css.caption}`}>
-        {n === 'cash'
-          ? 'Cash · roster only — cash to players on the roster; cash paid to players released in-year is not included.'
-          : 'Cap hit · season-final · roster only — an end-of-league-year restatement of cap held by players on the roster.'}{' '}
-        The lens follows the toggle on the cost-per-win card above. A club with no wins shows its
-        spend and no ratio.
+        {n === 'cash' ? '$/win is cash per win' : '$/win is cap per win'}, set by the toggle on the
+        cost-per-win card above.
       </p>
       {strataReason && isCapPlus ? <p className={`yy-caption ${css.caption}`}>{strataReason}</p> : null}
+      {seasonBadge ? (
+        <p className={`yy-caption ${css.caption}`}>
+          <BadgeChip metric={seasonBadge.index} sentence="inline" />
+        </p>
+      ) : null}
       <p className={`yy-caption ${css.caption}`}>
-        <CapPlusCaption /> — {indexName} is a season-relative index, not a front-office grade.
-        {mode === 'obl'
-          ? ` ${REVIEW_NAME.obl} is not yet a published claim; raw Cap+ is shown beside it.`
-          : ''}
+        <CapPlusCaption /> —{' '}
+        {`${indexName} scores each club against its own season’s league. It is not a front-office grade.`}
+        {mode === 'qbn' ? ' Raw Cap+ runs beside QB-neutral Cap+ in the table.' : ''}
       </p>
       {csvSlot}
     </div>
@@ -485,7 +488,7 @@ function SplitView({
 }) {
   const groups = [
     { key: 'rookie', title: 'QB on his rookie deal', line: strata.rookie, rows: rows.filter((r) => r.rookie) },
-    { key: 'veteran', title: 'Veteran QB deal', line: strata.veteran, rows: rows.filter((r) => r.rookie === false) },
+    { key: 'veteran', title: 'QB on a veteran deal', line: strata.veteran, rows: rows.filter((r) => r.rookie === false) },
   ];
   return (
     <div className={css.split}>
@@ -523,9 +526,9 @@ function SplitView({
         );
       })}
       <p className={`yy-caption ${css.splitNote}`}>
-        Ranked within each group on Cap+; the gold rule is that group&apos;s own mean, its midfield.
-        Rookie-window clubs average below 100 because, on average, they are worse teams — the
-        cheap QB is worth about three index points (CAPPLUS_MEMO §8.1).
+        Each group ranks on Cap+ against itself, and the gold rule marks the group&apos;s own mean.
+        Across all thirteen seasons, 2013–2025, clubs with a rookie-deal starter average below 100
+        because they are usually still bad. The cheap QB deal adds only about 3.2 points.
       </p>
     </div>
   );
@@ -544,7 +547,7 @@ function MeanRule({ mean, n }: { mean: number; n: number }) {
 function RChip({ qb }: { qb: string | null }) {
   return (
     <span className={css.rChip} title={`Starting QB on his rookie deal${qb ? `: ${qb}` : ''}`}>
-      R<span className="yy-visually-hidden"> — starting QB on his rookie deal{qb ? `: ${qb}` : ''}</span>
+      R<span className="yy-visually-hidden">, starting QB on his rookie deal{qb ? `: ${qb}` : ''}</span>
     </span>
   );
 }
@@ -607,10 +610,11 @@ function IndexCell({
   return (
     <span className={css.indexStack}>
       <span className={`yy-num ${css.index} ${band}`}>{lead === null ? '—' : fmt(lead)}</span>
+      <BadgeChip metric={r.index} sentence="none" />
       {mode !== 'raw' ? (
         <span className={`yy-label ${css.indexRaw}`}>
           {rawFirst
-            ? `${mode === 'qbn' ? 'QB-n' : 'Obl.*'} ${alt === null ? '—' : fmt(alt)}`
+            ? `QB-n ${alt === null ? '—' : fmt(alt)}`
             : `Cap+ ${fmt(raw)}`}
         </span>
       ) : null}
@@ -635,7 +639,7 @@ function BlankCell({ reason, short }: { reason: string; short: string }) {
   return (
     <span className={`yy-label ${css.blankCell}`} title={reason}>
       {short}
-      <span className="yy-visually-hidden"> — {reason}</span>
+      <span className="yy-visually-hidden">. {reason}</span>
     </span>
   );
 }

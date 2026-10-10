@@ -344,14 +344,19 @@ def build_regime_events(stability: pd.DataFrame) -> pd.DataFrame:
 
     ev = pd.DataFrame(rows)
 
+    # Same resolution as Cap+ (DECISIONS 113): a season with no full32 table
+    # resolves to the curated estimate, badged `estimated`; the badge travels
+    # with the chip so the app can mark a modeled reading as such.
     dm = deadmoney.load_team_season()
-    same, snap = deadmoney.resolve_same_stage(dm)
+    same, snap = deadmoney.resolve_same_stage(dm, deadmoney.load_estimated())
     med = snap.set_index("season")["median_dead_money_usd"].to_dict()
+    badge_of = snap.set_index("season")["badge"].to_dict()
     lookup = {(int(r.season), r.team): r for r in same.itertuples()}
     covered = set(snap["season"])
 
     for k in (1, 2):
-        state, usd, date, stage, median, reason, seas = [], [], [], [], [], [], []
+        state, usd, date, stage, median, reason, seas, badge, modeled = (
+            [], [], [], [], [], [], [], [], [])
         for r in ev.itertuples():
             s = int(r.season) + k
             seas.append(s)
@@ -363,6 +368,8 @@ def build_regime_events(stability: pd.DataFrame) -> pd.DataFrame:
                 stage.append(hit.dm_rec_asof_stage)
                 median.append(int(round(med[s])))
                 reason.append("")
+                badge.append(badge_of[s])
+                modeled.append(bool(getattr(hit, "is_modeled", False)))
             else:
                 state.append("blank")
                 usd.append(pd.NA)
@@ -371,6 +378,8 @@ def build_regime_events(stability: pd.DataFrame) -> pd.DataFrame:
                 median.append(pd.NA)
                 # Partial-coverage rows are NEVER substituted.
                 reason.append(config.BLANK_REASON_NO_DM_TABLE_FOR.format(season=s))
+                badge.append("")
+                modeled.append(False)
         ev[f"dm_next{k}_season"] = seas
         ev[f"dm_next{k}_state"] = state
         ev[f"dm_next{k}_usd"] = usd
@@ -378,6 +387,8 @@ def build_regime_events(stability: pd.DataFrame) -> pd.DataFrame:
         ev[f"dm_next{k}_asof_stage"] = stage
         ev[f"dm_next{k}_league_median_usd"] = median
         ev[f"dm_next{k}_blank_reason"] = reason
+        ev[f"dm_next{k}_badge"] = badge
+        ev[f"dm_next{k}_is_modeled"] = modeled
 
     ev = ev.sort_values(["team", "season"]).reset_index(drop=True)
     ev = io_utils.as_int64(ev, [

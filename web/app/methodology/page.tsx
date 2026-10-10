@@ -13,7 +13,7 @@ export const dynamic = 'force-static';
 
 export const metadata: Metadata = {
   title: 'Methodology',
-  description: 'How every number on this site is computed, and where each record stops.',
+  description: "How Cap+ is built, what it can't see, and where each record starts and stops.",
 };
 
 export default async function MethodologyPage() {

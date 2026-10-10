@@ -79,7 +79,7 @@ export function capplusAt(fraction: number): number {
 /* ------------------------------------------------------------------ */
 
 /**
- * The compact, serialisable season the scrubbed charts (the league Field and
+ * The compact, serializable season the scrubbed charts (the league Field and
  * the frontier) receive. Built on the server from `getLeagueFrame`; every
  * number is a mart column. `null` is ALWAYS paired with a reason on the frame.
  */
@@ -94,8 +94,18 @@ export interface ScrubClub {
   cash: number | null;
   /** Cash ÷ league cap (`cash_pct_of_league`). */
   share: number | null;
-  /** The three published indices and their ranks, or null in a blank season. */
-  ix: { raw: number; rawRank: number; qbn: number; qbnRank: number; obl: number; oblRank: number } | null;
+  /**
+   * The two published indices and their ranks, or null in a blank season.
+   * `badge` is the season's chip-worthy Cap+ badge (estimated / provisional).
+   */
+  ix: {
+    raw: number;
+    rawRank: number;
+    qbn: number;
+    qbnRank: number;
+    badge: 'estimated' | 'provisional' | null;
+    badgeReason: string | null;
+  } | null;
   rookie: boolean | null;
   qb: string | null;
 }
@@ -124,7 +134,7 @@ export const END_ZONE = 0.09;
 /**
  * 0 = the back of the club's own end zone, 1 = the back of the opponent's.
  * A Cap+ inside 50–150 lands on its yard line; a club past either goal line
- * sits in that END ZONE's centre and is tagged TD or SAFETY — never at the
+ * sits in that END ZONE's center and is tagged TD or SAFETY — never at the
  * goal line, which would read as exactly 150 or 50.
  */
 export function alongField(capplus: number): number {
@@ -180,7 +190,7 @@ export function wideLabelSlots(
 /**
  * The along-field label offset for the tall (vertical) field: labels sit beside
  * their marks and are pushed apart, in field units, until no two are closer
- * than `gap`; the stack is then re-centred on its marks. Returns each label's
+ * than `gap`; the stack is then re-centered on its marks. Returns each label's
  * offset from its own mark. Marks never move.
  */
 export function dodgeLabels(
@@ -193,7 +203,7 @@ export function dodgeLabels(
     for (let i = 1; i < pos.length; i++) {
       if (pos[i] - pos[i - 1] < gap) pos[i] = pos[i - 1] + gap;
     }
-    // re-centre each touching run on the mean of its marks
+    // re-center each touching run on the mean of its marks
     let start = 0;
     for (let i = 1; i <= pos.length; i++) {
       if (i === pos.length || pos[i] - pos[i - 1] > gap + 1e-9) {

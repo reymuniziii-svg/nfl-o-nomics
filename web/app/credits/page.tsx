@@ -14,13 +14,13 @@ import { StatGrid } from '@/components/team/team-blocks';
  *
  * Every credit on this page renders VISIBLY: attribution is the default, not the
  * exception, and hiding a credit behind a hover or an "info" affordance is a
- * licence violation for the 91.4% of assets that require it.
+ * license violation for the 91.4% of assets that require it.
  */
 export const dynamic = 'force-static';
 
 export const metadata: Metadata = {
   title: 'Credits',
-  description: 'Image attribution, licences and data credits.',
+  description: 'Photo credits, image licenses and data sources.',
 };
 
 export default async function CreditsPage() {
@@ -48,8 +48,8 @@ export default async function CreditsPage() {
       <header>
         <h1 className="yy-h1">CREDITS</h1>
         <p className="yy-dek">
-          Every photograph on this site is self-hosted from Wikimedia Commons, stored
-          byte-untouched, and credited here and beside the mark itself.
+          Every photograph on this site comes from Wikimedia Commons. We host it ourselves,
+          leave the file untouched, and credit the photographer here and beside the photo.
         </p>
       </header>
 
@@ -59,18 +59,28 @@ export default async function CreditsPage() {
           {policy.photo_source ??
             'Wikimedia Commons only. No press photography, no team media, no scraped images.'}
         </p>
-        {policy.attribution ? <p className="yy-caption">{policy.attribution}</p> : null}
-        {policy.sharealike ? <p className="yy-caption">{policy.sharealike}</p> : null}
+        {policy.attribution ? (
+          <p className="yy-caption">
+            Every credit below shows in full on the page. None hides behind a hover or an info
+            icon.
+          </p>
+        ) : null}
+        {policy.sharealike ? (
+          <p className="yy-caption">
+            We serve the unmodified Commons file or a Commons-made resize, so the ShareAlike terms
+            on derivative works never apply.
+          </p>
+        ) : null}
 
         <StatGrid>
           <KpiTile label="Assets credited" value={String(credits.totalPhotoAssets)} />
-          <KpiTile label="Licence groups" value={String(credits.groups.length)} />
+          <KpiTile label="License groups" value={String(credits.groups.length)} />
           {/* Summing the per-group author counts DOUBLE-COUNTS the seven authors
-              who appear under more than one licence (Erik Drost under CC BY 2.0
+              who appear under more than one license (Erik Drost under CC BY 2.0
               and 4.0, Jeffrey Beall under 3.0 and 4.0, the Tennessee Titans
               under 3.0 and 4.0), and published 77 where the manifest's own
               computed figure is 70. On the page whose whole job is discharging
-              a licence obligation, the count comes from the manifest. */}
+              a license obligation, the count comes from the manifest. */}
           <KpiTile label="Distinct authors" value={String(distinctAuthors)} />
           <KpiTile label="Resolution floor" value={String(IMAGE_MIN_WIDTH_PX)} unit="px" />
         </StatGrid>
@@ -79,8 +89,9 @@ export default async function CreditsPage() {
           Population: {PLAYERMARK_COUNTS.csv_rows ?? 0} audited players · {PLAYERMARK_COUNTS.ok ?? 0}{' '}
           with a served photograph · {PLAYERMARK_COUNTS.no_usable_image ?? 0} with none ·{' '}
           {PLAYERMARK_COUNTS.skipped_by_floor ?? 0} below the resolution floor. Treatment:{' '}
-          {IMAGE_TREATMENT_MODE.replace(/_/g, ' ')} — the duotone is applied in CSS at render time
-          over an untransformed original, so no fixed derivative is created.
+          {IMAGE_TREATMENT_MODE.replace(/_/g, ' ').replace(/\bcss\b/i, 'CSS')}. The duotone is
+          applied in CSS when the page renders, over the untouched original, so no derivative file
+          exists.
         </ChartCaption>
       </Card>
 
@@ -103,10 +114,10 @@ export default async function CreditsPage() {
             {g.shareAlike ? 'ShareAlike. ' : ''}
             {g.licenseUrl ? (
               <a href={g.licenseUrl} rel="license noopener noreferrer" target="_blank">
-                Licence terms
+                License terms
               </a>
             ) : (
-              'No licence URL — public domain.'
+              'No license URL. Public domain.'
             )}
           </p>
           <ul className={css.authors}>
@@ -136,11 +147,11 @@ export default async function CreditsPage() {
           />
           <KpiTile label="Hotlinked" value="0" />
           <KpiTile label="Rendering" value={TEAM_LOGOS_ENABLED ? 'Logos' : 'Chips'} />
-          <KpiTile label="Team colours in charts" value="0" />
+          <KpiTile label="Team colors in charts" value="0" />
         </StatGrid>
         <ChartCaption>
-          Team colour is never a chart colour — not a series, a bar, a dot, a heat ramp or a legend
-          swatch. It appears in exactly one place: the TeamMark fallback chip.{' '}
+          Team color never colors a chart: not a series, bar, dot, heat ramp or legend swatch. It
+          appears in one place, the TeamMark fallback chip.{' '}
           {logos.source_dataset_url ? (
             <a href={logos.source_dataset_url} rel="noopener noreferrer" target="_blank">
               {logos.source_dataset}
@@ -158,27 +169,27 @@ export default async function CreditsPage() {
             <span className={`yy-label-lg ${css.authorName}`}>Bebas Neue</span>
             <span className={`yy-caption ${css.authorPlayers}`}>
               Ryoichi Tsunekawa, Dharma Type. SIL Open Font License 1.1. The display face, weight
-              400 only — it is a single-weight family and a synthetic bold degrades it.
+              400 only. It has a single weight, and a synthetic bold degrades it.
             </span>
           </li>
           <li className={css.author}>
             <span className={`yy-label-lg ${css.authorName}`}>Rajdhani</span>
             <span className={`yy-caption ${css.authorPlayers}`}>
-              Indian Type Foundry. SIL Open Font License 1.1. The athletic utility face, 400 / 500 /
-              600.
+              Indian Type Foundry. SIL Open Font License 1.1. The utility face, weights 400, 500
+              and 600.
             </span>
           </li>
           <li className={css.author}>
             <span className={`yy-label-lg ${css.authorName}`}>Inter</span>
             <span className={`yy-caption ${css.authorPlayers}`}>
-              Rasmus Andersson. SIL Open Font License 1.1. Body copy, and every figure that sits in
-              a column, with tabular numerals.
+              Rasmus Andersson. SIL Open Font License 1.1. Body copy, and every figure in a column,
+              set in tabular numerals.
             </span>
           </li>
         </ul>
         <ChartCaption>
-          All three are served from this origin. There are no third-party font requests, no
-          third-party analytics and no cookies.
+          All three are served from this origin. The site makes no third-party font requests, runs
+          no third-party analytics and sets no cookies.
         </ChartCaption>
       </Card>
 
@@ -211,7 +222,7 @@ export default async function CreditsPage() {
             <span className={`yy-label-lg ${css.authorName}`}>Curated in-repo</span>
             <span className={`yy-caption ${css.authorPlayers}`}>
               League salary-cap ceilings, coaching staffs and every dead-money figure, each with a
-              per-row citation. Every dated dead-money reading renders its own source link beside
+              citation on its row. Every dated dead-money reading shows its own source link beside
               the figure.
             </span>
           </li>

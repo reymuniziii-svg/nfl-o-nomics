@@ -27,7 +27,7 @@ export function AppFooter({
           Methodology
         </Link>
         <Link className={`yy-label ${css.footerLink}`} href="/credits">
-          Credits &amp; image licences
+          Credits &amp; image licenses
         </Link>
         <Link className={`yy-label ${css.footerLink}`} href="/division/afc-east">
           Divisions
@@ -38,16 +38,16 @@ export function AppFooter({
       </nav>
 
       <p className={`yy-caption ${css.footerNote}`}>
-        Every number here was computed offline from published sources and read back from a mart.
-        Nothing is computed at request time. Where a figure does not exist, this product says so
-        and leaves it blank — it is never estimated to fill a gap.
+        Every number here was computed offline from published sources and read back from a stored
+        table. Nothing is computed when you load a page. Where a figure does not exist, we say so
+        and leave it blank. We never estimate to fill a gap.
       </p>
 
       <p className={`yy-label ${css.stamp}`}>
-        Snapshot: {stamp.tables_seeded ?? 0} marts ·{' '}
+        Data snapshot: {stamp.tables_seeded ?? 0} tables ·{' '}
         {(stamp.rows_total ?? 0).toLocaleString('en-US')} rows
         {stamp.tables_skipped ? ` · ${stamp.tables_skipped} not in this snapshot` : ''} · dead-money
-        tier {stamp.dead_money_tier ?? deadMoneyTier} · TeamMark{' '}
+        sources {stamp.dead_money_tier ?? deadMoneyTier} · team logos{' '}
         {logosEnabled ? 'on' : 'off (typographic fallback)'}
       </p>
     </footer>

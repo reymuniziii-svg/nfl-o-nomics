@@ -19,13 +19,13 @@ import { OG } from './theme';
 /**
  * Everything a share card prints about one team-season, composed from the
  * `lib/data` accessors. Nothing here computes a metric: it only picks which
- * precomputed reading a card shows and how it is labelled.
+ * precomputed reading a card shows and how it is labeled.
  */
 export interface TeamCard {
   team: TeamAbbr;
   season: number;
   name: string;
-  /** TeamMark chip colours: team primary + its precomputed AA glyph. */
+  /** TeamMark chip colors: team primary + its precomputed AA glyph. */
   bg: string;
   fg: string;
   results: Metric<TeamResults>;

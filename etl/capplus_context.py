@@ -1,12 +1,12 @@
-"""Cap+ context — `capplus_context`. SPEC.md §2.10, §7.13. DECISIONS 100-103.
+"""Cap+ context — `capplus_context`. SPEC.md §2.10, §7.13. DECISIONS 100-103, 111.
 
 **Gate #1 REOPENED 2026-10-10** on the product owner's instruction. The reopen
 was prompted by a hypothesis — that teams with a starting QB on a rookie deal
 have a structural edge in Cap+ — and the audit of that hypothesis
 (`CAPPLUS_MEMO.md` §8) found something different: the rookie-QB lever is worth
 about three index points, a fifth of one SD, while Cap+ itself correlates 0.95
-with the performance-only Team Rating because every team spends roughly the
-cap. The dollars that actually vary between teams are the ones Cap+ cannot
+(0.96 after the 2026-10-10 rulings, `CAPPLUS_MEMO.md` §9) with the
+performance-only Team Rating because every team spends roughly the cap. The dollars that actually vary between teams are the ones Cap+ cannot
 see: cash paid this year and prorated bonus still owed to future caps.
 
 This mart does not change `capplus_official`. It publishes, per team-season:
@@ -19,14 +19,19 @@ This mart does not change `capplus_official`. It publishes, per team-season:
 * **rank within stratum** — rookie-window teams ranked against each other,
   veteran-QB teams against each other,
 * **the future-cap mortgage** — prorated signing-bonus money already charged
-  to seasons after this one, in dollars and as a share of this season's cap,
-* **Cap+ (obligation)** — the CANDIDATE replacement flagship, where cost also
-  carries α × the mortgage. α = 0.5 is a candidate, not an approved claim
-  (`config.MORTGAGE_ALPHA`); the index is published for the owner's decision
-  and is not rendered as "Cap+" anywhere until gate #1 clears again.
+  to seasons after this one, in dollars and as a share of this season's cap.
+  It is the reconciling item between the product's two money lenses: cap is
+  accrual, cash is cash, and the mortgage is cash paid ahead of cap.
 
-Rows: 416 (2013-2025). The four Cap+-blank seasons carry the QB and mortgage
-facts and NULL in every index column — blanking stays whole-season.
+**Cap+ (obligation) is RETIRED** (2026-10-10, DECISIONS 111). Folding α × the
+mortgage into cost mixed an accrual basis with a cash basis; the honest lenses
+are cap per win and cash per win, with the mortgage published as the bridge.
+`capplus_obligation`, `obligation_rank` and `mortgage_alpha` are gone.
+
+Rows: 416 (2013-2025). Every index column is populated in all thirteen seasons
+under the shipping tier; under the SAFE-only reversal the seasons Cap+ loses
+carry the QB and mortgage facts and NULL in every index column — blanking stays
+whole-season.
 
 Method notes, all asserted below rather than described:
 
@@ -42,8 +47,9 @@ Method notes, all asserted below rather than described:
   or future restructures; rows with no `contract_years` contribute zero and
   are counted in the build stats.
 * QB-neutral Cap+ is scaled by the SAME pooled within-season SD as the official
-  build, so one point means the same thing on both; its season mean is exactly
-  100. Cap+ (obligation) is calibrated like Cap+ itself (mean 100, pooled SD 15).
+  build — taken over the measured seasons only, exactly as Cap+ is (DECISIONS
+  113) — so one point means the same thing on both; its season mean is exactly
+  100.
 """
 
 from __future__ import annotations
@@ -146,7 +152,8 @@ def build(*, verbose: bool = True) -> tuple[pd.DataFrame, dict]:
     d = d.merge(rating[["season", "team", "perf_index", "P", "season_rank"]]
                 .rename(columns={"season_rank": "perf_rank"}),
                 on=["season", "team"], how="left", validate="1:1")
-    d = d.merge(off[["season", "team", "capplus", "season_rank", "dead_money_rec", "R_rec"]]
+    d = d.merge(off[["season", "team", "capplus", "season_rank", "dead_money_rec", "R_rec",
+                     "badge"]]
                 .rename(columns={"season_rank": "capplus_rank"}),
                 on=["season", "team"], how="left", validate="1:1")
     io_utils.assert_rows(d, "capplus_context")
@@ -166,15 +173,17 @@ def build(*, verbose: bool = True) -> tuple[pd.DataFrame, dict]:
     m = d["capplus"].notna()
     ssn = d.loc[m, "season"]
     lam = config.LAMBDA_DEAD
-    for c in ("capplus_qb_neutral", "qb_timing_pts", "roster_pts", "capplus_obligation"):
+    for c in ("capplus_qb_neutral", "qb_timing_pts", "roster_pts"):
         d[c] = np.nan
-    for c in ("qb_neutral_rank", "stratum_rank", "obligation_rank"):
+    for c in ("qb_neutral_rank", "stratum_rank"):
         d[c] = np.nan
 
-    # the official build's own scale, recomputed from its published R
+    # the official build's own scale, recomputed from its published R: the
+    # pooled SD over the MEASURED seasons only (estimated seasons share it)
     raw_off = (100.0 + 15.0 * d.loc[m, "P"]) / d.loc[m, "R_rec"]
     dev_off = raw_off - raw_off.groupby(ssn).transform("mean")
-    sd_off = _pooled_sd(dev_off, ssn)
+    meas = d.loc[m, "badge"] != "estimated"
+    sd_off = _pooled_sd(dev_off[meas], ssn[meas])
     recal = 100.0 + 15.0 * dev_off / sd_off
     drift = float((recal - d.loc[m, "capplus"]).abs().max())
     if drift > 1e-3:
@@ -191,27 +200,15 @@ def build(*, verbose: bool = True) -> tuple[pd.DataFrame, dict]:
     d.loc[m, "qb_timing_pts"] = d.loc[m, "capplus"] - d.loc[m, "capplus_qb_neutral"]
     d.loc[m, "roster_pts"] = d.loc[m, "capplus_qb_neutral"] - 100.0
 
-    # Cap+ (obligation): the candidate — calibrated exactly like Cap+
-    alpha = config.MORTGAGE_ALPHA
-    cost_o = ((d.loc[m, "cap_used_total"] + lam * d.loc[m, "dead_money_rec"]
-               + alpha * d.loc[m, "future_mortgage_usd"]) / d.loc[m, "league_cap"])
-    R_o = _floored_R(cost_o, ssn)
-    raw_o = (100.0 + 15.0 * d.loc[m, "P"]) / R_o
-    dev_o = raw_o - raw_o.groupby(ssn).transform("mean")
-    d.loc[m, "capplus_obligation"] = 100.0 + 15.0 * dev_o / _pooled_sd(dev_o, ssn)
-
     sub = d[m]
     d.loc[m, "qb_neutral_rank"] = sub.groupby("season")["capplus_qb_neutral"].rank(
         ascending=False, method="min")
     d.loc[m, "stratum_rank"] = sub.groupby(["season", "qb_rookie_window"])["capplus"].rank(
         ascending=False, method="min")
-    d.loc[m, "obligation_rank"] = sub.groupby("season")["capplus_obligation"].rank(
-        ascending=False, method="min")
 
     stats = _diagnostics(d, m, mstats, drift)
     _assert_invariants(d, m)
 
-    d["mortgage_alpha"] = alpha
     out = d[[
         "season", "team",
         "starting_qb", "starting_qb_gsis_id", "starting_qb_otc_id", "qb_starter_method",
@@ -221,20 +218,19 @@ def build(*, verbose: bool = True) -> tuple[pd.DataFrame, dict]:
         "perf_index", "perf_rank", "capplus", "capplus_rank",
         "capplus_qb_neutral", "qb_neutral_rank", "qb_timing_pts", "roster_pts",
         "cash_share", "future_mortgage_usd", "future_mortgage_share", "mortgage_rows_unknown",
-        "mortgage_alpha", "capplus_obligation", "obligation_rank",
     ]].sort_values(["season", "team"]).reset_index(drop=True)
 
     out = io_utils.round_cols(out, {
         "qb_cap_share": 6, "perf_index": 6, "capplus": 6, "capplus_qb_neutral": 6,
         "qb_timing_pts": 6, "roster_pts": 6, "cash_share": 6, "future_mortgage_share": 6,
-        "capplus_obligation": 6, "qb_cap_number": 0, "league_median_starter_qb_cap": 0,
+        "qb_cap_number": 0, "league_median_starter_qb_cap": 0,
         "future_mortgage_usd": 0,
     })
     out = io_utils.as_int64(out, [
         "starting_qb_otc_id", "qb_cap_number", "qb_contract_year_signed", "qb_draft_year",
         "qb_draft_round", "league_median_starter_qb_cap", "stratum_size", "stratum_rank",
         "perf_rank", "capplus_rank", "qb_neutral_rank", "future_mortgage_usd",
-        "mortgage_rows_unknown", "obligation_rank",
+        "mortgage_rows_unknown",
     ])
     out["qb_rookie_window"] = out["qb_rookie_window"].astype(bool)
     if verbose:
@@ -244,18 +240,19 @@ def build(*, verbose: bool = True) -> tuple[pd.DataFrame, dict]:
 
 def _assert_invariants(d: pd.DataFrame, m: pd.Series) -> None:
     sub = d[m]
-    for c in ("capplus_qb_neutral", "capplus_obligation"):
-        if not np.allclose(sub.groupby("season")[c].mean().to_numpy(), config.INDEX_MEAN):
-            raise AssertionError(f"{c}: season mean is not exactly 100")
+    if not np.allclose(sub.groupby("season")["capplus_qb_neutral"].mean().to_numpy(),
+                       config.INDEX_MEAN):
+        raise AssertionError("capplus_qb_neutral: season mean is not exactly 100")
     ident = (sub["capplus"] - sub["capplus_qb_neutral"] - sub["qb_timing_pts"]).abs().max()
     if ident > 1e-9:
         raise AssertionError("decomposition identity capplus = neutral + timing broke")
-    dev = sub["capplus_obligation"] - sub.groupby("season")["capplus_obligation"].transform("mean")
-    if abs(_pooled_sd(dev, sub["season"]) - config.INDEX_SD) > 1e-9:
-        raise AssertionError("capplus_obligation: pooled within-season SD is not 15")
     blank = d[~m]
-    if set(blank["season"].unique()) != set(config.CAPPLUS_BLANK_SEASONS):
-        raise AssertionError("index columns are blank outside the four blank seasons")
+    if (config.DEAD_MONEY_TIER == "full"
+            and set(blank["season"].unique()) != set(config.CAPPLUS_BLANK_SEASONS)):
+        raise AssertionError("index columns are blank outside the Cap+-blank seasons")
+    for c in ("capplus_obligation", "obligation_rank", "mortgage_alpha"):
+        if c in d.columns:
+            raise AssertionError(f"{c} was retired 2026-10-10 (DECISIONS 111)")
     if (d.groupby(["season", "team"]).size() != 1).any():
         raise AssertionError("grain (season, team) is not unique")
     if not d["qb_rookie_window"].isin([True, False]).all():
@@ -275,11 +272,8 @@ def _diagnostics(d: pd.DataFrame, m: pd.Series, mstats: dict, drift: float) -> d
         "index_rows": int(m.sum()),
         "capplus_reproduction_drift": round(drift, 6),
         "corr_capplus_vs_perf_index": round(float(sub["capplus"].corr(sub["perf_index"])), 4),
-        "corr_obligation_vs_perf_index": round(
-            float(sub["capplus_obligation"].corr(sub["perf_index"])), 4),
         "mean_abs_rank_shift_vs_perf": {
             "capplus": round(float((sub["capplus_rank"] - perf_rank).abs().mean()), 2),
-            "capplus_obligation": round(float((sub["obligation_rank"] - perf_rank).abs().mean()), 2),
         },
         "within_season_sd": {
             "R_rec": round(float(sub.groupby("season")["R_rec"].std().mean()), 4),
@@ -298,15 +292,14 @@ def _diagnostics(d: pd.DataFrame, m: pd.Series, mstats: dict, drift: float) -> d
         "starter_method_counts": {k: int(v) for k, v in
                                   d["qb_starter_method"].value_counts().items()},
         "mortgage": mstats,
-        "mortgage_alpha": config.MORTGAGE_ALPHA,
+        "corr_mortgage_share_vs_perf_index": round(
+            float(d["future_mortgage_share"].corr(d["perf_index"])), 4),
     }
 
 
 def _print(s: dict) -> None:
-    print(f"  corr(Cap+, Team Rating) = {s['corr_capplus_vs_perf_index']}  "
-          f"corr(Cap+ obligation, Team Rating) = {s['corr_obligation_vs_perf_index']}")
-    print(f"  mean |rank - perf rank|: Cap+ {s['mean_abs_rank_shift_vs_perf']['capplus']}, "
-          f"obligation {s['mean_abs_rank_shift_vs_perf']['capplus_obligation']}")
+    print(f"  corr(Cap+, Team Rating) = {s['corr_capplus_vs_perf_index']}")
+    print(f"  mean |rank - perf rank|: Cap+ {s['mean_abs_rank_shift_vs_perf']['capplus']}")
     print(f"  within-season SD: R_rec {s['within_season_sd']['R_rec']}, "
           f"mortgage share {s['within_season_sd']['future_mortgage_share']}")
     for k, v in s["by_stratum"].items():
@@ -330,5 +323,5 @@ def mart_capplus_context(ctx) -> pd.DataFrame:
         "player_season_availability + draft_pick",
         rows=len(_CACHE["ctx"]),
         window=f"{config.TIER2_WINDOW[0]}-{config.TIER2_WINDOW[1]} (13 seasons; "
-               f"index columns null in the four Cap+-blank seasons)")
+               f"index columns null only where Cap+ is blank)")
     return _CACHE["ctx"]

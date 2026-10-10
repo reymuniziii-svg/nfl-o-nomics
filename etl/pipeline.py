@@ -109,24 +109,25 @@ MARTS = [
          note="SPEC §7.12 / §2.6 — team-season x nine position groups, 2013+"),
     # --- dead money ---------------------------------------------------------
     Mart("dead_money_team_season", deadmoney.mart_dead_money_team_season,
-         note="SPEC §7.5 — 370 dated snapshots + the derived license_tier"),
+         note="SPEC §7.5 — 402 dated snapshots + the derived license_tier"),
     Mart("dead_money_ledger", deadmoney.mart_dead_money_ledger,
          note="SPEC §7.6 — 21 verified individual charges"),
     Mart("dead_money_snapshot_resolution",
          deadmoney.mart_dead_money_snapshot_resolution,
          aliases=("snapshot_resolution",),
-         note="the pinned same-stage rule's chosen date+stage per season"),
+         note="the pinned same-stage rule's chosen date+stage per season; "
+              "estimated fallback for 2016/2020/2021"),
     Mart("dead_money_display", deadmoney.mart_dead_money_display,
-         note="416 render-ready rows; four blank seasons explicit"),
+         note="416 render-ready rows; 320 measured + 96 estimated with provenance"),
     # --- Cap+ ---------------------------------------------------------------
     Mart("capplus_official", capplus.mart_capplus_official, aliases=("capplus",),
-         note="SPEC §7.4 — 288 rows, nine seasons, gate #1 promotion"),
+         note="SPEC §7.4 — 416 rows, thirteen seasons, λ = 1, adjusted-EPA P"),
     Mart("team_rating", capplus.mart_team_rating,
          note='SPEC §2.3 — "Team Rating (performance only)", all 861 team-seasons'),
     Mart("capplus_context", capplus_context.mart_capplus_context,
          aliases=("qb_neutral", "mortgage"),
          note="SPEC §7.13 — 416 rows: starting QB, rookie window, QB-neutral Cap+, "
-              "future-cap mortgage, Cap+ (obligation) candidate; gate #1 reopened"),
+              "future-cap mortgage (the cash-vs-cap bridge)"),
     # --- coaching -----------------------------------------------------------
     Mart("coaching_staff", coaching.mart_coaching_staff,
          note="SPEC §7.7 — 2,612 rows, ERA-CORRECT codes + surrogate coach_id"),
@@ -151,12 +152,11 @@ for _m in MARTS:
     for _a in _m.aliases:
         MART_BY_NAME[_a] = _m
 
-#: Verified, not rewritten. `capplus_candidates.csv` is a 69-column backtest
-#: artefact the app never reads (`DECISIONS.md` 54); re-emitting it would risk
-#: regressing the evidence record for no product gain. The pipeline instead
-#: recomputes the recommended columns from scratch and asserts they still
-#: reproduce the committed file exactly.
-VERIFIERS = {"capplus_candidates": capplus.verify_capplus_candidates}
+#: Verified, not rewritten. Empty since 2026-10-10: `capplus_candidates.csv` is
+#: the frozen July 2026 evidence record of the λ = 1.5 / raw-EPA build and is no
+#: longer reproduced (`DECISIONS.md` 114). The mechanism stays for the next
+#: artefact that must be verified rather than rewritten.
+VERIFIERS: dict = {}
 
 
 # --------------------------------------------------------------------------- #
@@ -203,6 +203,8 @@ def run(selected: list[str] | None = None, *, verbose: bool = True,
         df = m.builder(ctx)
         path = io_utils.write_csv(df, m.path)
         digest = io_utils.md5_file(path)
+        # Take the first pass's notes BEFORE any re-build: they are the record.
+        sources_noted = ctx.take_sources()
 
         if check_stable:
             df2 = m.builder(ctx)
@@ -210,14 +212,14 @@ def run(selected: list[str] | None = None, *, verbose: bool = True,
             io_utils.write_csv(df2, tmp)
             second = io_utils.md5_file(tmp)
             tmp.unlink()
-            ctx.take_sources()  # the second pass's notes are duplicates
+            ctx.take_sources()  # discard the second pass's duplicate notes
             if second != digest:
                 unstable.append(m.name)
                 print(f"  !! NOT BYTE-STABLE: {digest} != {second}")
             elif verbose:
                 print(f"  byte-stable on re-run ({digest})")
 
-        manifest_marts[m.name] = _describe(df, path, ctx.take_sources(), m.note)
+        manifest_marts[m.name] = _describe(df, path, sources_noted, m.note)
         if verbose:
             print(f"  wrote {path.relative_to(config.REPO)}  "
                   f"({len(df)} rows x {len(df.columns)} cols, md5 {digest[:12]}…, "
@@ -259,6 +261,7 @@ def run(selected: list[str] | None = None, *, verbose: bool = True,
             "TEAMMARK_KILLSWITCH": config.TEAMMARK_KILLSWITCH,
             "IMAGE_TREATMENT_MODE": config.IMAGE_TREATMENT_MODE,
             "LAMBDA_DEAD": config.LAMBDA_DEAD,
+            "PERF_EPA_INPUT": config.PERF_EPA_INPUT,
             "COST_FLOOR_Q": config.COST_FLOOR_Q,
         },
         "marts": manifest_marts,
@@ -274,6 +277,12 @@ def run(selected: list[str] | None = None, *, verbose: bool = True,
     elif config.MANIFEST.exists():
         prev = json.loads(config.MANIFEST.read_text())
         prev["marts"].update(manifest_marts)
+        # Drop artefacts that are no longer verified (capplus_candidates
+        # retired from VERIFIERS 2026-10-10) so a partial run cannot keep a
+        # stale verification on record.
+        prev["verified_not_rewritten"] = {
+            k: v for k, v in prev.get("verified_not_rewritten", {}).items()
+            if k in VERIFIERS}
         prev["verified_not_rewritten"].update(verified)
         prev["checks"].update(ctx.stats)
         prev["data_version"] = manifest["data_version"]
@@ -308,6 +317,7 @@ def _data_version(ctx: Context) -> dict:
     cp = ctx.stats.get("capplus")
     if cp:
         dv["capplus_seasons"] = cp["seasons"]
+        dv["capplus_estimated_seasons"] = cp["estimated_seasons"]
     return dv
 
 

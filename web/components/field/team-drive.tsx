@@ -3,7 +3,7 @@
  * `SPEC.md` §4, `CHART_ANATOMY.md` §7, `DECISIONS.md` 43.
  *
  * DECISION (review D #6): the Drive is no longer its own card. It is the
- * "Read as field" view of `FranchiseArc`. As a separate card it redrew the
+ * "Field" view of `FranchiseArc`. As a separate card it redrew the
  * arc's line directly underneath the arc, with 14 of its 27 seasons empty
  * field and the goal line at the top — the same chart with yard numbers. Cutting
  * it would drop one of the two field surfaces `SPEC.md` §4 names, so it is
@@ -18,12 +18,12 @@
  *  - the page's own season is the lit row.
  *
  * The rows stop at 2013 because the field IS Cap+; the Team Rating years have
- * no spot on it. The axis does not hide that: 2013 is its own hatched row and
- * the caption says the field view covers the Cap+ era only.
+ * no spot on it, and the caption says the field view covers the Cap+ era only.
  *
  * Unchanged anatomy: the Cap+ axis is printed conventionally beneath the
- * field (§7: the field is the second encoding, never the only one); blank
- * seasons are hatched, labelled rows, never interpolated; no turf, no crowd.
+ * field (§7: the field is the second encoding, never the only one); an
+ * ESTIMATED season's ball carries a dashed ring; a blank season (only under
+ * the SAFE-only reversal) is a hatched, labeled row, never interpolated.
  * The 50–150 domain contains 100% of `capplus_official` (62.9 to 138.1).
  */
 
@@ -50,7 +50,7 @@ export interface DriveGeometry {
 }
 
 const ROW_H = 22;
-/** The Cap+ era: 2013 (blank) through 2025 — 13 rows. */
+/** The Cap+ era: 2013 through 2025 — 13 rows. */
 const ROWS = 13;
 
 export function driveGeometry(width: number): DriveGeometry {
@@ -59,11 +59,14 @@ export function driveGeometry(width: number): DriveGeometry {
   return { w: width, h: mt + ROWS * ROW_H + mb, ml: 46, mr: 14, mt, mb, rowH: ROW_H };
 }
 
-export const DRIVE_LEGEND: LegendItem[] = [
-  { swatch: 'dot', label: 'Cap+ as field position — the ball', tone: 'accent' },
-  { swatch: 'benchmark', label: 'Midfield — Cap+ 100, league average', tone: 'benchmark' },
-  { swatch: 'hatch', label: 'Season not covered', tone: 'absence' },
-];
+export function driveLegend({ gap, estimated }: { gap: boolean; estimated: boolean }): LegendItem[] {
+  return [
+    { swatch: 'dot', label: 'The ball (Cap+ as field position)', tone: 'accent' },
+    { swatch: 'benchmark', label: 'Midfield (Cap+ 100, league average)', tone: 'benchmark' },
+    ...(estimated ? [{ swatch: 'estimated', label: 'Estimated season', tone: 'partial' } as LegendItem] : []),
+    ...(gap ? [{ swatch: 'hatch', label: 'Season not covered', tone: 'absence' } as LegendItem] : []),
+  ];
+}
 
 export function DriveSvg({
   points,
@@ -203,12 +206,13 @@ export function DriveSvg({
                     style={{ strokeDasharray: 'var(--yy-dash-absence)' }}
                   />
                   <text className={`${chart.micro} ${chart.microOnSunken}`} x={innerW / 2} y={cy + 3.5} textAnchor="middle">
-                    No full-32 table — not covered
+                    No league-wide table — not covered
                   </text>
                 </g>
               );
             }
             const v = p.capplus.value;
+            const est = p.capplus.state === 'value' && p.capplus.badge === 'estimated';
             const bx = x(Math.max(FIELD_CAPPLUS_DOMAIN[0], Math.min(FIELD_CAPPLUS_DOMAIN[1], v)));
             const gain = v >= 100;
             const ytg = Math.round(yardsToGoal(v));
@@ -242,6 +246,18 @@ export function DriveSvg({
                   stroke={isCur ? 'var(--yy-fg-1)' : 'var(--yy-bg-card-flat)'}
                   strokeWidth={isCur ? 2 : 1}
                 />
+                {est ? (
+                  <ellipse
+                    cx={bx}
+                    cy={cy}
+                    rx={9.5}
+                    ry={7}
+                    fill="none"
+                    stroke="var(--yy-fg-2)"
+                    strokeWidth={1}
+                    style={{ strokeDasharray: '2 2' }}
+                  />
+                ) : null}
                 <text
                   className={chart.figure}
                   x={tx}
@@ -251,7 +267,7 @@ export function DriveSvg({
                 >
                   {v.toFixed(1)}
                   <tspan className={chart.micro} fill="var(--yy-fg-3)" dx={4}>
-                    {spot}
+                    {est ? `${spot} · est.` : spot}
                   </tspan>
                 </text>
               </g>
@@ -282,8 +298,9 @@ export function DriveSvg({
         {points[points.length - 1]?.season}. The field runs from the club&rsquo;s own goal line at
         Cap+ {FIELD_CAPPLUS_DOMAIN[0]} on the left to the opponent&rsquo;s at Cap+{' '}
         {FIELD_CAPPLUS_DOMAIN[1]} on the right; midfield is Cap+ 100, the league average. Each
-        covered season is drawn as a carry from midfield to its Cap+ spot. Seasons with no
-        league-wide dead-money table are hatched rows and are never interpolated.
+        covered season is drawn as a carry from midfield to its Cap+ spot. An estimated season&rsquo;s
+        ball carries a dashed ring. A season without Cap+ would appear as a hatched row, never
+        interpolated.
       </p>
     </>
   );

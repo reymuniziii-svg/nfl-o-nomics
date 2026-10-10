@@ -18,14 +18,14 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { div } = await params;
   if (!isDivisionSlug(div)) return {};
-  const t = `${divisionName(div)} — what a win cost`;
+  const t = `${divisionName(div)} — what a win costs`;
   return {
     title: divisionName(div),
     alternates: { canonical: `/division/${div}` },
     openGraph: {
       url: `/division/${div}`,
       title: t,
-      description: 'Four clubs on the Cap+ field, cap per win and a verdict for each.',
+      description: 'Four clubs, what each win cost, and where each one sits on the Cap+ field.',
     },
     twitter: { title: t },
   };

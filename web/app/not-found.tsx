@@ -3,12 +3,12 @@ import Link from 'next/link';
 export default function NotFound() {
   return (
     <>
-      <h1>No such page</h1>
+      <h1>Flag on the play: no such page</h1>
       <p className="yy-caveat">
-        Team URLs are keyed on the current franchise code and the season:{' '}
-        <code>/team/lv/2003</code> is the 2003 Raiders (rendered as Oakland). Legacy codes —{' '}
-        <code>oak</code>, <code>stl</code>, <code>sd</code> — redirect here permanently. Player
-        URLs use the <code>otc_id</code> and cover the audited v1 population only.
+        Team URLs use the current franchise code and the season. <code>/team/lv/2003</code> is
+        the 2003 Raiders, shown as Oakland. The old codes <code>oak</code>, <code>stl</code> and{' '}
+        <code>sd</code> redirect to the current ones. Player URLs use the Over The Cap player ID,
+        and only the 251 audited players have a page.
       </p>
       <ul>
         <li>

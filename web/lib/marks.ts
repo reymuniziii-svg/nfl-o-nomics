@@ -10,9 +10,9 @@
  *   TEAM_LOGOS_ENABLED === false  ->  ALWAYS the typographic fallback chip
  *   logo file missing in manifest ->  the chip
  *   otherwise                     ->  /assets/teammarks/<ABBR>.png
- * The chip's glyph colour is the black-or-white value computed from the relative
- * luminance of the team's primary colour, precomputed in chipdata.json. It is NOT
- * the secondary colour and must not be "simplified" to it: 15 of 36 colour rows
+ * The chip's glyph color is the black-or-white value computed from the relative
+ * luminance of the team's primary color, precomputed in chipdata.json. It is NOT
+ * the secondary color and must not be "simplified" to it: 15 of 36 color rows
  * have primary/secondary contrast below 3.0 and 6 are below 2.0. Worst case as
  * shipped is LAC at 4.66, all >= WCAG AA.
  *

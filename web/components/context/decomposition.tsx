@@ -39,15 +39,15 @@ export function CapPlusDecomposition({
   qbNeutral: number;
 }) {
   const steps = [
-    { key: 'roster', name: 'Roster & results', from: 100, to: qbNeutral, delta: rosterPts },
-    { key: 'qb', name: 'QB contract timing', from: qbNeutral, to: capplus, delta: qbTimingPts },
+    { key: 'roster', name: 'Roster points', from: 100, to: qbNeutral, delta: rosterPts },
+    { key: 'qb', name: 'QB-timing points', from: qbNeutral, to: capplus, delta: qbTimingPts },
   ];
 
   return (
     <div
       className={css.wf}
       role="img"
-      aria-label={`Cap+ ${capplus.toFixed(1)} equals 100, plus ${signedIndex(rosterPts)} from the roster and results, giving ${CAPPLUS_QB_NEUTRAL_LABEL} ${qbNeutral.toFixed(1)}, plus ${signedIndex(qbTimingPts)} from the quarterback's contract timing.`}
+      aria-label={`Cap+ ${capplus.toFixed(1)} equals 100, plus ${signedIndex(rosterPts)} from roster points, giving ${CAPPLUS_QB_NEUTRAL_LABEL} ${qbNeutral.toFixed(1)}, plus ${signedIndex(qbTimingPts)} from QB-timing points.`}
     >
       <Row name="League average" value="100.0" valueClass={css.wfBench}>
         <span className={css.wfStart} style={{ left: `${pct(100)}%` }} />
@@ -91,7 +91,7 @@ export function CapPlusDecomposition({
         <span />
       </div>
       <p className={`yy-label ${css.wfNeutral}`}>
-        {`${CAPPLUS_QB_NEUTRAL_LABEL} ${qbNeutral.toFixed(1)} — the same season with a median starter’s cap number in place of this one`}
+        {`${CAPPLUS_QB_NEUTRAL_LABEL} ${qbNeutral.toFixed(1)} swaps in a median starter’s cap number for this club’s own`}
       </p>
     </div>
   );

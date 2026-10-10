@@ -47,25 +47,43 @@ export const asofStageEnum = pgEnum('asof_stage', [
 ]);
 
 /** COVERAGE FLAG — the per-snapshot breadth of a dead-money table (§7.5). */
-export const dmCoverageEnum = pgEnum('dm_coverage', ['full32', 'partial', 'top5']);
+export const dmCoverageEnum = pgEnum('dm_coverage', ['full32', 'partial', 'top5', 'estimated']);
 
 /** COVERAGE FLAG — the season's resolved coverage class (§2.1 resolution rule). */
-export const seasonCoverageEnum = pgEnum('season_coverage', ['full32', 'leaders_only']);
+export const seasonCoverageEnum = pgEnum('season_coverage', ['full32', 'leaders_only', 'estimated']);
 
 /** COVERAGE FLAG — the `Metric<T>` discriminant, persisted (§1.2). */
 export const metricStateEnum = pgEnum('metric_state', ['value', 'blank', 'partial']);
 
 /** `SPEC.md` §7.5 — derived deterministically from `source_url`; the RISKS.md
- *  risk 1 mechanism. `DEAD_MONEY_TIER` filters on it at seed time. */
+ *  risk 1 mechanism. `DEAD_MONEY_TIER` filters on it at seed time. `MODELED`
+ *  marks a modeled figure in an estimated season (§2.2): it has no source and
+ *  withdraws under the SAFE-only reversal. */
 export const licenseTierEnum = pgEnum('license_tier', [
   'SAFE_LEAGUE',
   'SAFE_EDITORIAL',
   'REVIEW_SPOTRAC',
   'REVIEW_OTC',
+  'MODELED',
 ]);
 
-/** `SPEC.md` §7.4 — 2014 & 2019 are `provisional`. */
-export const capplusBadgeEnum = pgEnum('capplus_badge', ['provisional', 'preseason', 'in_season']);
+/** `SPEC.md` §7.4 — 2013, 2014 & 2019 are `provisional`; 2016, 2020 & 2021 `estimated`. */
+export const capplusBadgeEnum = pgEnum('capplus_badge', [
+  'provisional',
+  'preseason',
+  'in_season',
+  'estimated',
+]);
+
+/** `team_season_results.playoff_result` — the deepest round reached. */
+export const playoffResultEnum = pgEnum('playoff_result', [
+  'none',
+  'wild_card',
+  'divisional',
+  'conference',
+  'super_bowl_loss',
+  'super_bowl_win',
+]);
 
 /** `SPEC.md` §7.12 / §2.6 — the nine groups. */
 export const positionGroupEnum = pgEnum('position_group', [
@@ -94,6 +112,10 @@ export const teamSeasonResults = pgTable(
     pointsFor: integer('points_for').notNull(),
     pointsAgainst: integer('points_against').notNull(),
     pointDiff: integer('point_diff').notNull(),
+    /** Deepest round reached. Displayed beside the record; never an index input. */
+    playoffResult: playoffResultEnum('playoff_result').notNull(),
+    playoffGames: integer('playoff_games').notNull(),
+    playoffWins: integer('playoff_wins').notNull(),
   },
   (t) => [primaryKey({ columns: [t.season, t.team] }), index('tsr_team_idx').on(t.team)],
 );
@@ -114,6 +136,13 @@ export const teamSeasonEpa = pgTable(
     epaMarginPerPlay: doublePrecision('epa_margin_per_play').notNull(),
     offEpaTotal: doublePrecision('off_epa_total').notNull(),
     defEpaTotal: doublePrecision('def_epa_total').notNull(),
+    /** Opponent-adjusted rates (`SPEC.md` §2.4); season means preserved. */
+    offEpaPerPlayAdj: doublePrecision('off_epa_per_play_adj').notNull(),
+    defEpaPerPlayAdj: doublePrecision('def_epa_per_play_adj').notNull(),
+    /** P's EPA input since 2026-10-10 (`DECISIONS.md` 110). */
+    epaMarginPerPlayAdj: doublePrecision('epa_margin_per_play_adj').notNull(),
+    /** Strength of schedule: mean raw EPA margin of the opponents faced. Display only. */
+    sosEpa: doublePrecision('sos_epa').notNull(),
   },
   (t) => [primaryKey({ columns: [t.season, t.team] })],
 );
@@ -159,7 +188,7 @@ export type TeamSeasonCapRow = Omit<
 > & { deadMoneyTotal: null; deadMoneyPct: null };
 
 /* ================================================================== */
-/* §7.4  capplus_official — 288 rows, nine seasons                     */
+/* §7.4  capplus_official — 416 rows, thirteen seasons                 */
 /* ================================================================== */
 
 export const capplusOfficial = pgTable(
@@ -188,9 +217,13 @@ export const capplusOfficial = pgTable(
     /** ALWAYS present — a row without it is a bug (structural test). */
     dmAsofDate: text('dm_asof_date').notNull(),
     dmAsofStage: asofStageEnum('dm_asof_stage').notNull(),
+    /** true = a modeled dead-money value in an estimated season. */
+    dmIsModeled: boolean('dm_is_modeled').notNull(),
     leagueMedianDeadMoneyUsd: doublePrecision('league_median_dead_money_usd'),
     licenseTier: licenseTierEnum('license_tier'),
     badge: capplusBadgeEnum('badge').notNull(),
+    /** The badge's sentence; empty (NULL here) for preseason / in_season. */
+    badgeReason: text('badge_reason'),
     /** 1…32 within season. */
     seasonRank: integer('season_rank').notNull(),
   },
@@ -215,7 +248,7 @@ export const teamRating = pgTable(
 );
 
 /* ================================================================== */
-/* §7.5  dead_money_team_season — 370 rows, (season, team, asof_date)  */
+/* §7.5  dead_money_team_season — 402 rows, (season, team, asof_date)  */
 /* ================================================================== */
 
 export const deadMoneyTeamSeason = pgTable(
@@ -270,6 +303,12 @@ export const deadMoneyLedger = pgTable(
 /* ETL settles without breaking the app.                                */
 /* ================================================================== */
 
+export type DeadMoneyMethod =
+  | 'measured'
+  | 'reading_ref_date'
+  | 'reading_other_date'
+  | 'ridge_z_anchor_level';
+
 export const deadMoneyDisplay = pgTable(
   'dead_money_display',
   {
@@ -283,7 +322,17 @@ export const deadMoneyDisplay = pgTable(
     licenseTier: licenseTierEnum('license_tier'),
     seasonCoverage: seasonCoverageEnum('season_coverage'),
     badge: capplusBadgeEnum('badge'),
+    badgeReason: text('badge_reason'),
     blankReason: text('blank_reason'),
+    /** 'measured' | 'reading_ref_date' | 'reading_other_date' | 'ridge_z_anchor_level'. */
+    method: text('method').$type<DeadMoneyMethod>(),
+    /** true = modeled from contract data; renders with its 80% range, never bare. */
+    isModeled: boolean('is_modeled'),
+    /** The published reading's own date; NULL where modeled. */
+    anchorAsofDate: text('anchor_asof_date'),
+    /** 80% range, estimated seasons only. */
+    loUsd: doublePrecision('lo_usd'),
+    hiUsd: doublePrecision('hi_usd'),
     nAlternateReadings: integer('n_alternate_readings'),
     leagueMedianUsd: doublePrecision('league_median_usd'),
     teamAdjustedCapImplied: doublePrecision('team_adjusted_cap_implied'),
@@ -309,8 +358,11 @@ export const deadMoneySnapshotResolution = pgTable('dead_money_snapshot_resoluti
   chosenAsofDate: text('chosen_asof_date'),
   chosenAsofStage: asofStageEnum('chosen_asof_stage'),
   badge: capplusBadgeEnum('badge'),
+  badgeReason: text('badge_reason'),
   chosenLicenseTier: licenseTierEnum('chosen_license_tier'),
   chosenNTeams: integer('chosen_n_teams'),
+  /** Teams whose figure is published (32 in a measured season). */
+  nPublishedTeams: integer('n_published_teams'),
   nCandidateSnapshots: integer('n_candidate_snapshots'),
   nFull32Snapshots: integer('n_full32_snapshots'),
   nPartialSnapshots: integer('n_partial_snapshots'),
@@ -409,6 +461,8 @@ export const regimeEvents = pgTable(
     dmNext1AsofStage: asofStageEnum('dm_next1_asof_stage'),
     dmNext1LeagueMedianUsd: doublePrecision('dm_next1_league_median_usd'),
     dmNext1BlankReason: text('dm_next1_blank_reason'),
+    dmNext1Badge: text('dm_next1_badge'),
+    dmNext1IsModeled: boolean('dm_next1_is_modeled'),
 
     dmNext2Season: integer('dm_next2_season'),
     dmNext2State: metricStateEnum('dm_next2_state'),
@@ -417,6 +471,8 @@ export const regimeEvents = pgTable(
     dmNext2AsofStage: asofStageEnum('dm_next2_asof_stage'),
     dmNext2LeagueMedianUsd: doublePrecision('dm_next2_league_median_usd'),
     dmNext2BlankReason: text('dm_next2_blank_reason'),
+    dmNext2Badge: text('dm_next2_badge'),
+    dmNext2IsModeled: boolean('dm_next2_is_modeled'),
   },
   (t) => [primaryKey({ columns: [t.team, t.season] })],
 );
@@ -481,6 +537,13 @@ export const draftClassSummary = pgTable(
     snapsAvailable: boolean('snaps_available').notNull(),
     dollarFramingAvailable: boolean('dollar_framing_available'),
     dollarFramingBlankReason: text('dollar_framing_blank_reason'),
+    /** Seasons played since the draft. */
+    seasonsElapsed: integer('seasons_elapsed').notNull(),
+    /** 'early' = too few seasons for the return to have settled. */
+    maturity: text('maturity').$type<'early' | 'mature'>().notNull(),
+    /** return_w_av ÷ that draft year's mean class × 100; 100 = the year's average class. */
+    draftIndex: doublePrecision('draft_index'),
+    draftIndexRank: integer('draft_index_rank'),
   },
   (t) => [primaryKey({ columns: [t.season, t.team] })],
 );
@@ -668,9 +731,11 @@ export const positionAllocation = pgTable(
 
 /* ================================================================== */
 /* §7.13  capplus_context — 416 rows, (season, team), 2013–2025         */
-/* The gate #1 reopen mart (§2.10). `capplus_official` is UNCHANGED.    */
-/* Facts for all 13 seasons; every INDEX column is NULL in the four     */
-/* Cap+-blank seasons (2013/2016/2020/2021) and only there.             */
+/* The gate #1 reopen mart (§2.10). Facts and index columns for all 13  */
+/* seasons; an INDEX column is NULL only where Cap+ itself is blank     */
+/* (the SAFE-only reversal), and then for the whole season.             */
+/* `capplus_obligation`, `obligation_rank`, `mortgage_alpha` were       */
+/* removed 2026-10-10 (DECISIONS 111): the contract forbids them.       */
 /* ================================================================== */
 
 export const capplusContext = pgTable(
@@ -695,7 +760,7 @@ export const capplusContext = pgTable(
     /** USD. */
     leagueMedianStarterQbCap: doublePrecision('league_median_starter_qb_cap').notNull(),
     stratumSize: integer('stratum_size').notNull(),
-    /** INDEX — NULL in the four blank seasons. */
+    /** INDEX — NULL only where Cap+ is blank. */
     stratumRank: integer('stratum_rank'),
     perfIndex: doublePrecision('perf_index').notNull(),
     perfRank: integer('perf_rank').notNull(),
@@ -716,11 +781,6 @@ export const capplusContext = pgTable(
     /** Mortgage ÷ this season's league cap. */
     futureMortgageShare: doublePrecision('future_mortgage_share').notNull(),
     mortgageRowsUnknown: integer('mortgage_rows_unknown').notNull(),
-    /** 0.5 — a CANDIDATE, not a published claim. */
-    mortgageAlpha: doublePrecision('mortgage_alpha').notNull(),
-    /** INDEX — CANDIDATE. Never labelled "Cap+" until gate #1 clears. */
-    capplusObligation: doublePrecision('capplus_obligation'),
-    obligationRank: integer('obligation_rank'),
   },
   (t) => [primaryKey({ columns: [t.season, t.team] })],
 );

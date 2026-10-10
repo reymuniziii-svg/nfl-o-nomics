@@ -243,7 +243,7 @@ async function syncTokens() {
  *
  * SPEC.md §4 — the token contract is EXTEND-NEVER-RENAME. Every value below is a
  * NEUTRAL PLACEHOLDER (grayscale plus one accent) and none of it is a design
- * decision. No component may hardcode a colour, a font stack, a radius or a
+ * decision. No component may hardcode a color, a font stack, a radius or a
  * spacing value; they read these custom properties.
  */
 :root {

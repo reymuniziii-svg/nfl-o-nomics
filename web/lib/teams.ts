@@ -57,7 +57,7 @@ export const LEGACY_ROUTE_REDIRECTS: Readonly<Record<string, TeamAbbr>> = {
 
 /* ------------------------------------------------------------------ */
 /* Divisions — CURRENT ALIGNMENT ONLY (`SPEC.md` §6).                   */
-/* The 2002 realignment is not modelled. Membership is the same set the  */
+/* The 2002 realignment is not modeled. Membership is the same set the  */
 /* asset pipeline recorded in public/assets/teammarks/chipdata.json and  */
 /* the seed loads into `team_meta`; it is repeated here because route    */
 /* params must resolve without a database round-trip.                    */

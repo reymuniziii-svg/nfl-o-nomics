@@ -15,12 +15,16 @@
  */
 
 import css from './team.module.css';
-import { BlankReason, Chip } from '../primitives';
+import { BadgeChip, BlankReason } from '../primitives';
 import { ordinal, signedIndex, vsLeague } from './format';
-import { usdShort } from '@/lib/display';
-import { PROVISIONAL_BADGE_COPY, type Metric } from '@/lib/metric';
+import { playoffWords, usdShort } from '@/lib/display';
+import { badgeNote, type Metric } from '@/lib/metric';
 import type { CostPerWin, CapPlusValue } from '@/lib/data/metrics';
 import type { SeasonInputRanks, TeamResults, TeamEpa } from '@/lib/data/team';
+
+/** One sentence on the opponent adjustment (`SPEC.md` §2.4, `DECISIONS.md` 110). */
+const EPA_ADJUSTMENT_CAPTION =
+  'EPA margin is adjusted for opponents, so each club gets credit for who it played, and that’s the margin Cap+ uses; schedule is the opponents’ average raw margin, and above zero means a tougher slate.';
 
 export interface VerdictProps {
   teamName: string;
@@ -54,44 +58,62 @@ export function VerdictStrip(p: VerdictProps) {
       {p.inTier2 ? <Reconcile {...p} /> : null}
 
       <dl className={css.verdictStats}>
-        <Stat label="Record" value={res ? recordOf(res) : '—'} />
+        <Stat
+          label="Record"
+          value={res ? recordOf(res) : '—'}
+          note={res ? playoffWords(res.playoffResult) : undefined}
+        />
         <Stat
           label="Point diff"
           value={res ? signedInt(res.pointDiff) : '—'}
           note={rankNote(p.inputRanks, (r) => r.pointDiffRank)}
         />
         <Stat
-          label="EPA margin / play"
-          value={p.epa.state === 'blank' ? p.epa.reason : p.epa.value.epaMarginPerPlay.toFixed(3)}
+          label="EPA margin / play, opp.-adj."
+          value={p.epa.state === 'blank' ? p.epa.reason : signedEpa(p.epa.value.epaMarginPerPlayAdj)}
           note={
-            p.inputRanks.state !== 'blank' && p.inputRanks.value.epaMarginRank.state !== 'blank'
-              ? `${ordinal(p.inputRanks.value.epaMarginRank.value)} of ${p.inputRanks.value.n}`
-              : undefined
+            p.epa.state === 'blank'
+              ? undefined
+              : [
+                  p.inputRanks.state !== 'blank' && p.inputRanks.value.epaMarginRank.state !== 'blank'
+                    ? `${ordinal(p.inputRanks.value.epaMarginRank.value)} of ${p.inputRanks.value.n}`
+                    : null,
+                  `raw ${signedEpa(p.epa.value.epaMarginPerPlay)}`,
+                  `schedule ${signedEpa(p.epa.value.sosEpa)}`,
+                ]
+                  .filter(Boolean)
+                  .join(' · ')
           }
         />
         {p.inTier2 ? (
           <Stat
             label="Cap+"
-            value={p.capplus.state === 'blank' ? p.capplus.reason : p.capplus.value.capplus.toFixed(1)}
+            value={p.capplus.state === 'blank' ? 'Not covered' : p.capplus.value.capplus.toFixed(1)}
             note={
               p.capplus.state === 'blank'
                 ? undefined
-                : `${ordinal(p.capplus.value.seasonRank)} of 32 · 100 = league avg`
+                : `${ordinal(p.capplus.value.seasonRank)} of 32 · 100 = league average`
             }
-            chip={p.capplus.state === 'value' && p.capplus.provisional ? 'provisional' : undefined}
+            chip={p.capplus}
           />
         ) : null}
         {!p.inTier2 || p.capplus.state === 'blank' ? (
           <Stat
-            label="Team rating"
+            label="Team Rating"
             value={p.teamRating.state === 'blank' ? p.teamRating.reason : p.teamRating.value.toFixed(1)}
             note="Performance only"
           />
         ) : null}
       </dl>
 
-      {p.capplus.state === 'value' && p.capplus.provisional ? (
-        <p className={`yy-caption ${css.verdictNote}`}>Provisional Cap+: {PROVISIONAL_BADGE_COPY}</p>
+      {p.epa.state !== 'blank' ? (
+        <p className={`yy-caption ${css.verdictNote}`}>{EPA_ADJUSTMENT_CAPTION}</p>
+      ) : null}
+
+      {/* The badge's own sentence: 2013's differs from 2014/2019's, and an
+          estimated season says how many of its 32 figures are published. */}
+      {badgeNote(p.capplus) ? (
+        <p className={`yy-caption ${css.verdictNote}`}>{badgeNote(p.capplus)!.sentence}</p>
       ) : null}
     </div>
   );
@@ -134,7 +156,7 @@ function PreTier2Items(p: VerdictProps) {
   return (
     <>
       {p.teamRating.state !== 'blank' ? (
-        <Item n={p.teamRating.value.toFixed(1)} unit="team rating" lead />
+        <Item n={p.teamRating.value.toFixed(1)} unit="Team Rating" lead />
       ) : null}
       <span className={`yy-label ${css.verdictUnit}`}>· No dollar figures before 2013</span>
     </>
@@ -159,18 +181,19 @@ function Stat({
   label: string;
   value: string;
   note?: string;
-  chip?: 'provisional';
+  /** A badged metric: renders its Provisional / Estimated chip. */
+  chip?: Metric<unknown>;
 }) {
   return (
     <div className={css.verdictStat}>
       <dt className={`yy-label ${css.verdictStatLabel}`}>{label}</dt>
       <dd className={css.verdictStatValue}>
-        <span className={`yy-num ${value.startsWith('Not available') ? css.verdictStatBlank : ''}`}>
+        <span className={`yy-num ${value.startsWith('Not available') || value === 'Not covered' ? css.verdictStatBlank : ''}`}>
           {value}
         </span>
-        {chip ? (
+        {badgeNote(chip) ? (
           <span className={css.chipFloor}>
-            <Chip kind={chip} />
+            <BadgeChip metric={chip} sentence="none" />
           </span>
         ) : null}
       </dd>
@@ -182,7 +205,8 @@ function Stat({
 /**
  * THE RECONCILIATION — rendered only when the two headline measures disagree.
  *
- * Cap+ blends win %, point differential per game and EPA margin per play, then
+ * Cap+ blends win %, point differential per game and opponent-adjusted EPA
+ * margin per play, then
  * divides by cap cost (`SPEC.md` §2.2, §2.4). Cost per win divides CASH by WINS.
  * So they part company in exactly two ways: the performance inputs other than
  * wins run ahead of (or behind) the record, or cap cost sits away from the
@@ -207,6 +231,7 @@ function Reconcile(p: VerdictProps) {
     ranks && ranks.epaMarginRank.state !== 'blank' ? ranks.epaMarginRank.value : null;
 
   const reasons: string[] = [];
+  let usesEpa = false;
   if (ranks) {
     const ahead = (r: number) => (capHigh ? r < ranks.winPctRank : r > ranks.winPctRank);
     const drivers = [
@@ -214,6 +239,7 @@ function Reconcile(p: VerdictProps) {
       epaRank !== null && ahead(epaRank) ? `EPA margin (${ordinal(epaRank)})` : null,
     ].filter(Boolean);
     if (drivers.length) {
+      usesEpa = epaRank !== null && ahead(epaRank);
       reasons.push(
         `${drivers.join(' and ')} ${capHigh ? 'outran' : 'trailed'} the record (${ordinal(ranks.winPctRank)} of ${n} on win %)`,
       );
@@ -222,17 +248,18 @@ function Reconcile(p: VerdictProps) {
   const costPct = Math.round(Math.abs(cp.rRec - 1) * 100);
   if (capHigh ? cp.rRec < 0.99 : cp.rRec > 1.01) {
     reasons.push(
-      `its cap cost ran ${costPct}% ${cp.rRec < 1 ? 'below' : 'above'} the league average${
+      `cap cost ran ${costPct}% ${cp.rRec < 1 ? 'below' : 'above'} the league average${
         cp.wasFloored ? ' (floored at the 25th percentile)' : ''
       }`,
     );
   }
 
-  const lead = `Cap+ is ${cp.capplus.toFixed(1)}, ${capHigh ? 'above' : 'below'} 100,`;
+  const lead = `Cap+ is ${cp.capplus.toFixed(1)}, ${capHigh ? 'above' : 'below'} 100.`;
+  const sentence = (s: string) => `${s.charAt(0).toUpperCase()}${s.slice(1)}.`;
   const body = reasons.length
-    ? ` because ${reasons.join(', and ')}.`
-    : ' because it scores point differential and EPA margin as well as wins.';
-  const tail = ' Cost per win counts only wins, and pays them in cash rather than cap.';
+    ? ` ${reasons.map(sentence).join(' ')}${usesEpa ? ' EPA is expected points added per play.' : ''}`
+    : ' It scores point differential and EPA margin, expected points added per play, as well as wins.';
+  const tail = ' Cost per win counts wins only and prices them in cash, not cap.';
 
   return (
     <p className={`yy-caption ${css.verdictReconcile}`}>
@@ -241,7 +268,7 @@ function Reconcile(p: VerdictProps) {
       {body}
       {tail}
       {p.qbTimingPts !== null
-        ? ` The quarterback’s contract accounts for ${signedIndex(p.qbTimingPts)} of the ${signedIndex(cp.capplus - 100)}.`
+        ? ` Of the ${signedIndex(cp.capplus - 100)}, the quarterback’s contract accounts for ${signedIndex(p.qbTimingPts)}.`
         : ''}
     </p>
   );
@@ -249,6 +276,10 @@ function Reconcile(p: VerdictProps) {
 
 function recordOf(r: TeamResults): string {
   return r.ties ? `${r.wins}–${r.losses}–${r.ties}` : `${r.wins}–${r.losses}`;
+}
+
+function signedEpa(n: number): string {
+  return n > 0 ? `+${n.toFixed(3)}` : n < 0 ? `−${Math.abs(n).toFixed(3)}` : '0.000';
 }
 
 function signedInt(n: number): string {

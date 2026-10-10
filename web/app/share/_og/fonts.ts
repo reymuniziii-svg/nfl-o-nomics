@@ -5,7 +5,7 @@ import path from 'node:path';
  * OG fonts, as buffers. Satori (`next/og`) reads TTF/OTF/WOFF only — never the
  * WOFF2 the site serves — and cannot drive a variable font's axes, so these are
  * static TTFs derived from the same self-hosted subsets by `scripts/og-fonts.py`.
- * Same glyphs, same OFL 1.1 licence; no third-party font request (TYPE.md §8).
+ * Same glyphs, same OFL 1.1 license; no third-party font request (TYPE.md §8).
  */
 
 export const OG_FONT = {
