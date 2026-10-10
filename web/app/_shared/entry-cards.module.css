@@ -63,3 +63,9 @@
 .go {
   color: var(--yy-accent);
 }
+
+/* the division view's share affordance, right-aligned above the hero */
+.shareRow {
+  display: flex;
+  justify-content: flex-end;
+}

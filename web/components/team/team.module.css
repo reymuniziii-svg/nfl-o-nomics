@@ -290,3 +290,465 @@
   text-align: right;
   color: var(--yy-fg-1);
 }
+
+/* ══════════════════════════════════════════════════════════════════════════ */
+/* ARC — time navigation, inspection, the field toggle                         */
+/* ══════════════════════════════════════════════════════════════════════════ */
+
+.arcBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--yy-space-3);
+  flex-wrap: wrap;
+  margin-bottom: var(--yy-space-2);
+}
+
+.arcHint {
+  margin: 0;
+  color: var(--yy-fg-3);
+}
+
+@media (hover: none) {
+  .arcHint {
+    display: none;
+  }
+}
+
+/* A two-option radio group drawn as a segmented control. */
+.segmented {
+  display: inline-flex;
+  border: 1px solid var(--yy-line-card);
+  border-radius: var(--yy-radius-control);
+  padding: 2px;
+  gap: 2px;
+}
+
+.segment {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--yy-fg-2);
+  min-height: 36px;
+  padding: 0 var(--yy-space-3);
+  border-radius: calc(var(--yy-radius-control) - 2px);
+  cursor: pointer;
+  letter-spacing: var(--yy-track-label-wide);
+  transition: background-color var(--yy-dur-fast) var(--yy-ease-standard),
+    color var(--yy-dur-fast) var(--yy-ease-standard);
+}
+
+/* Not lime: the one lime element on this card is the Cap+ series. */
+.segment[aria-checked='true'] {
+  background: var(--yy-fg-1);
+  color: var(--yy-bg-card-flat);
+}
+
+.segment:focus-visible {
+  outline: var(--yy-focus-width) solid var(--yy-focus-ring);
+  outline-offset: var(--yy-focus-offset);
+}
+
+.arcFrame {
+  width: 100%;
+  min-width: 0;
+}
+
+/* §6.1 — a domain change cross-fades. Durations are tokens, so reduced motion
+   collapses this to 1ms without a media query here (§6.4). */
+.fadeIn {
+  animation: yyArcFade var(--yy-dur-fast) var(--yy-ease-standard);
+}
+
+@keyframes yyArcFade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.plotWrap {
+  position: relative;
+  width: 100%;
+}
+
+/* ── the inspection layer ─────────────────────────────────────────────────── */
+
+.hitLayer {
+  position: absolute;
+  left: 0;
+  right: 0;
+}
+
+.hitCol {
+  position: absolute;
+  display: block;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.hitCol:focus-visible {
+  outline: var(--yy-focus-width) solid var(--yy-focus-ring);
+  outline-offset: -2px;
+  border-radius: 2px;
+}
+
+.tip {
+  position: absolute;
+  z-index: 3;
+  width: max-content;
+  min-width: 200px;
+  max-width: min(280px, 92vw);
+  padding: var(--yy-space-2) var(--yy-space-3);
+  background: var(--yy-bg-menu);
+  border: 1px solid var(--yy-line-card);
+  border-radius: var(--yy-radius-control);
+  box-shadow: var(--yy-shadow-menu);
+  display: flex;
+  flex-direction: column;
+  gap: var(--yy-space-1);
+  pointer-events: auto;
+}
+
+.tipAtCol {
+  top: 0;
+}
+
+.tipHead {
+  margin: 0 0 var(--yy-space-1);
+  color: var(--yy-fg-1);
+  letter-spacing: var(--yy-track-label-wide);
+}
+
+.tipRow {
+  margin: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--yy-space-3);
+}
+
+.tipName {
+  color: var(--yy-fg-3);
+  flex: none;
+}
+
+.tipValue {
+  color: var(--yy-fg-1);
+  font-size: var(--yy-size-label-lg);
+  text-align: right;
+}
+
+.tipLink {
+  margin-top: var(--yy-space-1);
+  color: var(--yy-accent);
+  text-decoration: underline;
+  min-height: 32px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.tipHere {
+  margin-top: var(--yy-space-1);
+  color: var(--yy-fg-3);
+}
+
+/* The page's own season: already here, so no pointer affordance. */
+.hitColCurrent {
+  cursor: default;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════ */
+/* VERDICT STRIP — the page's first card (review D #1)                         */
+/* ══════════════════════════════════════════════════════════════════════════ */
+
+.verdict {
+  display: flex;
+  flex-direction: column;
+  gap: var(--yy-space-3);
+}
+
+/* Phone: a two-column grid with cost per win on its own full-width line —
+   wrapped dot separators would start lines with a dot. Wide: one line. */
+.verdictLine {
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: baseline;
+  column-gap: var(--yy-space-3);
+  row-gap: var(--yy-space-2);
+}
+
+.verdictLine > .verdictItem:has(.verdictLead) {
+  grid-column: 1 / -1;
+  order: -1;
+}
+
+@media (min-width: 1024px) {
+  .verdictLine {
+    display: flex;
+    flex-wrap: wrap;
+    row-gap: var(--yy-space-1);
+  }
+
+  .verdictLine > .verdictItem:has(.verdictLead) {
+    order: 0;
+  }
+}
+
+.verdictItem {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--yy-space-1);
+  white-space: nowrap;
+}
+
+/* The separator is drawn, not typed, so a screen reader reads "6 wins, $318.8M
+   cash" rather than "6 wins dot". */
+@media (min-width: 1024px) {
+.verdictItem + .verdictItem::before {
+  content: '';
+  display: inline-block;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--yy-fg-dim);
+  margin-inline-end: var(--yy-space-2);
+  align-self: center;
+}
+}
+
+.verdictNum {
+  font-size: var(--yy-size-metric-sm);
+  color: var(--yy-fg-1);
+}
+
+/* Cost per win is THE figure — one step up, and still never lime: on a page
+   with a subject, lime means the subject (RESOLUTIONS Q1). */
+.verdictLead {
+  font-size: var(--yy-size-metric);
+  color: var(--yy-fg-1);
+}
+
+.verdictUnit {
+  color: var(--yy-fg-3);
+  letter-spacing: var(--yy-track-label-wide);
+}
+
+.verdictBlank {
+  max-width: var(--yy-measure);
+}
+
+.verdictReconcile {
+  margin: 0;
+  max-width: var(--yy-measure);
+  color: var(--yy-fg-2);
+  padding-inline-start: var(--yy-space-3);
+  border-inline-start: 2px solid var(--yy-benchmark-tick);
+}
+
+.verdictReconcileTag {
+  display: block;
+  color: var(--yy-benchmark);
+  letter-spacing: var(--yy-track-label-wide);
+  margin-bottom: var(--yy-space-1);
+}
+
+.verdictStats {
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--yy-space-3) var(--yy-space-4);
+  padding-top: var(--yy-space-3);
+  border-top: 1px solid var(--yy-line-divider);
+}
+
+@media (min-width: 1024px) {
+  .verdictStats {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.verdictStat {
+  min-width: 0;
+}
+
+.verdictStatLabel {
+  color: var(--yy-fg-3);
+  margin: 0;
+}
+
+.verdictStatValue {
+  margin: var(--yy-space-1) 0 0;
+  font-size: var(--yy-size-metric-xs);
+  color: var(--yy-fg-1);
+  display: flex;
+  align-items: center;
+  gap: var(--yy-space-2);
+  flex-wrap: wrap;
+}
+
+.verdictStatBlank {
+  font-family: var(--yy-font-body);
+  font-size: var(--yy-size-caption);
+  color: var(--yy-fg-3);
+}
+
+.verdictStatNote {
+  margin: var(--yy-space-0h) 0 0;
+  color: var(--yy-fg-3);
+}
+
+.verdictNote {
+  margin: 0;
+}
+
+/* RESOLUTIONS D1 — chips are not inside a data mark, so they sit on the 11px
+   floor, not the 10px micro exception. Scoped here because the Chip primitive
+   is shared. */
+.chipFloor :global(.yy-micro) {
+  font-size: var(--yy-size-label);
+}
+
+/* ── header tools: season stepper + share ─────────────────────────────────── */
+
+.headerTools {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--yy-space-2);
+  flex-wrap: wrap;
+  margin-top: var(--yy-space-2);
+}
+
+.headerActions {
+  display: flex;
+  gap: var(--yy-space-2);
+  flex-wrap: wrap;
+}
+
+.stepper {
+  display: inline-flex;
+  gap: var(--yy-space-2);
+}
+
+.stepperBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--yy-space-1);
+  min-height: var(--yy-tap-target);
+  min-width: var(--yy-tap-target);
+  justify-content: center;
+  padding: 0 var(--yy-space-2);
+  border: 1px solid var(--yy-line-card);
+  border-radius: var(--yy-radius-control);
+  color: var(--yy-fg-1);
+  text-decoration: none;
+  font-size: var(--yy-size-body);
+}
+
+.stepperBtn:focus-visible {
+  outline: var(--yy-focus-width) solid var(--yy-focus-ring);
+  outline-offset: var(--yy-focus-offset);
+}
+
+@media (hover: hover) {
+  a.stepperBtn:hover {
+    background: var(--yy-bg-hover);
+  }
+}
+
+.stepperOff {
+  color: var(--yy-fg-dim);
+  border-style: dashed;
+}
+
+/* ── FinePrint — MOBILE_PATTERNS §3.1 inline expand ───────────────────────── */
+
+.fine {
+  margin-top: var(--yy-space-2);
+}
+
+.fineShort {
+  margin: 0;
+  color: var(--yy-fg-2);
+  max-width: var(--yy-measure);
+}
+
+.fineBtn {
+  appearance: none;
+  background: none;
+  border: 0;
+  padding: 0;
+  margin-top: var(--yy-space-1);
+  min-height: var(--yy-tap-target);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--yy-space-2);
+  color: var(--yy-fg-2);
+  letter-spacing: var(--yy-track-label-wide);
+  cursor: pointer;
+}
+
+.fineBtn:focus-visible {
+  outline: var(--yy-focus-width) solid var(--yy-focus-ring);
+  outline-offset: var(--yy-focus-offset);
+}
+
+.fineChevron {
+  width: 7px;
+  height: 7px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: rotate(45deg) translateY(-2px);
+  transition: transform var(--yy-dur-base) var(--yy-ease-standard);
+}
+
+.fineBtn[aria-expanded='true'] .fineChevron {
+  transform: rotate(225deg) translateY(-2px);
+}
+
+.fineRegion {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows var(--yy-dur-base) var(--yy-ease-standard);
+}
+
+.fineRegion[data-open='true'],
+:global(.yy-export) .fineRegion {
+  grid-template-rows: 1fr;
+}
+
+.fineInner {
+  transition: visibility var(--yy-dur-base);
+  overflow: hidden;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--yy-space-2);
+}
+
+.fineRegion:not([data-open='true']) .fineInner {
+  visibility: hidden;
+}
+
+:global(.yy-export) .fineInner {
+  visibility: visible;
+}
+
+/* A blanked Tier 2 season carries TWO badges (Cap+ with its reason, and Team
+   Rating). On a phone they squeezed the club name to one word per line; they
+   now drop to their own row under the identity. */
+@media (max-width: 1023px) {
+  .header {
+    flex-wrap: wrap;
+  }
+
+  .badges:has(> :nth-child(2)) {
+    flex-basis: 100%;
+    justify-content: flex-start;
+    padding-inline-start: calc(var(--yy-tap-target) - var(--yy-space-3) + var(--yy-space-3));
+  }
+}

@@ -601,6 +601,60 @@ const positionAllocation = loader({
   }),
 });
 
+/**
+ * `SPEC.md` §7.13 — the gate #1 reopen mart. No `license_tier`, so the
+ * DEAD_MONEY_TIER filter does not apply: all 416 rows load. Index columns are
+ * NULL in the four Cap+-blank seasons and stay NULL here; the data layer turns
+ * them into a `Metric` blank. Every column is REQUIRED as a header so a CSV
+ * that lost an index column is skipped, not silently loaded as all-blank.
+ */
+const capplusContext = loader({
+  table: s.capplusContext,
+  name: 'capplus_context',
+  candidates: ['capplus_context'],
+  required: [
+    'season', 'team', 'starting_qb', 'starting_qb_gsis_id', 'starting_qb_otc_id', 'qb_starter_method',
+    'qb_cap_number', 'qb_cap_share', 'qb_contract_year_signed', 'qb_draft_year', 'qb_draft_round',
+    'qb_rookie_window', 'league_median_starter_qb_cap', 'stratum_size', 'stratum_rank', 'perf_index',
+    'perf_rank', 'capplus', 'capplus_rank', 'capplus_qb_neutral', 'qb_neutral_rank', 'qb_timing_pts',
+    'roster_pts', 'cash_share', 'future_mortgage_usd', 'future_mortgage_share', 'mortgage_rows_unknown',
+    'mortgage_alpha', 'capplus_obligation', 'obligation_rank',
+  ],
+  expected: 416,
+  map: (r) => ({
+    season: asInt(r.season)!,
+    team: asText(r.team)!,
+    startingQb: asText(r.starting_qb)!,
+    startingQbGsisId: asText(r.starting_qb_gsis_id),
+    startingQbOtcId: asInt(r.starting_qb_otc_id)!,
+    qbStarterMethod: asText(r.qb_starter_method)! as 'snaps' | 'cap',
+    qbCapNumber: asNumber(r.qb_cap_number)!,
+    qbCapShare: asNumber(r.qb_cap_share)!,
+    qbContractYearSigned: asInt(r.qb_contract_year_signed)!,
+    qbDraftYear: asInt(r.qb_draft_year),
+    qbDraftRound: asInt(r.qb_draft_round),
+    qbRookieWindow: asBool(r.qb_rookie_window)!,
+    leagueMedianStarterQbCap: asNumber(r.league_median_starter_qb_cap)!,
+    stratumSize: asInt(r.stratum_size)!,
+    stratumRank: asInt(r.stratum_rank),
+    perfIndex: asNumber(r.perf_index)!,
+    perfRank: asInt(r.perf_rank)!,
+    capplus: asNumber(r.capplus),
+    capplusRank: asInt(r.capplus_rank),
+    capplusQbNeutral: asNumber(r.capplus_qb_neutral),
+    qbNeutralRank: asInt(r.qb_neutral_rank),
+    qbTimingPts: asNumber(r.qb_timing_pts),
+    rosterPts: asNumber(r.roster_pts),
+    cashShare: asNumber(r.cash_share)!,
+    futureMortgageUsd: asNumber(r.future_mortgage_usd)!,
+    futureMortgageShare: asNumber(r.future_mortgage_share)!,
+    mortgageRowsUnknown: asInt(r.mortgage_rows_unknown)!,
+    mortgageAlpha: asNumber(r.mortgage_alpha)!,
+    capplusObligation: asNumber(r.capplus_obligation),
+    obligationRank: asInt(r.obligation_rank),
+  }),
+});
+
 const leagueCap = loader({
   table: s.leagueCap,
   name: 'league_cap',
@@ -778,6 +832,7 @@ const CSV_LOADERS: Loader<Record<string, unknown>>[] = [
   playerSeasonCap,
   playerSeasonAvailability,
   positionAllocation,
+  capplusContext,
   leagueCap,
 ] as unknown as Loader<Record<string, unknown>>[];
 
@@ -1129,6 +1184,7 @@ async function assertions(conn: Connection): Promise<{ label: string; ok: boolea
   await countCheck('team_season_epa', 861, '861 EPA rows');
   await countCheck('team_season_cap', 416, '416 cap rows');
   await countCheck('capplus_official', 288, '288 Cap+ rows');
+  await countCheck('capplus_context', 416, '416 Cap+ context rows');
   await countCheck('coaching_staff', 2612, '2,612 coaching rows');
   await countCheck('league_cap', 32, '32 league-cap rows');
 
@@ -1165,6 +1221,21 @@ async function assertions(conn: Connection): Promise<{ label: string; ok: boolea
       label: 'Cap+ spans exactly nine seasons',
       ok: nSeasons === 9,
       detail: `${nSeasons} distinct seasons`,
+    });
+  }
+
+  if (seeded.get('capplus_context')?.status === 'seeded') {
+    // §7.13: index columns are NULL in exactly the four Cap+-blank seasons.
+    const blankSeasons = await scalar(
+      sql`SELECT count(DISTINCT season)::int AS n FROM ${s.capplusContext} WHERE capplus IS NULL`,
+    );
+    const blankRows = await scalar(
+      sql`SELECT count(*)::int AS n FROM ${s.capplusContext} WHERE capplus IS NULL`,
+    );
+    out.push({
+      label: 'Cap+ context index columns blank in exactly four whole seasons',
+      ok: blankSeasons === 4 && blankRows === 128,
+      detail: `${blankRows} blank rows across ${blankSeasons} seasons`,
     });
   }
 

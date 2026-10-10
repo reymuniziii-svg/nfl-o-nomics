@@ -3,14 +3,16 @@
  *
  * Scales come from `d3-scale`; paths from `d3-shape`. **No charting library
  * that owns its own visual language** (`SPEC.md` §4). Everything below is
- * server-safe: these helpers return strings and numbers, the components emit
- * static SVG, and nothing in the chart layer hydrates.
+ * server-safe: these helpers return strings and numbers and the static charts
+ * emit SVG that never hydrates. The one exception is `useChartTooltip` at the
+ * foot of the file, which only a `'use client'` chart calls.
  *
  * COLOUR NEVER APPEARS HERE. SVG accepts `fill="var(--yy-accent)"`, so every
  * mark binds a custom property directly and a theme flip needs no re-render
  * (`CHART_ANATOMY.md` §8, "Theming").
  */
 
+import * as React from 'react';
 import { scaleBand, scaleLinear, scalePoint } from 'd3-scale';
 import { line as d3line, curveLinear } from 'd3-shape';
 import { extent } from 'd3-array';
@@ -147,4 +149,85 @@ export function pathFor(
 
 export function chartId(...parts: (string | number)[]): string {
   return `yy-${parts.join('-').replace(/[^a-zA-Z0-9_-]/g, '')}`;
+}
+
+/* ------------------------------------------------------------------ */
+/* The inspection layer — `CHART_ANATOMY.md` §8, "Tooltip"              */
+/* ------------------------------------------------------------------ */
+
+/**
+ * `useChartTooltip` — the one shared tooltip state machine. CLIENT ONLY: call
+ * it from a `'use client'` chart. (React is imported as a namespace so this
+ * server-safe module stays importable from server components, which never call
+ * the hook.)
+ *
+ * THE CONTRACT (§8): a tooltip may only REPEAT AND ENRICH what the surface
+ * already carries. It is never the only place a caveat, a date or a coverage
+ * reason lives. It is reachable three ways, and hover is never load-bearing
+ * (`MOBILE_PATTERNS.md` §7):
+ *   - hover    → `bind(d).onPointerEnter` shows, leave hides (unless pinned);
+ *   - keyboard → the mark is focusable; focus shows, blur hides, Escape hides;
+ *   - touch    → tap PINS it; a second tap or Escape unpins.
+ *
+ * Coordinates are whatever the chart positions in — the HTML-positioned charts
+ * here use percentages of their plot box — and `tooltipStyle` turns them into
+ * a box that stays inside the plot. The chart renders the box itself, with
+ * `role="tooltip"` and the `id` from `tipId`, so a mark's `aria-describedby`
+ * names it.
+ */
+export interface TooltipAnchor<T> {
+  datum: T;
+  /** 0–100, percent of the plot box from the left. */
+  x: number;
+  /** 0–100, percent of the plot box from the top. */
+  y: number;
+  pinned: boolean;
+}
+
+export function useChartTooltip<T>(key: (d: T) => string) {
+  const [tip, setTip] = React.useState<TooltipAnchor<T> | null>(null);
+  const base = React.useId().replace(/[^a-zA-Z0-9_-]/g, '');
+  const tipId = `yy-tip-${base}`;
+
+  const hide = React.useCallback(() => setTip(null), []);
+
+  /** Spread onto a focusable mark. `x`/`y` are the mark's position, in %. */
+  function bind(datum: T, x: number, y: number) {
+    const isOpen = tip !== null && key(tip.datum) === key(datum);
+    return {
+      'aria-describedby': isOpen ? tipId : undefined,
+      onPointerEnter: (e: { pointerType: string }) => {
+        if (e.pointerType === 'mouse') setTip((t) => (t?.pinned ? t : { datum, x, y, pinned: false }));
+      },
+      onPointerLeave: (e: { pointerType: string }) => {
+        if (e.pointerType === 'mouse') setTip((t) => (t?.pinned ? t : null));
+      },
+      onFocus: () => setTip({ datum, x, y, pinned: false }),
+      onBlur: () => setTip((t) => (t?.pinned ? t : null)),
+      onKeyDown: (e: { key: string }) => {
+        if (e.key === 'Escape') setTip(null);
+      },
+    };
+  }
+
+  /** Tap to pin, tap again to release. Returns true when the tap was consumed. */
+  function pin(datum: T, x: number, y: number) {
+    setTip((t) => (t?.pinned && key(t.datum) === key(datum) ? null : { datum, x, y, pinned: true }));
+  }
+
+  return { tip, tipId, bind, pin, hide };
+}
+
+/**
+ * Keep a tooltip box inside its plot: anchor to the mark, flip to the mark's
+ * left past 60% across and above it past 55% down. Pure — returns a style.
+ */
+export function tooltipStyle(x: number, y: number): Record<string, string> {
+  const flipX = x > 60;
+  const flipY = y > 55;
+  return {
+    left: `${x}%`,
+    top: `${y}%`,
+    transform: `translate(${flipX ? 'calc(-100% - 12px)' : '12px'}, ${flipY ? 'calc(-100% - 8px)' : '8px'})`,
+  };
 }

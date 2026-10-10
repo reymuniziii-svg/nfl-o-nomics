@@ -48,3 +48,32 @@ export function signed(n: number, digits = 0): string {
 export function record(wins: number, losses: number, ties: number): string {
   return `${wins}-${losses}-${ties}`;
 }
+
+/**
+ * A dead-money ledger `split_by_season` ("55400000/43800000") as dollars, each
+ * figure paired with its season: `’26 $55.4M · ’27 $43.8M`.
+ *
+ * Returns `null` when there is nothing to split — a one-season charge whose
+ * "split" is the total restates the figure beside it. A NULL split (Dareus/BUF)
+ * is the caller's to render as "per-season split not established"; this helper
+ * never infers one. If the season count and the figure count disagree, the
+ * figures print unpaired rather than mis-paired.
+ */
+export function ledgerSplit(split: string | null, seasons: string): string | null {
+  if (!split) return null;
+  const parts = split
+    .split('/')
+    .map((p) => Number(p.trim()))
+    .filter((n) => Number.isFinite(n));
+  if (parts.length <= 1) return null;
+  const years = seasons.split(/[-–]/).map((y) => Number(y.trim()));
+  const from = years[0];
+  const to = years[years.length - 1];
+  const span =
+    Number.isInteger(from) && Number.isInteger(to) && to >= from
+      ? Array.from({ length: to - from + 1 }, (_, i) => from + i)
+      : [];
+  const money = parts.map((n) => usdCompact(n, 1));
+  if (span.length !== parts.length) return money.join(' / ');
+  return money.map((m, i) => `’${String(span[i]).slice(2)} ${m}`).join(' · ');
+}

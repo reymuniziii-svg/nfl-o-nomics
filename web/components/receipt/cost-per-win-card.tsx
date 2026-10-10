@@ -36,6 +36,12 @@ import {
 export type ReceiptSize = 'mobile' | 'square' | 'wide';
 export type Numerator = 'cash' | 'cap';
 
+/** A club's place among every club with a ratio that season — `#2 of 32`. */
+export interface LeagueRank {
+  rank: number;
+  of: number;
+}
+
 export interface CpwRow {
   abbr: string;
   nickname: string;
@@ -69,6 +75,16 @@ export interface CostPerWinCardProps {
   /** Applies `.yy-export` and force-expands the caveat. */
   export?: boolean;
   coverage: Coverage;
+  /**
+   * A PINNED domain maximum, dollars. Given, the bars stop re-scaling to the
+   * rows on screen: the caller pins it league-wide for the season and across
+   * both numerators, so the toggle animates under a fixed scale (§6.1).
+   */
+  domainMax?: number;
+  /** Every club's ratio under this numerator — a faint ghost tick on each track. */
+  ghosts?: number[];
+  /** League rank per abbreviation, cheapest = 1. Renders `#2 of 32` by each figure. */
+  leagueRank?: Record<string, LeagueRank>;
 }
 
 /** §1.8(a) — the always-visible short form, at every size, in every crop. */
@@ -108,6 +124,9 @@ export function CostPerWinCard(props: CostPerWinCardProps) {
     sample = false,
     export: isExport = false,
     coverage,
+    domainMax: pinnedMax,
+    ghosts,
+    leagueRank,
   } = props;
 
   const [open, setOpen] = useState(false);
@@ -123,9 +142,10 @@ export function CostPerWinCard(props: CostPerWinCardProps) {
     .map((r) => (isSuppressed(r.costPerWin) ? null : metricValue(r.costPerWin)))
     .filter((v): v is number => v !== null && Number.isFinite(v));
   const STEP = 5_000_000;
-  const domainMax = ratios.length
-    ? Math.max(STEP, Math.ceil((Math.max(...ratios) * 1.05) / STEP) * STEP)
-    : STEP;
+  const domainMax =
+    pinnedMax ??
+    (ratios.length ? Math.max(STEP, Math.ceil((Math.max(...ratios) * 1.05) / STEP) * STEP) : STEP);
+  const ghostPcts = (ghosts ?? []).map((g) => Math.min(100, (g / domainMax) * 100));
 
   /* ---- the benchmark. Not `value` ⇒ no gold anywhere on the card. ---- */
   const benchmark = leagueAvg.state === 'blank' ? null : leagueAvg.value;
@@ -196,7 +216,7 @@ export function CostPerWinCard(props: CostPerWinCardProps) {
         </div>
 
         <div className={css.rows}>
-          {allRows.map((r) => (
+          {allRows.map((r, i) => (
             <ReceiptRow
               key={`${r.abbr}-${r.season}`}
               row={r}
@@ -204,6 +224,9 @@ export function CostPerWinCard(props: CostPerWinCardProps) {
               size={size}
               domainMax={domainMax}
               tickPct={tickPct}
+              tickLabel={i === 0 && benchmark !== null ? `League ${usdShort(benchmark)}` : null}
+              ghostPcts={ghostPcts}
+              leagueRank={leagueRank?.[r.abbr] ?? null}
               benchmark={benchmark}
               subject={subject}
               href={isExport ? null : (r.href ?? null)}
@@ -269,6 +292,9 @@ function ReceiptRow({
   size,
   domainMax,
   tickPct,
+  tickLabel,
+  ghostPcts,
+  leagueRank,
   benchmark,
   subject,
   href,
@@ -278,6 +304,10 @@ function ReceiptRow({
   size: ReceiptSize;
   domainMax: number;
   tickPct: number | null;
+  /** On the FIRST track only: the benchmark named where the eye already is. */
+  tickLabel: string | null;
+  ghostPcts: number[];
+  leagueRank: LeagueRank | null;
   benchmark: number | null;
   subject?: string;
   href: string | null;
@@ -374,13 +404,31 @@ function ReceiptRow({
       </div>
       <div className={css.bar}>
         <div className={css.fill} style={{ width: `${widthPct}%` }} />
+        {/* Every club in the league, faintly — where this row sits in the
+          whole season, not just in its division. Not a series: no colour. */}
+        {ghostPcts.map((g, i) => (
+          <i className={css.ghost} key={i} style={{ left: `${g}%` }} aria-hidden="true" />
+        ))}
         {tickPct === null ? null : (
-          <div className={css.tick} style={{ left: `${Math.min(100, tickPct)}%` }} />
+          <div className={css.tick} style={{ left: `${Math.min(100, tickPct)}%` }}>
+            {tickLabel ? (
+              <span
+                className={`${css.tickLabel} ${tickPct > 62 ? css.tickLabelEnd : tickPct < 22 ? css.tickLabelStart : ''}`}
+              >
+                {tickLabel}
+              </span>
+            ) : null}
+          </div>
         )}
       </div>
       <div className={css.val}>
         <div className={css.num}>{usdShort(v)}</div>
         {delta ? <div className={css.delta}>{delta}</div> : null}
+        {leagueRank && size !== 'square' ? (
+          <div className={css.lgRank}>
+            #{leagueRank.rank} of {leagueRank.of}
+          </div>
+        ) : null}
       </div>
     </>
   );

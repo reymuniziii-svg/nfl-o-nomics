@@ -1,3 +1,5 @@
+'use client';
+
 /**
  * `DeadMoneyDots` — the dot plot that refuses to connect its points.
  * `COMPONENTS.md` §8.4, `SPEC.md` §2.1 rule 3.
@@ -23,6 +25,7 @@ import css from './chart.module.css';
 import { ChartCaption, Legend, type LegendItem } from '../primitives';
 import { chartId, gridValues, scaleLinear, scalePoint, thinTicks, tickBudget } from './chart-kit';
 import type { Coverage } from '@/lib/display';
+import { useMeasuredWidth } from '@/lib/hooks/use-measured-width';
 
 /**
  * SVG ACCESSIBLE NAMES ARE ATTRIBUTES, NOT ELEMENTS.
@@ -46,11 +49,12 @@ export const DOT_PLOT_CAPTION =
 const TIER2_FIRST_SEASON = 2013;
 
 /**
- * The mobile composition paints at its intrinsic width so its type sits exactly
- * on the 11px floor (`DECISIONS.md` 65); 332 is the card's content width at the
- * 390 canvas.
+ * Both compositions paint at scale 1.0 so type sits on the 11px floor
+ * (`DECISIONS.md` 65), at the width their container MEASURES rather than a
+ * fixed 332 — which overflowed a 375 phone by 15px into an accidental
+ * sideways scroller.
  */
-const MOBILE = { w: 332, h: 306, ml: 34, mr: 14, mt: 12, mb: 122 };
+const MOBILE = { w: 317, h: 306, ml: 34, mr: 14, mt: 12, mb: 122 };
 const DESKTOP = { w: 980, h: 340, ml: 52, mr: 20, mt: 16, mb: 64 };
 
 export interface DotPoint {
@@ -83,10 +87,12 @@ export function DeadMoneyDots({
   coverage: Coverage;
 }) {
   const anyLeadersOnly = points.some((p) => p.leadersOnly);
+  const [mRef, mW] = useMeasuredWidth<HTMLDivElement>(MOBILE.w);
+  const [dRef, dW] = useMeasuredWidth<HTMLDivElement>(DESKTOP.w);
 
   const legend: LegendItem[] = [
     { swatch: 'dot', label: 'Dated reading — all 32 clubs', tone: 'partial' },
-    { swatch: 'ring', label: 'Not a 32-team reading', tone: 'absence' },
+    { swatch: 'ring', label: 'Not a 32-team reading — or, on the baseline, no reading', tone: 'absence' },
   ];
 
   // The reduced mobile domain: Tier 2 onward. Nothing is hidden by it — no
@@ -98,13 +104,13 @@ export function DeadMoneyDots({
   return (
     <div>
       <div className={css.atMobile}>
-        <div className={css.plotScroll}>
+        <div ref={mRef} className={css.plotScroll}>
           <DotsSvg
             team={team}
             points={points.filter((p) => mobileDomain.includes(p.season))}
             seasons={mobileDomain}
             blankSeasons={blankSeasons}
-            geo={MOBILE}
+            geo={{ ...MOBILE, w: mW }}
             rotateDates
           />
         </div>
@@ -117,13 +123,13 @@ export function DeadMoneyDots({
         ) : null}
       </div>
       <div className={css.atDesktop}>
-        <div className={css.plotScroll}>
+        <div ref={dRef} className={css.plotScroll}>
           <DotsSvg
             team={team}
             points={points}
             seasons={seasons}
             blankSeasons={blankSeasons}
-            geo={DESKTOP}
+            geo={{ ...DESKTOP, w: dW }}
             rotateDates={false}
           />
         </div>
@@ -232,14 +238,18 @@ function DotsSvg({
                   strokeWidth={1}
                   style={{ strokeDasharray: 'var(--yy-dash-absence)' }}
                 />
+                {/* Reads UPWARD from just above the ring, into the empty
+                    column — v1 anchored it at its end, so it ran down through
+                    the season tick labels. */}
                 <text
                   className={css.micro}
                   x={px(s)}
-                  y={innerH - 12}
-                  textAnchor="end"
-                  transform={`rotate(-90 ${px(s)} ${innerH - 12})`}
+                  y={innerH - 10}
+                  dy={3.5}
+                  textAnchor="start"
+                  transform={`rotate(-90 ${px(s)} ${innerH - 10})`}
                 >
-                  Not a 32-team reading
+                  No reading
                 </text>
               </g>
             ))}

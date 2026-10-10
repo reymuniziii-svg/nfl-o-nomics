@@ -1,0 +1,343 @@
+/* THE EFFICIENCY FRONTIER — `CHART_ANATOMY.md` §2–§4, §6.2. HTML-positioned
+   marks over an SVG of reference lines, so every label is real page type at
+   its real size and nothing can drift under the 11px floor. */
+
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--yy-space-2);
+}
+
+.chart {
+  --plot-h: 300px;
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr);
+  grid-template-areas:
+    'y plot'
+    '. x';
+  column-gap: var(--yy-space-2);
+  row-gap: var(--yy-space-1);
+  margin-top: var(--yy-space-2);
+}
+
+@media (min-width: 1024px) {
+  .chart {
+    --plot-h: 440px;
+  }
+}
+
+.yAxis {
+  grid-area: y;
+  position: relative;
+  height: var(--plot-h);
+}
+
+.yTick {
+  position: absolute;
+  right: 0;
+  transform: translateY(-50%);
+  color: var(--yy-fg-3);
+}
+
+.plot {
+  grid-area: plot;
+  position: relative;
+  height: var(--plot-h);
+  /* §2 — the domain axis gets a line; the value axis does not */
+  border-bottom: 1px solid var(--yy-axis);
+}
+
+.svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.grid {
+  stroke: var(--yy-gridline);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+/* §4 reference line: solid under-stroke + dashed overlay, both gold. The
+   solid ink is the benchmark token itself, so it passes 3:1 on white. */
+.isoUnder {
+  stroke: var(--yy-benchmark);
+  stroke-opacity: 0.55;
+  stroke-width: 2;
+  vector-effect: non-scaling-stroke;
+}
+
+.iso {
+  stroke: var(--yy-benchmark);
+  stroke-width: 2;
+  stroke-dasharray: 6 4;
+  vector-effect: non-scaling-stroke;
+}
+
+.isoFaint {
+  stroke: var(--yy-fg-dim);
+  stroke-width: 1;
+  stroke-dasharray: 2 4;
+  vector-effect: non-scaling-stroke;
+}
+
+.isoLabelBase {
+  position: absolute;
+  font-family: var(--yy-font-athletic);
+  font-weight: var(--yy-weight-label);
+  font-size: var(--yy-size-label);
+  line-height: 1;
+  letter-spacing: var(--yy-track-label);
+  text-transform: uppercase;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.isoLabelBase[data-edge='right'] {
+  transform: translate(calc(-100% - 4px), calc(-100% - 4px));
+}
+
+.isoLabelBase[data-edge='top'] {
+  transform: translate(calc(-100% - 6px), 4px);
+}
+
+.isoLabel {
+  color: var(--yy-benchmark);
+  background: color-mix(in srgb, var(--yy-bg-card-flat) 85%, transparent);
+  padding: 1px 2px;
+}
+
+.isoLabelFaint {
+  color: var(--yy-fg-3);
+  display: none;
+}
+
+/* at 375 the ±25% names crowd the marks; the key beneath names them */
+@media (min-width: 1024px) {
+  .isoLabelFaint {
+    display: block;
+  }
+}
+
+.noBench {
+  position: absolute;
+  inset: auto var(--yy-space-3) var(--yy-space-3);
+  margin: 0;
+  color: var(--yy-fg-3);
+}
+
+.corner {
+  position: absolute;
+  color: var(--yy-fg-3);
+  pointer-events: none;
+}
+
+.cornerTl {
+  top: var(--yy-space-1);
+  left: var(--yy-space-2);
+}
+
+.cornerBr {
+  bottom: var(--yy-space-2);
+  right: var(--yy-space-2);
+}
+
+/* ── marks ───────────────────────────────────────────────────────────────── */
+
+.dot {
+  position: absolute;
+  z-index: 1;
+  width: 22px;
+  height: 22px;
+  margin: -11px 0 0 -11px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  /* §6.2 — cx/cy travel on a season change because the domain is pinned;
+     the radius never animates. */
+  transition:
+    left var(--yy-dur-chart) var(--yy-ease-standard) calc(var(--i, 0) * var(--yy-stagger)),
+    top var(--yy-dur-chart) var(--yy-ease-standard) calc(var(--i, 0) * var(--yy-stagger));
+}
+
+.dot:focus-visible {
+  outline: 2px solid var(--yy-fg-1);
+  outline-offset: 1px;
+}
+
+.mark {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--yy-fg-mid);
+  opacity: 0.8;
+  box-shadow: 0 0 0 1.5px var(--yy-bg-card-flat);
+}
+
+.dotLit {
+  z-index: 2;
+}
+
+.dotLit .mark {
+  width: 12px;
+  height: 12px;
+  opacity: 1;
+  background: var(--yy-accent);
+}
+
+.dotHot {
+  z-index: 3;
+}
+
+.dotHot .mark {
+  opacity: 1;
+  outline: 2px solid var(--yy-fg-1);
+  outline-offset: 2px;
+}
+
+.label {
+  position: absolute;
+  left: 18px;
+  top: 50%;
+  transform: translateY(calc(-50% - var(--dy, 0) * var(--plot-h) / 17));
+  font-family: var(--yy-font-athletic);
+  font-weight: var(--yy-weight-metric);
+  font-size: var(--yy-size-label);
+  line-height: 1;
+  letter-spacing: var(--yy-track-label);
+  color: var(--yy-fg-1);
+  white-space: nowrap;
+  pointer-events: none;
+  background: color-mix(in srgb, var(--yy-bg-card-flat) 70%, transparent);
+  padding: 1px 2px;
+}
+
+/* ── axes ────────────────────────────────────────────────────────────────── */
+
+.xAxis {
+  grid-area: x;
+  position: relative;
+  height: calc(var(--yy-size-label) * var(--yy-lh-label));
+}
+
+.xTick {
+  position: absolute;
+  top: 0;
+  transform: translateX(-50%);
+  color: var(--yy-fg-3);
+}
+
+.axisTitle {
+  margin: 0 0 0 30px;
+  color: var(--yy-fg-3);
+  letter-spacing: var(--yy-track-label-wide);
+}
+
+.key {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--yy-space-2) var(--yy-space-4);
+}
+
+.keyItem {
+  display: flex;
+  align-items: center;
+  gap: var(--yy-space-2);
+  color: var(--yy-fg-2);
+}
+
+.keyGold {
+  width: 16px;
+  height: 2px;
+  background: var(--yy-benchmark);
+}
+
+.keyFaint {
+  width: 16px;
+  height: 0;
+  border-top: 1px dashed var(--yy-fg-dim);
+}
+
+.keyLit {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--yy-accent);
+}
+
+/* ── tooltip ─────────────────────────────────────────────────────────────── */
+
+.tip {
+  position: absolute;
+  z-index: 5;
+  width: max-content;
+  max-width: min(300px, 86vw);
+  padding: var(--yy-space-2) var(--yy-space-3);
+  background: var(--yy-bg-menu);
+  border: 1px solid var(--yy-line-card);
+  border-radius: var(--yy-radius-chip);
+  box-shadow: var(--yy-elevation-menu);
+  pointer-events: none;
+  font-variant-numeric: tabular-nums;
+}
+
+.tipPinned {
+  pointer-events: auto;
+}
+
+.tipHead {
+  margin: 0 0 var(--yy-space-1);
+  font-family: var(--yy-font-display);
+  font-weight: var(--yy-weight-display);
+  font-size: var(--yy-size-display-xs);
+  letter-spacing: var(--yy-track-display);
+  line-height: var(--yy-lh-tight);
+  color: var(--yy-fg-1);
+}
+
+.tipList {
+  margin: 0;
+  display: grid;
+  grid-template-columns: auto auto;
+  gap: 2px var(--yy-space-3);
+  align-items: baseline;
+}
+
+.tipList dt {
+  font-family: var(--yy-font-athletic);
+  font-weight: var(--yy-weight-label);
+  font-size: var(--yy-size-label);
+  letter-spacing: var(--yy-track-label);
+  text-transform: uppercase;
+  color: var(--yy-fg-3);
+}
+
+.tipList dd {
+  margin: 0;
+  white-space: nowrap;
+  font-size: var(--yy-size-caption);
+  color: var(--yy-fg-1);
+}
+
+.tipLink {
+  display: inline-block;
+  margin-top: var(--yy-space-1);
+  font-family: var(--yy-font-athletic);
+  font-weight: var(--yy-weight-label);
+  font-size: var(--yy-size-label);
+  letter-spacing: var(--yy-track-label);
+  text-transform: uppercase;
+  color: var(--yy-fg-1);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}

@@ -73,3 +73,138 @@ export function yardNumber(fraction: number): number {
 export function capplusAt(fraction: number): number {
   return 150 - (100 - fraction * 100);
 }
+
+/* ------------------------------------------------------------------ */
+/* The scrubbed league frame — one season of all 32 clubs, client-shaped */
+/* ------------------------------------------------------------------ */
+
+/**
+ * The compact, serialisable season the scrubbed charts (the league Field and
+ * the frontier) receive. Built on the server from `getLeagueFrame`; every
+ * number is a mart column. `null` is ALWAYS paired with a reason on the frame.
+ */
+export interface ScrubClub {
+  team: string;
+  name: string;
+  div: string;
+  w: number;
+  l: number;
+  t: number;
+  /** Cash spent, USD. */
+  cash: number | null;
+  /** Cash ÷ league cap (`cash_pct_of_league`). */
+  share: number | null;
+  /** The three published indices and their ranks, or null in a blank season. */
+  ix: { raw: number; rawRank: number; qbn: number; qbnRank: number; obl: number; oblRank: number } | null;
+  rookie: boolean | null;
+  qb: string | null;
+}
+
+export interface ScrubFrame {
+  season: number;
+  /** Why `ix` is null for every club this season, else null. */
+  ixReason: string | null;
+  /** Why `cash` / `share` are null, else null. */
+  cashReason: string | null;
+  /** League cash per win — the frontier's gold isoline. */
+  avgCpw: number | null;
+  avgCpwReason: string | null;
+  /** League cap, USD. */
+  cap: number | null;
+  clubs: ScrubClub[];
+}
+
+/* ------------------------------------------------------------------ */
+/* Placement along the full length, end zones included                  */
+/* ------------------------------------------------------------------ */
+
+/** Each end zone's share of the drawn length. The hundred yards fill the rest. */
+export const END_ZONE = 0.09;
+
+/**
+ * 0 = the back of the club's own end zone, 1 = the back of the opponent's.
+ * A Cap+ inside 50–150 lands on its yard line; a club past either goal line
+ * sits in that END ZONE's centre and is tagged TD or SAFETY — never at the
+ * goal line, which would read as exactly 150 or 50.
+ */
+export function alongField(capplus: number): number {
+  if (capplus >= FIELD_CAPPLUS_DOMAIN[1]) return 1 - END_ZONE / 2;
+  if (capplus < FIELD_CAPPLUS_DOMAIN[0]) return END_ZONE / 2;
+  return END_ZONE + downfield(capplus) * (1 - 2 * END_ZONE);
+}
+
+/** A yard-line fraction (0…1 of the hundred yards) on the drawn length. */
+export function alongYard(fraction: number): number {
+  return END_ZONE + fraction * (1 - 2 * END_ZONE);
+}
+
+/** `opp 38` / `own 31` / `midfield` — field position in words. */
+export function fieldPositionWords(capplus: number): string {
+  if (capplus >= FIELD_CAPPLUS_DOMAIN[1]) return 'in the end zone (touchdown)';
+  if (capplus < FIELD_CAPPLUS_DOMAIN[0]) return 'behind its own goal line (safety)';
+  const fromOwn = Math.round(downfield(capplus) * 100);
+  if (fromOwn === 50) return 'at midfield';
+  return fromOwn > 50 ? `at the opponent ${100 - fromOwn}` : `at its own ${fromOwn}`;
+}
+
+/* ------------------------------------------------------------------ */
+/* Label placement — collision-aware, marks never move                   */
+/* ------------------------------------------------------------------ */
+
+/**
+ * The across-field label slot for the wide (horizontal) field: each lane has a
+ * slot below its marks and one above. A label takes the first slot whose
+ * previous occupant is at least `gapYards` behind it, else it is SUPPRESSED —
+ * the mark stays on its exact yard line and its name stays one hover, focus or
+ * tap away (and in the text equivalent). A mark is never nudged to fit.
+ */
+export function wideLabelSlots(
+  yards: { key: string; at: number }[],
+  gapYards: number,
+): Map<string, 'below' | 'above' | 'none'> {
+  const out = new Map<string, 'below' | 'above' | 'none'>();
+  let lastBelow = -Infinity;
+  let lastAbove = -Infinity;
+  for (const y of [...yards].sort((a, b) => a.at - b.at)) {
+    if (y.at - lastBelow >= gapYards) {
+      out.set(y.key, 'below');
+      lastBelow = y.at;
+    } else if (y.at - lastAbove >= gapYards) {
+      out.set(y.key, 'above');
+      lastAbove = y.at;
+    } else out.set(y.key, 'none');
+  }
+  return out;
+}
+
+/**
+ * The along-field label offset for the tall (vertical) field: labels sit beside
+ * their marks and are pushed apart, in field units, until no two are closer
+ * than `gap`; the stack is then re-centred on its marks. Returns each label's
+ * offset from its own mark. Marks never move.
+ */
+export function dodgeLabels(
+  items: { key: string; at: number }[],
+  gap: number,
+): Map<string, number> {
+  const sorted = [...items].sort((a, b) => a.at - b.at);
+  const pos = sorted.map((s) => s.at);
+  for (let pass = 0; pass < 4; pass++) {
+    for (let i = 1; i < pos.length; i++) {
+      if (pos[i] - pos[i - 1] < gap) pos[i] = pos[i - 1] + gap;
+    }
+    // re-centre each touching run on the mean of its marks
+    let start = 0;
+    for (let i = 1; i <= pos.length; i++) {
+      if (i === pos.length || pos[i] - pos[i - 1] > gap + 1e-9) {
+        const run = sorted.slice(start, i);
+        const shift =
+          run.reduce((a, s) => a + s.at, 0) / run.length -
+          pos.slice(start, i).reduce((a, p) => a + p, 0) / run.length;
+        for (let j = start; j < i; j++) pos[j] += shift;
+        start = i;
+      }
+    }
+  }
+  return new Map(sorted.map((s, i) => [s.key, pos[i] - s.at]));
+}

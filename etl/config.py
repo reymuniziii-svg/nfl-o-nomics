@@ -107,6 +107,12 @@ COST_FLOOR_Q = 0.25   # season 25th percentile, applied to COST (DECISIONS 14)
 INDEX_MEAN = 100.0    # season mean exactly 100
 INDEX_SD = 15.0       # ONE pooled within-season SD across the whole window
 FLOORED_TEAMS_PER_SEASON = 8    # 8 of 32 every season, by construction
+#: Gate #1 reopened 2026-10-10 (DECISIONS 100-103). α is a CANDIDATE weight on
+#: prorated bonus still owed to future caps; published, not approved.
+MORTGAGE_ALPHA = 0.5
+#: A drafted QB is in his rookie window through the 4th season after the draft
+#: (admits the fifth-year option) while still on the contract signed that year.
+ROOKIE_WINDOW_MAX_YEARS = 4
 
 #: The nine covered seasons. 288 of 416 team-seasons (69.2%).
 CAPPLUS_SEASONS = (2014, 2015, 2017, 2018, 2019, 2022, 2023, 2024, 2025)
@@ -220,6 +226,7 @@ EXPECTED_ROWS = {
     "team_season_cap": 416,
     "capplus_candidates": 861,
     "capplus_official": 288,
+    "capplus_context": 416,
     "team_rating": 861,
     "team_season_stability": 830,
     "dead_money_team_season": 370,

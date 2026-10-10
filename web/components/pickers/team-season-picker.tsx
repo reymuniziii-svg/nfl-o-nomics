@@ -9,8 +9,10 @@
  * disabled control.
  */
 
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import css from './pickers.module.css';
+import teamCss from '../team/team.module.css';
 import { Menu, MenuGroupLabel, MenuItem } from './menu';
 
 export interface TeamOption {
@@ -48,7 +50,7 @@ export function SeasonPicker({
             onSelect={() => router.push(hrefPattern.replace('{season}', String(s)))}
             trailing={
               s < TIER2_FIRST_SEASON ? (
-                <span className={`yy-micro ${css.uncovered}`}>Tier 1</span>
+                <span className={`yy-label ${css.uncovered}`}>Tier 1</span>
               ) : null
             }
           >
@@ -205,7 +207,7 @@ function SeasonPickerInline({
             onSelect={() => onPick(s)}
             trailing={
               s < TIER2_FIRST_SEASON ? (
-                <span className={`yy-micro ${css.uncovered}`}>Tier 1</span>
+                <span className={`yy-label ${css.uncovered}`}>Tier 1</span>
               ) : null
             }
           >
@@ -214,5 +216,54 @@ function SeasonPickerInline({
         ))}
       </div>
     </Menu>
+  );
+}
+
+/**
+ * Prev / next season — the header's time navigation (review D #6).
+ *
+ * Plain links, so the URL stays the state and the browser's back button
+ * walks the seasons. `scroll={false}`: stepping a season keeps the reader
+ * where they are on the page instead of throwing them back to the top. A
+ * season off either end of the franchise record renders a disabled arrow
+ * with its reason as the accessible name, never a missing control.
+ */
+export function SeasonStepper({
+  seasons,
+  season,
+  hrefPattern,
+}: {
+  seasons: number[];
+  season: number;
+  hrefPattern: string;
+}) {
+  const sorted = [...seasons].sort((a, b) => a - b);
+  const i = sorted.indexOf(season);
+  const prev = i > 0 ? sorted[i - 1] : null;
+  const next = i >= 0 && i < sorted.length - 1 ? sorted[i + 1] : null;
+  const href = (s: number) => hrefPattern.replace('{season}', String(s));
+  return (
+    <nav className={teamCss.stepper} aria-label="Season">
+      {prev !== null ? (
+        <Link className={teamCss.stepperBtn} href={href(prev)} scroll={false} aria-label={`Previous season, ${prev}`}>
+          <span aria-hidden="true">‹</span>
+          <span className="yy-label">{prev}</span>
+        </Link>
+      ) : (
+        <span className={`${teamCss.stepperBtn} ${teamCss.stepperOff}`} aria-disabled="true" aria-label="No earlier season in the record">
+          <span aria-hidden="true">‹</span>
+        </span>
+      )}
+      {next !== null ? (
+        <Link className={teamCss.stepperBtn} href={href(next)} scroll={false} aria-label={`Next season, ${next}`}>
+          <span className="yy-label">{next}</span>
+          <span aria-hidden="true">›</span>
+        </Link>
+      ) : (
+        <span className={`${teamCss.stepperBtn} ${teamCss.stepperOff}`} aria-disabled="true" aria-label="No later season in the record">
+          <span aria-hidden="true">›</span>
+        </span>
+      )}
+    </nav>
   );
 }

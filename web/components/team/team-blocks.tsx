@@ -7,15 +7,16 @@
  * nothing here to hydrate.
  */
 
-import Link from 'next/link';
-import css from './team.module.css';
-import { AsOf, BlankReason, Chip, IndexBadge, MetricText } from '../primitives';
-import { TeamMark } from '../marks';
-import { IconChevronLeft } from '../icons';
-import { partialSuffix, usdShort } from '@/lib/display';
-import { NOT_A_32_TEAM_READING, type Metric } from '@/lib/metric';
-import type { TeamMark as TeamMarkData } from '@/lib/marks';
-import type { LedgerRow, Lens } from '@/lib/data/team';
+import Link from "next/link";
+import css from "./team.module.css";
+import { AsOf, BlankReason, Chip, IndexBadge, MetricText } from "../primitives";
+import { TeamMark } from "../marks";
+import { IconChevronLeft } from "../icons";
+import { partialSuffix, usdShort } from "@/lib/display";
+import { ledgerSplit } from "@/lib/format";
+import { NOT_A_32_TEAM_READING, type Metric } from "@/lib/metric";
+import type { TeamMark as TeamMarkData } from "@/lib/marks";
+import type { LedgerRow, Lens } from "@/lib/data/team";
 
 /* ══════════════════════════════════════════════════════════════════════════ */
 /* §3 TEAM HEADER — the mockup's composition plus the four things it omits     */
@@ -42,6 +43,8 @@ export function TeamHeader({
   season,
   tier2FirstSeason,
   backHref,
+  stepper,
+  actions,
 }: {
   name: string;
   identityLine: string;
@@ -51,22 +54,31 @@ export function TeamHeader({
   season: number;
   tier2FirstSeason: number;
   backHref: string;
+  /** Prev / next season arrows (`SeasonStepper`). */
+  stepper?: React.ReactNode;
+  /** Header actions — the share button where one exists. */
+  actions?: React.ReactNode;
 }) {
   const inTier2 = season >= tier2FirstSeason;
 
   return (
-    <header className={css.header}>
-      <Link className={css.back} href={backHref} aria-label="Back to the league view">
-        <IconChevronLeft size={24} />
-      </Link>
-      <div className={css.identity}>
-        <TeamMark mark={mark} size="sm" />
-        <div className={css.identityText}>
-          <h1 className={css.name}>{name}</h1>
-          <p className={`yy-label ${css.identityLine}`}>{identityLine}</p>
+    <>
+      <header className={css.header}>
+        <Link
+          className={css.back}
+          href={backHref}
+          aria-label="Back to the league view"
+        >
+          <IconChevronLeft size={24} />
+        </Link>
+        <div className={css.identity}>
+          <TeamMark mark={mark} size="sm" />
+          <div className={css.identityText}>
+            <h1 className={css.name}>{name}</h1>
+            <p className={`yy-label ${css.identityLine}`}>{identityLine}</p>
+          </div>
         </div>
-      </div>
-      {/* THE INDEX RULE (`COMPONENTS.md` §3): the SEASON decides which index
+        {/* THE INDEX RULE (`COMPONENTS.md` §3): the SEASON decides which index
         the badge carries. Inside Tier 2 that is Cap+ — but where Cap+ is
         blanked, dropping Team Rating entirely loses a figure that exists for
         all 861 team-seasons and that `/compare` already renders for the same
@@ -74,17 +86,28 @@ export function TeamHeader({
         the Cap+ era get the same treatment" as the pre-2013 pages. So the Cap+
         slot states its blank in full, and Team Rating renders beside it under
         its own name and without band colour (`DECISIONS.md` 83). */}
-      <div className={css.badges}>
-        <IndexBadge
-          metric={inTier2 ? capplus : teamRating}
-          scale="header"
-          metricName={inTier2 ? 'capplus' : 'teamRating'}
-        />
-        {inTier2 && capplus.state === 'blank' ? (
-          <IndexBadge metric={teamRating} scale="header" metricName="teamRating" />
-        ) : null}
-      </div>
-    </header>
+        <div className={css.badges}>
+          <IndexBadge
+            metric={inTier2 ? capplus : teamRating}
+            scale="header"
+            metricName={inTier2 ? "capplus" : "teamRating"}
+          />
+          {inTier2 && capplus.state === "blank" ? (
+            <IndexBadge
+              metric={teamRating}
+              scale="header"
+              metricName="teamRating"
+            />
+          ) : null}
+        </div>
+      </header>
+      {stepper || actions ? (
+        <div className={css.headerTools}>
+          {stepper}
+          {actions ? <div className={css.headerActions}>{actions}</div> : null}
+        </div>
+      ) : null}
+    </>
   );
 }
 
@@ -109,8 +132,8 @@ export function ThreeLens({ lenses }: { lenses: Lens[] }) {
         <div className={css.lens} key={lens.key}>
           <p className={`yy-label-lg ${css.lensName}`}>{lens.label}</p>
 
-          {lens.key === 'dead_money' ? (
-            lens.amount.state === 'blank' ? (
+          {lens.key === "dead_money" ? (
+            lens.amount.state === "blank" ? (
               <BlankReason reason={lens.amount.reason} />
             ) : lens.asOf ? (
               <>
@@ -133,10 +156,12 @@ export function ThreeLens({ lenses }: { lenses: Lens[] }) {
                 {/* `SPEC.md` §1.2 — a partial season is labelled partial. A
                   leaders-list figure looks exactly like a league-wide one
                   unless the surface says otherwise. */}
-                {lens.amount.state === 'partial' ? (
+                {lens.amount.state === "partial" ? (
                   <span className={`yy-label ${css.lensPartial}`}>
-                    {NOT_A_32_TEAM_READING}{' '}
-                    <span className="yy-partial-ink">{partialSuffix(lens.amount)}</span>
+                    {NOT_A_32_TEAM_READING}{" "}
+                    <span className="yy-partial-ink">
+                      {partialSuffix(lens.amount)}
+                    </span>
                   </span>
                 ) : null}
               </>
@@ -155,8 +180,10 @@ export function ThreeLens({ lenses }: { lenses: Lens[] }) {
           )}
 
           <p className={`yy-caption ${css.lensCaveat}`}>{lens.caveat}</p>
-          {lens.amount.state === 'partial' ? (
-            <p className={`yy-caption ${css.lensCaveat}`}>{lens.amount.reason}</p>
+          {lens.amount.state === "partial" ? (
+            <p className={`yy-caption ${css.lensCaveat}`}>
+              {lens.amount.reason}
+            </p>
           ) : null}
           {lens.sourceUrl ? (
             <a
@@ -201,16 +228,22 @@ export function DeadMoneyLedger({ rows }: { rows: LedgerViewRow[] }) {
                 {r.team} · {r.seasons}
               </span>
             </div>
-            <AsOf value={usdShort(r.totalUsd)} date={r.verifiedAsof} stage="verified" />
-            {r.splitBySeason ? (
-              <span className={`yy-label ${css.ledgerMeta}`}>Split: {r.splitBySeason}</span>
-            ) : (
-              /* NEVER AN INFERRED SPLIT (`SPEC.md` §2.7). */
-              <span className={`yy-label ${css.noSplit}`}>Per-season split not established</span>
-            )}
+            <AsOf
+              value={usdShort(r.totalUsd)}
+              date={r.verifiedAsof}
+              stage="ledger"
+            />
+            <LedgerSplit row={r} />
             <div className={css.chipRow}>
-              <Chip kind={r.isActual ? 'verified' : 'projected'} />
-              <a className={`yy-label ${css.source}`} href={r.sourceUrl} rel="noopener noreferrer" target="_blank">
+              <span className={css.chipFloor}>
+                <Chip kind={r.isActual ? "verified" : "projected"} />
+              </span>
+              <a
+                className={`yy-label ${css.source}`}
+                href={r.sourceUrl}
+                rel="noopener noreferrer"
+                target="_blank"
+              >
                 Source
               </a>
             </div>
@@ -252,17 +285,17 @@ export function DeadMoneyLedger({ rows }: { rows: LedgerViewRow[] }) {
                 <td className="yy-label">{r.team}</td>
                 <td className="yy-label">{r.seasons}</td>
                 <td className={css.ledgerNum}>
-                  <AsOf value={usdShort(r.totalUsd)} date={r.verifiedAsof} stage="verified" />
-                  {r.splitBySeason ? (
-                    <span className={`yy-label ${css.ledgerMeta}`}>Split: {r.splitBySeason}</span>
-                  ) : (
-                    <span className={`yy-label ${css.noSplit}`}>
-                      Per-season split not established
-                    </span>
-                  )}
+                  <AsOf
+                    value={usdShort(r.totalUsd)}
+                    date={r.verifiedAsof}
+                    stage="ledger"
+                  />
+                  <LedgerSplit row={r} />
                 </td>
                 <td>
-                  <Chip kind={r.isActual ? 'verified' : 'projected'} />
+                  <span className={css.chipFloor}>
+                    <Chip kind={r.isActual ? "verified" : "projected"} />
+                  </span>
                 </td>
                 <td>
                   <a
@@ -271,7 +304,7 @@ export function DeadMoneyLedger({ rows }: { rows: LedgerViewRow[] }) {
                     rel="noopener noreferrer"
                     target="_blank"
                   >
-                    {new URL(r.sourceUrl).hostname.replace(/^www\./, '')}
+                    {new URL(r.sourceUrl).hostname.replace(/^www\./, "")}
                   </a>
                 </td>
               </tr>
@@ -283,15 +316,38 @@ export function DeadMoneyLedger({ rows }: { rows: LedgerViewRow[] }) {
   );
 }
 
+/**
+ * The per-season split, in dollars. NEVER AN INFERRED SPLIT (`SPEC.md` §2.7):
+ * where none was published the row says so; a one-season split repeats the
+ * total and renders nothing.
+ */
+function LedgerSplit({ row }: { row: LedgerViewRow }) {
+  if (row.splitBySeason === null) {
+    return (
+      <span className={`yy-label ${css.noSplit}`}>
+        Per-season split not established
+      </span>
+    );
+  }
+  const split = ledgerSplit(row.splitBySeason, row.seasons);
+  return split ? (
+    <span className={`yy-label ${css.ledgerMeta}`}>Split {split}</span>
+  ) : null;
+}
+
 /* ══════════════════════════════════════════════════════════════════════════ */
 /* Label / value pairs — the row-card detail block                            */
 /* ══════════════════════════════════════════════════════════════════════════ */
 
-export function Pairs({ items }: { items: { label: string; value: React.ReactNode }[] }) {
+export function Pairs({
+  items,
+}: {
+  items: { label: string; value: React.ReactNode }[];
+}) {
   return (
     <dl className={css.pairs}>
       {items.map((i) => (
-        <div key={i.label} style={{ display: 'contents' }}>
+        <div key={i.label} style={{ display: "contents" }}>
           <dt className={`yy-label ${css.pairKey}`}>{i.label}</dt>
           <dd className={`yy-num ${css.pairVal}`}>{i.value}</dd>
         </div>

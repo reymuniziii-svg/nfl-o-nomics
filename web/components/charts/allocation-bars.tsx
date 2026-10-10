@@ -1,113 +1,119 @@
 /**
- * `AllocationBars` — `COMPONENTS.md` §7, `SPEC.md` §3.2.4 / §2.6.
+ * `AllocationBars` — spend mix vs league as a compact diverging lollipop.
+ * `COMPONENTS.md` §7, `SPEC.md` §3.2.4 / §2.6, review D #9 / B-Team #6.
  *
- * NINE GROUPS, not seven, in the fixed §2.6 order — QB · RB · WR · TE · OL · DL
- * · LB · DB · ST — **never sorted by value**. A row order that changes between
- * teams destroys cross-team comparison.
+ * v1 drew nine ~40px slabs (≈700px on a phone) where the delta was large and
+ * the actual share was tiny. Now each row reads, left to right:
  *
- * THE COLOUR RULING (§7.2, `DECISIONS.md` 82): **over/under-allocation is not
- * favourable/unfavourable.** Both directions take the same neutral fill.
- * Spending more on receivers than the league average is not a positive and less
- * on the defensive line is not a negative — that is a value grade on a roster
- * construction decision, which is precisely the judgment `SPEC.md` §3.3.7 and
- * `DECISIONS.md` 51 commit the product to never making. Lime is freed for the
- * selected group; the zero axis is GOLD, because it is the league average.
+ *   QB   27.4%   ·────────|──●      +7.3 pts
+ *        share   gold = league share   delta
+ *
+ * The SHARE is the figure (large); the lollipop and the signed delta beside it
+ * say how far that sits from the league's share for the group.
+ *
+ * Rules kept:
+ *  - NINE GROUPS in the fixed §2.6 order, never sorted by value.
+ *  - §7.2 THE COLOUR RULING: over/under-allocation is not favourable or
+ *    unfavourable. Both directions take the same neutral ink; nothing is lime
+ *    unless `selected`, and nothing is red.
+ *  - The zero axis is GOLD: it is the league average.
+ *  - The delta axis is FIXED at ±15 points for every club (it was fitted to
+ *    each team, so two clubs' bars were not comparable). A delta beyond it pins
+ *    to the edge with a chevron; its true figure is printed beside it.
+ *
+ * HTML, not SVG: all text is real text on the type floor at any width, and the
+ * component is a single `role="img"` with a full text equivalent.
  */
 
 import css from './chart.module.css';
 import { ChartCaption } from '../primitives';
-import { scaleLinear, symmetricDomain } from './chart-kit';
-import { POSITION_GROUP_ORDER, signedPoints } from '@/lib/display';
+import { POSITION_GROUP_NAME, POSITION_GROUP_ORDER, signedPoints } from '@/lib/display';
 import type { AllocationBar } from '@/lib/data/team';
 import type { Coverage } from '@/lib/display';
+import { chartId } from './chart-kit';
 
 /** §7.3 — rendered on the chart, always. Never "share of cap by position group". */
 export const ALLOCATION_CAVEAT =
   'Share of cap held by players on the roster — not share of cap. The denominator inherits the ' +
   'dead-money omission. Position is as of the deal then in force.';
 
-const TRACK_W = 240;
+/** Fixed delta window, in share points. */
+const SPAN = 0.15;
+const pos = (d: number) => 50 + (Math.max(-SPAN, Math.min(SPAN, d)) / SPAN) * 50;
 
 export function AllocationBars({
   bars,
   coverage,
   selected,
+  team = 'team',
 }: {
   bars: AllocationBar[];
   coverage: Coverage;
   /** The one lime element on this card. */
   selected?: string;
+  team?: string;
 }) {
   const bySlug = new Map(bars.map((b) => [b.positionGroup, b]));
-  const deltas = bars.map((b) => b.deltaVsLeague);
-  const domain = symmetricDomain(deltas);
-  const x = scaleLinear().domain(domain).range([0, TRACK_W]);
-  const zero = x(0);
+  const id = chartId('alloc', team);
+  const described = POSITION_GROUP_ORDER.map((g) => {
+    const b = bySlug.get(g);
+    return b
+      ? `${POSITION_GROUP_NAME[g] ?? g} ${(b.shareOfRosteredCap * 100).toFixed(1)}%, ${signedPoints(b.deltaVsLeague)} points against a league share of ${(b.leagueShare * 100).toFixed(1)}%.`
+      : `${POSITION_GROUP_NAME[g] ?? g}: not covered.`;
+  }).join(' ');
 
   return (
     <div>
-      {POSITION_GROUP_ORDER.map((group) => {
-        const bar = bySlug.get(group);
-        const isSelected = selected === group;
-
-        return (
-          <div className={css.allocRow} key={group}>
-            <span className={`yy-label ${css.allocGroup}`}>{group}</span>
-
-            <svg
-              className={css.svg}
-              viewBox={`0 0 ${TRACK_W} 16`}
-              role="img"
-              aria-label={
-                bar
-                  ? `${group}: ${signedPoints(bar.deltaVsLeague)} points versus the league average share`
-                  : `${group}: not covered`
-              }
-            >
-              <rect x={0} y={0} width={TRACK_W} height={16} rx={2} fill="var(--yy-bg-sunken)" />
-              {bar ? (
-                <rect
-                  x={bar.deltaVsLeague >= 0 ? zero : x(bar.deltaVsLeague)}
-                  y={3}
-                  width={Math.max(1, Math.abs(x(bar.deltaVsLeague) - zero))}
-                  height={10}
-                  rx={2}
-                  fill={isSelected ? 'var(--yy-accent)' : 'var(--yy-series-neutral)'}
-                />
-              ) : (
-                <rect
-                  x={zero - 20}
-                  y={3}
-                  width={40}
-                  height={10}
-                  rx={2}
-                  fill="var(--yy-absence-fill)"
-                  stroke="var(--yy-absence)"
-                  strokeWidth={1}
-                  style={{ strokeDasharray: 'var(--yy-dash-absence)' }}
-                />
-              )}
-              {/* THE ZERO AXIS IS GOLD — it is the league average. It replaces
-                  the mockup's near-invisible light-on-light centre rule. */}
-              <line
-                x1={zero}
-                x2={zero}
-                y1={-2}
-                y2={18}
-                stroke="var(--yy-benchmark)"
-                strokeWidth={1}
-              />
-            </svg>
-
-            <span className={`yy-num ${css.allocValue}`}>
-              {bar ? signedPoints(bar.deltaVsLeague) : '—'}
-              <span className={`yy-label ${css.allocShare}`}>
-                {bar ? `${(bar.shareOfRosteredCap * 100).toFixed(1)}%` : 'Not covered'}
+      <div className={css.lolliHead} aria-hidden="true">
+        <span className="yy-label">Group</span>
+        <span className="yy-label">Share</span>
+        <span className={`yy-label ${css.lolliScale}`}>
+          <span>−15</span>
+          <span className={css.lolliScaleMid}>League</span>
+          <span>+15 pts</span>
+        </span>
+        <span className="yy-label">vs lg</span>
+      </div>
+      <div role="img" aria-label="Spend mix: share of rostered cap by position group against the league" aria-describedby={`${id}-d`}>
+        {POSITION_GROUP_ORDER.map((group) => {
+          const bar = bySlug.get(group);
+          const isSelected = selected === group;
+          const d = bar?.deltaVsLeague ?? 0;
+          const p = pos(d);
+          const offscale = bar ? Math.abs(d) > SPAN : false;
+          return (
+            <div className={css.lolliRow} key={group}>
+              <span className={`yy-label ${css.allocGroup}`}>{group}</span>
+              <span className={`yy-num ${css.lolliShare}`}>
+                {bar ? `${(bar.shareOfRosteredCap * 100).toFixed(1)}%` : ''}
               </span>
-            </span>
-          </div>
-        );
-      })}
+              <span className={css.lolliTrack}>
+                <span className={css.lolliZero} />
+                {bar ? (
+                  <>
+                    <span
+                      className={css.lolliStem}
+                      style={{ left: `${Math.min(50, p)}%`, width: `${Math.abs(p - 50)}%` }}
+                    />
+                    <span
+                      className={`${css.lolliDot} ${isSelected ? css.lolliDotSel : ''} ${offscale ? css.lolliDotOff : ''}`}
+                      style={{ left: `${p}%` }}
+                    />
+                  </>
+                ) : (
+                  <span className={css.lolliAbsent} />
+                )}
+              </span>
+              <span className={`yy-num ${css.lolliDelta}`}>
+                {bar ? signedPoints(d) : <span className="yy-label">Not covered</span>}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+      <p id={`${id}-d`} className="yy-visually-hidden">
+        {described}
+      </p>
 
       <ChartCaption>{ALLOCATION_CAVEAT}</ChartCaption>
       <ChartCaption>{coverage.statement}</ChartCaption>

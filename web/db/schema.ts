@@ -667,6 +667,65 @@ export const positionAllocation = pgTable(
 );
 
 /* ================================================================== */
+/* §7.13  capplus_context — 416 rows, (season, team), 2013–2025         */
+/* The gate #1 reopen mart (§2.10). `capplus_official` is UNCHANGED.    */
+/* Facts for all 13 seasons; every INDEX column is NULL in the four     */
+/* Cap+-blank seasons (2013/2016/2020/2021) and only there.             */
+/* ================================================================== */
+
+export const capplusContext = pgTable(
+  'capplus_context',
+  {
+    season: integer('season').notNull(),
+    team: text('team').notNull(),
+    startingQb: text('starting_qb').notNull(),
+    startingQbGsisId: text('starting_qb_gsis_id'),
+    startingQbOtcId: integer('starting_qb_otc_id').notNull(),
+    /** Most offensive snaps; `cap` = cap-number fallback (0 of 416 today). */
+    qbStarterMethod: text('qb_starter_method').$type<'snaps' | 'cap'>().notNull(),
+    /** USD. */
+    qbCapNumber: doublePrecision('qb_cap_number').notNull(),
+    /** Share of the LEAGUE cap. */
+    qbCapShare: doublePrecision('qb_cap_share').notNull(),
+    qbContractYearSigned: integer('qb_contract_year_signed').notNull(),
+    /** NULL = undrafted (no `draft_pick` row) — never rookie-window. */
+    qbDraftYear: integer('qb_draft_year'),
+    qbDraftRound: integer('qb_draft_round'),
+    qbRookieWindow: boolean('qb_rookie_window').notNull(),
+    /** USD. */
+    leagueMedianStarterQbCap: doublePrecision('league_median_starter_qb_cap').notNull(),
+    stratumSize: integer('stratum_size').notNull(),
+    /** INDEX — NULL in the four blank seasons. */
+    stratumRank: integer('stratum_rank'),
+    perfIndex: doublePrecision('perf_index').notNull(),
+    perfRank: integer('perf_rank').notNull(),
+    /** INDEX — a COPY of `capplus_official.capplus` (§7.4). */
+    capplus: doublePrecision('capplus'),
+    capplusRank: integer('capplus_rank'),
+    /** INDEX — rendered as "QB-neutral Cap+". */
+    capplusQbNeutral: doublePrecision('capplus_qb_neutral'),
+    qbNeutralRank: integer('qb_neutral_rank'),
+    /** INDEX — capplus − capplus_qb_neutral. */
+    qbTimingPts: doublePrecision('qb_timing_pts'),
+    /** INDEX — capplus_qb_neutral − 100. */
+    rosterPts: doublePrecision('roster_pts'),
+    /** Cash paid ÷ league cap. */
+    cashShare: doublePrecision('cash_share').notNull(),
+    /** USD — flat-proration estimate, blind to void years. */
+    futureMortgageUsd: doublePrecision('future_mortgage_usd').notNull(),
+    /** Mortgage ÷ this season's league cap. */
+    futureMortgageShare: doublePrecision('future_mortgage_share').notNull(),
+    mortgageRowsUnknown: integer('mortgage_rows_unknown').notNull(),
+    /** 0.5 — a CANDIDATE, not a published claim. */
+    mortgageAlpha: doublePrecision('mortgage_alpha').notNull(),
+    /** INDEX — CANDIDATE. Never labelled "Cap+" until gate #1 clears. */
+    capplusObligation: doublePrecision('capplus_obligation'),
+    obligationRank: integer('obligation_rank'),
+  },
+  (t) => [primaryKey({ columns: [t.season, t.team] })],
+);
+
+/* ================================================================== */
 /* team_meta — conference / division / colours.                        */
 /* Conference, division and colour are ABSENT from teams.csv (§5.1) and */
 /* come from `teams_colors_logos` via the asset pipeline's chipdata.json.*/
@@ -794,6 +853,7 @@ export const schema = {
   playerImages,
   leagueCap,
   positionAllocation,
+  capplusContext,
   teamMeta,
   creditEntry,
   creditLicenseGroup,

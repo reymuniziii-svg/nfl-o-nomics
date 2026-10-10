@@ -173,6 +173,71 @@
         }
       ]
     },
+    "capplus_context": {
+      "by_stratum": {
+        "False": {
+          "mean_capplus": 101.08,
+          "mean_perf": 101.36,
+          "mean_qb_timing_pts": -1.5,
+          "n": 188.0
+        },
+        "True": {
+          "mean_capplus": 97.97,
+          "mean_perf": 97.44,
+          "mean_qb_timing_pts": 2.81,
+          "n": 100.0
+        }
+      },
+      "capplus_reproduction_drift": 7.2e-05,
+      "corr_capplus_vs_perf_index": 0.9496,
+      "corr_capplus_vs_qb_cap_share_by_season": {
+        "2014": 0.255,
+        "2015": 0.133,
+        "2017": 0.151,
+        "2018": 0.275,
+        "2019": 0.12,
+        "2022": 0.23,
+        "2023": 0.448,
+        "2024": 0.43,
+        "2025": 0.145
+      },
+      "corr_obligation_vs_perf_index": 0.8893,
+      "index_rows": 288,
+      "mean_abs_rank_shift_vs_perf": {
+        "capplus": 2.23,
+        "capplus_obligation": 3.6
+      },
+      "mortgage": {
+        "rows": 32105,
+        "rows_without_contract_years": 504
+      },
+      "mortgage_alpha": 0.5,
+      "rookie_window_teams_per_season": {
+        "2013": 12,
+        "2014": 9,
+        "2015": 7,
+        "2016": 8,
+        "2017": 13,
+        "2018": 12,
+        "2019": 13,
+        "2020": 12,
+        "2021": 14,
+        "2022": 13,
+        "2023": 13,
+        "2024": 9,
+        "2025": 11
+      },
+      "rows": 416,
+      "starter_method_counts": {
+        "snaps": 416
+      },
+      "within_season_sd": {
+        "R_rec": 0.0485,
+        "cash_share": 0.1205,
+        "future_mortgage_share": 0.1585,
+        "qb_cap_share": 0.0506
+      }
+    },
     "dead_money_display": {
       "blank_season_statement_lives_in": "dead_money_snapshot_resolution",
       "blank_seasons": [
@@ -393,47 +458,7 @@
     }
   },
   "data_version": {
-    "capplus_seasons": [
-      2014,
-      2015,
-      2017,
-      2018,
-      2019,
-      2022,
-      2023,
-      2024,
-      2025
-    ],
     "coaching_window": "2000-2025",
-    "dead_money_blank_seasons": [
-      2013,
-      2016,
-      2020,
-      2021
-    ],
-    "dead_money_covered_seasons": [
-      2014,
-      2015,
-      2017,
-      2018,
-      2019,
-      2022,
-      2023,
-      2024,
-      2025
-    ],
-    "dead_money_resolved_rows": 316,
-    "dead_money_snapshots": {
-      "2014": "2014-02-18 (preseason, provisional)",
-      "2015": "2015-10-28 (midseason, in_season)",
-      "2017": "2017-07-05 (preseason, preseason)",
-      "2018": "2018-07-14 (preseason, preseason)",
-      "2019": "2019-03-10 (preseason, provisional)",
-      "2022": "2022-07-05 (preseason, preseason)",
-      "2023": "2023-07-14 (preseason, preseason)",
-      "2024": "2024-11-27 (late_season, in_season)",
-      "2025": "2025-12-17 (late_season, in_season)"
-    },
     "draft_window": "2000-2025",
     "excluded_season": 2026,
     "league_cap_window": "1994-2025",
@@ -442,6 +467,46 @@
   },
   "generated_by": "python -m etl.pipeline",
   "marts": {
+    "capplus_context": {
+      "columns": [
+        "season",
+        "team",
+        "starting_qb",
+        "starting_qb_gsis_id",
+        "starting_qb_otc_id",
+        "qb_starter_method",
+        "qb_cap_number",
+        "qb_cap_share",
+        "qb_contract_year_signed",
+        "qb_draft_year",
+        "qb_draft_round",
+        "qb_rookie_window",
+        "league_median_starter_qb_cap",
+        "stratum_size",
+        "stratum_rank",
+        "perf_index",
+        "perf_rank",
+        "capplus",
+        "capplus_rank",
+        "capplus_qb_neutral",
+        "qb_neutral_rank",
+        "qb_timing_pts",
+        "roster_pts",
+        "cash_share",
+        "future_mortgage_usd",
+        "future_mortgage_share",
+        "mortgage_rows_unknown",
+        "mortgage_alpha",
+        "capplus_obligation",
+        "obligation_rank"
+      ],
+      "contract": "SPEC §7.13 — 416 rows: starting QB, rookie window, QB-neutral Cap+, future-cap mortgage, Cap+ (obligation) candidate; gate #1 reopened",
+      "file": "data/marts/capplus_context.csv",
+      "md5": "59dc223e9bc978f7b650545f2cc84005",
+      "n_columns": 30,
+      "rows": 416,
+      "source_data": []
+    },
     "capplus_official": {
       "columns": [
         "season",

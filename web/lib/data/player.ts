@@ -302,3 +302,128 @@ export async function getTopCapHits(season: number, team: string, limit = 10) {
     .orderBy(desc(s.playerSeasonCap.capNumber))
     .limit(limit);
 }
+
+/* ------------------------------------------------------------------ */
+/* Featured players — the `/player` landing (review 2026-10-10, Player) */
+/* ------------------------------------------------------------------ */
+
+export interface FeaturedCapHit {
+  playerId: string;
+  name: string;
+  position: string | null;
+  team: string;
+  capNumber: number;
+  /** Share of that season's ADJUSTED cap, 0–1. */
+  capPercent: number | null;
+}
+
+export interface FeaturedDeadMoney {
+  /** `null` where the ledger name has no page in the v1 population. */
+  playerId: string | null;
+  name: string;
+  /** The club that ate the charge. */
+  team: string;
+  seasons: string;
+  totalUsd: number;
+  verifiedAsof: string;
+}
+
+export interface FeaturedPlayers {
+  season: number;
+  capHits: Metric<FeaturedCapHit[]>;
+  deadMoney: Metric<FeaturedDeadMoney[]>;
+}
+
+/**
+ * Two entry lists for the search page: the season's biggest cap hits and the
+ * biggest charges in the dead-money ledger. Both are restricted to — or linked
+ * through — the 251-player population, so every row that links has a page.
+ * Ranked on published figures only; no player is scored.
+ */
+export async function getFeaturedPlayers(season: number, limit = 8): Promise<FeaturedPlayers> {
+  const pop = await getPlayerPopulation();
+  const byId = new Map(pop.map((p) => [p.playerId, p]));
+
+  let capHits: Metric<FeaturedCapHit[]> = blank(BLANK_REASON.MART_ABSENT);
+  let deadMoney: Metric<FeaturedDeadMoney[]> = blank(BLANK_REASON.MART_ABSENT);
+  if (!pop.length) return { season, capHits, deadMoney };
+
+  const db = await getDb();
+
+  if (await isSeeded('player_season_cap')) {
+    const rows = await db
+      .select({
+        otcId: s.playerSeasonCap.otcId,
+        player: s.playerSeasonCap.player,
+        team: s.playerSeasonCap.team,
+        positionGroup: s.playerSeasonCap.positionGroup,
+        capNumber: s.playerSeasonCap.capNumber,
+        capPercent: s.playerSeasonCap.capPercent,
+      })
+      .from(s.playerSeasonCap)
+      .where(
+        and(
+          eq(s.playerSeasonCap.season, season),
+          inArray(s.playerSeasonCap.otcId, pop.map((p) => Number(p.playerId))),
+        ),
+      )
+      .orderBy(desc(s.playerSeasonCap.capNumber))
+      .limit(limit);
+    capHits = rows.length
+      ? value(
+          rows.map((r) => {
+            const id = String(r.otcId);
+            const p = byId.get(id);
+            return {
+              playerId: id,
+              name: p?.player ?? r.player ?? `Player ${id}`,
+              position: p?.position ?? r.positionGroup,
+              team: r.team,
+              capNumber: r.capNumber,
+              capPercent: r.capPercent,
+            };
+          }),
+        )
+      : blank(`Not available — no ${season} cap row is recorded for the v1 population.`);
+  }
+
+  if (await isSeeded('dead_money_ledger')) {
+    const ledger = await db
+      .select()
+      .from(s.deadMoneyLedger)
+      .orderBy(desc(s.deadMoneyLedger.totalUsd))
+      .limit(limit);
+
+    // The cap mart carries the ledger name on the player's own rows, which is
+    // the join the ledger itself lacks. A name match against the population is
+    // the fallback; a name that matches neither stays unlinked, never guessed.
+    const links = (await isSeeded('player_season_cap'))
+      ? await db
+          .selectDistinct({
+            otcId: s.playerSeasonCap.otcId,
+            name: s.playerSeasonCap.dmLedgerPlayer,
+          })
+          .from(s.playerSeasonCap)
+          .where(eq(s.playerSeasonCap.dmLedgerCharge, true))
+      : [];
+    const idByLedgerName = new Map<string, string>();
+    for (const l of links) {
+      if (l.name && byId.has(String(l.otcId))) idByLedgerName.set(l.name, String(l.otcId));
+    }
+    const idByName = new Map<string, string>();
+    for (const p of pop) if (p.player) idByName.set(p.player, p.playerId);
+
+    deadMoney = value(
+      ledger.map((r) => ({
+        playerId: idByLedgerName.get(r.player) ?? idByName.get(r.player) ?? null,
+        name: r.player,
+        team: r.team,
+        seasons: r.seasons,
+        totalUsd: r.totalUsd,
+        verifiedAsof: r.verifiedAsof,
+      })),
+    );
+  }
+
+  return { season, capHits, deadMoney };
+}

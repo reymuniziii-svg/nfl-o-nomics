@@ -1,8 +1,12 @@
-/* H2H COMPARISON STACK — COMPONENTS.md §5.
+/* H2H — COMPONENTS.md §5, rebuilt as a diverging dot plot (review D #4).
  *
  * D3 IS FIXED HERE: red never carries a comparison series. Side A is the
- * subject (lime / lime-ink); side B is the comparison (slate) PLUS a hatch and
- * a dash, so the two are told apart by pattern as well as hue.
+ * subject (--yy-accent, round dot, solid stem); side B is the comparison
+ * (--yy-compare, diamond, dashed stem). Shape and stroke carry the distinction.
+ * Gold is the league average and nothing else.
+ *
+ * Mobile-first at 390: each row stacks label → track → the two readouts side by
+ * side. At 1024 the readouts flank the track so every track shares one column.
  */
 
 .eras {
@@ -51,11 +55,9 @@
   letter-spacing: var(--yy-track-label-wide);
 }
 
-/* §5.2 THE CROSS-ERA STATEMENT — a STANDING BAND directly beneath the two era
-   cards and above the first comparison chart, at every size. Not a footnote,
-   not a tooltip, not below the fold, not inside an accordion.
-   It takes the GOLD rule because it is a statement about the benchmark method,
-   and it is the only non-chart element in the product that carries gold. */
+/* §5.2 THE CROSS-ERA STATEMENT — a standing band beneath the era cards and
+   above the first comparison chart, at every size. Gold rule: it is a
+   statement about the benchmark method. */
 .statement {
   border-inline-start: var(--yy-space-0h) solid var(--yy-benchmark);
   padding-inline-start: var(--yy-space-3);
@@ -77,14 +79,386 @@
   font-size: var(--yy-size-caption);
 }
 
-@media (min-width: 1024px) {
-  .statementBody {
-    font-size: var(--yy-size-body);
-  }
+/* ── THE TALLY — the verdict the rows add up to ─────────────────────────── */
+
+.tally {
+  margin: var(--yy-space-5) 0 var(--yy-space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--yy-space-1);
+}
+
+.tallyHead {
+  margin: 0;
+  font-family: var(--yy-font-display);
+  font-weight: var(--yy-weight-display);
+  font-size: var(--yy-size-display-md);
+  letter-spacing: var(--yy-track-display);
+  line-height: var(--yy-lh-display);
+  color: var(--yy-fg-1);
+}
+
+.tallySub {
+  margin: 0;
+  color: var(--yy-fg-3);
+  letter-spacing: var(--yy-track-label-wide);
+}
+
+/* ── THE PLOT ───────────────────────────────────────────────────────────── */
+
+.plot {
+  --h2h-read-w: 0px;
+  --h2h-head-w: 0px;
+  display: flex;
+  flex-direction: column;
+}
+
+.rows {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* Scale header: names both directions and the benchmark, in words. */
+.scaleRow {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: end;
+  padding-bottom: var(--yy-space-2);
+  border-bottom: 1px solid var(--yy-line-hairline);
+}
+
+.scaleBelow,
+.scaleAbove {
+  color: var(--yy-fg-3);
+}
+
+.scaleAbove {
+  text-align: right;
+}
+
+.scaleAvg {
+  color: var(--yy-benchmark);
+  letter-spacing: var(--yy-track-label-wide);
+  text-align: center;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-areas:
+    'head head'
+    'track track'
+    'a b';
+  column-gap: var(--yy-space-3);
+  row-gap: var(--yy-space-2);
+  padding: var(--yy-space-3) 0;
+  border-bottom: 1px solid var(--yy-line-divider);
+}
+
+.rowHead {
+  grid-area: head;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--yy-space-3);
+  min-width: 0;
+}
+
+.rowLabel {
+  color: var(--yy-fg-1);
+  min-width: 0;
+}
+
+.rowDir {
+  color: var(--yy-fg-3);
+  white-space: nowrap;
+  flex: none;
+}
+
+.rowEdge {
+  color: var(--yy-fg-1);
+}
+
+/* ── the track: two lanes on one axis, one gold zero ─────────────────────── */
+
+.track {
+  grid-area: track;
+  position: relative;
+  height: 36px;
+  /* keep end marks inside the card: the dot's half-width is inset */
+  margin-inline: 8px;
+}
+
+/* the axis itself — the domain line, 30% */
+.track::before {
+  content: '';
+  position: absolute;
+  inset-inline: -8px;
+  top: 50%;
+  border-top: 1px solid var(--yy-axis);
+}
+
+.zero {
+  position: absolute;
+  left: 50%;
+  top: -4px;
+  bottom: -4px;
+  width: 2px;
+  margin-left: -1px;
+  background: var(--yy-benchmark);
+}
+
+.lane {
+  position: absolute;
+  inset-inline: 0;
+  height: 14px;
+}
+
+.laneA {
+  top: 2px;
+  color: var(--yy-accent);
+}
+
+.laneB {
+  bottom: 2px;
+  color: var(--yy-compare);
+}
+
+.stem {
+  position: absolute;
+  top: 50%;
+  height: 0;
+  border-top: 2px solid currentColor;
+  margin-top: -1px;
+}
+
+.laneB .stem {
+  border-top-style: dashed;
+}
+
+.mark {
+  position: absolute;
+  top: 50%;
+  width: 12px;
+  height: 12px;
+  margin: -6px 0 0 -6px;
+  background: currentColor;
+  box-shadow: 0 0 0 1.5px var(--yy-bg-card-flat);
+  z-index: 1;
+}
+
+.laneA .mark {
+  border-radius: 50%;
+}
+
+.laneB .mark {
+  transform: rotate(45deg) scale(0.92);
+  border-radius: 1px;
+}
+
+/* A PARTIAL value is still a value: full mark plus the partial ring. */
+.markPartial {
+  outline: 1px dashed var(--yy-fg-3);
+  outline-offset: 2px;
+}
+
+/* Off-scale: a chevron beyond the edge. The printed figure is exact. */
+.offRight,
+.offLeft {
+  position: absolute;
+  top: 50%;
+  width: 0;
+  height: 0;
+  margin-top: -5px;
+  border-block: 5px solid transparent;
+}
+
+.offRight {
+  left: calc(100% + 7px);
+  border-left: 6px solid currentColor;
+}
+
+.offLeft {
+  right: calc(100% + 7px);
+  border-right: 6px solid currentColor;
+}
+
+/* A blank side: the same lane, drawn as absence. */
+.laneAbsent {
+  position: absolute;
+  inset: 1px 0;
+  border: 1px dashed var(--yy-absence);
+  border-radius: 2px;
+  background: var(--yy-absence-fill);
+}
+
+/* ── readouts: delta large, raw small ───────────────────────────────────── */
+
+.read {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.readA {
+  grid-area: a;
+}
+
+.readB {
+  grid-area: b;
+  align-items: flex-end;
+  text-align: right;
+}
+
+.who {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--yy-fg-2);
+}
+
+.whoGlyph {
+  display: inline-block;
+  flex: none;
+  width: 9px;
+  height: 9px;
+}
+
+.glyphA {
+  background: var(--yy-accent);
+  border-radius: 50%;
+}
+
+.glyphB {
+  background: var(--yy-compare);
+  transform: rotate(45deg) scale(0.9);
+  border-radius: 1px;
+}
+
+.delta {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--yy-space-1);
+  font-size: var(--yy-size-metric-sm);
+  color: var(--yy-fg-1);
+  line-height: var(--yy-lh-tight);
+  padding-right: 0.03em;
+}
+
+.deltaUnit {
+  color: var(--yy-fg-3);
+}
+
+.raw {
+  color: var(--yy-fg-3);
+  overflow-wrap: anywhere;
+}
+
+.partialMark {
+  color: var(--yy-fg-2);
+}
+
+.provisional {
+  color: var(--yy-provisional);
+}
+
+.notCovered {
+  display: inline-block;
+  align-self: flex-start;
+  padding: 1px var(--yy-space-1);
+  border: 1px dashed var(--yy-absence);
+  border-radius: var(--yy-radius-chip);
+  color: var(--yy-fg-3);
+}
+
+.readB .notCovered {
+  align-self: flex-end;
+}
+
+.tierHead {
+  margin: var(--yy-space-5) 0 0;
+  padding-bottom: var(--yy-space-1);
+  color: var(--yy-fg-3);
+  letter-spacing: var(--yy-track-label-wide);
+  border-bottom: 1px solid var(--yy-line-hairline);
 }
 
 /* §5.4 — the one-sided Tier 2 note, above the affected block. */
 .tierNote {
-  margin: 0 0 var(--yy-space-3);
+  margin: var(--yy-space-2) 0 0;
   max-width: var(--yy-measure);
+}
+
+/* ── desktop: readouts flank the track; every track shares one column ───── */
+
+@media (min-width: 1024px) {
+  .statementBody {
+    font-size: var(--yy-size-body);
+  }
+
+  .plot {
+    --h2h-head-w: 200px;
+    --h2h-read-w: 184px;
+  }
+
+  .row,
+  .scaleRow {
+    grid-template-columns:
+      var(--h2h-head-w) var(--h2h-read-w) minmax(0, 1fr) var(--h2h-read-w);
+    column-gap: var(--yy-space-5);
+  }
+
+  .row {
+    grid-template-areas: 'head a track b';
+    align-items: center;
+  }
+
+  .scaleRow {
+    /* label columns stay empty; the words sit over the track column */
+    grid-template-areas: '. . scale .';
+  }
+
+  .scaleRow > * {
+    grid-row: 1;
+  }
+
+  .scaleBelow {
+    grid-column: 3;
+    justify-self: start;
+  }
+
+  .scaleAvg {
+    grid-column: 3;
+    justify-self: center;
+  }
+
+  .scaleAbove {
+    grid-column: 3;
+    justify-self: end;
+  }
+
+  .rowHead {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+  }
+
+  .rowDir {
+    white-space: normal;
+  }
+
+  .readA {
+    align-items: flex-end;
+    text-align: right;
+  }
+
+  .readA .notCovered {
+    align-self: flex-end;
+  }
+
+  .delta {
+    font-size: var(--yy-size-metric-sm);
+  }
 }

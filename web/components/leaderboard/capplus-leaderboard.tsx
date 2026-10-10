@@ -3,24 +3,45 @@
 /**
  * `CapPlusLeaderboard` — `COMPONENTS.md` §2, `SPEC.md` §3.1.3.
  *
- * **All 32 rows. Not a top-10.** No pagination, no "show more", no
- * virtualisation: 32 rows is 1.5 screens, and a "load more" on a 32-item list is
- * chrome pretending to be a feature.
+ * **All 32 rows. Not a top-10.** Two compositions, one dataset: the row-card
+ * list below 1024px and the real table at 1024+. Clubs whose index is `blank`
+ * sort to a labelled group at the bottom, never interleaved, never zero.
  *
- * Two compositions, one dataset: the row-card list at 390 and the real table at
- * 1024+. Sorting never removes rows — teams whose index is `blank` sort to a
- * **labelled group at the bottom** headed `NOT COVERED — {reason}`, never
- * interleaved and never sorted as zero.
+ * What the 2026-10-10 review changed (B.6, D #9, D #10):
+ *   - THE RANK FOLLOWS THE SORT. Sorted by $/win, `#1` is the cheapest club,
+ *     whichever direction the rows run — the column is never a stale Cap+ rank.
+ *   - The first click on a column sorts it BEST-FIRST (cheapest $/win, most
+ *     wins, highest index).
+ *   - Sort and numerator live in the URL: `?sort=cpw&n=cap` (`-cpw` reverses).
+ *   - Re-sorting is a FLIP: rows slide to their new places over
+ *     `--yy-dur-base` (`CHART_ANATOMY.md` §6.2); reduced motion collapses it.
+ *   - $/win carries a mark: a bar on one league-wide domain with the gold
+ *     league tick, pinned across both numerators so the toggle animates
+ *     truthfully.
+ *   - Δ is against the LAST COVERED season, not a fixed five-year lag that
+ *     landed on a blank year in all 32 rows.
+ *   - The `R` chip names a rookie-window starting QB, and a split view ranks
+ *     the two strata separately, each against its own mean.
+ *   - The Review control (on the Field) swaps the index column to QB-neutral
+ *     Cap+ or the CANDIDATE obligation index, with raw Cap+ kept beside it.
  */
 
-import { useMemo, useState } from 'react';
+import { Fragment, useLayoutEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import Link from 'next/link';
 import css from './leaderboard.module.css';
-import { FranchiseSparkline } from '../charts/franchise-sparkline';
 import { CapPlusCaption } from '../primitives';
+import { Segmented } from '../field/season-scrubber';
 import { indexBand, usdShort } from '@/lib/display';
 import type { Metric } from '@/lib/metric';
-import type { SparkPoint } from '@/lib/data/league';
+import { REVIEW_NAME, useLeagueLink, useUrlParam, type ReviewMode } from './league-link';
+
+export interface LeaderboardContext {
+  qbn: number;
+  qbnRank: number;
+  obl: number;
+  oblRank: number;
+  stratumRank: number;
+}
 
 export interface LeaderboardViewRow {
   team: string;
@@ -29,44 +50,77 @@ export interface LeaderboardViewRow {
   wins: number;
   rank: number | null;
   index: Metric<number>;
-  spend: Metric<number>;
-  /** `null` by the ZERO-WIN RULE — the ratio is suppressed, never Infinity. */
-  perWin: Metric<number>;
-  delta5y: Metric<number>;
+  /** Spend under each numerator, and the ratio. A zero-win ratio is blank by rule. */
+  spend: { cash: Metric<number>; cap: Metric<number> };
+  perWin: { cash: Metric<number>; cap: Metric<number> };
+  delta: Metric<number>;
   href: string;
-  spark: SparkPoint[];
+  ctx: LeaderboardContext | null;
+  rookie: boolean | null;
+  qb: string | null;
 }
 
-type SortKey = 'rank' | 'team' | 'spend' | 'wins' | 'perWin' | 'index' | 'delta5y';
+export interface StratumLine {
+  n: number;
+  mean: number;
+}
 
-const NUMERIC: Record<SortKey, boolean> = {
-  rank: true,
-  team: false,
-  spend: true,
-  wins: true,
-  perWin: true,
-  index: true,
-  delta5y: true,
+type SortKey = 'index' | 'cpw' | 'wins' | 'spend' | 'team' | 'delta';
+type Numerator = 'cash' | 'cap';
+
+/** The direction each column's "best" runs. Rank 1 is always the best. */
+const BEST_FIRST: Record<SortKey, 'asc' | 'desc'> = {
+  index: 'desc',
+  cpw: 'asc',
+  wins: 'desc',
+  spend: 'desc',
+  team: 'asc',
+  delta: 'desc',
 };
 
-function sortValue(row: LeaderboardViewRow, key: SortKey): number | string | null {
+const SORT_PARAMS = (['index', 'cpw', 'wins', 'spend', 'team', 'delta'] as const).flatMap((k) => [
+  k,
+  `-${k}`,
+]);
+
+function modeValue(r: LeaderboardViewRow, mode: ReviewMode): number | null {
+  if (mode === 'raw' || !r.ctx) return r.index.state === 'blank' ? null : r.index.value;
+  return mode === 'qbn' ? r.ctx.qbn : r.ctx.obl;
+}
+
+function sortValue(r: LeaderboardViewRow, key: SortKey, n: Numerator, mode: ReviewMode) {
   switch (key) {
-    case 'rank':
-      return row.rank;
-    case 'team':
-      return row.teamName;
-    case 'wins':
-      return row.wins;
-    case 'spend':
-      return row.spend.state === 'blank' ? null : row.spend.value;
-    case 'perWin':
-      return row.perWin.state === 'blank' ? null : row.perWin.value;
     case 'index':
-      return row.index.state === 'blank' ? null : row.index.value;
-    case 'delta5y':
-      return row.delta5y.state === 'blank' ? null : row.delta5y.value;
+      return modeValue(r, mode);
+    case 'cpw':
+      return r.perWin[n].state === 'blank' ? null : r.perWin[n].value;
+    case 'wins':
+      return r.wins;
+    case 'spend':
+      return r.spend[n].state === 'blank' ? null : r.spend[n].value;
+    case 'team':
+      return r.teamName;
+    case 'delta':
+      return r.delta.state === 'blank' ? null : r.delta.value;
   }
 }
+
+function cmp(a: number | string | null, b: number | string | null, dir: 'asc' | 'desc') {
+  if (a === null && b === null) return 0;
+  if (a === null) return 1;
+  if (b === null) return -1;
+  const c = typeof a === 'string' || typeof b === 'string' ? String(a).localeCompare(String(b)) : a - b;
+  return dir === 'asc' ? c : -c;
+}
+
+const SORT_LABEL: Record<SortKey, string> = {
+  index: 'index',
+  cpw: '$/win',
+  wins: 'wins',
+  spend: 'spend',
+  team: 'name',
+  delta: 'change',
+};
 
 export function CapPlusLeaderboard({
   rows,
@@ -74,6 +128,10 @@ export function CapPlusLeaderboard({
   indexName,
   isCapPlus,
   focusTeams = [],
+  leagueAvg,
+  priorSeason,
+  strata,
+  strataReason,
   csvSlot,
 }: {
   rows: LeaderboardViewRow[];
@@ -81,349 +139,540 @@ export function CapPlusLeaderboard({
   indexName: string;
   isCapPlus: boolean;
   focusTeams?: string[];
+  /** League $/win per numerator — the gold tick on every $/win bar. */
+  leagueAvg: { cash: number | null; cap: number | null };
+  priorSeason: number | null;
+  strata: { rookie: StratumLine | null; veteran: StratumLine | null } | null;
+  strataReason?: string;
   csvSlot?: React.ReactNode;
 }) {
-  const [sort, setSort] = useState<{ key: SortKey; dir: 'asc' | 'desc' }>({
-    key: 'rank',
-    dir: 'asc',
-  });
+  const { numerator: n, review, hot, setHot, season: fieldSeason } = useLeagueLink(season);
+  const [sortParam, setSortParam] = useUrlParam<string>('sort', 'index', SORT_PARAMS);
+  const [split, setSplit] = useState<'all' | 'split'>('all');
+  const mode: ReviewMode = isCapPlus ? review : 'raw';
 
-  const { live, blanked } = useMemo(() => {
-    const withIndex = rows.filter((r) => r.index.state !== 'blank');
-    const withoutIndex = rows.filter((r) => r.index.state === 'blank');
-    const sorted = [...withIndex].sort((a, b) => {
-      const av = sortValue(a, sort.key);
-      const bv = sortValue(b, sort.key);
-      if (av === null && bv === null) return 0;
-      if (av === null) return 1;
-      if (bv === null) return -1;
-      const cmp =
-        typeof av === 'string' || typeof bv === 'string'
-          ? String(av).localeCompare(String(bv))
-          : (av as number) - (bv as number);
-      return sort.dir === 'asc' ? cmp : -cmp;
-    });
-    return { live: sorted, blanked: withoutIndex };
-  }, [rows, sort]);
+  const key = sortParam.replace(/^-/, '') as SortKey;
+  const reversed = sortParam.startsWith('-');
+  const dir: 'asc' | 'desc' = reversed ? (BEST_FIRST[key] === 'asc' ? 'desc' : 'asc') : BEST_FIRST[key];
 
-  function toggle(key: SortKey) {
-    setSort((s) =>
-      s.key === key
-        ? { key, dir: s.dir === 'asc' ? 'desc' : 'asc' }
-        : { key, dir: NUMERIC[key] && key !== 'rank' ? 'desc' : 'asc' },
-    );
+  function onSort(k: SortKey) {
+    if (k === key) setSortParam(reversed ? k : `-${k}`);
+    else setSortParam(k);
   }
 
-  const blankReason =
-    blanked.length && blanked[0].index.state === 'blank' ? blanked[0].index.reason : '';
+  const { live, blanked, rankBy } = useMemo(() => {
+    const withIndex = rows.filter((r) => r.index.state !== 'blank');
+    const withoutIndex = rows.filter((r) => r.index.state === 'blank');
+    // the rank: best-first by the active key (by index for a name sort)
+    const rankKey: SortKey = key === 'team' ? 'index' : key;
+    // ties break on the club's Cap+ rank, in the rank AND in the row order, so
+    // the rank column reads 1, 2, 3 down a best-first list
+    const tie = (a: LeaderboardViewRow, b: LeaderboardViewRow) =>
+      (a.rank ?? 99) - (b.rank ?? 99) || a.team.localeCompare(b.team);
+    const best = [...withIndex].sort(
+      (a, b) =>
+        cmp(sortValue(a, rankKey, n, mode), sortValue(b, rankKey, n, mode), BEST_FIRST[rankKey]) ||
+        tie(a, b),
+    );
+    const rankBy = new Map<string, number | null>(
+      best.map((r, i) => [r.team, sortValue(r, rankKey, n, mode) === null ? null : i + 1]),
+    );
+    const sorted = [...withIndex].sort(
+      (a, b) =>
+        cmp(sortValue(a, key, n, mode), sortValue(b, key, n, mode), dir) ||
+        (dir === BEST_FIRST[key] ? tie(a, b) : tie(b, a)),
+    );
+    return { live: sorted, blanked: withoutIndex, rankBy };
+  }, [rows, key, dir, n, mode]);
 
+  /* ---- FLIP: rows slide to their new places when the order changes ---- */
+  const mobileRefs = useRef(new Map<string, HTMLElement>());
+  const tableRefs = useRef(new Map<string, HTMLElement>());
+  const lastTops = useRef(new Map<string, number>());
+  const order = live.map((r) => r.team).join(',');
+  const lastOrder = useRef(order);
+  useLayoutEffect(() => {
+    const changed = lastOrder.current !== order;
+    lastOrder.current = order;
+    for (const [prefix, refs] of [
+      ['m', mobileRefs.current],
+      ['t', tableRefs.current],
+    ] as const) {
+      for (const [team, el] of refs) {
+        const top = el.offsetTop;
+        const prev = lastTops.current.get(prefix + team);
+        lastTops.current.set(prefix + team, top);
+        if (!changed || prev === undefined || prev === top || !el.offsetParent) continue;
+        const cs = getComputedStyle(el);
+        const dur = parseFloat(cs.getPropertyValue('--yy-dur-base')) || 0;
+        el.animate([{ transform: `translateY(${prev - top}px)` }, { transform: 'none' }], {
+          duration: dur,
+          easing: cs.getPropertyValue('--yy-ease-standard').trim() || 'ease',
+        });
+      }
+    }
+  }, [order]);
+
+  const blankReason = blanked.length && blanked[0].index.state === 'blank' ? blanked[0].index.reason : '';
   const focus = new Set(focusTeams);
-  const maxSpend = Math.max(
-    1,
-    ...rows.map((r) => (r.spend.state === 'blank' ? 0 : r.spend.value)),
-  );
-  const maxWins = Math.max(1, ...rows.map((r) => r.wins));
 
-  /**
-   * `SPEC.md` §1.2 / `CHART_ANATOMY.md` §5.2: a blank renders its reason, and a
-   * blank with no visible reason is a bug. When the whole Δ 5Y column is blank
-   * — which is the launch state, because 2025 − 5 = 2020 and 2020 Cap+ was
-   * never published — the reason belongs once beneath the table rather than 32
-   * times inside it. The per-cell short form still carries it as accessible
-   * text, so nothing is lost to a screen reader.
-   */
-  const delta5yReasons = [
-    ...new Set(rows.map((r) => (r.delta5y.state === 'blank' ? r.delta5y.reason : '')).filter(Boolean)),
-  ];
-  const allDelta5yBlank = rows.length > 0 && rows.every((r) => r.delta5y.state === 'blank');
+  /* one $/win domain for the season, across BOTH numerators — pinned */
+  const cpwMax = useMemo(() => {
+    const all = rows.flatMap((r) =>
+      (['cash', 'cap'] as const).map((k) => (r.perWin[k].state === 'blank' ? 0 : r.perWin[k].value)),
+    );
+    return Math.max(1, ...all) * 1.04;
+  }, [rows]);
+  const tick = leagueAvg[n];
+  const tickPct = tick === null ? null : (tick / cpwMax) * 100;
+
+  const lens = n === 'cash' ? 'cash' : 'cap hit';
+  const spendHead = n === 'cash' ? 'Cash spent' : 'Cap hit';
+  const idxHead = mode === 'raw' ? (isCapPlus ? 'Cap+' : 'Rating') : REVIEW_NAME[mode];
+  // the change column is always RAW Cap+ against its last covered season
+  const deltaHead = `${mode === 'raw' ? '' : 'Cap+ '}${priorSeason ? `Δ vs ’${String(priorSeason).slice(2)}` : 'Δ'}`;
+  const rookieCount = rows.filter((r) => r.rookie).length;
+
+  const rowEvents = (team: string) => ({
+    onPointerEnter: () => setHot(team),
+    onPointerLeave: () => setHot(null),
+    onFocus: () => setHot(team),
+    onBlur: () => setHot(null),
+  });
+
+  /** The mobile secondary line is the sorted column, always (`MOBILE_PATTERNS.md` §4). */
+  function secondary(r: LeaderboardViewRow): string {
+    const pw = r.perWin[n];
+    const cpw = pw.state === 'blank' ? 'no ratio (0 wins)' : `${usdShort(pw.value)}/win`;
+    const sp = r.spend[n];
+    switch (key) {
+      case 'wins':
+        return `${r.team} · ${r.record} · ${cpw}`;
+      case 'spend':
+        return `${r.team} · ${sp.state === 'blank' ? 'not covered' : `${usdShort(sp.value)} ${lens}`} · ${r.wins}W`;
+      case 'delta':
+        return `${r.team} · ${r.delta.state === 'blank' ? 'no prior reading' : `Cap+ ${signed(r.delta.value)} vs ${priorSeason ?? 'prior'}`}`;
+      default:
+        return `${r.team} · ${cpw} · ${r.wins}W`;
+    }
+  }
+
+  const splitAvailable = isCapPlus && strata !== null;
 
   return (
     <div className={css.wrap}>
-      {/* ── mobile: the row-card list ─────────────────────────────────────── */}
-      <div className={css.mobileList}>
-        <div className={css.headRow}>
-          <SortHeader label="#" sortKey="rank" sort={sort} onSort={toggle} align="right" />
-          <SortHeader label="Team" sortKey="team" sort={sort} onSort={toggle} />
-          {/* `SPEC.md` §2.1 — the product never says "spend" without saying
-            which lens. This card is cash, and the column says so. */}
-          <span className={`yy-label ${css.alignRight}`}>Cash → wins</span>
-          <SortHeader
-            label={isCapPlus ? 'Cap+' : 'Rating'}
-            sortKey="index"
-            sort={sort}
-            onSort={toggle}
-            align="right"
-          />
-        </div>
+      <div className={css.toolbar}>
+        <Segmented
+          options={['all', 'split'] as const}
+          value={split}
+          onChange={setSplit}
+          label="Leaderboard view"
+          disabled={!splitAvailable}
+          names={{ all: 'All 32', split: 'By QB deal' }}
+        />
+        {fieldSeason !== season ? (
+          <span className={`yy-label ${css.seasonNote}`}>Table shows {season}</span>
+        ) : null}
+      </div>
 
-        {live.map((r) => (
-          <Link
-            key={r.team}
-            href={r.href}
-            className={`${css.row} ${focus.has(r.team) ? css.rowFocus : ''}`}
-          >
-            <span
-              className={`yy-num ${css.rank} ${r.rank !== null && r.rank <= 3 && isCapPlus ? css.rankTop : ''}`}
-            >
-              {r.rank ?? '—'}
-            </span>
-            <span className={css.teamCell}>
-              <span className={css.teamText}>
-                <span className={css.teamName}>{r.teamName}</span>
-                <span className={`yy-label ${css.teamSub}`}>
-                  {r.team} ·{' '}
-                  {r.perWin.state === 'blank' ? 'no ratio' : `${usdShort(r.perWin.value)}/win`} ·{' '}
-                  {r.wins}W
-                </span>
-              </span>
-            </span>
-            <span className={css.pair} aria-hidden="true">
-              <span className={css.track}>
-                <span
-                  className={css.trackFill}
-                  style={{
-                    width: `${((r.spend.state === 'blank' ? 0 : r.spend.value) / maxSpend) * 100}%`,
-                  }}
-                />
-              </span>
-              <span className={css.track}>
-                <span
-                  className={`${css.trackFill} ${bandClass(r.index, isCapPlus, 'wins')}`}
-                  style={{ width: `${(r.wins / maxWins) * 100}%` }}
-                />
-              </span>
-            </span>
-            <span className={`yy-num ${css.index} ${bandClass(r.index, isCapPlus, 'index')}`}>
-              {r.index.state === 'blank' ? (
-                <BlankCell reason={r.index.reason} short="Not covered" />
-              ) : (
-                r.index.value.toFixed(0)
-              )}
-            </span>
-          </Link>
-        ))}
+      {split === 'split' && splitAvailable ? (
+        <SplitView
+          rows={live}
+          strata={strata!}
+          mode={mode}
+          hot={hot}
+          focus={focus}
+          rowEvents={rowEvents}
+          n={n}
+        />
+      ) : (
+        <>
+          {/* ── mobile: the row-card list ─────────────────────────────────── */}
+          <div className={css.mobileList}>
+            <div className={css.headRow}>
+              <SortHeader label="#" k="index" active={false} dir={dir} onSort={onSort} align="right" hidden />
+              <SortHeader label="Team" k="team" active={key === 'team'} dir={dir} onSort={onSort} />
+              <SortHeader label={`$/win`} k="cpw" active={key === 'cpw'} dir={dir} onSort={onSort} align="right" />
+              <SortHeader
+                label={mode === 'raw' ? idxHead : mode === 'qbn' ? 'QB-n' : 'Obl.*'}
+                k="index"
+                active={key === 'index'}
+                dir={dir}
+                onSort={onSort}
+                align="right"
+              />
+            </div>
+            <p className={`yy-label ${css.rankNote}`}>
+              # = rank by {key === 'team' ? SORT_LABEL.index : SORT_LABEL[key]}
+              {mode !== 'raw' ? ` · * ${REVIEW_NAME[mode]}` : ''}
+            </p>
 
-        {blanked.length ? (
-          <>
-            <p className={`yy-label ${css.blankGroup}`}>Not covered — {blanked.length} clubs</p>
-            <p className={`yy-caption ${css.blankReason}`}>{blankReason}</p>
-            {blanked.map((r) => (
-              <Link key={r.team} href={r.href} className={css.row}>
-                {/* The rank is genuinely absent, not zero: a club with no index
-                  is excluded from the ordering, not sorted to an extreme. It is
-                  named by the group heading directly above. */}
-                <span className={`yy-label ${css.rank}`} aria-hidden="true">
-                  —
-                </span>
+            {live.map((r) => (
+              <Link
+                key={r.team}
+                href={r.href}
+                ref={(el) => {
+                  if (el) mobileRefs.current.set(r.team, el);
+                  else mobileRefs.current.delete(r.team);
+                }}
+                className={[css.row, focus.has(r.team) ? css.rowFocus : '', hot === r.team ? css.rowHot : ''].join(' ')}
+                {...rowEvents(r.team)}
+              >
+                <span className={`yy-num ${css.rank}`}>{rankBy.get(r.team) ?? '—'}</span>
                 <span className={css.teamCell}>
-                  <span className={css.teamText}>
-                    <span className={css.teamName}>{r.teamName}</span>
-                    <span className={`yy-label ${css.teamSub}`}>
-                      {r.team} · {r.record}
-                    </span>
+                  <span className={css.teamName}>
+                    {r.teamName}
+                    {r.rookie ? <RChip qb={r.qb} /> : null}
                   </span>
+                  <span className={`yy-label ${css.teamSub}`}>{secondary(r)}</span>
                 </span>
-                <span />
-                <span className={`yy-label ${css.indexBlank}`}>
-                  {r.index.state === 'blank' ? (
-                    <BlankCell reason={r.index.reason} short="Not covered" />
-                  ) : null}
-                </span>
+                <CpwBar m={r.perWin[n]} max={cpwMax} tickPct={tickPct} />
+                <IndexCell r={r} mode={mode} isCapPlus={isCapPlus} />
               </Link>
             ))}
-          </>
+          </div>
+
+          {/* ── desktop: the real table ───────────────────────────────────── */}
+          <div className={css.tableWrap}>
+            <table className={css.table}>
+              <caption className="yy-visually-hidden">
+                {indexName} for all 32 clubs, {season}. 100 is league average. Sorted by{' '}
+                {SORT_LABEL[key]}, {dir === BEST_FIRST[key] ? 'best first' : 'worst first'}.
+              </caption>
+              <thead>
+                <tr>
+                  <th scope="col" className={`yy-label-lg ${css.numCell}`}>
+                    <span className={css.rankHead}>
+                      #<span className={css.rankHeadSub}>{key === 'team' ? SORT_LABEL.index : SORT_LABEL[key]}</span>
+                    </span>
+                  </th>
+                  <th scope="col" className="yy-label-lg" aria-sort={ariaSort(key, dir, 'team')}>
+                    <SortHeader label="Team" k="team" active={key === 'team'} dir={dir} onSort={onSort} />
+                  </th>
+                  <th scope="col" className={`yy-label-lg ${css.numCell}`} aria-sort={ariaSort(key, dir, 'spend')}>
+                    <SortHeader label={spendHead} k="spend" active={key === 'spend'} dir={dir} onSort={onSort} align="right" />
+                  </th>
+                  <th scope="col" className={`yy-label-lg ${css.numCell}`} aria-sort={ariaSort(key, dir, 'wins')}>
+                    <SortHeader label="Wins" k="wins" active={key === 'wins'} dir={dir} onSort={onSort} align="right" />
+                  </th>
+                  <th scope="col" className={`yy-label-lg ${css.cpwHead}`} aria-sort={ariaSort(key, dir, 'cpw')}>
+                    <SortHeader label={`$/win (${lens})`} k="cpw" active={key === 'cpw'} dir={dir} onSort={onSort} align="right" />
+                  </th>
+                  <th scope="col" className={`yy-label-lg ${css.numCell} ${css.idxHead}`} aria-sort={ariaSort(key, dir, 'index')}>
+                    <SortHeader label={idxHead} k="index" active={key === 'index'} dir={dir} onSort={onSort} align="right" />
+                  </th>
+                  <th scope="col" className={`yy-label-lg ${css.numCell}`} aria-sort={ariaSort(key, dir, 'delta')}>
+                    <SortHeader label={deltaHead} k="delta" active={key === 'delta'} dir={dir} onSort={onSort} align="right" />
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {live.map((r) => (
+                  <tr
+                    key={r.team}
+                    ref={(el) => {
+                      if (el) tableRefs.current.set(r.team, el);
+                      else tableRefs.current.delete(r.team);
+                    }}
+                    className={[focus.has(r.team) ? css.rowFocus : '', hot === r.team ? css.rowHot : ''].join(' ')}
+                    {...rowEvents(r.team)}
+                  >
+                    <td className={`yy-num ${css.numCell} ${css.rankCell}`}>{rankBy.get(r.team) ?? '—'}</td>
+                    <th scope="row">
+                      <Link className={`yy-label-lg ${css.link}`} href={r.href}>
+                        {r.teamName}
+                      </Link>
+                      {r.rookie ? <RChip qb={r.qb} /> : null}
+                      <span className={`yy-label ${css.recordInline}`}>{r.record}</span>
+                    </th>
+                    <td className={`yy-num ${css.numCell}`}>
+                      {r.spend[n].state === 'blank' ? (
+                        <BlankCell reason={r.spend[n].reason} short="Not covered" />
+                      ) : (
+                        usdShort(r.spend[n].value)
+                      )}
+                    </td>
+                    <td className={`yy-num ${css.numCell}`}>{r.wins}</td>
+                    <td className={css.cpwCell}>
+                      <CpwBar m={r.perWin[n]} max={cpwMax} tickPct={tickPct} withValue />
+                    </td>
+                    <td className={`yy-num ${css.numCell}`}>
+                      <IndexCell r={r} mode={mode} isCapPlus={isCapPlus} wide />
+                    </td>
+                    <td className={`yy-num ${css.numCell}`}>
+                      {r.delta.state === 'blank' ? (
+                        <BlankCell reason={r.delta.reason} short="No prior" />
+                      ) : (
+                        signed(r.delta.value)
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {blanked.length ? (
+            <>
+              <p className={`yy-label ${css.blankGroup}`}>Not covered — {blanked.length} clubs</p>
+              <p className={`yy-caption ${css.blankReason}`}>{blankReason}</p>
+              <ul className={css.blankList}>
+                {blanked.map((r) => (
+                  <li key={r.team}>
+                    <Link className={`yy-label ${css.link}`} href={r.href}>
+                      {r.teamName} · {r.record}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </>
+          ) : null}
+        </>
+      )}
+
+      {/* the key and the lens — the caveats travel with the figures */}
+      <ul className={css.key}>
+        <li className={`yy-label ${css.keyItem}`}>
+          <i className={css.keyTick} aria-hidden="true" />
+          League {lens} per win{tick !== null ? ` · ${usdShort(tick)}` : ''}
+        </li>
+        {rookieCount ? (
+          <li className={`yy-label ${css.keyItem}`}>
+            <span className={css.rChip} aria-hidden="true">
+              R
+            </span>
+            Starting QB on his rookie deal · {rookieCount} clubs
+          </li>
         ) : null}
-      </div>
-
-      {/* ── desktop: the real table ───────────────────────────────────────── */}
-      <div className={css.tableWrap}>
-        <table className={css.table}>
-          <caption className="yy-visually-hidden">
-            {indexName} for all 32 clubs, {season}. 100 is league average.
-          </caption>
-          <thead>
-            <tr>
-              <th scope="col" className="yy-label-lg" aria-sort={ariaSort(sort, 'rank')}>
-                <SortHeader label="#" sortKey="rank" sort={sort} onSort={toggle} />
-              </th>
-              <th scope="col" className="yy-label-lg" aria-sort={ariaSort(sort, 'team')}>
-                <SortHeader label="Team" sortKey="team" sort={sort} onSort={toggle} />
-              </th>
-              <th scope="col" className="yy-label-lg">
-                Trend
-              </th>
-              {/* `SPEC.md` §2.1 — the lens is named in the column head, not
-                assumed from a neighbouring card. */}
-              <th scope="col" className={`yy-label-lg ${css.numCell}`} aria-sort={ariaSort(sort, 'spend')}>
-                <SortHeader label="Cash spent" sortKey="spend" sort={sort} onSort={toggle} align="right" />
-              </th>
-              <th scope="col" className={`yy-label-lg ${css.numCell}`} aria-sort={ariaSort(sort, 'wins')}>
-                <SortHeader label="Wins" sortKey="wins" sort={sort} onSort={toggle} align="right" />
-              </th>
-              <th scope="col" className={`yy-label-lg ${css.numCell}`} aria-sort={ariaSort(sort, 'perWin')}>
-                <SortHeader label="$/win (cash)" sortKey="perWin" sort={sort} onSort={toggle} align="right" />
-              </th>
-              <th scope="col" className={`yy-label-lg ${css.numCell}`} aria-sort={ariaSort(sort, 'index')}>
-                <SortHeader
-                  label={isCapPlus ? 'Cap+' : 'Rating'}
-                  sortKey="index"
-                  sort={sort}
-                  onSort={toggle}
-                  align="right"
-                />
-              </th>
-              <th scope="col" className={`yy-label-lg ${css.numCell}`} aria-sort={ariaSort(sort, 'delta5y')}>
-                <SortHeader label="Δ 5Y" sortKey="delta5y" sort={sort} onSort={toggle} align="right" />
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {live.map((r) => (
-              <tr key={r.team} className={focus.has(r.team) ? css.rowFocus : undefined}>
-                <td className={`yy-num ${css.numCell}`}>{r.rank ?? '—'}</td>
-                <th scope="row">
-                  <Link className={`yy-label-lg ${css.link}`} href={r.href}>
-                    {r.teamName}
-                  </Link>
-                </th>
-                <td>
-                  <FranchiseSparkline series={r.spark} label={r.teamName} />
-                </td>
-                <td className={`yy-num ${css.numCell}`}>
-                  {r.spend.state === 'blank' ? (
-                    <span className="yy-label">Not covered</span>
-                  ) : (
-                    usdShort(r.spend.value)
-                  )}
-                </td>
-                <td className={`yy-num ${css.numCell}`}>{r.wins}</td>
-                <td className={`yy-num ${css.numCell}`}>
-                  {r.perWin.state === 'blank' ? (
-                    <span className="yy-label">Ratio suppressed</span>
-                  ) : (
-                    usdShort(r.perWin.value)
-                  )}
-                </td>
-                <td className={`yy-num ${css.numCell} ${bandClass(r.index, isCapPlus, 'index')}`}>
-                  {r.index.state === 'blank' ? (
-                    <BlankCell reason={r.index.reason} short="Not covered" />
-                  ) : (
-                    r.index.value.toFixed(1)
-                  )}
-                </td>
-                <td className={`yy-num ${css.numCell}`}>
-                  {r.delta5y.state === 'blank' ? (
-                    <BlankCell reason={r.delta5y.reason} short="Not covered" />
-                  ) : (
-                    `${r.delta5y.value > 0 ? '+' : r.delta5y.value < 0 ? '−' : ''}${Math.abs(
-                      r.delta5y.value,
-                    ).toFixed(1)}`
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-
-        {blanked.length ? (
-          <>
-            <p className={`yy-label ${css.blankGroup}`}>Not covered — {blanked.length} clubs</p>
-            <p className={`yy-caption ${css.blankReason}`}>{blankReason}</p>
-          </>
-        ) : null}
-      </div>
-
-      {/* Every blank on this card renders its reason. When one is true of the
-        whole column it is said once, in full, rather than 32 times. */}
-      {allDelta5yBlank ? (
-        <p className={`yy-caption ${css.blankReason}`}>{delta5yReasons.join(' ')}</p>
-      ) : null}
-
-      {/* §2.1 — the lens caveat travels with the figures it qualifies. This card
-        offers one lens by design and says which, and says what it leaves out. */}
+      </ul>
       <p className={`yy-caption ${css.caption}`}>
-        Cash · roster only — cash to players on the roster, the same lens the cost-per-win card
-        above uses. Cash paid to players released in-year is not included, and this card offers no
-        cap-hit alternative: the leaderboard is cash-only by design.
+        {n === 'cash'
+          ? 'Cash · roster only — cash to players on the roster; cash paid to players released in-year is not included.'
+          : 'Cap hit · season-final · roster only — an end-of-league-year restatement of cap held by players on the roster.'}{' '}
+        The lens follows the toggle on the cost-per-win card above. A club with no wins shows its
+        spend and no ratio.
       </p>
+      {strataReason && isCapPlus ? <p className={`yy-caption ${css.caption}`}>{strataReason}</p> : null}
       <p className={`yy-caption ${css.caption}`}>
         <CapPlusCaption /> — {indexName} is a season-relative index, not a front-office grade.
+        {mode === 'obl'
+          ? ` ${REVIEW_NAME.obl} is not yet a published claim; raw Cap+ is shown beside it.`
+          : ''}
       </p>
       {csvSlot}
     </div>
   );
 }
 
+/* ══════════════════════════════════════════════════════════════════════════ */
+
+function SplitView({
+  rows,
+  strata,
+  mode,
+  hot,
+  focus,
+  rowEvents,
+  n,
+}: {
+  rows: LeaderboardViewRow[];
+  strata: { rookie: StratumLine | null; veteran: StratumLine | null };
+  mode: ReviewMode;
+  hot: string | null;
+  focus: Set<string>;
+  rowEvents: (team: string) => Record<string, () => void>;
+  n: Numerator;
+}) {
+  const groups = [
+    { key: 'rookie', title: 'QB on his rookie deal', line: strata.rookie, rows: rows.filter((r) => r.rookie) },
+    { key: 'veteran', title: 'Veteran QB deal', line: strata.veteran, rows: rows.filter((r) => r.rookie === false) },
+  ];
+  return (
+    <div className={css.split}>
+      {groups.map((g) => {
+        const ordered = [...g.rows].sort((a, b) => (a.ctx?.stratumRank ?? 99) - (b.ctx?.stratumRank ?? 99));
+        const cut = g.line ? ordered.findIndex((r) => (r.index.state === 'blank' ? 0 : r.index.value) < g.line!.mean) : -1;
+        return (
+          <section key={g.key} className={css.splitCol} aria-label={g.title}>
+            <h3 className={`yy-label ${css.splitHead}`}>
+              {g.title} · {ordered.length} clubs
+            </h3>
+            {ordered.map((r, i) => (
+              <Fragment key={r.team}>
+                {i === cut && g.line ? <MeanRule mean={g.line.mean} n={g.line.n} /> : null}
+                <Link
+                  href={r.href}
+                  className={[css.row, focus.has(r.team) ? css.rowFocus : '', hot === r.team ? css.rowHot : ''].join(' ')}
+                  {...rowEvents(r.team)}
+                >
+                  <span className={`yy-num ${css.rank}`}>{r.ctx?.stratumRank ?? '—'}</span>
+                  <span className={css.teamCell}>
+                    <span className={css.teamName}>{r.teamName}</span>
+                    <span className={`yy-label ${css.teamSub}`}>
+                      {r.team} · {r.qb ?? 'starter unknown'} ·{' '}
+                      {r.perWin[n].state === 'blank' ? 'no ratio' : `${usdShort(r.perWin[n].value)}/win`}
+                    </span>
+                  </span>
+                  <span />
+                  <IndexCell r={r} mode={mode} isCapPlus rawFirst />
+                </Link>
+              </Fragment>
+            ))}
+            {g.line && (cut === -1 || cut === ordered.length) ? <MeanRule mean={g.line.mean} n={g.line.n} /> : null}
+          </section>
+        );
+      })}
+      <p className={`yy-caption ${css.splitNote}`}>
+        Ranked within each group on Cap+; the gold rule is that group&apos;s own mean, its midfield.
+        Rookie-window clubs average below 100 because, on average, they are worse teams — the
+        cheap QB is worth about three index points (CAPPLUS_MEMO §8.1).
+      </p>
+    </div>
+  );
+}
+
+function MeanRule({ mean, n }: { mean: number; n: number }) {
+  return (
+    <div className={css.meanRule} role="separator" aria-label={`Group mean, Cap+ ${mean.toFixed(1)}, ${n} clubs`}>
+      <span className={`yy-label ${css.meanLabel}`}>
+        Group mean · Cap+ {mean.toFixed(1)}
+      </span>
+    </div>
+  );
+}
+
+function RChip({ qb }: { qb: string | null }) {
+  return (
+    <span className={css.rChip} title={`Starting QB on his rookie deal${qb ? `: ${qb}` : ''}`}>
+      R<span className="yy-visually-hidden"> — starting QB on his rookie deal{qb ? `: ${qb}` : ''}</span>
+    </span>
+  );
+}
+
+function CpwBar({
+  m,
+  max,
+  tickPct,
+  withValue = false,
+}: {
+  m: Metric<number>;
+  max: number;
+  tickPct: number | null;
+  withValue?: boolean;
+}) {
+  if (m.state === 'blank') {
+    return (
+      <span className={css.cpw}>
+        <span className={`${css.cpwTrack} ${css.cpwTrackBlank}`} aria-hidden="true" />
+        {withValue ? <BlankCell reason={m.reason} short="Ratio suppressed" /> : null}
+      </span>
+    );
+  }
+  return (
+    <span className={css.cpw}>
+      <span className={css.cpwTrack} aria-hidden="true">
+        <span className={css.cpwFill} style={{ width: `${(m.value / max) * 100}%` } as CSSProperties} />
+        {tickPct !== null ? <span className={css.cpwTick} style={{ left: `${tickPct}%` }} /> : null}
+      </span>
+      {withValue ? <span className={`yy-num ${css.cpwValue}`}>{usdShort(m.value)}</span> : null}
+    </span>
+  );
+}
+
 /**
- * A cell whose metric is `blank`. `COMPONENTS.md` universal rule 3: there is no
- * code path that renders an empty cell, a dash or a zero. The short form is
- * visible and the full reason is the cell's accessible text, so nothing is left
- * to a tooltip.
- *
- * The glyph vocabulary (`⊟`) is deliberately NOT used: none of the three shipped
- * faces carries it and a character that falls back to tofu is not a label
- * (`COMPONENTS.md` §5, legend swatches).
+ * The index figure. Under a Review mode it leads with that index and keeps raw
+ * Cap+ beneath (`SPEC.md` §2.10: the candidate renders only beside Cap+).
+ * `rawFirst` flips the pair where the ORDER is raw Cap+ (the split view ranks
+ * on the mart's stratum rank), so the leading figure always matches the order.
+ */
+function IndexCell({
+  r,
+  mode,
+  isCapPlus,
+  wide = false,
+  rawFirst = false,
+}: {
+  r: LeaderboardViewRow;
+  mode: ReviewMode;
+  isCapPlus: boolean;
+  wide?: boolean;
+  rawFirst?: boolean;
+}) {
+  if (r.index.state === 'blank') return <BlankCell reason={r.index.reason} short="Not covered" />;
+  const raw = r.index.value;
+  const alt = modeValue(r, mode);
+  const lead = rawFirst ? raw : alt;
+  const band = !isCapPlus ? css.indexNeutral : lead === null ? '' : bandClass(lead);
+  const fmt = (v: number) => v.toFixed(wide ? 1 : 0);
+  return (
+    <span className={css.indexStack}>
+      <span className={`yy-num ${css.index} ${band}`}>{lead === null ? '—' : fmt(lead)}</span>
+      {mode !== 'raw' ? (
+        <span className={`yy-label ${css.indexRaw}`}>
+          {rawFirst
+            ? `${mode === 'qbn' ? 'QB-n' : 'Obl.*'} ${alt === null ? '—' : fmt(alt)}`
+            : `Cap+ ${fmt(raw)}`}
+        </span>
+      ) : null}
+    </span>
+  );
+}
+
+function bandClass(v: number) {
+  const b = indexBand(v);
+  return b === 'above' ? css.indexAbove : b === 'mid' ? css.indexMid : css.indexBelow;
+}
+
+function signed(v: number): string {
+  return `${v > 0 ? '+' : v < 0 ? '−' : ''}${Math.abs(v).toFixed(1)}`;
+}
+
+/**
+ * A cell whose metric is `blank`: a visible short form and the full reason as
+ * the cell's accessible text — never a dash, a zero or an empty cell.
  */
 function BlankCell({ reason, short }: { reason: string; short: string }) {
   return (
-    <span className={`yy-label ${css.blankCell}`}>
+    <span className={`yy-label ${css.blankCell}`} title={reason}>
       {short}
       <span className="yy-visually-hidden"> — {reason}</span>
     </span>
   );
 }
 
-function bandClass(index: Metric<number>, isCapPlus: boolean, kind: 'index' | 'wins') {
-  if (index.state === 'blank') return kind === 'index' ? css.indexBlank : '';
-  if (!isCapPlus) return kind === 'index' ? css.indexNeutral : '';
-  const band = indexBand(index.value);
-  if (kind === 'wins') {
-    return band === 'above' ? css.winsAbove : band === 'mid' ? css.winsMid : css.winsBelow;
-  }
-  return band === 'above' ? css.indexAbove : band === 'mid' ? css.indexMid : css.indexBelow;
-}
-
-function ariaSort(
-  sort: { key: SortKey; dir: 'asc' | 'desc' },
-  key: SortKey,
-): 'ascending' | 'descending' | 'none' {
-  if (sort.key !== key) return 'none';
-  return sort.dir === 'asc' ? 'ascending' : 'descending';
+function ariaSort(key: SortKey, dir: 'asc' | 'desc', k: SortKey): 'ascending' | 'descending' | 'none' {
+  if (key !== k) return 'none';
+  return dir === 'asc' ? 'ascending' : 'descending';
 }
 
 function SortHeader({
   label,
-  sortKey,
-  sort,
+  k,
+  active,
+  dir,
   onSort,
   align,
+  hidden = false,
 }: {
   label: string;
-  sortKey: SortKey;
-  sort: { key: SortKey; dir: 'asc' | 'desc' };
+  k: SortKey;
+  active: boolean;
+  dir: 'asc' | 'desc';
   onSort: (k: SortKey) => void;
   align?: 'right';
+  hidden?: boolean;
 }) {
-  const active = sort.key === sortKey;
+  if (hidden) return <span className={`yy-label ${css.alignRight}`}>{label}</span>;
   return (
     <button
       type="button"
-      className={`yy-label ${css.sortBtn} ${active ? css.sortActive : ''} ${
-        align === 'right' ? css.alignRight : ''
-      }`}
-      onClick={() => onSort(sortKey)}
+      className={`yy-label ${css.sortBtn} ${active ? css.sortActive : ''} ${align === 'right' ? css.alignRight : ''}`}
+      onClick={() => onSort(k)}
     >
       {label}
       {active ? (
-        <svg
-          className={css.caret}
-          width="8"
-          height="6"
-          viewBox="0 0 8 6"
-          aria-hidden="true"
-          fill="currentColor"
-        >
-          {sort.dir === 'asc' ? <path d="M4 0 8 6H0z" /> : <path d="M4 6 0 0h8z" />}
+        <svg className={css.caret} width="8" height="6" viewBox="0 0 8 6" aria-hidden="true" fill="currentColor">
+          {dir === 'asc' ? <path d="M4 0 8 6H0z" /> : <path d="M4 6 0 0h8z" />}
         </svg>
       ) : null}
     </button>

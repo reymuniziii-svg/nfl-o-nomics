@@ -1,142 +1,97 @@
 /**
- * `TeamDrive` — the second field-literal surface.
+ * `DriveSvg` — the team Drive, the second field-literal surface.
  * `SPEC.md` §4, `CHART_ANATOMY.md` §7, `DECISIONS.md` 43.
  *
- * The franchise's 25 seasons read as a drive: `yards_to_opponent_goal =
- * 150 − Cap+`, clamped 0…100, plotted down a vertical field with the opponent's
- * goal line at the top. Where the season axis runs across, the value axis runs
- * in yards — and the CONVENTIONAL CAP+ TICKS sit in the gutter beside them,
- * because the field is the second encoding and never the only one (§7).
+ * DECISION (review D #6): the Drive is no longer its own card. It is the
+ * "Read as field" view of `FranchiseArc`. As a separate card it redrew the
+ * arc's line directly underneath the arc, with 14 of its 27 seasons empty
+ * field and the goal line at the top — the same chart with yard numbers. Cutting
+ * it would drop one of the two field surfaces `SPEC.md` §4 names, so it is
+ * folded in instead and REDRAWN AS A DRIVE CHART:
  *
- * THE DATA ANATOMY IS `FranchiseArc`'S, VERBATIM:
- *  · the hard break at 2013 — no path crosses it;
- *  · the four blanked Cap+ seasons are hatched, labelled gaps, never
- *    interpolated;
- *  · a separate `<path>` per contiguous run, never `defined()` on one path.
+ *  - the field runs left → right, own goal to opponent's goal, broadcast-style;
+ *  - one row per season of the Cap+ era (2013–2025), oldest at the top, like a
+ *    drive summary reads play by play;
+ *  - each covered season is a carry from midfield (Cap+ 100, the league
+ *    average) to its spot (`yards_to_opponent_goal = 150 − Cap+`), with the
+ *    ball at the end and the index printed beside it;
+ *  - the page's own season is the lit row.
  *
- * What it is not: no turf, no crowd, no stadium. The field is a coordinate
- * system. Nothing here is clipped, either — the 50–150 domain contains 100% of
- * `capplus_official` (62.9 to 138.1), which is the reason this scale suits the
- * data where the conventional 76–124 window clips about 9% of it.
+ * The rows stop at 2013 because the field IS Cap+; the Team Rating years have
+ * no spot on it. The axis does not hide that: 2013 is its own hatched row and
+ * the caption says the field view covers the Cap+ era only.
+ *
+ * Unchanged anatomy: the Cap+ axis is printed conventionally beneath the
+ * field (§7: the field is the second encoding, never the only one); blank
+ * seasons are hatched, labelled rows, never interpolated; no turf, no crowd.
+ * The 50–150 domain contains 100% of `capplus_official` (62.9 to 138.1).
  */
 
 import chart from '../charts/chart.module.css';
-import css from './field.module.css';
-import { ChartCaption, Legend, type LegendItem } from '../primitives';
-import { chartId, gapsOf, pathFor, runsOf, scaleLinear, scalePoint, thinTicks, tickBudget, type SeriesPoint } from '../charts/chart-kit';
+import { chartId, scaleLinear } from '../charts/chart-kit';
+import type { LegendItem } from '../primitives';
 import {
   FIELD_CAPPLUS_DOMAIN,
   RED_ZONE_CAPPLUS,
-  RED_ZONE_LABEL,
   SAFETY_CAPPLUS,
-  SAFETY_LABEL,
-  YARD_LINES,
   yardNumber,
   yardsToGoal,
 } from './field-kit';
 import type { HistoryPoint } from '@/lib/data/team';
-import type { Coverage } from '@/lib/display';
 
-const TIER2_BREAK = 2013;
-
-interface Geometry {
+export interface DriveGeometry {
   w: number;
   h: number;
   ml: number;
   mr: number;
   mt: number;
   mb: number;
+  rowH: number;
 }
 
-/** Intrinsic sizes — scale 1.0, so the in-chart type stays on its floor. */
-const MOBILE: Geometry = { w: 332, h: 300, ml: 40, mr: 30, mt: 14, mb: 42 };
-const DESKTOP: Geometry = { w: 980, h: 420, ml: 56, mr: 44, mt: 18, mb: 52 };
+const ROW_H = 22;
+/** The Cap+ era: 2013 (blank) through 2025 — 13 rows. */
+const ROWS = 13;
 
-export function TeamDrive({
-  points,
-  team,
-  coverage,
-}: {
-  points: HistoryPoint[];
-  team: string;
-  coverage: Coverage;
-}) {
-  const legend: LegendItem[] = [
-    { swatch: 'solid', label: 'Cap+ as field position', tone: 'accent' },
-    { swatch: 'benchmark', label: 'Midfield — Cap+ 100', tone: 'benchmark' },
-    { swatch: 'hatch', label: 'Season not covered', tone: 'absence' },
-  ];
-
-  const covered = points.filter((p) => p.season > TIER2_BREAK && p.capplus.state !== 'blank');
-  if (!covered.length) return null;
-
-  return (
-    <div>
-      <div className={chart.atMobile}>
-        <div className={css.driveScroll}>
-          <DriveSvg points={points} team={team} geo={MOBILE} />
-        </div>
-      </div>
-      <div className={chart.atDesktop}>
-        <div className={css.driveScroll}>
-          <DriveSvg points={points} team={team} geo={DESKTOP} />
-        </div>
-      </div>
-      <Legend items={legend} />
-      <ul className={css.bandKey}>
-        <li className={`yy-label ${css.bandKeyItem}`}>
-          <span className={`${css.bandSwatch} ${css.bandSwatchRed}`} aria-hidden="true" />
-          {RED_ZONE_LABEL}
-        </li>
-        <li className={`yy-label ${css.bandKeyItem}`}>
-          <span className={`${css.bandSwatch} ${css.bandSwatchSafety}`} aria-hidden="true" />
-          {SAFETY_LABEL}
-        </li>
-      </ul>
-      <ChartCaption>
-        The same number as the arc above, read as ground gained: yards to the opponent&rsquo;s goal
-        = 150 − Cap+, clamped to the hundred yards between the goal lines. Fifteen index points is
-        fifteen yards, and the Cap+ ticks in the gutter carry the figure conventionally.
-      </ChartCaption>
-      <ChartCaption>{coverage.statement}</ChartCaption>
-    </div>
-  );
+export function driveGeometry(width: number): DriveGeometry {
+  const mt = 34;
+  const mb = 42;
+  return { w: width, h: mt + ROWS * ROW_H + mb, ml: 46, mr: 14, mt, mb, rowH: ROW_H };
 }
 
-function DriveSvg({
+export const DRIVE_LEGEND: LegendItem[] = [
+  { swatch: 'dot', label: 'Cap+ as field position — the ball', tone: 'accent' },
+  { swatch: 'benchmark', label: 'Midfield — Cap+ 100, league average', tone: 'benchmark' },
+  { swatch: 'hatch', label: 'Season not covered', tone: 'absence' },
+];
+
+export function DriveSvg({
   points,
   team,
   geo,
+  currentSeason,
+  activeSeason,
 }: {
+  /** Tier 2 seasons only, ascending. */
   points: HistoryPoint[];
   team: string;
-  geo: Geometry;
+  geo: DriveGeometry;
+  currentSeason: number;
+  activeSeason: number | null;
 }) {
-  const { w, h, ml, mr, mt, mb } = geo;
-  const innerW = w - ml - mr;
-  const innerH = h - mt - mb;
-  const id = chartId('drive', team, w);
+  const { w, h, ml, mr, mt, rowH } = geo;
+  const innerW = Math.max(60, w - ml - mr);
+  const innerH = points.length * rowH;
+  const id = chartId('drive', team, w < 600 ? 'm' : 'd');
 
-  const seasons = points.map((p) => p.season);
-  if (!seasons.length) return null;
+  // x is Cap+ on the field: own goal line (50) at the left, theirs (150) at the right.
+  const x = scaleLinear().domain(FIELD_CAPPLUS_DOMAIN).range([0, innerW]);
+  const rowY = (i: number) => i * rowH;
+  const showHashes = innerW >= 320;
 
-  const x = scalePoint<number>().domain(seasons).range([0, innerW]).padding(0.5);
-  const px = (s: number) => x(s) ?? 0;
-
-  // y is YARDS TO THE OPPONENT'S GOAL: 0 at the top of the plot (their goal
-  // line, Cap+ 150), 100 at the bottom (own goal line, Cap+ 50).
-  const y = scaleLinear().domain([0, 100]).range([0, innerH]);
-  const yOf = (capplus: number) => y(yardsToGoal(capplus));
-
-  const series: SeriesPoint[] = points.map((p) => ({
-    x: p.season,
-    y: p.season > TIER2_BREAK && p.capplus.state !== 'blank' ? p.capplus.value : null,
-  }));
-  const runs = runsOf(series);
-  const gaps = gapsOf(series).filter((g) => g.from > TIER2_BREAK);
-
-  const ticks = thinTicks(seasons, tickBudget(innerW));
-  const capTicks = [150, 125, 100, 75, 50];
+  const yardLines = Array.from({ length: 11 }, (_, i) => 50 + i * 10);
+  const hashes = Array.from({ length: 10 }, (_, i) => 55 + i * 10);
+  const capTicks = innerW >= 360 ? [50, 75, 100, 125, 150] : [50, 100, 150];
 
   return (
     <>
@@ -146,17 +101,11 @@ function DriveSvg({
         height={h}
         viewBox={`0 0 ${w} ${h}`}
         role="img"
-        aria-label={`${team} — Cap+ as field position by season, ${seasons[0]} to ${seasons[seasons.length - 1]}`}
+        aria-label={`${team} — Cap+ as field position, one row per season, ${points[0]?.season ?? ''} to ${points[points.length - 1]?.season ?? ''}; ${currentSeason} marked`}
         aria-describedby={`${id}-d`}
       >
         <defs>
-          <pattern
-            id={`${id}-hatch`}
-            width="6"
-            height="6"
-            patternUnits="userSpaceOnUse"
-            patternTransform="rotate(45)"
-          >
+          <pattern id={`${id}-hatch`} width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
             <line x1="0" y1="0" x2="0" y2="6" stroke="var(--yy-partial)" strokeWidth="2" />
           </pattern>
         </defs>
@@ -164,155 +113,177 @@ function DriveSvg({
         <g transform={`translate(${ml},${mt})`}>
           {/* the ground — flat card surface, never turf */}
           <rect x={0} y={0} width={innerW} height={innerH} fill="var(--yy-bg-card-flat)" />
+          {/* §7 red zone — the last 20 yards, Cap+ 130+ */}
+          <rect x={x(RED_ZONE_CAPPLUS)} y={0} width={innerW - x(RED_ZONE_CAPPLUS)} height={innerH} fill="var(--yy-accent)" opacity={0.06} />
+          {/* §7 safety band at the own goal line */}
+          <rect x={0} y={0} width={x(SAFETY_CAPPLUS + 2)} height={innerH} fill="var(--yy-negative-fill)" opacity={0.06} />
 
-          {/* §7 the red zone: 0–20 yards to the opponent's goal, Cap+ 130+ */}
-          <rect
-            x={0}
-            y={0}
-            width={innerW}
-            height={y(yardsToGoal(RED_ZONE_CAPPLUS))}
-            fill="var(--yy-accent)"
-            opacity={0.06}
-          />
-          {/* §7 the safety band at the club's own goal line, Cap+ below 50 */}
-          <rect
-            x={0}
-            y={y(98)}
-            width={innerW}
-            height={innerH - y(98)}
-            fill="var(--yy-negative-fill)"
-            opacity={0.06}
-          />
-
-          {/* yard lines every 10 — these ARE the gridlines */}
-          {YARD_LINES.map((f) => {
-            const yards = 100 - f * 100;
-            const isMid = Math.round(yards) === 50;
-            return (
-              <line
-                key={`y${f}`}
-                x1={0}
-                x2={innerW}
-                y1={y(yards)}
-                y2={y(yards)}
-                stroke={isMid ? 'var(--yy-benchmark-line-under)' : 'var(--yy-gridline)'}
-                strokeWidth={1}
+          {/* the page's own season and the inspected one — row tints beneath every mark */}
+          {points.map((p, i) =>
+            p.season === currentSeason || p.season === activeSeason ? (
+              <rect
+                key={`row${p.season}`}
+                x={-ml + 2}
+                y={rowY(i) + 1}
+                width={innerW + ml - 2}
+                height={rowH - 2}
+                rx={2}
+                fill={p.season === currentSeason ? 'var(--yy-tint-selected)' : 'var(--yy-bg-hover)'}
               />
-            );
-          })}
+            ) : null,
+          )}
 
-          {/* §4.3 the blanked Cap+ seasons — hatched, labelled, never interpolated */}
-          {gaps.map((g) => {
-            const x0 = px(g.from) - (innerW / Math.max(1, seasons.length - 1)) * 0.5;
-            const x1 = px(g.to) - (innerW / Math.max(1, seasons.length - 1)) * 0.5;
-            const width = Math.max(6, x1 - x0);
-            const cx = x0 + width / 2;
+          {/* yard lines every 10 — these ARE the gridlines; midfield is the benchmark */}
+          {yardLines.map((v) =>
+            v === 100 ? null : (
+              <line key={`yl${v}`} x1={x(v)} x2={x(v)} y1={0} y2={innerH} stroke="var(--yy-gridline)" strokeWidth={1} />
+            ),
+          )}
+          {showHashes
+            ? hashes.map((v) => (
+                <g key={`h${v}`}>
+                  <line x1={x(v)} x2={x(v)} y1={0} y2={4} stroke="var(--yy-gridline)" strokeWidth={1} />
+                  <line x1={x(v)} x2={x(v)} y1={innerH - 4} y2={innerH} stroke="var(--yy-gridline)" strokeWidth={1} />
+                </g>
+              ))
+            : null}
+          <line x1={x(100)} x2={x(100)} y1={0} y2={innerH} stroke="var(--yy-benchmark-line-under)" strokeWidth={1} />
+          <line
+            x1={x(100)}
+            x2={x(100)}
+            y1={0}
+            y2={innerH}
+            stroke="var(--yy-benchmark-line)"
+            strokeWidth={1}
+            style={{ strokeDasharray: 'var(--yy-dash-benchmark)' }}
+          />
+
+          {/* yard numbers — reinforce, never replace, the Cap+ axis below */}
+          {yardLines
+            .filter((v) => v > 50 && v < 150)
+            .map((v) => (
+              <text key={`yn${v}`} className={chart.micro} x={x(v)} y={-6} textAnchor="middle">
+                {yardNumber((v - 50) / 100)}
+              </text>
+            ))}
+          <text className={chart.micro} x={0} y={-20} textAnchor="start">
+            {innerW >= 420 ? `← Own goal · safety below ${SAFETY_CAPPLUS}` : '← Own goal'}
+          </text>
+          <text className={chart.micro} x={innerW} y={-20} textAnchor="end">
+            Red zone {RED_ZONE_CAPPLUS}+ →
+          </text>
+
+          {points.map((p, i) => {
+            const cy = rowY(i) + rowH / 2;
+            const isCur = p.season === currentSeason;
+            const label = (
+              <text
+                className={chart.tick}
+                x={-8}
+                y={cy + 4}
+                textAnchor="end"
+                fill={isCur ? 'var(--yy-fg-1)' : undefined}
+                fontWeight={isCur ? 700 : undefined}
+              >
+                {p.season}
+              </text>
+            );
+            if (p.capplus.state === 'blank') {
+              return (
+                <g key={`s${p.season}`}>
+                  {label}
+                  <rect
+                    x={0}
+                    y={rowY(i) + 3}
+                    width={innerW}
+                    height={rowH - 6}
+                    fill={`url(#${id}-hatch)`}
+                    stroke="var(--yy-absence)"
+                    strokeWidth={1}
+                    style={{ strokeDasharray: 'var(--yy-dash-absence)' }}
+                  />
+                  <text className={`${chart.micro} ${chart.microOnSunken}`} x={innerW / 2} y={cy + 3.5} textAnchor="middle">
+                    No full-32 table — not covered
+                  </text>
+                </g>
+              );
+            }
+            const v = p.capplus.value;
+            const bx = x(Math.max(FIELD_CAPPLUS_DOMAIN[0], Math.min(FIELD_CAPPLUS_DOMAIN[1], v)));
+            const gain = v >= 100;
+            const ytg = Math.round(yardsToGoal(v));
+            const spot = ytg === 50 ? 'mid' : ytg < 50 ? `opp ${ytg}` : `own ${100 - ytg}`;
+            // The figure sits beyond the ball; when the ball is within a
+            // label's width of a goal line it moves to the far side of
+            // midfield instead, so it never overprints its own carry.
+            const outward = gain ? bx + 76 < innerW : bx - 76 > 0;
+            const tx = outward ? (gain ? bx + 10 : bx - 10) : gain ? x(100) - 8 : x(100) + 8;
+            const anchor = outward === gain ? 'start' : 'end';
             return (
-              <g key={`gap${g.from}`}>
-                <rect
-                  x={x0}
-                  y={0}
-                  width={width}
-                  height={innerH}
-                  fill={`url(#${id}-hatch)`}
-                  stroke="var(--yy-absence)"
-                  strokeWidth={1}
-                  style={{ strokeDasharray: 'var(--yy-dash-absence)' }}
+              <g key={`s${p.season}`}>
+                {label}
+                <line
+                  x1={x(100)}
+                  x2={bx}
+                  y1={cy}
+                  y2={cy}
+                  stroke="var(--yy-accent)"
+                  strokeWidth="var(--yy-stroke-primary)"
+                  strokeLinecap="round"
+                  opacity={isCur ? 1 : 0.7}
+                />
+                {/* the ball */}
+                <ellipse
+                  cx={bx}
+                  cy={cy}
+                  rx={6.5}
+                  ry={4.25}
+                  fill="var(--yy-accent)"
+                  stroke={isCur ? 'var(--yy-fg-1)' : 'var(--yy-bg-card-flat)'}
+                  strokeWidth={isCur ? 2 : 1}
                 />
                 <text
-                  className={chart.micro}
-                  x={cx}
-                  y={innerH / 2}
-                  textAnchor="middle"
-                  transform={`rotate(-90 ${cx} ${innerH / 2})`}
+                  className={chart.figure}
+                  x={tx}
+                  y={cy + 4}
+                  textAnchor={anchor}
+                  fill={isCur ? 'var(--yy-fg-1)' : 'var(--yy-fg-2)'}
                 >
-                  No full-32 table
+                  {v.toFixed(1)}
+                  <tspan className={chart.micro} fill="var(--yy-fg-3)" dx={4}>
+                    {spot}
+                  </tspan>
                 </text>
               </g>
             );
           })}
 
-          {/* §4.1 THE HARD BREAK. Cap+ begins at 2014 and no path crosses it. */}
-          <line
-            x1={px(TIER2_BREAK)}
-            x2={px(TIER2_BREAK)}
-            y1={0}
-            y2={innerH}
-            stroke="var(--yy-fg-dim)"
-            strokeWidth={1}
-            style={{ strokeDasharray: 'var(--yy-dash-absence)' }}
-          />
-          <text
-            className={chart.micro}
-            x={px(TIER2_BREAK) + 10}
-            y={12}
-            textAnchor="start"
-            transform={`rotate(90 ${px(TIER2_BREAK) + 10} 12)`}
-          >
-            Tier 2 begins 2013
-          </text>
-
-          {/* one <path> per contiguous run — never `defined()` on one path */}
-          {runs.map((run, i) => (
-            <path
-              key={`d${i}`}
-              d={pathFor(run, px, yOf)}
-              fill="none"
-              stroke="var(--yy-accent)"
-              strokeWidth="var(--yy-stroke-primary)"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          ))}
-
+          {/* THE CAP+ AXIS, conventional and mandatory (§7) */}
           <line x1={0} x2={innerW} y1={innerH} y2={innerH} stroke="var(--yy-axis)" strokeWidth={1} />
-          {ticks.map((s) => (
-            <text key={`t${s}`} className={chart.tick} x={px(s)} y={innerH + 16} textAnchor="middle">
-              &rsquo;{String(s).slice(2)}
-            </text>
-          ))}
-          <text className={chart.axisTitle} x={innerW / 2} y={innerH + 34} textAnchor="middle">
-            Season
-          </text>
-
-          {/* THE CAP+ AXIS, MANDATORY AND CONVENTIONAL — in the left gutter, in
-            index units, alongside the field's own yard numbers on the right. */}
           {capTicks.map((v) => (
             <text
               key={`c${v}`}
               className={chart.tick}
-              x={-8}
-              y={yOf(v) + 4}
-              textAnchor="end"
+              x={x(v)}
+              y={innerH + 16}
+              textAnchor={v === 50 ? 'start' : v === 150 ? 'end' : 'middle'}
               fill={v === 100 ? 'var(--yy-benchmark)' : undefined}
             >
               {v}
             </text>
           ))}
-
-          {/* the field's own numbers, 10…50…10 from each goal line */}
-          {YARD_LINES.filter((f) => f > 0 && f < 1).map((f) => (
-            <text
-              key={`n${f}`}
-              className={chart.micro}
-              x={innerW + 8}
-              y={y(100 - f * 100) + 3}
-              textAnchor="start"
-            >
-              {yardNumber(f)}
-            </text>
-          ))}
+          <text className={chart.axisTitle} x={innerW / 2} y={innerH + 34} textAnchor="middle">
+            Cap+ · 1 point = 1 yard
+          </text>
         </g>
-
-        <text className={chart.axisTitle} x={4} y={h - 6} textAnchor="start">
-          Cap+ {FIELD_CAPPLUS_DOMAIN[0]}–{FIELD_CAPPLUS_DOMAIN[1]} · yards to goal
-        </text>
       </svg>
       <p id={`${id}-d`} className="yy-visually-hidden">
-        Cap+ plotted as field position across the season axis. The top of the plot is the
-        opponent&rsquo;s goal line at Cap+ {FIELD_CAPPLUS_DOMAIN[1]}, the bottom the club&rsquo;s own
-        at Cap+ {SAFETY_CAPPLUS}, and midfield is Cap+ 100, the league average. Seasons with no
-        league-wide dead-money table are drawn as hatched gaps and are never interpolated.
+        A drive chart: one row per season from {points[0]?.season} to{' '}
+        {points[points.length - 1]?.season}. The field runs from the club&rsquo;s own goal line at
+        Cap+ {FIELD_CAPPLUS_DOMAIN[0]} on the left to the opponent&rsquo;s at Cap+{' '}
+        {FIELD_CAPPLUS_DOMAIN[1]} on the right; midfield is Cap+ 100, the league average. Each
+        covered season is drawn as a carry from midfield to its Cap+ spot. Seasons with no
+        league-wide dead-money table are hatched rows and are never interpolated.
       </p>
     </>
   );

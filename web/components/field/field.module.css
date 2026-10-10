@@ -2,8 +2,14 @@
  *
  * "The field is a coordinate system, not an illustration." No turf fill, no
  * stadium, no crowd, no green. The ground is the flat card surface, the yard
- * lines are gridlines and obey the same ceiling as any other, and the only two
- * tinted regions are the red zone and the safety band the spec names.
+ * lines are gridlines and obey the same ceiling as any other.
+ *
+ * THE LEAGUE FIELD has two orientations and one DOM. Every positioned element
+ * carries `--p` (0 = back of the own end zone, 1 = back of the opponent's) and,
+ * for marks, `--lane` (0–7, the eight divisions). Below 1024px the field
+ * stands up — the opponent's end zone at the top; at 1024+ it lies down, play
+ * left to right. The geometry is CSS; only the collision-aware label layout is
+ * computed, for both orientations, in `field-kit.ts`.
  */
 
 .wrap {
@@ -13,144 +19,796 @@
   margin-bottom: var(--yy-space-4);
 }
 
-/* ── the ground ──────────────────────────────────────────────────────────── */
+/* ── controls: the season scrubber and the Review control ─────────────────── */
 
-.field {
-  position: relative;
-  background: var(--yy-bg-card-flat);
-  border: 1px solid var(--yy-line-hairline);
-  border-radius: var(--yy-radius-chip);
-  /* the marks sit on their own yard line; nothing is nudged to fit */
-  overflow: hidden;
-  min-height: 96px;
+.controls {
+  display: flex;
+  flex-direction: column;
+  gap: var(--yy-space-2);
 }
 
-.yardLine {
+.reviewRow {
+  display: flex;
+  align-items: center;
+  gap: var(--yy-space-3);
+  flex-wrap: wrap;
+}
+
+.reviewLabel {
+  color: var(--yy-fg-3);
+  letter-spacing: var(--yy-track-label-wide);
+}
+
+.reviewNote {
+  margin: 0;
+  color: var(--yy-fg-2);
+  max-width: var(--yy-measure);
+  min-height: calc(2 * var(--yy-size-caption) * var(--yy-lh-body));
+}
+
+@media (min-width: 1024px) {
+  .controls {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    column-gap: var(--yy-space-6);
+  }
+
+  .reviewNote {
+    grid-column: 1 / -1;
+  }
+}
+
+.seg {
+  display: inline-flex;
+  gap: var(--yy-space-1);
+  flex-wrap: wrap;
+}
+
+.segBtn {
+  padding: var(--yy-space-1) var(--yy-space-3);
+  border-radius: var(--yy-radius-pill);
+  border: 1px solid var(--yy-line-card);
+  background: transparent;
+  color: var(--yy-fg-2);
+  cursor: pointer;
+  position: relative;
+  min-height: var(--yy-space-8);
+  transition:
+    background-color var(--yy-dur-fast) var(--yy-ease-snap),
+    color var(--yy-dur-fast) var(--yy-ease-snap),
+    border-color var(--yy-dur-fast) var(--yy-ease-snap);
+}
+
+.segBtn::after {
+  content: '';
+  position: absolute;
+  inset: 50% 0 auto;
+  height: var(--yy-tap-target);
+  transform: translateY(-50%);
+}
+
+.segBtn[aria-checked='true'] {
+  background: var(--yy-selected-bg);
+  color: var(--yy-selected-fg);
+  border-color: var(--yy-selected-bg);
+}
+
+.segBtn:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* the scrubber */
+.scrub {
+  display: flex;
+  align-items: center;
+  gap: var(--yy-space-2);
+  min-width: 0;
+}
+
+.scrubStep {
+  flex: none;
+  width: var(--yy-tap-target);
+  height: var(--yy-tap-target);
+  border-radius: var(--yy-radius-pill);
+  border: 1px solid var(--yy-line-card);
+  background: transparent;
+  color: var(--yy-fg-1);
+  font-size: var(--yy-size-label-lg);
+  cursor: pointer;
+}
+
+.scrubStep:disabled {
+  color: var(--yy-fg-dim);
+  cursor: default;
+}
+
+.scrubTrack {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  padding-bottom: calc(var(--yy-size-label) * var(--yy-lh-label));
+}
+
+.scrubInput {
+  width: 100%;
+  margin: 0;
+  height: var(--yy-tap-target);
+  accent-color: var(--yy-fg-2);
+  cursor: pointer;
+  position: relative;
+  z-index: 1;
+  background: transparent;
+}
+
+.scrubStops {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  top: calc(var(--yy-tap-target) - 6px);
+  height: 6px;
+  pointer-events: none;
+}
+
+.scrubStop {
   position: absolute;
   top: 0;
-  bottom: 0;
   width: 1px;
-  background: var(--yy-gridline);
+  height: 6px;
+  background: var(--yy-fg-dim);
 }
 
-/* Midfield — Cap+ 100, the league average. It is the one yard line that carries
-   a benchmark meaning, so it takes the benchmark ink. */
-.midfield {
-  background: var(--yy-benchmark-line-under);
+.scrubStopBlank {
+  width: 0;
+  border-left: 1px dashed var(--yy-absence);
+  background: none;
 }
 
-/* §7 — hash marks every 5 yards, "omitted below 320px of field length". At the
-   390 canvas the field is ~300px, so they are dropped there. */
-.hash {
+.scrubStopOn {
+  background: var(--yy-fg-1);
+  width: 2px;
+}
+
+.scrubEnds {
   position: absolute;
-  top: 50%;
-  height: 8px;
-  width: 1px;
-  transform: translateY(-50%);
-  background: var(--yy-gridline);
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: space-between;
+  color: var(--yy-fg-3);
+}
+
+.scrubValue {
+  flex: none;
+  min-width: 3.2ch;
+  font-family: var(--yy-font-display);
+  font-weight: var(--yy-weight-display);
+  font-size: var(--yy-size-display-sm);
+  letter-spacing: var(--yy-track-display);
+  line-height: 1;
+  color: var(--yy-fg-1);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── the pitch: lane heads, plot, two axes ─────────────────────────────────── */
+
+.pitch {
+  --plot-h: 540px;
+  /* px per yard on the tall plot: the hundred yards are 82% of its height */
+  --yd: calc(var(--plot-h) * 0.82 / 100);
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr) 20px;
+  grid-template-areas:
+    '. heads .'
+    'cap plot yard';
+  column-gap: var(--yy-space-1);
+  row-gap: var(--yy-space-1);
+}
+
+@media (min-width: 1024px) {
+  .pitch {
+    --plot-h: 336px;
+    grid-template-columns: 72px minmax(0, 1fr);
+    grid-template-areas:
+      'heads plot'
+      '. yard'
+      '. cap';
+    column-gap: var(--yy-space-3);
+  }
+}
+
+.laneHeads {
+  grid-area: heads;
+  display: grid;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+}
+
+@media (min-width: 1024px) {
+  .laneHeads {
+    grid-template-columns: none;
+    grid-template-rows: repeat(8, minmax(0, 1fr));
+  }
+}
+
+.laneHead {
+  display: flex;
+  flex-direction: column;
+  color: var(--yy-fg-3);
+  line-height: 1.15;
+  padding-left: 3px;
+}
+
+@media (min-width: 1024px) {
+  .laneHead {
+    flex-direction: row;
+    gap: 0.4ch;
+    align-items: center;
+    justify-content: flex-end;
+    padding-left: 0;
+  }
+}
+
+/* a 33px lane at 375 holds AFC / N, not AFC / NORTH */
+.divFull {
   display: none;
 }
 
 @media (min-width: 1024px) {
-  .hash {
-    display: block;
+  .divFull {
+    display: inline;
+  }
+
+  .divShort {
+    display: none;
   }
 }
 
-/* §7 — the 0–20 band, `--yy-accent` at 6%. */
+.laneHeadOn {
+  color: var(--yy-fg-1);
+}
+
+.plot {
+  grid-area: plot;
+  position: relative;
+  height: var(--plot-h);
+  min-width: 0;
+}
+
+.ground {
+  position: absolute;
+  inset: 0;
+  background: var(--yy-bg-card-flat);
+  border: 1px solid var(--yy-line-hairline);
+  border-radius: var(--yy-radius-chip);
+  overflow: hidden;
+}
+
+/* ── things that sit at a yard (`--p`) ───────────────────────────────────── */
+
+.yardLine,
+.midfield,
+.hash {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  top: calc((1 - var(--p)) * 100%);
+  background: var(--yy-gridline);
+}
+
+.hash {
+  right: auto;
+  width: 6px;
+}
+
+/* The benchmark: midfield, Cap+ 100. Solid benchmark ink at 2px — the field
+   is a benchmark surface and its reference must pass 3:1 in both themes. */
+.midfield {
+  height: 2px;
+  margin-top: -1px;
+  background: var(--yy-benchmark);
+}
+
+@media (min-width: 1024px) {
+  .yardLine,
+  .midfield,
+  .hash {
+    top: 0;
+    bottom: 0;
+    right: auto;
+    height: auto;
+    width: 1px;
+    left: calc(var(--p) * 100%);
+  }
+
+  .hash {
+    bottom: auto;
+    height: 6px;
+  }
+
+  .midfield {
+    width: 2px;
+    margin: 0 0 0 -1px;
+  }
+}
+
+/* end zones */
+.endZone {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 9%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 2px;
+  padding: 0 var(--yy-space-2);
+  text-align: center;
+  background: var(--yy-bg-sunken);
+}
+
+.endZoneOwn {
+  bottom: 0;
+}
+
+.endZoneOpp {
+  top: 0;
+}
+
+@media (min-width: 1024px) {
+  .endZone {
+    top: 0;
+    bottom: 0;
+    height: auto;
+    width: 9%;
+    padding: var(--yy-space-2) var(--yy-space-1);
+  }
+
+  .endZoneOwn {
+    left: 0;
+    right: auto;
+  }
+
+  .endZoneOpp {
+    right: 0;
+    left: auto;
+  }
+}
+
+.ezName,
+.ezNote {
+  font-family: var(--yy-font-athletic);
+  font-weight: var(--yy-weight-label);
+  font-size: var(--yy-size-label);
+  line-height: 1.15;
+  letter-spacing: var(--yy-track-label);
+  text-transform: uppercase;
+  color: var(--yy-fg-3);
+}
+
+.ezNote {
+  color: var(--yy-fg-1);
+}
+
+/* §7 — the red zone, `--yy-accent` at 6% */
 .redZone {
   position: absolute;
-  top: 0;
-  bottom: 0;
+  left: 0;
   right: 0;
+  top: calc((1 - var(--b)) * 100%);
+  height: calc((var(--b) - var(--a)) * 100%);
   background: color-mix(in srgb, var(--yy-accent) 6%, transparent);
 }
 
-/* §7 — the own-goal-line band, `--yy-negative-fill` at 6%. A club behind it is
-   genuinely below the floor the index is built on, which is the one reading on
-   this surface that IS a negative. */
-.safety {
+@media (min-width: 1024px) {
+  .redZone {
+    top: 0;
+    bottom: 0;
+    height: auto;
+    left: calc(var(--a) * 100%);
+    width: calc((var(--b) - var(--a)) * 100%);
+  }
+}
+
+/* lanes */
+.laneBand,
+.laneRule {
   position: absolute;
   top: 0;
   bottom: 0;
-  left: 0;
-  width: 2%;
-  background: color-mix(in srgb, var(--yy-negative-fill) 6%, transparent);
+  left: calc(var(--lane) * 12.5%);
+  width: 12.5%;
+  background: var(--yy-tint-selected);
+}
+
+.laneRule {
+  width: 1px;
+  background: var(--yy-gridline);
+}
+
+.laneRuleConf {
+  background: var(--yy-line-hairline);
+}
+
+@media (min-width: 1024px) {
+  .laneBand,
+  .laneRule {
+    left: 0;
+    right: 0;
+    width: auto;
+    top: calc(var(--lane) * 12.5%);
+    bottom: auto;
+    height: 12.5%;
+  }
+
+  .laneRule {
+    height: 1px;
+  }
 }
 
 /* ── the marks ───────────────────────────────────────────────────────────── */
 
-.mark {
+.ball {
   position: absolute;
-  transform: translateX(-50%);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  z-index: 2;
+  width: 22px;
+  height: 22px;
+  margin: -11px 0 0 -11px;
+  display: grid;
+  place-items: center;
   text-decoration: none;
   color: inherit;
-  /* room for the stem, plus the 6px that keeps the first lane's mark off the
-     field's own top rule */
-  padding-top: 14px;
+  border-radius: 50%;
+  top: calc((1 - var(--p)) * 100%);
+  left: calc(var(--lane) * 12.5% + 12px);
+  /* §6.2 — marks travel only because the domain is pinned; the tokens
+     collapse to 1ms under reduced motion. Staggered, capped. */
+  transition:
+    top var(--yy-dur-chart) var(--yy-ease-standard) calc(var(--i, 0) * var(--yy-stagger)),
+    left var(--yy-dur-chart) var(--yy-ease-standard) calc(var(--i, 0) * var(--yy-stagger));
 }
 
-/* §7 — a 1px stem from the mark to its yard line, so the mark's meaning is its
-   position and the reader can see which line it belongs to. */
-.stem {
+@media (min-width: 1024px) {
+  .ball {
+    left: calc(var(--p) * 100%);
+    top: calc((var(--lane) + 0.5) * 12.5%);
+  }
+}
+
+.ball:focus-visible {
+  outline: 2px solid var(--yy-fg-1);
+  outline-offset: 1px;
+}
+
+.dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--yy-fg-mid);
+  box-shadow: 0 0 0 1.5px var(--yy-bg-card-flat);
+}
+
+.ballLit .dot {
+  width: 11px;
+  height: 11px;
+  background: var(--yy-accent);
+}
+
+.ballHot {
+  z-index: 3;
+}
+
+.ballHot .dot {
+  outline: 2px solid var(--yy-fg-1);
+  outline-offset: 2px;
+}
+
+.ballLabel {
   position: absolute;
-  top: 6px;
-  height: 8px;
-  width: 1px;
-  background: var(--yy-fg-2);
-}
-
-.markLabel {
-  color: var(--yy-fg-3);
-  white-space: nowrap;
+  left: 18px;
+  top: 50%;
+  transform: translateY(calc(-50% - var(--dy, 0) * var(--yd)));
+  font-family: var(--yy-font-athletic);
+  font-weight: var(--yy-weight-label);
+  font-size: var(--yy-size-label);
+  line-height: 1;
   letter-spacing: var(--yy-track-label);
+  white-space: nowrap;
+  color: var(--yy-fg-2);
+  pointer-events: none;
+  transition: transform var(--yy-dur-chart) var(--yy-ease-standard);
 }
 
-.markFocus .markLabel {
+.ballLit .ballLabel,
+.ballHot .ballLabel {
+  color: var(--yy-fg-1);
+  font-weight: var(--yy-weight-metric);
+}
+
+@media (min-width: 1024px) {
+  .ballLabel {
+    left: 50%;
+    top: auto;
+    transform: translateX(-50%);
+    transition: none;
+  }
+
+  .ball[data-slot='below'] .ballLabel {
+    top: calc(100% - 3px);
+  }
+
+  .ball[data-slot='above'] .ballLabel {
+    bottom: calc(100% - 3px);
+  }
+
+  /* No room: the mark stays exact and its name is one hover/focus/tap away. */
+  .ball[data-slot='none'] .ballLabel {
+    display: none;
+  }
+
+  .ball[data-slot='none'].ballHot .ballLabel,
+  .ball[data-slot='none']:focus-visible .ballLabel {
+    display: block;
+    bottom: calc(100% - 3px);
+  }
+}
+
+/* Review: the raw Cap+ spot stays as a ring, joined to the re-placed mark. */
+.reviewTrail {
+  position: absolute;
+  z-index: 1;
+  left: calc(var(--lane) * 12.5% + 12px);
+  top: calc((1 - var(--b)) * 100%);
+  height: calc((var(--b) - var(--a)) * 100%);
+  width: 0;
+  border-left: 1px dashed var(--yy-fg-dim);
+  transition:
+    top var(--yy-dur-chart) var(--yy-ease-standard),
+    height var(--yy-dur-chart) var(--yy-ease-standard);
+}
+
+.ghostRing {
+  position: absolute;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  border: 1.5px solid var(--yy-fg-2);
+  left: -6px;
+}
+
+.ghostRing[data-end='a'] {
+  bottom: -6px;
+}
+
+.ghostRing[data-end='b'] {
+  top: -6px;
+}
+
+@media (min-width: 1024px) {
+  .reviewTrail {
+    top: calc((var(--lane) + 0.5) * 12.5%);
+    left: calc(var(--a) * 100%);
+    width: calc((var(--b) - var(--a)) * 100%);
+    height: 0;
+    border-left: 0;
+    border-top: 1px dashed var(--yy-fg-dim);
+    transition:
+      left var(--yy-dur-chart) var(--yy-ease-standard),
+      width var(--yy-dur-chart) var(--yy-ease-standard);
+  }
+
+  .ghostRing {
+    top: -6px;
+    bottom: auto;
+    left: auto;
+  }
+
+  .ghostRing[data-end='a'] {
+    left: -6px;
+    bottom: auto;
+  }
+
+  .ghostRing[data-end='b'] {
+    right: -6px;
+    top: -6px;
+  }
+}
+
+/* a blank season: the field is drawn, empty, with its reason */
+.blankPlot {
+  position: absolute;
+  inset: 12% var(--yy-space-4);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: var(--yy-space-2);
+  text-align: center;
+  z-index: 2;
+}
+
+.blankPlot p {
+  margin: 0;
+  max-width: 36ch;
+  color: var(--yy-fg-2);
+}
+
+/* ── the tooltip — repeats and enriches (§8) ──────────────────────────────── */
+
+.tip {
+  position: absolute;
+  z-index: 5;
+  width: max-content;
+  max-width: min(300px, 86vw);
+  padding: var(--yy-space-2) var(--yy-space-3);
+  background: var(--yy-bg-menu);
+  border: 1px solid var(--yy-line-card);
+  border-radius: var(--yy-radius-chip);
+  box-shadow: var(--yy-elevation-menu);
+  pointer-events: none;
+  font-variant-numeric: tabular-nums;
+}
+
+.tipPinned {
+  pointer-events: auto;
+}
+
+.tipHead {
+  margin: 0 0 var(--yy-space-1);
+  font-family: var(--yy-font-display);
+  font-weight: var(--yy-weight-display);
+  font-size: var(--yy-size-display-xs);
+  letter-spacing: var(--yy-track-display);
+  line-height: var(--yy-lh-tight);
   color: var(--yy-fg-1);
 }
 
-.mark:hover .markLabel,
-.mark:focus-visible .markLabel {
+.tipList {
+  margin: 0;
+  display: grid;
+  grid-template-columns: auto auto;
+  gap: 2px var(--yy-space-3);
+  align-items: baseline;
+}
+
+.tipList dt {
+  font-family: var(--yy-font-athletic);
+  font-weight: var(--yy-weight-label);
+  font-size: var(--yy-size-label);
+  letter-spacing: var(--yy-track-label);
+  text-transform: uppercase;
+  color: var(--yy-fg-3);
+}
+
+.tipList dd {
+  margin: 0;
+  white-space: nowrap;
+  font-family: var(--yy-font-body);
+  font-size: var(--yy-size-caption);
   color: var(--yy-fg-1);
+}
+
+.tipNote {
+  margin: var(--yy-space-1) 0 0;
+  font-size: var(--yy-size-caption);
+  color: var(--yy-fg-2);
+}
+
+.tipLink {
+  display: inline-block;
+  margin-top: var(--yy-space-1);
+  font-family: var(--yy-font-athletic);
+  font-weight: var(--yy-weight-label);
+  font-size: var(--yy-size-label);
+  letter-spacing: var(--yy-track-label);
+  text-transform: uppercase;
+  color: var(--yy-fg-1);
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 
 /* ── the axes ────────────────────────────────────────────────────────────── */
 
-.axis {
+.yardAxis,
+.capAxis {
   position: relative;
-  height: calc(var(--yy-size-label) * var(--yy-lh-label));
+  height: var(--plot-h);
 }
 
-.yardNumber,
-.capTick {
+.yardAxis {
+  grid-area: yard;
+}
+
+.capAxis {
+  grid-area: cap;
+}
+
+.tickAt {
   position: absolute;
-  transform: translateX(-50%);
+  top: calc((1 - var(--p)) * 100%);
+  transform: translateY(-50%);
   color: var(--yy-fg-3);
   white-space: nowrap;
+}
+
+.yardAxis .tickAt {
+  left: 0;
+}
+
+.capAxis .tickAt {
+  right: 0;
 }
 
 .capTick {
   color: var(--yy-fg-2);
 }
 
-/* An axis endpoint anchors to its own edge; centring it on a goal line paints
-   half the label outside the card. */
-.tickStart {
-  transform: none;
-}
+@media (min-width: 1024px) {
+  .yardAxis,
+  .capAxis {
+    height: calc(var(--yy-size-label) * var(--yy-lh-label));
+  }
 
-.tickEnd {
-  transform: translateX(-100%);
+  .tickAt,
+  .yardAxis .tickAt,
+  .capAxis .tickAt {
+    top: 0;
+    right: auto;
+    left: calc(var(--p) * 100%);
+    transform: translateX(-50%);
+  }
 }
 
 .axisTitle {
   margin: 0;
   color: var(--yy-fg-3);
   letter-spacing: var(--yy-track-label-wide);
+}
+
+.fieldKey {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--yy-space-2) var(--yy-space-4);
+}
+
+.fieldKeyItem {
+  display: flex;
+  align-items: center;
+  gap: var(--yy-space-2);
+  color: var(--yy-fg-2);
+}
+
+.keyMid {
+  width: 16px;
+  height: 2px;
+  background: var(--yy-benchmark);
+}
+
+.keyLit {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--yy-accent);
+}
+
+.keyRing {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 1.5px solid var(--yy-fg-2);
+}
+
+.keyRed {
+  width: 16px;
+  height: 10px;
+  border-radius: var(--yy-radius-mark);
+  background: color-mix(in srgb, var(--yy-accent) 24%, transparent);
 }
 
 /* ── band key ────────────────────────────────────────────────────────────── */
@@ -186,43 +844,6 @@
   background: color-mix(in srgb, var(--yy-negative-fill) 24%, transparent);
 }
 
-/* ── off the field ───────────────────────────────────────────────────────── */
-
-/* §7 — a club with a blank Cap+ is never placed at a goal line, which would
-   read as Cap+ 150 or 50. It is named beneath, under its reason. */
-.offField {
-  margin-top: var(--yy-space-3);
-  padding-top: var(--yy-space-3);
-  border-top: 1px solid var(--yy-line-hairline);
-}
-
-.offFieldHead {
-  margin: 0 0 var(--yy-space-2);
-  color: var(--yy-fg-3);
-  letter-spacing: var(--yy-track-label-wide);
-  max-width: var(--yy-measure);
-}
-
-.offFieldList {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--yy-space-2) var(--yy-space-4);
-}
-
-.offFieldItem {
-  display: flex;
-  align-items: center;
-  gap: var(--yy-space-2);
-  color: var(--yy-fg-2);
-  text-decoration: none;
-}
-
-.offFieldItem:hover {
-  color: var(--yy-fg-1);
-}
 
 /* ══════════════════════════════════════════════════════════════════════════ */
 /* THE TEAM DRIVE — the same coordinate system, one franchise, 25 seasons      */

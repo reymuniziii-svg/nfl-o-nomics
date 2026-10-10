@@ -315,3 +315,132 @@
   overflow-x: auto;
   overscroll-behavior-x: contain;
 }
+
+/* ══════════════════════════════════════════════════════════════════════════ */
+/* SPEND MIX LOLLIPOP — COMPONENTS.md §7, review D #9                          */
+/* ══════════════════════════════════════════════════════════════════════════ */
+
+.lolliHead,
+.lolliRow {
+  display: grid;
+  grid-template-columns: 30px 58px minmax(0, 1fr) 48px;
+  align-items: center;
+  gap: var(--yy-space-2);
+}
+
+.lolliHead {
+  color: var(--yy-fg-3);
+  padding-bottom: var(--yy-space-1);
+  border-bottom: 1px solid var(--yy-line-divider);
+  margin-bottom: var(--yy-space-1);
+}
+
+.lolliHead > :nth-child(2),
+.lolliHead > :last-child {
+  text-align: right;
+}
+
+.lolliScale {
+  display: flex;
+  justify-content: space-between;
+}
+
+.lolliScaleMid {
+  color: var(--yy-benchmark);
+}
+
+.lolliRow {
+  min-height: 28px;
+}
+
+.lolliShare {
+  text-align: right;
+  color: var(--yy-fg-1);
+  font-size: var(--yy-size-metric-xs);
+  padding-right: 0.03em;
+}
+
+.lolliTrack {
+  position: relative;
+  height: 20px;
+  display: block;
+}
+
+/* The track's own centre line at the league share — gold, the benchmark. */
+.lolliZero {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--yy-benchmark-tick);
+}
+
+.lolliTrack::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 1px;
+  background: var(--yy-gridline);
+}
+
+.lolliStem {
+  position: absolute;
+  top: calc(50% - 1px);
+  height: 2px;
+  background: var(--yy-series-neutral);
+}
+
+.lolliDot {
+  position: absolute;
+  top: calc(50% - 5px);
+  width: 10px;
+  height: 10px;
+  margin-left: -5px;
+  border-radius: 50%;
+  background: var(--yy-fg-1);
+}
+
+.lolliDotSel {
+  background: var(--yy-accent);
+}
+
+/* Beyond the fixed ±15 window: pinned to the edge, drawn as a chevron. */
+.lolliDotOff {
+  border-radius: 0;
+  background: none;
+  width: 0;
+  height: 0;
+  border-block: 6px solid transparent;
+  top: calc(50% - 6px);
+}
+
+.lolliDotOff[style*='left: 100%'] {
+  border-left: 8px solid var(--yy-fg-1);
+  margin-left: -8px;
+}
+
+.lolliDotOff[style*='left: 0%'] {
+  border-right: 8px solid var(--yy-fg-1);
+  margin-left: 0;
+}
+
+.lolliAbsent {
+  position: absolute;
+  left: 40%;
+  width: 20%;
+  top: 5px;
+  height: 10px;
+  background: var(--yy-absence-fill);
+  border: 1px dashed var(--yy-absence);
+  border-radius: var(--yy-radius-mark);
+}
+
+.lolliDelta {
+  text-align: right;
+  color: var(--yy-fg-2);
+  font-size: var(--yy-size-label-lg);
+  padding-right: 0.03em;
+}

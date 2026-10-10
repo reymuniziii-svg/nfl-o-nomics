@@ -1,0 +1,71 @@
+/* SHARE — `share-button.tsx`. Same text-button grammar as CsvExport
+   (COMPONENTS.md §14): label face, muted until hovered, 44px of touch. */
+
+.share {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--yy-space-1) var(--yy-space-4);
+  min-width: 0;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--yy-space-1);
+  min-height: var(--yy-tap-target);
+  padding: 0 var(--yy-space-3);
+  background: transparent;
+  border: 1px solid var(--yy-line-card);
+  border-radius: var(--yy-radius-pill);
+  color: var(--yy-fg-2);
+  cursor: pointer;
+  transition:
+    color var(--yy-dur-fast) var(--yy-ease-standard),
+    border-color var(--yy-dur-fast) var(--yy-ease-standard);
+}
+
+.btn:hover,
+.btn:focus-visible {
+  color: var(--yy-fg-1);
+  border-color: var(--yy-fg-3);
+}
+
+.btn:focus-visible {
+  outline: var(--yy-focus-width) solid var(--yy-focus-ring);
+  outline-offset: var(--yy-focus-offset);
+}
+
+.btn[disabled] {
+  cursor: progress;
+  opacity: 0.6;
+}
+
+.glyph {
+  flex: none;
+}
+
+.status {
+  min-width: 0;
+  color: var(--yy-fg-3);
+}
+
+.fallback {
+  flex: 1 1 220px;
+  min-width: 0;
+  min-height: var(--yy-tap-target);
+  padding: 0 var(--yy-space-3);
+  font: inherit;
+  font-family: var(--yy-font-num);
+  font-size: var(--yy-size-caption);
+  color: var(--yy-fg-1);
+  background: var(--yy-bg-sunken);
+  border: 1px solid var(--yy-line-card);
+  border-radius: var(--yy-radius-control);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn {
+    transition: none;
+  }
+}
