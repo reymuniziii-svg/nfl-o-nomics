@@ -15,12 +15,16 @@
  */
 
 import css from './team.module.css';
-import { BlankReason, Chip } from '../primitives';
+import { BadgeChip, BlankReason } from '../primitives';
 import { ordinal, signedIndex, vsLeague } from './format';
-import { usdShort } from '@/lib/display';
-import { PROVISIONAL_BADGE_COPY, type Metric } from '@/lib/metric';
+import { playoffWords, usdShort } from '@/lib/display';
+import { badgeNote, type Metric } from '@/lib/metric';
 import type { CostPerWin, CapPlusValue } from '@/lib/data/metrics';
 import type { SeasonInputRanks, TeamResults, TeamEpa } from '@/lib/data/team';
+
+/** One sentence on the opponent adjustment (`SPEC.md` §2.4, `DECISIONS.md` 110). */
+const EPA_ADJUSTMENT_CAPTION =
+  'EPA margin is adjusted for opponents, so each club gets credit for who it played, and that’s the margin Cap+ uses; schedule is the opponents’ average raw margin, and above zero means a tougher slate.';
 
 export interface VerdictProps {
   teamName: string;
@@ -54,19 +58,31 @@ export function VerdictStrip(p: VerdictProps) {
       {p.inTier2 ? <Reconcile {...p} /> : null}
 
       <dl className={css.verdictStats}>
-        <Stat label="Record" value={res ? recordOf(res) : '—'} />
+        <Stat
+          label="Record"
+          value={res ? recordOf(res) : '—'}
+          note={res ? playoffWords(res.playoffResult) : undefined}
+        />
         <Stat
           label="Point diff"
           value={res ? signedInt(res.pointDiff) : '—'}
           note={rankNote(p.inputRanks, (r) => r.pointDiffRank)}
         />
         <Stat
-          label="EPA margin / play"
-          value={p.epa.state === 'blank' ? p.epa.reason : p.epa.value.epaMarginPerPlay.toFixed(3)}
+          label="EPA margin / play, opp.-adj."
+          value={p.epa.state === 'blank' ? p.epa.reason : signedEpa(p.epa.value.epaMarginPerPlayAdj)}
           note={
-            p.inputRanks.state !== 'blank' && p.inputRanks.value.epaMarginRank.state !== 'blank'
-              ? `${ordinal(p.inputRanks.value.epaMarginRank.value)} of ${p.inputRanks.value.n}`
-              : undefined
+            p.epa.state === 'blank'
+              ? undefined
+              : [
+                  p.inputRanks.state !== 'blank' && p.inputRanks.value.epaMarginRank.state !== 'blank'
+                    ? `${ordinal(p.inputRanks.value.epaMarginRank.value)} of ${p.inputRanks.value.n}`
+                    : null,
+                  `raw ${signedEpa(p.epa.value.epaMarginPerPlay)}`,
+                  `schedule ${signedEpa(p.epa.value.sosEpa)}`,
+                ]
+                  .filter(Boolean)
+                  .join(' · ')
           }
         />
         {p.inTier2 ? (
@@ -78,7 +94,7 @@ export function VerdictStrip(p: VerdictProps) {
                 ? undefined
                 : `${ordinal(p.capplus.value.seasonRank)} of 32 · 100 = league average`
             }
-            chip={p.capplus.state === 'value' && p.capplus.provisional ? 'provisional' : undefined}
+            chip={p.capplus}
           />
         ) : null}
         {!p.inTier2 || p.capplus.state === 'blank' ? (
@@ -90,8 +106,14 @@ export function VerdictStrip(p: VerdictProps) {
         ) : null}
       </dl>
 
-      {p.capplus.state === 'value' && p.capplus.provisional ? (
-        <p className={`yy-caption ${css.verdictNote}`}>{PROVISIONAL_BADGE_COPY}</p>
+      {p.epa.state !== 'blank' ? (
+        <p className={`yy-caption ${css.verdictNote}`}>{EPA_ADJUSTMENT_CAPTION}</p>
+      ) : null}
+
+      {/* The badge's own sentence: 2013's differs from 2014/2019's, and an
+          estimated season says how many of its 32 figures are published. */}
+      {badgeNote(p.capplus) ? (
+        <p className={`yy-caption ${css.verdictNote}`}>{badgeNote(p.capplus)!.sentence}</p>
       ) : null}
     </div>
   );
@@ -159,7 +181,8 @@ function Stat({
   label: string;
   value: string;
   note?: string;
-  chip?: 'provisional';
+  /** A badged metric: renders its Provisional / Estimated chip. */
+  chip?: Metric<unknown>;
 }) {
   return (
     <div className={css.verdictStat}>
@@ -168,9 +191,9 @@ function Stat({
         <span className={`yy-num ${value.startsWith('Not available') || value === 'Not covered' ? css.verdictStatBlank : ''}`}>
           {value}
         </span>
-        {chip ? (
+        {badgeNote(chip) ? (
           <span className={css.chipFloor}>
-            <Chip kind={chip} />
+            <BadgeChip metric={chip} sentence="none" />
           </span>
         ) : null}
       </dd>
@@ -182,7 +205,8 @@ function Stat({
 /**
  * THE RECONCILIATION — rendered only when the two headline measures disagree.
  *
- * Cap+ blends win %, point differential per game and EPA margin per play, then
+ * Cap+ blends win %, point differential per game and opponent-adjusted EPA
+ * margin per play, then
  * divides by cap cost (`SPEC.md` §2.2, §2.4). Cost per win divides CASH by WINS.
  * So they part company in exactly two ways: the performance inputs other than
  * wins run ahead of (or behind) the record, or cap cost sits away from the
@@ -252,6 +276,10 @@ function Reconcile(p: VerdictProps) {
 
 function recordOf(r: TeamResults): string {
   return r.ties ? `${r.wins}–${r.losses}–${r.ties}` : `${r.wins}–${r.losses}`;
+}
+
+function signedEpa(n: number): string {
+  return n > 0 ? `+${n.toFixed(3)}` : n < 0 ? `−${Math.abs(n).toFixed(3)}` : '0.000';
 }
 
 function signedInt(n: number): string {

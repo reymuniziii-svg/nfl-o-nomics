@@ -1,20 +1,22 @@
 /**
  * Cap+ context — the gate #1 reopen mart (`SPEC.md` §2.10, §7.13).
  *
- * `capplus_official` is unchanged and still renders as Cap+. This file reads the
- * companion mart `capplus_context`: the starting QB and his rookie window,
- * QB-neutral Cap+ and its two-term decomposition, rank within stratum, the
- * future-cap mortgage, and the CANDIDATE Cap+ (obligation).
+ * `capplus_official` renders as Cap+. This file reads the companion mart
+ * `capplus_context`: the starting QB and his rookie window, QB-neutral Cap+ and
+ * its two-term decomposition, rank within stratum, and the future-cap mortgage —
+ * cash paid ahead of cap, the bridge between cash per win and cap per win. The
+ * obligation blend is retired (`DECISIONS.md` 111) and is not read.
  *
  * NOTHING HERE COMPUTES AN INDEX. Every index is read verbatim from the mart.
  * The only arithmetic is `getStrataSummary`'s arithmetic MEAN of precomputed
  * columns across a season's teams — a summary of published values, never a
  * re-derivation of one.
  *
- * Blanking is whole-season (§7.4): the index columns are NULL in 2013, 2016,
- * 2020 and 2021 and only there. They travel as ONE `Metric` (`indices`) so a
- * component cannot render QB-neutral Cap+ without handling the blank, and the
- * blank carries the same reason string `capplus_official` uses for those seasons.
+ * Blanking is whole-season (§7.4): under the shipping tier the index columns are
+ * non-null in all 13 seasons; they go NULL only where Cap+ itself is blank (the
+ * SAFE-only reversal). They travel as ONE `Metric` (`indices`) so a component
+ * cannot render QB-neutral Cap+ without handling the blank, and the blank
+ * carries the same reason string `capplus_official` uses for those seasons.
  */
 
 import { and, asc, eq } from 'drizzle-orm';
@@ -43,9 +45,6 @@ export interface CapPlusContextIndices {
   rosterPts: number;
   /** Rookie-window teams ranked against each other; veteran-QB teams likewise. */
   stratumRank: number;
-  /** CANDIDATE — render only as `CAPPLUS_OBLIGATION_LABEL`, beside Cap+. */
-  capplusObligation: number;
-  obligationRank: number;
 }
 
 /** One `(season, team)` row of `capplus_context`. */
@@ -78,9 +77,7 @@ export interface CapPlusContext {
   /** Mortgage ÷ this season's league cap. */
   futureMortgageShare: number;
   mortgageRowsUnknown: number;
-  /** 0.5 — a candidate, not a published claim. */
-  mortgageAlpha: number;
-  /** Blank in 2013/2016/2020/2021 with `BLANK_REASON.NO_DM_TABLE`. */
+  /** Blank only where Cap+ is blank for the season, with `BLANK_REASON.NO_DM_TABLE`. */
   indices: Metric<CapPlusContextIndices>;
 }
 
@@ -128,9 +125,7 @@ function indicesOf(r: Row): Metric<CapPlusContextIndices> {
     r.qbNeutralRank === null ||
     r.qbTimingPts === null ||
     r.rosterPts === null ||
-    r.stratumRank === null ||
-    r.capplusObligation === null ||
-    r.obligationRank === null
+    r.stratumRank === null
   ) {
     return blank(BLANK_REASON.NO_DM_TABLE);
   }
@@ -142,8 +137,6 @@ function indicesOf(r: Row): Metric<CapPlusContextIndices> {
     qbTimingPts: r.qbTimingPts,
     rosterPts: r.rosterPts,
     stratumRank: r.stratumRank,
-    capplusObligation: r.capplusObligation,
-    obligationRank: r.obligationRank,
   });
 }
 
@@ -169,7 +162,6 @@ function toContext(r: Row): CapPlusContext {
     futureMortgageUsd: r.futureMortgageUsd,
     futureMortgageShare: r.futureMortgageShare,
     mortgageRowsUnknown: r.mortgageRowsUnknown,
-    mortgageAlpha: r.mortgageAlpha,
     indices: indicesOf(r),
   };
 }
@@ -242,7 +234,7 @@ export async function getLeagueContext(season: number): Promise<Metric<LeagueCon
 /**
  * Rookie-window vs veteran-QB means for one season (`CAPPLUS_MEMO.md` §8.1).
  * Arithmetic means of precomputed mart values only — no index is recomputed.
- * Blank, with the Cap+ reason, in the four whole-season blank years.
+ * Blank, with the Cap+ reason, in any whole-season blank year.
  */
 export async function getStrataSummary(season: number): Promise<Metric<StrataSummary>> {
   const rows = await seasonRows(season);

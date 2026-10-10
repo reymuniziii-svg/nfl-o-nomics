@@ -23,23 +23,23 @@
  *   - The `R` chip names a rookie-window starting QB, and a split view ranks
  *     the two strata separately, each against its own mean.
  *   - The Review control (on the Field) swaps the index column to QB-neutral
- *     Cap+ or the CANDIDATE obligation index, with raw Cap+ kept beside it.
+ *     Cap+, with raw Cap+ kept beside it.
+ *   - An Estimated or Provisional season tags every row's index with its chip;
+ *     the reason sentence is the hover title and prints in the export variant.
  */
 
 import { Fragment, useLayoutEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import Link from 'next/link';
 import css from './leaderboard.module.css';
-import { CapPlusCaption } from '../primitives';
+import { BadgeChip, CapPlusCaption } from '../primitives';
 import { Segmented } from '../field/season-scrubber';
 import { indexBand, usdShort } from '@/lib/display';
-import type { Metric } from '@/lib/metric';
+import { badgeNote, type Metric } from '@/lib/metric';
 import { REVIEW_NAME, useLeagueLink, useUrlParam, type ReviewMode } from './league-link';
 
 export interface LeaderboardContext {
   qbn: number;
   qbnRank: number;
-  obl: number;
-  oblRank: number;
   stratumRank: number;
 }
 
@@ -85,7 +85,7 @@ const SORT_PARAMS = (['index', 'cpw', 'wins', 'spend', 'team', 'delta'] as const
 
 function modeValue(r: LeaderboardViewRow, mode: ReviewMode): number | null {
   if (mode === 'raw' || !r.ctx) return r.index.state === 'blank' ? null : r.index.value;
-  return mode === 'qbn' ? r.ctx.qbn : r.ctx.obl;
+  return r.ctx.qbn;
 }
 
 function sortValue(r: LeaderboardViewRow, key: SortKey, n: Numerator, mode: ReviewMode) {
@@ -232,6 +232,8 @@ export function CapPlusLeaderboard({
   // the change column is always RAW Cap+ against its last covered season
   const deltaHead = `${mode === 'raw' ? '' : 'Cap+ '}${priorSeason ? `Δ vs ’${String(priorSeason).slice(2)}` : 'Δ'}`;
   const rookieCount = rows.filter((r) => r.rookie).length;
+  // The badge is whole-season: one row carries the season's chip and sentence.
+  const seasonBadge = isCapPlus ? rows.find((r) => badgeNote(r.index) !== null) : undefined;
 
   const rowEvents = (team: string) => ({
     onPointerEnter: () => setHot(team),
@@ -294,7 +296,7 @@ export function CapPlusLeaderboard({
               <SortHeader label="Team" k="team" active={key === 'team'} dir={dir} onSort={onSort} />
               <SortHeader label={`$/win`} k="cpw" active={key === 'cpw'} dir={dir} onSort={onSort} align="right" />
               <SortHeader
-                label={mode === 'raw' ? idxHead : mode === 'qbn' ? 'QB-n' : 'Obl.*'}
+                label={mode === 'raw' ? idxHead : 'QB-n*'}
                 k="index"
                 active={key === 'index'}
                 dir={dir}
@@ -450,12 +452,15 @@ export function CapPlusLeaderboard({
         cost-per-win card above.
       </p>
       {strataReason && isCapPlus ? <p className={`yy-caption ${css.caption}`}>{strataReason}</p> : null}
+      {seasonBadge ? (
+        <p className={`yy-caption ${css.caption}`}>
+          <BadgeChip metric={seasonBadge.index} sentence="inline" />
+        </p>
+      ) : null}
       <p className={`yy-caption ${css.caption}`}>
         <CapPlusCaption /> —{' '}
         {`${indexName} scores each club against its own season’s league. It is not a front-office grade.`}
-        {mode === 'obl'
-          ? ' Raw Cap+ runs beside the candidate in the table.'
-          : ''}
+        {mode === 'qbn' ? ' Raw Cap+ runs beside QB-neutral Cap+ in the table.' : ''}
       </p>
       {csvSlot}
     </div>
@@ -522,8 +527,8 @@ function SplitView({
       })}
       <p className={`yy-caption ${css.splitNote}`}>
         Each group ranks on Cap+ against itself, and the gold rule marks the group&apos;s own mean.
-        Across the nine covered seasons, clubs with a rookie-deal starter average below 100
-        because they are usually still bad. The cheap QB deal adds only about 2.8 points.
+        Across all thirteen seasons, 2013–2025, clubs with a rookie-deal starter average below 100
+        because they are usually still bad. The cheap QB deal adds only about 3.2 points.
       </p>
     </div>
   );
@@ -605,10 +610,11 @@ function IndexCell({
   return (
     <span className={css.indexStack}>
       <span className={`yy-num ${css.index} ${band}`}>{lead === null ? '—' : fmt(lead)}</span>
+      <BadgeChip metric={r.index} sentence="none" />
       {mode !== 'raw' ? (
         <span className={`yy-label ${css.indexRaw}`}>
           {rawFirst
-            ? `${mode === 'qbn' ? 'QB-n' : 'Obl.*'} ${alt === null ? '—' : fmt(alt)}`
+            ? `QB-n ${alt === null ? '—' : fmt(alt)}`
             : `Cap+ ${fmt(raw)}`}
         </span>
       ) : null}

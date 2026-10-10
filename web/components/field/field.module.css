@@ -501,6 +501,21 @@
   z-index: 3;
 }
 
+/* An ESTIMATED season's mark: a dashed ring, distinct from the solid raw-Cap+
+   ghost ring and from the hot outline. */
+.ballEstimated .dot {
+  outline: 1px dashed var(--yy-fg-2);
+  outline-offset: 2px;
+}
+
+.ballEstimated.ballHot .dot {
+  outline: 2px dashed var(--yy-fg-1);
+}
+
+.badgeNote {
+  min-height: 0;
+}
+
 .ballHot .dot {
   outline: 2px solid var(--yy-fg-1);
   outline-offset: 2px;
@@ -802,6 +817,16 @@
   height: 10px;
   border-radius: 50%;
   border: 1.5px solid var(--yy-fg-2);
+}
+
+.keyEstimated {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--yy-fg-mid);
+  outline: 1px dashed var(--yy-fg-2);
+  outline-offset: 2px;
+  margin: 0 3px;
 }
 
 .keyRed {

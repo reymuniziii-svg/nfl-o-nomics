@@ -19,12 +19,16 @@
  * the single mark says both "here is the figure" and "this is not a 32-team
  * reading". Drawing a filled dot *and* a baseline absence ring at the same x
  * asserted two contradictory things at one coordinate.
+ *
+ * A MODELED figure (an estimated season: nobody published this club's number)
+ * is a hollow dashed dot with a whisker over its 80% range, and its date label
+ * reads "est. {date}", so it never passes for a published reading.
  */
 
 import css from './chart.module.css';
 import { ChartCaption, Legend, type LegendItem } from '../primitives';
 import { chartId, gridValues, scaleLinear, scalePoint, thinTicks, tickBudget } from './chart-kit';
-import type { Coverage } from '@/lib/display';
+import { usdShort, type Coverage } from '@/lib/display';
 import { useMeasuredWidth } from '@/lib/hooks/use-measured-width';
 
 /**
@@ -67,6 +71,8 @@ export interface DotPoint {
   asOfStage: string;
   /** A published leaders list, not a league table (`SPEC.md` §7.5). */
   leadersOnly: boolean;
+  /** A modeled figure's 80% range, USD (estimated seasons); null when published. */
+  range: { lo: number; hi: number } | null;
 }
 
 export function DeadMoneyDots({
@@ -88,12 +94,16 @@ export function DeadMoneyDots({
   coverage: Coverage;
 }) {
   const anyLeadersOnly = points.some((p) => p.leadersOnly);
+  const anyModeled = points.some((p) => p.range !== null);
   const [mRef, mW] = useMeasuredWidth<HTMLDivElement>(MOBILE.w);
   const [dRef, dW] = useMeasuredWidth<HTMLDivElement>(DESKTOP.w);
 
   const legend: LegendItem[] = [
     { swatch: 'dot', label: 'Dated reading, all 32 clubs', tone: 'partial' },
     { swatch: 'ring', label: 'Not a 32-team reading (on the baseline: no reading)', tone: 'absence' },
+    ...(anyModeled
+      ? [{ swatch: 'estimated', label: 'Modeled estimate, with its 80% range', tone: 'partial' } as LegendItem]
+      : []),
   ];
 
   // The reduced mobile domain: Tier 2 onward. Nothing is hidden by it — no
@@ -135,6 +145,16 @@ export function DeadMoneyDots({
       </div>
       <Legend items={legend} />
       <ChartCaption>{DOT_PLOT_CAPTION}</ChartCaption>
+      {anyModeled ? (
+        <ChartCaption>
+          {`A dashed dot with a whisker is an estimate: in ${[
+            ...new Set(points.filter((p) => p.range).map((p) => p.season)),
+          ].join(', ')} nobody published this club’s figure, so it’s modeled from contract data, and the whisker spans its 80% range (${points
+            .filter((p) => p.range)
+            .map((p) => `${p.season}: ${usdShort(p.usd)}, ${usdShort(p.range!.lo)}–${usdShort(p.range!.hi)}`)
+            .join('; ')}).`}
+        </ChartCaption>
+      ) : null}
       {anyLeadersOnly ? (
         <ChartCaption>
           An open ring is a reading from a published leaders list, not a league-wide table. It is a
@@ -171,7 +191,12 @@ function DotsSvg({
   const x = scalePoint<number>().domain(seasons).range([0, innerW]).padding(0.5);
   const px = (s: number) => x(s) ?? 0;
 
-  const burdens = points.map((p) => p.burden).filter((b): b is number => b !== null);
+  // A modeled figure's whisker top counts toward the domain, so the range is never clipped.
+  const burdens = points
+    .flatMap((p) =>
+      p.burden === null ? [] : p.range && p.usd > 0 ? [p.burden, (p.burden * p.range.hi) / p.usd] : [p.burden],
+    )
+    .filter((b): b is number => b !== null);
   const max = burdens.length ? Math.max(...burdens) : 0.2;
   const y = scaleLinear()
     .domain([0, Math.max(0.05, max * 1.15)])
@@ -252,8 +277,37 @@ function DotsSvg({
               </g>
             ))}
 
+          {/* modeled figures: the 80% range as a whisker, in burden units */}
           {points.map((p) =>
-            p.burden === null ? null : (
+            p.burden === null || !p.range || p.usd <= 0 ? null : (
+              <line
+                key={`r${p.season}-${p.asOfDate}`}
+                data-dm-range={p.season}
+                x1={px(p.season)}
+                x2={px(p.season)}
+                y1={y((p.burden * p.range.lo) / p.usd)}
+                y2={y((p.burden * p.range.hi) / p.usd)}
+                stroke="var(--yy-fg-2)"
+                strokeWidth={1}
+              />
+            ),
+          )}
+
+          {points.map((p) =>
+            p.burden === null ? null : p.range ? (
+              <circle
+                key={`p${p.season}-${p.asOfDate}`}
+                data-dm-reading={p.season}
+                data-dm-modeled={p.season}
+                cx={px(p.season)}
+                cy={y(p.burden)}
+                r={5}
+                fill="var(--yy-bg-card-flat)"
+                stroke="var(--yy-fg-2)"
+                strokeWidth={1}
+                style={{ strokeDasharray: '2 2' }}
+              />
+            ) : (
               <circle
                 key={`p${p.season}-${p.asOfDate}`}
                 /* Structural markers, so the build check can assert "every dot
@@ -301,7 +355,7 @@ function DotsSvg({
                 fill="var(--yy-asof)"
                 transform={`rotate(-90 ${px(p.season)} ${innerH + 30})`}
               >
-                {p.asOfDate}
+                {p.range ? `est. ${p.asOfDate}` : p.asOfDate}
               </text>
             ) : (
               <text
@@ -313,7 +367,7 @@ function DotsSvg({
                 textAnchor="middle"
                 fill="var(--yy-asof)"
               >
-                {p.asOfDate}
+                {p.range ? `est. ${p.asOfDate}` : p.asOfDate}
               </text>
             ),
           )}
@@ -339,7 +393,8 @@ function DotsSvg({
       <p id={`${id}-d`} className="yy-visually-hidden">
         A dot plot of dated dead-money readings. A filled dot is a reading from a league-wide
         table. An open dashed ring is a reading from a leaders list, which is not a 32-team
-        reading.
+        reading. A hollow dashed dot with a vertical whisker is a modeled estimate with its 80%
+        range.
       </p>
     </>
   );

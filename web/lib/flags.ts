@@ -52,11 +52,15 @@ export const IMAGE_MIN_WIDTH_PX: number =
 export const IMAGE_TREATMENT_MODE: string =
   process.env.IMAGE_TREATMENT_MODE || generated.IMAGE_TREATMENT_MODE || 'css_filter_only';
 
-/** The tiers that survive the current `DEAD_MONEY_TIER` setting. */
+/**
+ * The tiers that survive the current `DEAD_MONEY_TIER` setting. `MODELED` is a
+ * modeled figure in an estimated season (SPEC §2.2): the estimator trains on
+ * the full-tier tables, so it withdraws with them under SAFE-only.
+ */
 export const LICENSE_TIERS_ALLOWED: readonly string[] =
   DEAD_MONEY_TIER === 'SAFE_ONLY'
     ? ['SAFE_LEAGUE', 'SAFE_EDITORIAL']
-    : ['SAFE_LEAGUE', 'SAFE_EDITORIAL', 'REVIEW_SPOTRAC', 'REVIEW_OTC'];
+    : ['SAFE_LEAGUE', 'SAFE_EDITORIAL', 'REVIEW_SPOTRAC', 'REVIEW_OTC', 'MODELED'];
 
 export const FLAGS = {
   TEAM_LOGOS_ENABLED,

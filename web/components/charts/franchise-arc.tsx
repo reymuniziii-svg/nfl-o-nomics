@@ -6,11 +6,13 @@
  *
  * THE THREE RULES THIS CHART EXISTS TO OBEY
  *  1. **The hard break at 2013.** A full-height rule at `x(2013)`; no series
- *     path crosses it. Team Rating terminates at 2012; Cap+ begins at 2014.
- *  2. **Both lines on the 2014–2025 overlap**, told apart by color, stroke
+ *     path crosses it. Cap+ begins at 2013.
+ *  2. **Both lines on the 2013–2025 overlap**, told apart by color, stroke
  *     width and dash, plus a direct label at each terminus.
- *  3. **The four blanked Cap+ seasons are labeled gaps**, one `<path>` per
- *     run, never `defined()` on one path.
+ *  3. **A blanked Cap+ season is a labeled gap**, one `<path>` per run, never
+ *     `defined()` on one path. Under the shipping tier there is none: 2016,
+ *     2020 and 2021 are ESTIMATED values with a dashed ring, and the hatching
+ *     returns only under the SAFE-only reversal.
  *
  * WHAT CHANGED (review D #6, #7, #9; bug sweep)
  *  - **You are here.** The page's own season carries a rule, a ring on its
@@ -39,7 +41,7 @@ import css from './chart.module.css';
 import team from '../team/team.module.css';
 import { Legend, type LegendItem } from '../primitives';
 import { SeasonHitLayer } from '../team/season-hit-layer';
-import { DriveSvg, DRIVE_LEGEND, driveGeometry } from '../field/team-drive';
+import { DriveSvg, driveGeometry, driveLegend } from '../field/team-drive';
 import {
   INDEX_DOMAIN,
   chartId,
@@ -55,7 +57,7 @@ import {
 } from './chart-kit';
 import { useMeasuredWidth } from '@/lib/hooks/use-measured-width';
 import type { HistoryPoint } from '@/lib/data/team';
-import type { Metric } from '@/lib/metric';
+import { badgeNote, type Metric } from '@/lib/metric';
 import { yardsToGoal } from '../field/field-kit';
 import { ordinal } from '../team/format';
 
@@ -125,8 +127,13 @@ export function FranchiseArc({
   const effectiveMode: Mode = hasField ? mode : 'index';
 
   const provisional = points
-    .filter((p) => p.capplus.state === 'value' && p.capplus.provisional)
+    .filter((p) => badgeNote(p.capplus)?.badge === 'provisional')
     .map((p) => p.season);
+  const estimated = points
+    .filter((p) => badgeNote(p.capplus)?.badge === 'estimated')
+    .map((p) => p.season);
+  // Hatching only where a Tier 2 season has no Cap+ at all (the SAFE-only reversal).
+  const anyGap = points.some((p) => p.season > TIER2_BREAK && p.capplus.state === 'blank');
   const anyOffWindow = points.some(
     (p) =>
       (p.capplus.state !== 'blank' && offScale(p.capplus.value)) ||
@@ -139,15 +146,18 @@ export function FranchiseArc({
           { swatch: 'solid', label: 'Cap+', tone: 'accent' },
           { swatch: 'dashed', label: 'Team Rating (performance only)', tone: 'compare' },
           { swatch: 'benchmark', label: '100 = league average', tone: 'benchmark' },
-          { swatch: 'hatch', label: 'Season not covered', tone: 'absence' },
+          ...(anyGap ? [{ swatch: 'hatch', label: 'Season not covered', tone: 'absence' } as LegendItem] : []),
           ...(anyOffWindow
             ? [{ swatch: 'offscale', label: 'Off scale — true value printed', tone: 'absence' } as LegendItem]
             : []),
           ...(provisional.length
             ? [{ swatch: 'provisional', label: 'Provisional', tone: 'partial' } as LegendItem]
             : []),
+          ...(estimated.length
+            ? [{ swatch: 'estimated', label: 'Estimated', tone: 'partial' } as LegendItem]
+            : []),
         ]
-      : DRIVE_LEGEND;
+      : driveLegend({ gap: anyGap, estimated: estimated.length > 0 });
 
   const detailBy = new Map(details.map((d) => [d.season, d]));
   const pointBy = new Map(points.map((p) => [p.season, p]));
@@ -170,7 +180,7 @@ export function FranchiseArc({
               : p.capplus.state === 'blank'
                 ? 'Not covered — no league-wide table'
                 : `${p.capplus.value.toFixed(1)}${d?.capplusRank ? ` · ${ordinal(d.capplusRank)} of 32` : ''}${
-                    p.capplus.state === 'value' && p.capplus.provisional ? ' · provisional' : ''
+                    badgeNote(p.capplus) ? ` · ${badgeNote(p.capplus)!.label.toLowerCase()}` : ''
                   }`
           }
         />
@@ -264,6 +274,7 @@ export function FranchiseArc({
               teamName={teamName}
               geo={arcGeometry(width)}
               provisional={provisional}
+              estimated={estimated}
               currentSeason={currentSeason}
               active={active}
               setActive={setActive}
@@ -320,6 +331,7 @@ function IndexView({
   teamName,
   geo,
   provisional,
+  estimated,
   currentSeason,
   active,
   setActive,
@@ -330,6 +342,7 @@ function IndexView({
   teamName: string;
   geo: Geometry;
   provisional: number[];
+  estimated: number[];
   currentSeason: number;
   active: number | null;
   setActive: (s: number | null) => void;
@@ -628,6 +641,25 @@ function IndexView({
             );
           })}
 
+          {/* ESTIMATED seasons: a dashed ring, so a modeled season never reads
+              as a measured one. */}
+          {estimated.map((s) => {
+            const p = capplusPoints.find((q) => q.x === s);
+            if (!p || p.y === null || offScale(p.y)) return null;
+            return (
+              <circle
+                key={`es${s}`}
+                cx={px(s)}
+                cy={y(p.y)}
+                r={4.5}
+                fill="none"
+                stroke="var(--yy-fg-2)"
+                strokeWidth={1}
+                style={{ strokeDasharray: '2 2' }}
+              />
+            );
+          })}
+
           {/* YOU ARE HERE — the ring on the page's own point. */}
           {cur && curY !== null ? (
             <circle
@@ -732,9 +764,11 @@ function IndexView({
       />
       <p id={`${id}-d`} className="yy-visually-hidden">
         Two indices on one season axis, with a hard break at 2013. Team Rating scores performance
-        only and runs 1999 to 2025. Cap+ runs 2014 to 2025, with 2016, 2020 and 2021 blank. Blank
-        seasons, 2013 included, show as hatched gaps and are never interpolated. The {currentSeason}{' '}
-        season is marked. Each season below the chart is a link with its values.
+        only and runs 1999 to 2025. Cap+ runs 2013 to 2025.
+        {estimated.length ? ` ${estimated.join(', ')} are estimated and carry a dashed ring.` : ''}
+        {provisional.length ? ` ${provisional.join(', ')} are provisional.` : ''} Any season with no
+        Cap+ shows as a hatched gap and is never interpolated. The {currentSeason} season is marked.
+        Each season below the chart is a link with its values.
       </p>
     </div>
   );

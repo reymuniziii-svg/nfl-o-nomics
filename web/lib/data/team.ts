@@ -15,12 +15,14 @@ import {
   BRIDGE_SENTENCE,
   NOT_A_32_TEAM_READING,
   TEAM_RATING_NAME,
+  badged,
   blank,
   mapMetric,
   partial,
   value,
   type AsOf,
   type AsOfStage,
+  type CapPlusBadge,
   type Metric,
 } from '@/lib/metric';
 import { eraIdentity, type EraIdentity, type TeamAbbr } from '@/lib/teams';
@@ -28,7 +30,7 @@ import { isSeeded } from './registry';
 import { getLeagueAvgCostPerWin } from './league';
 import { seasonsForTeam } from './seasons';
 import {
-  CAPPLUS_BLANK_SEASONS,
+  capplusBlankSeasons,
   DEFAULT_NUMERATOR,
   NUMERATOR_CAVEAT,
   NUMERATOR_LABEL,
@@ -56,16 +58,72 @@ export interface TeamResults {
   pointsFor: number;
   pointsAgainst: number;
   pointDiff: number;
+  /** Deepest round reached. Context beside the record; never an index input. */
+  playoffResult: PlayoffResult;
+  playoffGames: number;
+  playoffWins: number;
 }
+
+export type PlayoffResult =
+  | 'none'
+  | 'wild_card'
+  | 'divisional'
+  | 'conference'
+  | 'super_bowl_loss'
+  | 'super_bowl_win';
 
 export interface TeamEpa {
   offPlays: number;
   defPlays: number;
+  /** Raw rates — shown beside the adjusted headline, no longer a P input. */
   offEpaPerPlay: number;
   defEpaPerPlay: number;
   epaMarginPerPlay: number;
   offEpaTotal: number;
   defEpaTotal: number;
+  /** Opponent-adjusted rates (`SPEC.md` §2.4). The margin is P's EPA input. */
+  offEpaPerPlayAdj: number;
+  defEpaPerPlayAdj: number;
+  epaMarginPerPlayAdj: number;
+  /** Strength of schedule: mean raw EPA margin of the opponents faced (+ = tougher). */
+  sosEpa: number;
+}
+
+type ResultsRow = typeof s.teamSeasonResults.$inferSelect;
+type EpaRow = typeof s.teamSeasonEpa.$inferSelect;
+
+function toResults(r: ResultsRow): TeamResults {
+  return {
+    season: r.season,
+    team: r.team as TeamAbbr,
+    games: r.games,
+    wins: r.wins,
+    losses: r.losses,
+    ties: r.ties,
+    winPct: r.winPct,
+    pointsFor: r.pointsFor,
+    pointsAgainst: r.pointsAgainst,
+    pointDiff: r.pointDiff,
+    playoffResult: r.playoffResult as PlayoffResult,
+    playoffGames: r.playoffGames,
+    playoffWins: r.playoffWins,
+  };
+}
+
+function toEpa(e: EpaRow): TeamEpa {
+  return {
+    offPlays: e.offPlays,
+    defPlays: e.defPlays,
+    offEpaPerPlay: e.offEpaPerPlay,
+    defEpaPerPlay: e.defEpaPerPlay,
+    epaMarginPerPlay: e.epaMarginPerPlay,
+    offEpaTotal: e.offEpaTotal,
+    defEpaTotal: e.defEpaTotal,
+    offEpaPerPlayAdj: e.offEpaPerPlayAdj,
+    defEpaPerPlayAdj: e.defEpaPerPlayAdj,
+    epaMarginPerPlayAdj: e.epaMarginPerPlayAdj,
+    sosEpa: e.sosEpa,
+  };
 }
 
 /* ------------------------------------------------------------------ */
@@ -76,14 +134,18 @@ export interface HistoryPoint {
   season: number;
   /** All 861 team-seasons carry this. */
   teamRating: Metric<number>;
-  /** Nine seasons carry this; four render as LABELED GAPS, never interpolated. */
+  /**
+   * All 13 Tier 2 seasons carry this under the shipping tier (estimated seasons
+   * as badged values). A blank renders as a LABELED GAP, never interpolated.
+   */
   capplus: Metric<number>;
 }
 
 export interface FranchiseHistory {
-  /** The hard visual break. Both lines are plotted on the 2014–2025 overlap. */
+  /** The hard visual break. Both lines are plotted on the 2013–2025 overlap. */
   breakSeason: number;
   bridgeSentence: string;
+  /** Tier 2 seasons with no Cap+ at all — empty unless the SAFE-only reversal ships. */
   blankSeasons: number[];
   points: HistoryPoint[];
 }
@@ -106,6 +168,11 @@ export interface Lens {
    */
   leagueMedianUsd: number | null;
   sourceUrl: string | null;
+  /**
+   * Dead money only — a MODELED figure's 80% range. Never null for a modeled
+   * row: the figure never renders without it (`SPEC.md` §2.2).
+   */
+  range: { lo: number; hi: number } | null;
 }
 
 /* ------------------------------------------------------------------ */
@@ -186,6 +253,14 @@ export interface DeadMoneySnapshot {
   burdenOfAdjustedCap: number | null;
   /** The season's league median dead money — the benchmark this figure needs. */
   leagueMedianUsd: number | null;
+  /** true = modeled from contract data (estimated season); renders with its range. */
+  isModeled: boolean;
+  /** 80% range for a modeled figure; null for a published one. */
+  loUsd: number | null;
+  hiUsd: number | null;
+  /** The season's badge on `dead_money_display` and its sentence. */
+  badge: CapPlusBadge | null;
+  badgeReason: string | null;
 }
 
 export interface DeadMoneyBlock {
@@ -208,10 +283,9 @@ export interface DeadMoneyBlock {
   burdenOfAdjustedCap: number | null;
   leagueMedianUsd: number | null;
   /**
-   * The four seasons with no league-wide table that ALSO have no leaders-list
-   * reading for this club. These are the only seasons that draw an empty
-   * absence ring; a club that does appear in a leaders list gets a ring AT ITS
-   * VALUE instead, so one mark carries both facts.
+   * Whole-season Cap+ blanks that ALSO have no reading for this club. Empty
+   * under the shipping tier (every 2013–2025 season has a measured or estimated
+   * figure); only the SAFE-only reversal draws empty absence rings here.
    */
   emptyBlankSeasons: number[];
 }
@@ -256,6 +330,13 @@ export interface DraftBlock {
     returnSeasonsStarted: number;
     nExcludedNoGsis: number;
     snapsAvailable: boolean;
+    /** return_w_av ÷ that draft year's mean class × 100. 100 = the year's average class. */
+    draftIndex: number | null;
+    /** 1 = best class of its draft year. */
+    draftIndexRank: number | null;
+    /** 'early' = too few seasons since the draft for the return to have settled. */
+    maturity: 'early' | 'mature';
+    seasonsElapsed: number;
   }>;
   /** Any DOLLAR framing of a draft class is Tier 2 and renders only for 2013+. */
   dollarFraming: Metric<null>;
@@ -311,35 +392,14 @@ export async function getTeamBundle(
   const r = resultRows[0];
 
   /* --- 1. results + EPA --- */
-  const results = value<TeamResults>({
-    season: r.season,
-    team: r.team as TeamAbbr,
-    games: r.games,
-    wins: r.wins,
-    losses: r.losses,
-    ties: r.ties,
-    winPct: r.winPct,
-    pointsFor: r.pointsFor,
-    pointsAgainst: r.pointsAgainst,
-    pointDiff: r.pointDiff,
-  });
+  const results = value<TeamResults>(toResults(r));
 
   const epaRows = await db
     .select()
     .from(s.teamSeasonEpa)
     .where(and(eq(s.teamSeasonEpa.team, team), eq(s.teamSeasonEpa.season, season)))
     .limit(1);
-  const epa: Metric<TeamEpa> = epaRows.length
-    ? value({
-        offPlays: epaRows[0].offPlays,
-        defPlays: epaRows[0].defPlays,
-        offEpaPerPlay: epaRows[0].offEpaPerPlay,
-        defEpaPerPlay: epaRows[0].defEpaPerPlay,
-        epaMarginPerPlay: epaRows[0].epaMarginPerPlay,
-        offEpaTotal: epaRows[0].offEpaTotal,
-        defEpaTotal: epaRows[0].defEpaTotal,
-      })
-    : blank(BLANK_REASON.MART_ABSENT);
+  const epa: Metric<TeamEpa> = epaRows.length ? value(toEpa(epaRows[0])) : blank(BLANK_REASON.MART_ABSENT);
 
   /* --- index (Cap+ where covered, Team Rating where not) --- */
   const capplus = await getCapPlus(season, team);
@@ -370,17 +430,23 @@ export async function getTeamBundle(
     : [];
   const capplusBySeason = new Map(capplusSeries.map((c) => [c.season, c]));
 
+  const blankSeasons = await capplusBlankSeasons();
   const history: FranchiseHistory = {
     breakSeason: TIER2_FIRST_SEASON,
     bridgeSentence: BRIDGE_SENTENCE,
-    blankSeasons: CAPPLUS_BLANK_SEASONS,
+    blankSeasons,
     points: ratingSeries.map((tr) => {
       const cp = capplusBySeason.get(tr.season);
       return {
         season: tr.season,
         teamRating: value(tr.perfIndex),
         capplus: cp
-          ? value(cp.capplus, { date: cp.dmAsofDate, stage: cp.dmAsofStage as AsOfStage }, cp.badge === 'provisional')
+          ? badged(
+              cp.capplus,
+              { date: cp.dmAsofDate, stage: cp.dmAsofStage as AsOfStage },
+              cp.badge as CapPlusBadge,
+              cp.badgeReason,
+            )
           : tr.season < TIER2_FIRST_SEASON
             ? blank(BLANK_REASON.PRE_TIER2)
             : blank(BLANK_REASON.NO_DM_TABLE),
@@ -434,6 +500,11 @@ export async function getTeamBundle(
     // an alternate carries none rather than borrowing another row's.
     burdenOfAdjustedCap: null,
     leagueMedianUsd: null,
+    isModeled: false,
+    loUsd: null,
+    hiUsd: null,
+    badge: null,
+    badgeReason: null,
   });
 
   const toDisplaySnapshot = (
@@ -452,6 +523,11 @@ export async function getTeamBundle(
       note: row.note,
       burdenOfAdjustedCap: row.burdenOfAdjustedCap,
       leagueMedianUsd: row.leagueMedianUsd,
+      isModeled: row.isModeled === true,
+      loUsd: row.loUsd,
+      hiUsd: row.hiUsd,
+      badge: (row.badge as CapPlusBadge | null) ?? null,
+      badgeReason: row.badgeReason,
     };
   };
 
@@ -482,7 +558,9 @@ export async function getTeamBundle(
           32,
           `${NOT_A_32_TEAM_READING} — no league-wide table was published for ${season}, so this comes from a published leaders list that names ${coveredClubs} of 32 clubs.`,
         )
-      : value(resolvedSnapshot, resolvedSnapshot.asOf)
+      : resolvedSnapshot.badge
+        ? badged(resolvedSnapshot, resolvedSnapshot.asOf, resolvedSnapshot.badge, resolvedSnapshot.badgeReason)
+        : value(resolvedSnapshot, resolvedSnapshot.asOf)
     : season < TIER2_FIRST_SEASON
       ? blank(BLANK_REASON.PRE_TIER2)
       : blank(dmDisplay?.blankReason ?? BLANK_REASON.NO_DM_TABLE);
@@ -496,6 +574,7 @@ export async function getTeamBundle(
       asOf: null,
       leagueMedianUsd: null,
       sourceUrl: null,
+      range: null,
     },
     {
       key: 'cash',
@@ -505,16 +584,22 @@ export async function getTeamBundle(
       asOf: null,
       leagueMedianUsd: null,
       sourceUrl: null,
+      range: null,
     },
     {
       key: 'dead_money',
       label: 'Dead money',
       amount: mapMetric(deadMoneyResolved, (d) => d.usd),
-      caveat:
-        'Dead money is cap you still pay for players who are gone. This is a dated press snapshot, not a figure we calculate. Value, date and stage always appear together, and we never average readings or connect them across seasons.',
+      caveat: resolvedSnapshot?.isModeled
+        ? 'Dead money is cap you still pay for players who are gone. Nobody published this club’s figure for this season, so it’s modeled from contract data and shown with its 80% range. Value, date and range always appear together.'
+        : 'Dead money is cap you still pay for players who are gone. This is a dated press snapshot, not a figure we calculate. Value, date and stage always appear together, and we never average readings or connect them across seasons.',
       asOf: resolvedSnapshot?.asOf ?? null,
       leagueMedianUsd: resolvedSnapshot?.leagueMedianUsd ?? null,
-      sourceUrl: resolvedSnapshot?.sourceUrl ?? null,
+      sourceUrl: resolvedSnapshot?.sourceUrl || null,
+      range:
+        resolvedSnapshot?.isModeled && resolvedSnapshot.loUsd !== null && resolvedSnapshot.hiUsd !== null
+          ? { lo: resolvedSnapshot.loUsd, hi: resolvedSnapshot.hiUsd }
+          : null,
     },
   ];
 
@@ -617,7 +702,7 @@ export async function getTeamBundle(
       .map(toSnapshot),
     seriesRenderer: 'dot_plot_no_path',
     series,
-    emptyBlankSeasons: CAPPLUS_BLANK_SEASONS.filter((x) => !seasonsWithReading.has(x)),
+    emptyBlankSeasons: blankSeasons.filter((x) => !seasonsWithReading.has(x)),
     ledger: ledgerRows.map((x) => ({
       player: x.player,
       seasons: x.seasons,
@@ -660,6 +745,10 @@ export async function getTeamBundle(
           returnSeasonsStarted: c.returnSeasonsStarted,
           nExcludedNoGsis: c.nExcludedNoGsis,
           snapsAvailable: c.snapsAvailable,
+          draftIndex: c.draftIndex,
+          draftIndexRank: c.draftIndexRank,
+          maturity: c.maturity,
+          seasonsElapsed: c.seasonsElapsed,
         })
       : blank('Not available — the draft record begins in 2000.'),
     // Tier boundaries are respected: capital and return are Tier 1; any framing
@@ -728,11 +817,10 @@ export interface RosterReceiptLine {
   games: Metric<number>;
 }
 
-/** A dead-money VOID line: the charge, and the charge at the Cap+ weight. */
+/** A dead-money VOID line. Dead money counts once (λ = 1, `DECISIONS.md` 109). */
 export interface RosterVoidLine {
   label: string;
   usd: number;
-  weighted: number;
 }
 
 export type ReceiptVerdictLabel = 'STEAL' | 'WORTH IT' | 'FAIR PRICE' | 'OVERPAID' | 'MONEY PIT';
@@ -773,8 +861,9 @@ export interface RosterReceipt {
   dead: Metric<{
     lines: RosterVoidLine[];
     total: number;
-    weighted: number;
     note: string | null;
+    /** A MODELED figure (estimated season): its 80% range. Never rendered bare. */
+    range: { lo: number; hi: number } | null;
   }>;
   /**
    * Cap+ floors the cost index at the season's 25th percentile: a club that
@@ -782,7 +871,7 @@ export interface RosterReceipt {
    * league cap, is the "unspent cap, no credit" line. `null` when not floored.
    */
   unspent: number | null;
-  /** (cap + 1.5 × dead [+ unspent]) — the cost Cap+ divides by. Cap+ seasons only. */
+  /** (cap + dead [+ unspent]) — the cost Cap+ divides by. Cap+ seasons only. */
   charged: Metric<number>;
   results: TeamResults;
   epa: Metric<TeamEpa>;
@@ -795,7 +884,6 @@ export interface RosterReceipt {
 }
 
 export const RECEIPT_TOP_N = 12;
-export const DEAD_MONEY_WEIGHT = 1.5;
 
 const VERDICT_LABELS: readonly ReceiptVerdictLabel[] = [
   'STEAL',
@@ -871,7 +959,7 @@ export async function getReceiptVerdict(
     cutoffs,
     rank,
     of: sorted.length,
-    rule: `The verdict comes from ${season} quintiles, or fifths, of cap per win across ${sorted.length} clubs. Clubs with 0 wins are left out.`,
+    rule: `The verdict ranks ${season} cap per win in fifths across ${sorted.length} clubs; clubs with 0 wins sit out.`,
   });
 }
 
@@ -975,10 +1063,21 @@ export async function getRosterReceipt(
   // Cap+ seasons read the figure Cap+ itself used; others read the display row.
   const deadUsd =
     capplus.state === 'value' ? capplus.value.deadMoneyRec : (dm?.deadMoneyUsd ?? null);
+  // In an estimated season Cap+ carries the season's reference date for every
+  // club; a PUBLISHED club's own reading date lives on the display row, and a
+  // published figure shows its own date (SPEC §7.5).
   const snapshot: AsOf | null =
-    capplus.state === 'value'
+    capplus.state === 'value' && !(capplus.badge === 'estimated' && dm?.asofDate)
       ? (capplus.asOf ?? null)
       : asOfOf(dm?.asofDate ?? null, dm?.asofStage ?? null);
+
+  // A modeled figure carries its 80% range wherever it renders (SPEC §2.2).
+  const modeled =
+    (capplus.state === 'value' ? capplus.value.dmIsModeled : dm?.isModeled === true) &&
+    dm?.loUsd != null &&
+    dm?.hiUsd != null
+      ? { lo: dm.loUsd, hi: dm.hiUsd }
+      : null;
 
   let dead: RosterReceipt['dead'];
   if (deadUsd === null || !snapshot) {
@@ -989,27 +1088,18 @@ export async function getRosterReceipt(
     const attributed = dm?.ledgerUsdAttributed ?? 0;
     const named = dm?.ledgerPlayers ?? null;
     if (named && dm?.ledgerSplitAllEstablished && attributed > 0 && attributed <= deadUsd) {
-      voidLines.push({ label: named, usd: attributed, weighted: attributed * DEAD_MONEY_WEIGHT });
+      voidLines.push({ label: named, usd: attributed });
       const rest = deadUsd - attributed;
-      if (rest > 0) {
-        voidLines.push({
-          label: 'All other dead money',
-          usd: rest,
-          weighted: rest * DEAD_MONEY_WEIGHT,
-        });
-      }
+      if (rest > 0) voidLines.push({ label: 'All other dead money', usd: rest });
     } else {
-      voidLines.push({ label: 'Dead money', usd: deadUsd, weighted: deadUsd * DEAD_MONEY_WEIGHT });
+      voidLines.push({ label: 'Dead money', usd: deadUsd });
       if (named && attributed > deadUsd) {
         note = `${named}'s verified charge is larger than this dated snapshot shows. The snapshot predates it.`;
       } else if (named && !dm?.ledgerSplitAllEstablished) {
         note = `Includes ${named}. The split by season is not confirmed.`;
       }
     }
-    dead = value(
-      { lines: voidLines, total: deadUsd, weighted: deadUsd * DEAD_MONEY_WEIGHT, note },
-      snapshot,
-    );
+    dead = value({ lines: voidLines, total: deadUsd, note, range: modeled }, snapshot);
   }
 
   const leagueCap = capRow.leagueCap;
@@ -1049,29 +1139,8 @@ export async function getRosterReceipt(
       dead,
       unspent,
       charged,
-      results: {
-        season: res.season,
-        team: res.team as TeamAbbr,
-        games: res.games,
-        wins: res.wins,
-        losses: res.losses,
-        ties: res.ties,
-        winPct: res.winPct,
-        pointsFor: res.pointsFor,
-        pointsAgainst: res.pointsAgainst,
-        pointDiff: res.pointDiff,
-      },
-      epa: epaRow
-        ? value({
-            offPlays: epaRow.offPlays,
-            defPlays: epaRow.defPlays,
-            offEpaPerPlay: epaRow.offEpaPerPlay,
-            defEpaPerPlay: epaRow.defEpaPerPlay,
-            epaMarginPerPlay: epaRow.epaMarginPerPlay,
-            offEpaTotal: epaRow.offEpaTotal,
-            defEpaTotal: epaRow.defEpaTotal,
-          })
-        : blank(BLANK_REASON.MART_ABSENT),
+      results: toResults(res),
+      epa: epaRow ? value(toEpa(epaRow)) : blank(BLANK_REASON.MART_ABSENT),
       capplus,
       costPerWin,
       leagueCostPerWin,
@@ -1172,13 +1241,13 @@ export interface SeasonInputRanks {
   n: number;
   winPctRank: number;
   pointDiffRank: number;
-  /** Blank where the EPA mart has no row for the club. */
+  /** Opponent-adjusted EPA margin rank. Blank where the EPA mart has no row for the club. */
   epaMarginRank: Metric<number>;
 }
 
 /**
- * Rank (1 = best) of the club's win %, point differential per game and EPA
- * margin per play among that season's clubs. The three inputs of `SPEC.md`
+ * Rank (1 = best) of the club's win %, point differential per game and
+ * opponent-adjusted EPA margin per play among that season's clubs. The three inputs of `SPEC.md`
  * §2.4, read from their marts and ordered — nothing is standardized or blended
  * here, so no index is recomputed. Ties share the better rank.
  */
@@ -1203,7 +1272,7 @@ export async function getSeasonInputRanks(
   const pointDiffRank = rankOf(res.map(pdg), pdg(me));
 
   const epa = await db
-    .select({ team: s.teamSeasonEpa.team, m: s.teamSeasonEpa.epaMarginPerPlay })
+    .select({ team: s.teamSeasonEpa.team, m: s.teamSeasonEpa.epaMarginPerPlayAdj })
     .from(s.teamSeasonEpa)
     .where(eq(s.teamSeasonEpa.season, season));
   const myEpa = epa.find((r) => r.team === team);
@@ -1266,16 +1335,5 @@ export async function getTeamSeasonResults(
     .where(and(eq(s.teamSeasonResults.team, team), eq(s.teamSeasonResults.season, season)))
     .limit(1);
   if (!r) return blank('Not available — no results are on record for this team-season.');
-  return value<TeamResults>({
-    season: r.season,
-    team: r.team as TeamAbbr,
-    games: r.games,
-    wins: r.wins,
-    losses: r.losses,
-    ties: r.ties,
-    winPct: r.winPct,
-    pointsFor: r.pointsFor,
-    pointsAgainst: r.pointsAgainst,
-    pointDiff: r.pointDiff,
-  });
+  return value<TeamResults>(toResults(r));
 }

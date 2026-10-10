@@ -167,7 +167,10 @@ const teamSeasonResults = loader({
   table: s.teamSeasonResults,
   name: 'team_season_results',
   candidates: ['team_season_results'],
-  required: ['season', 'team', 'games', 'wins', 'losses', 'ties', 'win_pct', 'points_for', 'points_against', 'point_diff'],
+  required: [
+    'season', 'team', 'games', 'wins', 'losses', 'ties', 'win_pct', 'points_for', 'points_against', 'point_diff',
+    'playoff_result', 'playoff_games', 'playoff_wins',
+  ],
   expected: 861,
   map: (r) => ({
     season: asInt(r.season)!,
@@ -180,6 +183,9 @@ const teamSeasonResults = loader({
     pointsFor: asInt(r.points_for)!,
     pointsAgainst: asInt(r.points_against)!,
     pointDiff: asInt(r.point_diff)!,
+    playoffResult: (asText(r.playoff_result) ?? 'none') as 'none',
+    playoffGames: asInt(r.playoff_games) ?? 0,
+    playoffWins: asInt(r.playoff_wins) ?? 0,
   }),
 });
 
@@ -187,7 +193,11 @@ const teamSeasonEpa = loader({
   table: s.teamSeasonEpa,
   name: 'team_season_epa',
   candidates: ['team_season_epa'],
-  required: ['season', 'team', 'off_plays', 'def_plays', 'off_epa_per_play', 'def_epa_per_play', 'epa_margin_per_play', 'off_epa_total', 'def_epa_total'],
+  required: [
+    'season', 'team', 'off_plays', 'def_plays', 'off_epa_per_play', 'def_epa_per_play', 'epa_margin_per_play',
+    'off_epa_total', 'def_epa_total', 'off_epa_per_play_adj', 'def_epa_per_play_adj', 'epa_margin_per_play_adj',
+    'sos_epa',
+  ],
   expected: 861,
   map: (r) => ({
     season: asInt(r.season)!,
@@ -199,6 +209,10 @@ const teamSeasonEpa = loader({
     epaMarginPerPlay: asNumber(r.epa_margin_per_play)!,
     offEpaTotal: asNumber(r.off_epa_total)!,
     defEpaTotal: asNumber(r.def_epa_total)!,
+    offEpaPerPlayAdj: asNumber(r.off_epa_per_play_adj)!,
+    defEpaPerPlayAdj: asNumber(r.def_epa_per_play_adj)!,
+    epaMarginPerPlayAdj: asNumber(r.epa_margin_per_play_adj)!,
+    sosEpa: asNumber(r.sos_epa)!,
   }),
 });
 
@@ -231,9 +245,18 @@ const capplusOfficial = loader({
   table: s.capplusOfficial,
   name: 'capplus_official',
   candidates: ['capplus_official', 'capplus'],
-  required: ['season', 'team', 'capplus', 'perf_index', 'P', 'dm_asof_date', 'dm_asof_stage', 'badge', 'season_rank'],
-  expected: 288,
-  map: (r) => ({
+  required: [
+    'season', 'team', 'capplus', 'perf_index', 'P', 'dm_asof_date', 'dm_asof_stage', 'dm_is_modeled', 'badge',
+    'badge_reason', 'season_rank',
+  ],
+  expected: 416,
+  map: (r) => {
+    // §7.4 — `license_tier` rides on this mart so the DEAD_MONEY_TIER filter
+    // reaches it. Under the SAFE-only reversal a REVIEW or MODELED row drops,
+    // and the season falls back to the whole-season blank sentence.
+    const tier = asText(r.license_tier);
+    if (tier !== null && !LICENSE_TIERS_ALLOWED.includes(tier)) return null;
+    return {
     season: asInt(r.season)!,
     team: asText(r.team)!,
     capplus: asNumber(r.capplus)!,
@@ -247,11 +270,14 @@ const capplusOfficial = loader({
     deadMoneyRec: asNumber(r.dead_money_rec)!,
     dmAsofDate: asText(r.dm_asof_date)!,
     dmAsofStage: asText(r.dm_asof_stage)! as 'preseason',
+    dmIsModeled: asBool(r.dm_is_modeled) ?? false,
     leagueMedianDeadMoneyUsd: asNumber(r.league_median_dead_money_usd),
-    licenseTier: asText(r.license_tier) as 'SAFE_LEAGUE' | null,
+    licenseTier: tier as 'SAFE_LEAGUE' | null,
     badge: asText(r.badge)! as 'provisional',
+    badgeReason: asText(r.badge_reason),
     seasonRank: asInt(r.season_rank)!,
-  }),
+    };
+  },
 });
 
 const teamRating = loader({
@@ -274,7 +300,7 @@ const deadMoneyTeamSeason = loader({
   name: 'dead_money_team_season',
   candidates: ['dead_money_team_season'],
   required: ['season', 'team', 'dead_money_usd', 'asof_date', 'asof_stage', 'coverage', 'source_url'],
-  expected: 370,
+  expected: 402,
   map: (r) => {
     // §7.5 — the DEAD_MONEY_TIER filter, applied at seed time (RISKS.md risk 1).
     // Rows without a derived tier are treated as REVIEW and drop under SAFE_ONLY.
@@ -331,7 +357,13 @@ const deadMoneyDisplay = loader({
     licenseTier: asText(r.license_tier) as 'SAFE_LEAGUE' | null,
     seasonCoverage: asText(r.season_coverage) as 'full32' | null,
     badge: asText(r.badge) as 'provisional' | null,
+    badgeReason: asText(r.badge_reason),
     blankReason: asText(r.blank_reason),
+    method: asText(r.method) as s.DeadMoneyMethod | null,
+    isModeled: asBool(r.is_modeled),
+    anchorAsofDate: asText(r.anchor_asof_date),
+    loUsd: asNumber(r.lo_usd),
+    hiUsd: asNumber(r.hi_usd),
     nAlternateReadings: asInt(r.n_alternate_readings),
     leagueMedianUsd: asNumber(r.league_median_usd),
     teamAdjustedCapImplied: asNumber(r.team_adjusted_cap_implied),
@@ -360,8 +392,10 @@ const deadMoneySnapshotResolution = loader({
     chosenAsofDate: asText(r.chosen_asof_date),
     chosenAsofStage: asText(r.chosen_asof_stage) as 'preseason' | null,
     badge: asText(r.badge) as 'provisional' | null,
+    badgeReason: asText(r.badge_reason),
     chosenLicenseTier: asText(r.chosen_license_tier) as 'SAFE_LEAGUE' | null,
     chosenNTeams: asInt(r.chosen_n_teams),
+    nPublishedTeams: asInt(r.n_published_teams),
     nCandidateSnapshots: asInt(r.n_candidate_snapshots),
     nFull32Snapshots: asInt(r.n_full32_snapshots),
     nPartialSnapshots: asInt(r.n_partial_snapshots),
@@ -486,7 +520,7 @@ const draftClassSummary = loader({
   table: s.draftClassSummary,
   name: 'draft_class_summary',
   candidates: ['draft_class_summary', 'draft_capital'],
-  required: ['season', 'team', 'n_picks', 'capital', 'capital_rank'],
+  required: ['season', 'team', 'n_picks', 'capital', 'capital_rank', 'seasons_elapsed', 'maturity', 'draft_index', 'draft_index_rank'],
   expected: 830,
   map: (r) => ({
     season: asInt(r.season)!,
@@ -506,6 +540,10 @@ const draftClassSummary = loader({
     snapsAvailable: asBool(r.snaps_available) ?? false,
     dollarFramingAvailable: asBool(r.dollar_framing_available),
     dollarFramingBlankReason: asText(r.dollar_framing_blank_reason),
+    seasonsElapsed: asInt(r.seasons_elapsed) ?? 0,
+    maturity: (asText(r.maturity) ?? 'mature') as 'early' | 'mature',
+    draftIndex: asNumber(r.draft_index),
+    draftIndexRank: asInt(r.draft_index_rank),
   }),
 });
 
@@ -604,9 +642,11 @@ const positionAllocation = loader({
 /**
  * `SPEC.md` §7.13 — the gate #1 reopen mart. No `license_tier`, so the
  * DEAD_MONEY_TIER filter does not apply: all 416 rows load. Index columns are
- * NULL in the four Cap+-blank seasons and stay NULL here; the data layer turns
- * them into a `Metric` blank. Every column is REQUIRED as a header so a CSV
- * that lost an index column is skipped, not silently loaded as all-blank.
+ * non-null in all 13 seasons under the full tier; where they are NULL (the
+ * SAFE-only reversal) the data layer turns them into a `Metric` blank. Every
+ * column is REQUIRED as a header so a CSV that lost an index column is skipped,
+ * not silently loaded as all-blank. `mortgage_alpha`, `capplus_obligation` and
+ * `obligation_rank` were removed 2026-10-10 (DECISIONS 111).
  */
 const capplusContext = loader({
   table: s.capplusContext,
@@ -618,7 +658,6 @@ const capplusContext = loader({
     'qb_rookie_window', 'league_median_starter_qb_cap', 'stratum_size', 'stratum_rank', 'perf_index',
     'perf_rank', 'capplus', 'capplus_rank', 'capplus_qb_neutral', 'qb_neutral_rank', 'qb_timing_pts',
     'roster_pts', 'cash_share', 'future_mortgage_usd', 'future_mortgage_share', 'mortgage_rows_unknown',
-    'mortgage_alpha', 'capplus_obligation', 'obligation_rank',
   ],
   expected: 416,
   map: (r) => ({
@@ -649,9 +688,6 @@ const capplusContext = loader({
     futureMortgageUsd: asNumber(r.future_mortgage_usd)!,
     futureMortgageShare: asNumber(r.future_mortgage_share)!,
     mortgageRowsUnknown: asInt(r.mortgage_rows_unknown)!,
-    mortgageAlpha: asNumber(r.mortgage_alpha)!,
-    capplusObligation: asNumber(r.capplus_obligation),
-    obligationRank: asInt(r.obligation_rank),
   }),
 });
 
@@ -878,6 +914,7 @@ async function createSchema(conn: Connection) {
     metric_state: s.metricStateEnum.enumValues,
     license_tier: s.licenseTierEnum.enumValues,
     capplus_badge: s.capplusBadgeEnum.enumValues,
+    playoff_result: s.playoffResultEnum.enumValues,
     position_group: s.positionGroupEnum.enumValues,
     coach_role: s.coachRoleEnum.enumValues,
     regime_kind: s.regimeKindEnum.enumValues,
@@ -886,6 +923,10 @@ async function createSchema(conn: Connection) {
   const stmts: string[] = [];
   for (const [name, values] of Object.entries(enums)) {
     const lits = values.map((v) => `'${v}'`).join(', ');
+    // Drop first: an enum that gained a value (e.g. `estimated`, `MODELED`) must
+    // be recreated, and on a persistent Postgres the old type would otherwise
+    // survive the duplicate_object guard below. Tables are rebuilt next anyway.
+    stmts.push(`DROP TYPE IF EXISTS "${name}" CASCADE;`);
     stmts.push(
       `DO $$ BEGIN CREATE TYPE "${name}" AS ENUM (${lits}); EXCEPTION WHEN duplicate_object THEN NULL; END $$;`,
     );
@@ -1183,7 +1224,10 @@ async function assertions(conn: Connection): Promise<{ label: string; ok: boolea
   await countCheck('team_season_results', 861, '861 result rows');
   await countCheck('team_season_epa', 861, '861 EPA rows');
   await countCheck('team_season_cap', 416, '416 cap rows');
-  await countCheck('capplus_official', 288, '288 Cap+ rows');
+  // Under the SAFE-only reversal Cap+ collapses to 2014–2015 by design (§2.2),
+  // so the full-tier counts are asserted only when the full tier ships.
+  const fullTier = DEAD_MONEY_TIER === 'ALL';
+  if (fullTier) await countCheck('capplus_official', 416, '416 Cap+ rows');
   await countCheck('capplus_context', 416, '416 Cap+ context rows');
   await countCheck('coaching_staff', 2612, '2,612 coaching rows');
   await countCheck('league_cap', 32, '32 league-cap rows');
@@ -1217,25 +1261,39 @@ async function assertions(conn: Connection): Promise<{ label: string; ok: boolea
     const nSeasons = await scalar(
       sql`SELECT count(DISTINCT season)::int AS n FROM ${s.capplusOfficial}`,
     );
-    out.push({
-      label: 'Cap+ spans exactly nine seasons',
-      ok: nSeasons === 9,
-      detail: `${nSeasons} distinct seasons`,
-    });
+    if (fullTier) {
+      out.push({
+        label: 'Cap+ spans all thirteen seasons, 2013–2025',
+        ok: nSeasons === 13,
+        detail: `${nSeasons} distinct seasons`,
+      });
+      const estimated = await scalar(
+        sql`SELECT count(DISTINCT season)::int AS n FROM ${s.capplusOfficial} WHERE badge = 'estimated'`,
+      );
+      const noReason = await scalar(
+        sql`SELECT count(*)::int AS n FROM ${s.capplusOfficial}
+            WHERE badge IN ('estimated', 'provisional') AND coalesce(badge_reason, '') = ''`,
+      );
+      out.push({
+        label: 'three estimated seasons; every estimated/provisional row carries its reason',
+        ok: estimated === 3 && noReason === 0,
+        detail: `${estimated} estimated seasons, ${noReason} badged rows without a reason`,
+      });
+    }
   }
 
-  if (seeded.get('capplus_context')?.status === 'seeded') {
-    // §7.13: index columns are NULL in exactly the four Cap+-blank seasons.
-    const blankSeasons = await scalar(
-      sql`SELECT count(DISTINCT season)::int AS n FROM ${s.capplusContext} WHERE capplus IS NULL`,
-    );
+  if (seeded.get('capplus_context')?.status === 'seeded' && fullTier) {
+    // §7.13: under the full tier every index column is non-null in all 13 seasons.
     const blankRows = await scalar(
-      sql`SELECT count(*)::int AS n FROM ${s.capplusContext} WHERE capplus IS NULL`,
+      sql`SELECT count(*)::int AS n FROM ${s.capplusContext}
+          WHERE capplus IS NULL OR capplus_rank IS NULL OR capplus_qb_neutral IS NULL
+             OR qb_neutral_rank IS NULL OR qb_timing_pts IS NULL OR roster_pts IS NULL
+             OR stratum_rank IS NULL`,
     );
     out.push({
-      label: 'Cap+ context index columns blank in exactly four whole seasons',
-      ok: blankSeasons === 4 && blankRows === 128,
-      detail: `${blankRows} blank rows across ${blankSeasons} seasons`,
+      label: 'no blank Cap+ context index rows',
+      ok: blankRows === 0,
+      detail: `${blankRows} rows with a null index column`,
     });
   }
 

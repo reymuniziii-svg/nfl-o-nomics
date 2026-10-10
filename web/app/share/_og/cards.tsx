@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { ImageResponse } from 'next/og';
 import { stageWords, usdShort } from '@/lib/display';
-import type { AsOf } from '@/lib/metric';
+import { badgeNote, type AsOf } from '@/lib/metric';
 import { FieldStrip, type StripBall } from './field-strip';
 import { ogFonts } from './fonts';
 import { OG, OG_TEXT, TONE_COLOR, toneOf } from './theme';
@@ -129,7 +129,7 @@ const COL = {
   height: '100%',
 } as const;
 
-const METHOD_TEAM = 'Cap+ = results per dollar vs the season’s league · dead money ×1.5';
+const METHOD_TEAM = 'Cap+ = results per dollar vs the season’s league · dead money counted once';
 
 function Line({
   label,
@@ -182,6 +182,45 @@ function Line({
       </span>
     </div>
   );
+}
+
+/**
+ * The season's badge as a small stamp beside the Cap+ figure: PROVISIONAL in
+ * the badge's gold ink, ESTIMATED in a dashed ink box (the site's chip, drawn
+ * for Satori). The reason sentence rides the footer's dated line.
+ */
+function BadgeStamp({ card }: { card: TeamCard }) {
+  const note = badgeNote(card.capplus);
+  if (!note) return null;
+  return note.badge === 'estimated' ? (
+    <span
+      style={{
+        display: 'flex',
+        fontFamily: OG_TEXT.athletic,
+        fontWeight: 600,
+        fontSize: 26,
+        letterSpacing: 1,
+        color: OG.ink1,
+        border: `2px dashed ${OG.ink2}`,
+        borderRadius: 6,
+        padding: '0 10px',
+      }}
+    >
+      ESTIMATED
+    </span>
+  ) : (
+    <span style={{ fontFamily: OG_TEXT.athletic, fontWeight: 600, fontSize: 28, color: OG.gold }}>
+      PROVISIONAL
+    </span>
+  );
+}
+
+/** The dated footer line, with the estimated season's count of published teams. */
+function badgeTail(card: TeamCard): string {
+  const note = badgeNote(card.capplus);
+  if (!note || note.badge !== 'estimated') return '';
+  const m = /(\d+) of 32 teams/.exec(note.sentence);
+  return m ? ` · estimated: ${m[1]}/32 published` : ' · estimated';
 }
 
 function Reason({ children }: { children: string }) {
@@ -333,11 +372,7 @@ export function TeamOg({ card }: { card: TeamCard }) {
         <span style={{ fontFamily: OG_TEXT.athletic, fontWeight: 600, fontSize: 28, color: OG.ink2 }}>
           {`#${card.capplus.value.seasonRank} OF 32`}
         </span>
-        {card.capplus.provisional ? (
-          <span style={{ fontFamily: OG_TEXT.athletic, fontWeight: 600, fontSize: 28, color: OG.gold }}>
-            PROVISIONAL
-          </span>
-        ) : null}
+        <BadgeStamp card={card} />
       </div>
     ) : card.tier2 ? (
       <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
@@ -373,10 +408,15 @@ export function TeamOg({ card }: { card: TeamCard }) {
       <Line label={`Roster cap · ${receipt.rosterCount} contracts`} value={usdShort(receipt.rosterSubtotal)} />
       {receipt.dead.state === 'value' ? (
         <Line
-          label="Void · dead money ×1.5"
-          strike={usdShort(receipt.dead.value.total)}
-          value={usdShort(receipt.dead.value.weighted)}
+          label="Void · dead money"
+          value={`${usdShort(receipt.dead.value.total)}${receipt.dead.value.range ? ' est.' : ''}`}
           valueColor={OG.negativeSoft}
+          aside={
+            receipt.dead.value.range
+              ? `80% ${usdShort(receipt.dead.value.range.lo)}–${usdShort(receipt.dead.value.range.hi)}`
+              : undefined
+          }
+          asideColor={OG.ink2}
         />
       ) : (
         <Line label="Dead money" value="No dated snapshot" valueColor={OG.ink2} />
@@ -387,10 +427,10 @@ export function TeamOg({ card }: { card: TeamCard }) {
         aside={cpw.lg && cpw.perWin ? `LEAGUE ${cpw.lg}` : undefined}
       />
       <Line
-        label="You got · EPA/play"
+        label="You got · EPA/play adj."
         value={
           receipt.epa.state === 'value'
-            ? `${signed(receipt.epa.value.offEpaPerPlay, 2)} off · ${signed(receipt.epa.value.defEpaPerPlay, 2)} def`
+            ? `${signed(receipt.epa.value.offEpaPerPlayAdj, 2)} off · ${signed(receipt.epa.value.defEpaPerPlayAdj, 2)} def`
             : 'EPA not in snapshot'
         }
       />
@@ -406,7 +446,7 @@ export function TeamOg({ card }: { card: TeamCard }) {
   return (
     <Frame
       band={band}
-      dated={datedLine(receipt?.snapshot ?? null)}
+      dated={`${datedLine(receipt?.snapshot ?? null)}${badgeTail(card)}`}
       method={card.tier2 ? METHOD_TEAM : 'Team Rating = win %, point diff and EPA vs the season’s league'}
       panel={
         <div style={COL}>
@@ -612,10 +652,14 @@ export function CompareOg({ a, b }: { a: TeamCard; b: TeamCard }) {
     </div>
   );
   const capStr = (c: TeamCard) =>
-    c.capplus.state === 'value' ? c.capplus.value.capplus.toFixed(0) : c.tier2 ? 'No table' : 'Pre-2013';
+    c.capplus.state === 'value'
+      ? `${c.capplus.value.capplus.toFixed(0)}${badgeNote(c.capplus)?.badge === 'estimated' ? ' est.' : ''}`
+      : c.tier2
+        ? 'No table'
+        : 'Pre-2013';
   const deadStr = (c: TeamCard) =>
     c.receipt.state === 'value' && c.receipt.value.dead.state === 'value'
-      ? usdShort(c.receipt.value.dead.value.weighted)
+      ? `${usdShort(c.receipt.value.dead.value.total)}${c.receipt.value.dead.value.range ? ' est.' : ''}`
       : 'No snapshot';
   const lgStr = (c: TeamCard) => cpwOf(c).lg ?? 'Pre-2013';
   const cpwStr = (c: TeamCard) => {
@@ -638,7 +682,7 @@ export function CompareOg({ a, b }: { a: TeamCard; b: TeamCard }) {
         {row('Cap+', capStr(a), capStr(b))}
         {row('Cap per win', cpwStr(a), cpwStr(b))}
         {row('League per win', lgStr(a), lgStr(b), OG.gold)}
-        {row('Void ×1.5', deadStr(a), deadStr(b), OG.negativeSoft)}
+        {row('Dead money', deadStr(a), deadStr(b), OG.negativeSoft)}
       </div>
     </div>
   );

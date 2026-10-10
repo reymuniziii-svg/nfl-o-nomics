@@ -107,8 +107,11 @@ function toScrub(f: LeagueFrame): ScrubFrame {
               rawRank: c.indices.value.capplusRank,
               qbn: c.indices.value.qbNeutral,
               qbnRank: c.indices.value.qbNeutralRank,
-              obl: c.indices.value.obligation,
-              oblRank: c.indices.value.obligationRank,
+              badge:
+                c.indices.value.badge === 'estimated' || c.indices.value.badge === 'provisional'
+                  ? c.indices.value.badge
+                  : null,
+              badgeReason: c.indices.value.badgeReason,
             },
       rookie: c.rookieWindow,
       qb: c.startingQb,
@@ -172,8 +175,6 @@ export async function DivisionView({ slug }: { slug: DivisionSlug }) {
           ? {
               qbn: c.indices.value.qbNeutral,
               qbnRank: c.indices.value.qbNeutralRank,
-              obl: c.indices.value.obligation,
-              oblRank: c.indices.value.obligationRank,
               stratumRank: c.indices.value.stratumRank,
             }
           : null,
@@ -276,11 +277,6 @@ export async function DivisionView({ slug }: { slug: DivisionSlug }) {
                       get: (r) => (r.index.state === 'blank' ? r.index.reason : ''),
                     },
                     { key: 'qbn', label: 'capplus_qb_neutral', get: (r) => (r.ctx ? r.ctx.qbn.toFixed(6) : '') },
-                    {
-                      key: 'obl',
-                      label: 'capplus_obligation_CANDIDATE',
-                      get: (r) => (r.ctx ? r.ctx.obl.toFixed(6) : ''),
-                    },
                     { key: 'rookie', label: 'qb_rookie_window', get: (r) => (r.rookie === null ? '' : String(r.rookie)) },
                     { key: 'qb', label: 'starting_qb', get: (r) => r.qb ?? '' },
                     {
@@ -313,7 +309,9 @@ export async function DivisionView({ slug }: { slug: DivisionSlug }) {
                     `YIELD/YARD — ${indexName} leaderboard, ${season}`,
                     `source marts: ${leaderboard.capplusCovered ? 'capplus_official' : 'team_rating'}, capplus_context, team_season_results, team_season_cap`,
                     'coverage: all 32 clubs. 100 = league average. Contract, cap and cash coverage begins in 2013.',
-                    'capplus_obligation is a CANDIDATE index (SPEC §2.10), published beside Cap+ only.',
+                    ...(leaderboard.rows.some((r) => r.badge === 'estimated' || r.badge === 'provisional')
+                      ? [`badge: ${leaderboard.rows.find((r) => r.badgeReason)?.badgeReason ?? ''}`]
+                      : []),
                     'zero-win rule: a club with no wins carries its total spend and no ratio. The ratio is never Infinity, "N/A" or a blank.',
                     `league average cost per win (cash): ${
                       avgCash.state === 'blank' ? avgCash.reason : usdShort(avgCash.value)

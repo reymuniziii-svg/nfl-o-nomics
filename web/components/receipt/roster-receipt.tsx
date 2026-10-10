@@ -1,8 +1,7 @@
 import css from './roster-receipt.module.css';
-import { usdShort } from '@/lib/display';
-import type { Metric } from '@/lib/metric';
+import { playoffWords, usdShort } from '@/lib/display';
+import { badgeDetail, badgeNote, type Metric } from '@/lib/metric';
 import type { RosterReceipt, ReceiptVerdict } from '@/lib/data/team';
-import { DEAD_MONEY_WEIGHT } from '@/lib/data/team';
 
 /**
  * THE ROSTER RECEIPT — review E1 / blind proposal §2 "The Receipt".
@@ -10,8 +9,10 @@ import { DEAD_MONEY_WEIGHT } from '@/lib/data/team';
  * The brand's "receipts" promise made literal: an itemized bill on off-white
  * paper. Top 12 cap hits with games beside them, every other contract on one
  * line so the subtotal reconciles to `team_season_cap` to the dollar, dead
- * money as struck-through VOID lines at the Cap+ weight, the floor's
- * "unspent cap, no credit", then what the money bought and the total.
+ * money as struck-through VOID lines (counted once, as in Cap+), the floor's
+ * "unspent cap, no credit", then what the money bought and the total. An
+ * estimated or provisional season prints its badge and reason in the header;
+ * a modeled dead-money figure prints its 80% range on the VOID line.
  *
  * WHAT IT NEVER DOES: divide a player's cap by his games or his production.
  * The two sit side by side; the reader does the judging. A per-player ratio
@@ -94,6 +95,7 @@ export function RosterReceipt({
   const deadReason = r.dead.state === 'blank' ? r.dead.reason : null;
   const reasonOnce = (reason: string) =>
     reason === deadReason ? 'not available without dead money.' : reason;
+  const badge = badgeNote(r.capplus);
 
   return (
     <div className={`${css.paper} ${sizeClass}`} data-export-root>
@@ -111,9 +113,15 @@ export function RosterReceipt({
           <p className={css.meta}>
             {r.season} · HC {r.regime.state === 'value' ? r.regime.value : r.regime.reason}
             {r.snapshot
-              ? ` · dead money as of ${r.snapshot.date} (${r.snapshot.stage.replace('_', ' ')})`
+              ? ` · dead money ${r.dead.state === 'value' && r.dead.value.range ? 'estimated ' : ''}as of ${r.snapshot.date} (${r.snapshot.stage.replace('_', ' ')})`
               : ' · dead money: no dated snapshot'}
           </p>
+          {badge ? (
+            <p className={css.badgeLine}>
+              <span className={css.badgeTag}>{badge.label}</span>{' '}
+              {badgeDetail(badge.badge, r.capplus.state === 'value' ? r.capplus.badgeReason : null)}
+            </p>
+          ) : null}
         </header>
 
         <hr className={css.rule} />
@@ -173,13 +181,18 @@ export function RosterReceipt({
             {r.dead.value.lines.map((v) => (
               <div className={css.void} key={v.label}>
                 <span className={css.voidTag}>VOID</span>
-                <span className={css.voidLabel}>
-                  <s>
-                    {v.label} {usdShort(v.usd)}
-                  </s>{' '}
-                  ×{DEAD_MONEY_WEIGHT}
+                <span
+                  className={`${css.voidLabel} ${r.dead.state === 'value' && r.dead.value.range ? css.voidLabelWrap : ''}`}
+                >
+                  <s>{v.label}</s>
+                  {/* A modeled figure never renders bare (SPEC §2.2 / §7.5): its
+                      80% range rides on the VOID line, and the header's "dead
+                      money as of {date}" carries the estimate's date. */}
+                  {r.dead.state === 'value' && r.dead.value.range
+                    ? `, estimated · 80% range ${usdShort(r.dead.value.range.lo)}–${usdShort(r.dead.value.range.hi)}`
+                    : null}
                 </span>
-                <span className={css.num}>{usdShort(v.weighted)}</span>
+                <span className={css.num}>{usdShort(v.usd)}</span>
               </div>
             ))}
             {r.dead.value.note ? <p className={css.fine}>{r.dead.value.note}</p> : null}
@@ -206,16 +219,18 @@ export function RosterReceipt({
         <section className={css.got} aria-label="What the money bought">
           <p className={css.section}>You got</p>
           <div className={css.line}>
-            <span>Record · point diff</span>
+            <span>Record · postseason</span>
             <span className={css.num}>
-              {record(res.wins, res.losses, res.ties)} · {signed(res.pointDiff)}
+              {res.playoffResult === 'super_bowl_win'
+                ? `Super Bowl champion · ${record(res.wins, res.losses, res.ties)} (${signed(res.pointDiff)})`
+                : `${record(res.wins, res.losses, res.ties)} (${signed(res.pointDiff)}) · ${playoffWords(res.playoffResult)}`}
             </span>
           </div>
           {r.epa.state === 'value' ? (
             <div className={css.line}>
-              <span>EPA/play off · def allowed</span>
+              <span>EPA/play off · def, opp.-adj.</span>
               <span className={css.num}>
-                {signed(r.epa.value.offEpaPerPlay, 3)} · {signed(r.epa.value.defEpaPerPlay, 3)}
+                {signed(r.epa.value.offEpaPerPlayAdj, 3)} · {signed(r.epa.value.defEpaPerPlayAdj, 3)}
               </span>
             </div>
           ) : (
@@ -236,7 +251,9 @@ export function RosterReceipt({
                 </span>
                 <span className={css.big}>
                   {r.capplus.value.capplus.toFixed(0)}
-                  {r.capplus.provisional ? <span className={css.prov}> prov.</span> : null}
+                  {badge ? (
+                    <span className={css.prov}> {badge.badge === 'estimated' ? 'est.' : 'prov.'}</span>
+                  ) : null}
                 </span>
               </div>
             ) : (
@@ -280,9 +297,9 @@ export function RosterReceipt({
           ) : null}
           <p className={css.fine}>
             Cap is the season-final cap hit of rostered players. Dead money is cap you still pay for
-            players who are gone. It bills separately as VOID, weighted ×{DEAD_MONEY_WEIGHT} as in
-            Cap+. Games sit beside cap and are never divided into it. This is a bill, not a player
-            grade.
+            players who are gone; it bills as VOID and counts once, as in Cap+. Games sit beside cap,
+            never divided into it. The postseason stays out of every index. This is a bill, not a
+            player grade.
             {r.unspent !== null
               ? ' Unspent cap tops the bill up to the season’s cost floor, the 25th percentile of team cost. Spending less than that earns no credit.'
               : ''}

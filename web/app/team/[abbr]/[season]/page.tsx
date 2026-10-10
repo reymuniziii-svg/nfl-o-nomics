@@ -42,6 +42,7 @@ import {
   Card,
   CardHeader,
   ChartCaption,
+  Chip,
   KpiTile,
   MetricText,
 } from '@/components/primitives';
@@ -212,12 +213,15 @@ export default async function TeamSeasonPage({
     asOfDate: s.asOf.date,
     asOfStage: s.asOf.stage,
     leadersOnly: s.seasonCoverage === 'leaders_only',
+    range: s.isModeled && s.loUsd !== null && s.hiUsd !== null ? { lo: s.loUsd, hi: s.hiUsd } : null,
   }));
   const anyBurden = dots.some((d) => d.burden !== null);
   const missingBurden = dots.filter((d) => d.burden === null).length;
 
   const dotCoverage = [
-    'A reading exists only where a league-wide table or a published leaders list named this club.',
+    b.deadMoney.series.some((s) => s.isModeled)
+      ? 'A reading is published wherever a league-wide table or a list named this club; in an estimated season a club nobody published is modeled.'
+      : 'A reading exists only where a league-wide table or a published leaders list named this club.',
     b.deadMoney.emptyBlankSeasons.length
       ? `${listSeasons(b.deadMoney.emptyBlankSeasons)} have neither and show as empty rings on the baseline.`
       : '',
@@ -350,6 +354,16 @@ export default async function TeamSeasonPage({
                   get: (p) => (p.capplus.state === 'blank' ? '' : p.capplus.value.toFixed(6)),
                 },
                 {
+                  key: 'capplus_badge',
+                  label: 'capplus_badge',
+                  get: (p) => (p.capplus.state === 'value' ? (p.capplus.badge ?? '') : ''),
+                },
+                {
+                  key: 'capplus_badge_reason',
+                  label: 'capplus_badge_reason',
+                  get: (p) => (p.capplus.state === 'value' ? (p.capplus.badgeReason ?? '') : ''),
+                },
+                {
                   key: 'capplus_blank_reason',
                   label: 'capplus_blank_reason',
                   get: (p) => (p.capplus.state === 'blank' ? p.capplus.reason : ''),
@@ -357,7 +371,7 @@ export default async function TeamSeasonPage({
               ], [
                 `YIELD/YARD — ${b.identity.name} franchise arc`,
                 'source marts: team_rating, capplus_official',
-                'coverage: Team Rating 1999-2025 (performance only). Cap+ 2014-2025; 2013, 2016, 2020 and 2021 are blanked whole-season.',
+                `coverage: Team Rating 1999-2025 (performance only). Cap+ 2013-2025; 2013 provisional, 2016, 2020 and 2021 estimated.${b.history.blankSeasons.length ? ` Blank whole-season: ${b.history.blankSeasons.join(', ')}.` : ''}`,
                 'The two indices are never spliced: they are different metrics and the chart breaks at 2013.',
               ])}
             />
@@ -371,7 +385,14 @@ export default async function TeamSeasonPage({
           details={arcDetails}
         />
         {/* §4.4 — the bridge sentence is always visible; the rest is precision. */}
-        <FinePrint short={<>{BRIDGE_SENTENCE} {ARC_SHORT}</>}>
+        <FinePrint
+          short={
+            <>
+              {BRIDGE_SENTENCE} {ARC_SHORT}
+              {b.history.blankSeasons.length ? ' Hatched seasons fall outside coverage.' : ''}
+            </>
+          }
+        >
           <ChartCaption>{ARC_BRIDGE}</ChartCaption>
           <ChartCaption>{ARC_FIELD_NOTE}</ChartCaption>
           {offWindow ? (
@@ -380,7 +401,9 @@ export default async function TeamSeasonPage({
             </ChartCaption>
           ) : null}
           <ChartCaption>
-            {`Team Rating covers 1999–2025. Cap+ covers 2014–2025, with 2016, 2020 and 2021 blank for the whole season; 2013 is blank too. ${BLANK_REASON.NO_DM_TABLE}`}
+            {b.history.blankSeasons.length
+              ? `Team Rating covers 1999–2025. Cap+ has no reading for ${listSeasons(b.history.blankSeasons)}. ${BLANK_REASON.NO_DM_TABLE}`
+              : 'Team Rating covers 1999–2025, and Cap+ covers 2013–2025. 2013 is provisional: its table came out one week into the league year and understates the final figure. 2016, 2020 and 2021 are estimated: only 8, 11 and 10 clubs had their dead money published, and the rest is modeled from contract data.'}
           </ChartCaption>
         </FinePrint>
       </Card>
@@ -508,12 +531,17 @@ export default async function TeamSeasonPage({
                     label: 'league_median_usd',
                     get: (s) => s.leagueMedianUsd ?? '',
                   },
+                  { key: 'is_modeled', label: 'is_modeled', get: (s) => String(s.isModeled) },
+                  { key: 'lo', label: 'lo_usd_80pct', get: (s) => s.loUsd ?? '' },
+                  { key: 'hi', label: 'hi_usd_80pct', get: (s) => s.hiUsd ?? '' },
+                  { key: 'badge', label: 'badge', get: (s) => s.badge ?? '' },
                   { key: 'source', label: 'source_url', get: (s) => s.sourceUrl },
                 ], [
                   `YIELD/YARD — ${b.identity.name} dead-money readings`,
                   'source mart: dead_money_display (the pinned per-team-season resolution)',
                   'Each row is a separate dated press snapshot. Readings are NEVER averaged, merged or connected across seasons.',
                   'season_coverage=leaders_only means a published leaders list, not a 32-team table.',
+                  'is_modeled=true: no published figure exists; modeled from contract data, with an 80% range (lo/hi). Never read it without the range.',
                   'Same-season drift is real: CHI 2022 read $57.6M preseason and $91.8M final.',
                 ])}
               />
@@ -575,6 +603,7 @@ export default async function TeamSeasonPage({
         <CardHeader eyebrow={`${season} class`} title="DRAFT CAPITAL & RETURN" />
         {b.draft.summary.state === 'value' ? (
           <DraftBody
+            season={season}
             summary={b.draft.summary.value}
             medians={draftMedians}
             dollarFraming={b.draft.dollarFraming}
@@ -598,10 +627,12 @@ export default async function TeamSeasonPage({
  * always named" rule.
  */
 function DraftBody({
+  season,
   summary: d,
   medians,
   dollarFraming,
 }: {
+  season: number;
   summary: {
     nPicks: number;
     capital: number;
@@ -609,6 +640,10 @@ function DraftBody({
     returnGames: number | null;
     returnWAv: number | null;
     nExcludedNoGsis: number;
+    draftIndex: number | null;
+    draftIndexRank: number | null;
+    maturity: 'early' | 'mature';
+    seasonsElapsed: number;
   };
   medians: Metric<{ n: number; capital: number; returnWAv: Metric<number>; returnGames: Metric<number> }>;
   dollarFraming: Metric<null>;
@@ -624,6 +659,35 @@ function DraftBody({
   return (
     <>
       <StatGrid>
+        {/* THE HEADLINE: return against the same draft year's average class, so
+            a 2024 class is not judged against a 2016 class's eight seasons. */}
+        <KpiTile
+          label="Draft index"
+          value={
+            d.draftIndex === null ? (
+              'Not available'
+            ) : (
+              <>
+                {Math.round(d.draftIndex)}
+                {d.maturity === 'early' ? (
+                  <>
+                    {' '}
+                    <Chip
+                      kind="early"
+                      title={`Early: ${d.seasonsElapsed} season${d.seasonsElapsed === 1 ? '' : 's'} since the draft, so the return is still building.`}
+                    />
+                  </>
+                ) : null}
+              </>
+            )
+          }
+          unit={`100 = avg ${season} class${d.draftIndexRank !== null ? ` · ${ordinal(d.draftIndexRank)} of ${med?.n ?? 32}` : ''}`}
+          note={
+            d.maturity === 'early'
+              ? `Early read: ${d.seasonsElapsed} season${d.seasonsElapsed === 1 ? '' : 's'} since the draft, so the return is still building.`
+              : undefined
+          }
+        />
         <KpiTile label="Picks" value={String(d.nPicks)} unit="selections" />
         <KpiTile
           label="Capital"
@@ -651,7 +715,8 @@ function DraftBody({
             <a href={DRAFT_CHART_URL} rel="noopener noreferrer" target="_blank">
               {DRAFT_CHART_NAME}
             </a>
-            , in chart points. Return is measured over {measured} of {d.nPicks} picks.
+            , in chart points. Return is measured over {measured} of {d.nPicks} picks.{' '}
+            {`The draft index sets this class’s weighted approximate value against the average ${season} class, so 100 is that year’s average.`}
           </>
         }
       >
@@ -746,16 +811,16 @@ function AlternateReadings({
 
 /** Visible beside BRIDGE_SENTENCE — the corrected definition (SPEC §2.2, §2.4). */
 const ARC_SHORT =
-  'Cap+ divides that score by cap cost. Team Rating leaves cost out. Hatched seasons fall outside ' +
-  'coverage.';
+  'Cap+ divides that score by cap cost. Team Rating leaves cost out. A dashed ring marks an ' +
+  'estimated season.';
 
 /** v1 said Cap+ "scores wins produced per dollar". It does not: wins are one of three inputs. */
 const ARC_BRIDGE =
   'Team Rating (1999–2025) is performance only. It weights win %, point differential per game ' +
-  'and EPA margin per play equally, and compares each with the rest of its season. EPA is ' +
-  'expected points added, offense minus defense. Cap+ (2014–2025) divides that score by roster ' +
-  'cost against the cap, with dead money weighted 1.5×. Together they show where cost moved a ' +
-  'club. They don’t measure the same thing.';
+  'and opponent-adjusted EPA margin per play equally, and compares each with the rest of its ' +
+  'season. EPA is expected points added, offense minus defense. Cap+ (2013–2025) divides that ' +
+  'score by roster cost against the cap, with dead money counted once. Together they show where ' +
+  'cost moved a club. They don’t measure the same thing.';
 
 const ARC_FIELD_NOTE =
   '“Field” redraws Cap+ as a drive: midfield is Cap+ 100, one index point is one yard, ' +

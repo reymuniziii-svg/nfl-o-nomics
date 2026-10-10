@@ -360,9 +360,6 @@
   color: var(--yy-fg-2);
 }
 
-.provisional {
-  color: var(--yy-provisional);
-}
 
 .notCovered {
   display: inline-block;

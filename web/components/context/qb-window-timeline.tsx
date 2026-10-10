@@ -11,7 +11,7 @@
  *
  * Grammar shared with `FranchiseArc`: fixed 76–124 window (never fitted),
  * gold 100, one lime series (Cap+), Team-Rating-style dashed second series,
- * blank seasons hatched and named, one `<path>` per run, the page's season
+ * a blank season (SAFE-only reversal) hatched and named, one `<path>` per run, the page's season
  * marked. Measured width at scale 1.0, so no sideways scroller and no type
  * below the floor.
  */
@@ -282,7 +282,10 @@ export function QbWindowTimeline({
           { swatch: 'solid', label: 'Cap+', tone: 'accent' },
           { swatch: 'dashed', label: CAPPLUS_QB_NEUTRAL_LABEL, tone: 'compare' },
           { swatch: 'benchmark', label: '100 = league average', tone: 'benchmark' },
-          { swatch: 'hatch', label: 'Season not covered', tone: 'absence' },
+          // Hatching appears only where a season's indices are blank (SAFE-only reversal).
+          ...(series.some((r) => r.indices.state === 'blank')
+            ? [{ swatch: 'hatch', label: 'Season not covered', tone: 'absence' } as const]
+            : []),
         ]}
       />
     </div>

@@ -12,7 +12,7 @@
 import Link from 'next/link';
 import type { ReactNode } from 'react';
 import css from './primitives.module.css';
-import type { AsOf as AsOfValue, Metric } from '@/lib/metric';
+import { badgeDetail, badgeNote, type AsOf as AsOfValue, type Metric } from '@/lib/metric';
 import { indexBand, partialSuffix, stageWords, type Band } from '@/lib/display';
 
 /* ══════════════════════════════════════════════════════════════════════════ */
@@ -80,6 +80,8 @@ export function CardHeader({
 
 const CHIP_CLASS = {
   provisional: css.chipProvisional,
+  estimated: css.chipEstimated,
+  early: css.chipEarly,
   projected: css.chipProjected,
   verified: css.chipVerified,
   sample: css.chipSample,
@@ -87,6 +89,8 @@ const CHIP_CLASS = {
 
 const CHIP_TEXT = {
   provisional: 'Provisional',
+  estimated: 'Estimated',
+  early: 'Early',
   projected: 'Projected',
   verified: 'Verified actual',
   sample: 'Sample',
@@ -102,6 +106,40 @@ export function Chip({
   return (
     <span className={`yy-micro ${css.chip} ${CHIP_CLASS[kind]}`} title={title}>
       {CHIP_TEXT[kind]}
+    </span>
+  );
+}
+
+/**
+ * The Cap+ season badge as a chip — Provisional or Estimated — for any metric
+ * that carries one (`badgeNote`). The reason sentence is the chip's hover
+ * title, its accessible text, and a visible line in the print/screenshot
+ * variant (`.yy-export`, `@media print`), so a screenshot never drops it.
+ * Renders nothing for an unbadged value. `sentence="inline"` prints it always.
+ */
+export function BadgeChip({
+  metric,
+  sentence = 'export',
+}: {
+  metric: Metric<unknown> | null | undefined;
+  sentence?: 'export' | 'inline' | 'none';
+}) {
+  const note = badgeNote(metric);
+  if (!note) return null;
+  return (
+    <span className={css.badgeChipWrap}>
+      <span className={`yy-micro ${css.chip} ${CHIP_CLASS[note.badge]}`} title={note.sentence}>
+        {note.label}
+        <span className="yy-visually-hidden">: {badgeDetail(note.badge, note.reasonRaw)}</span>
+      </span>
+      {sentence === 'none' ? null : (
+        <span
+          className={`yy-label ${css.badgeChipSentence} ${sentence === 'inline' ? css.badgeChipSentenceInline : ''}`}
+          aria-hidden="true"
+        >
+          {note.sentence}
+        </span>
+      )}
     </span>
   );
 }
@@ -317,8 +355,8 @@ export function IndexBadge({
 
   if (metric.state === 'blank') {
     /**
-     * `SPEC.md` §2.2 and `CAPPLUS_MEMO.md` §4 — the four blanked seasons render
-     * THE LITERAL SENTENCE: "never a dash, never a blank cell, never a zero".
+     * `SPEC.md` §2.2 and `CAPPLUS_MEMO.md` §4 — a blanked season (only the
+     * SAFE-only reversal now) renders THE LITERAL SENTENCE: "never a dash, never a blank cell, never a zero".
      * The sentence prints beneath; the value slot carries the short form of the
      * same fact, not an em dash standing in for a number.
      */
@@ -346,6 +384,8 @@ export function IndexBadge({
       {metric.state === 'partial' ? (
         <span className={`yy-micro yy-partial-ink`}>{partialSuffix(metric)}</span>
       ) : null}
+      {/* An estimated or provisional Cap+ carries its chip with the figure. */}
+      {isCapPlus ? <BadgeChip metric={metric} /> : null}
       {metric.state === 'blank' ? (
         <span className={`yy-label ${css.badgeReason}`} style={{ textTransform: 'none' }}>
           {metric.reason}
@@ -414,6 +454,7 @@ export type LegendSwatch =
   | 'absence'
   | 'benchmark'
   | 'provisional'
+  | 'estimated'
   | 'dot'
   | 'ring'
   | 'offscale';
@@ -497,6 +538,17 @@ export function LegendSwatchMark({
           fill="none"
           stroke="var(--yy-provisional-stroke)"
           strokeWidth="1"
+        />
+      ) : null}
+      {swatch === 'estimated' ? (
+        <circle
+          cx="8"
+          cy="6"
+          r="4.5"
+          fill="none"
+          stroke="var(--yy-fg-2)"
+          strokeWidth="1"
+          style={{ strokeDasharray: '2 2' }}
         />
       ) : null}
       {swatch === 'offscale' ? (

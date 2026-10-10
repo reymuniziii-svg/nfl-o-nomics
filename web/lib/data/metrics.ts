@@ -10,16 +10,18 @@
  * can divide by wins on its own.
  */
 
-import { and, eq } from 'drizzle-orm';
+import { and, eq, sql } from 'drizzle-orm';
 import { getDb } from '@/db/client';
 import * as s from '@/db/schema';
 import {
   BLANK_REASON,
   PROVISIONAL_BADGE_COPY,
+  badged,
   blank,
   value,
   type AsOf,
   type AsOfStage,
+  type CapPlusBadge,
   type Metric,
 } from '@/lib/metric';
 import { isSeeded } from './registry';
@@ -30,8 +32,35 @@ import { isSeeded } from './registry';
 
 /** `SPEC.md` §2.2 — the first Tier 2 season. */
 export const TIER2_FIRST_SEASON = 2013;
-/** `SPEC.md` §7.4 — whole-season blanks. Blanking is whole-season, never per-team. */
-export const CAPPLUS_BLANK_SEASONS = [2013, 2016, 2020, 2021];
+/** The last season in the snapshot. */
+export const TIER2_LAST_SEASON = 2025;
+
+let blankSeasonsPromise: Promise<number[]> | null = null;
+
+/**
+ * `SPEC.md` §7.4 — Tier 2 seasons with NO Cap+ rows. Blanking is whole-season,
+ * never per-team. Under the shipping tier this is empty: 2013 is measured
+ * (provisional) and 2016/2020/2021 are estimated values, not blanks. Under the
+ * SAFE-only reversal every season but 2014–2015 lands here. Derived from the
+ * seeded mart, never hard-coded, so the hatching follows the data.
+ */
+export function capplusBlankSeasons(): Promise<number[]> {
+  if (!blankSeasonsPromise) {
+    blankSeasonsPromise = (async () => {
+      const all: number[] = [];
+      for (let y = TIER2_FIRST_SEASON; y <= TIER2_LAST_SEASON; y++) all.push(y);
+      if (!(await isSeeded('capplus_official'))) return all;
+      const db = await getDb();
+      const rows = await db
+        .select({ season: s.capplusOfficial.season, n: sql<number>`count(*)::int` })
+        .from(s.capplusOfficial)
+        .groupBy(s.capplusOfficial.season);
+      const covered = new Set(rows.filter((r) => r.n > 0).map((r) => r.season));
+      return all.filter((y) => !covered.has(y));
+    })();
+  }
+  return blankSeasonsPromise;
+}
 
 export interface CapPlusValue {
   capplus: number;
@@ -44,13 +73,19 @@ export interface CapPlusValue {
   wasFloored: boolean;
   deadMoneyRec: number;
   seasonRank: number;
-  badge: 'provisional' | 'preseason' | 'in_season';
+  badge: CapPlusBadge;
+  /** The badge's sentence; null for preseason / in_season. */
+  badgeReason: string | null;
+  /** true = `deadMoneyRec` is a modeled figure in an estimated season. */
+  dmIsModeled: boolean;
 }
 
 /**
  * `SPEC.md` §7.4 — `getCapPlus(season, team): Metric<CapPlusOfficial>`.
- * Returns the four-blank-seasons reason for 2013/2016/2020/2021 and the
- * pre-Tier-2 reason for 1999–2012.
+ * An estimated season (2016/2020/2021) is a VALUE carrying `badge: 'estimated'`
+ * and its `badgeReason`, never a blank. The whole-season blank reason survives
+ * for a Tier 2 season with no rows (the SAFE-only reversal) and the pre-Tier-2
+ * reason for 1999–2012.
  */
 export async function getCapPlus(season: number, team: string): Promise<Metric<CapPlusValue>> {
   if (season < TIER2_FIRST_SEASON) return blank(BLANK_REASON.PRE_TIER2);
@@ -66,7 +101,7 @@ export async function getCapPlus(season: number, team: string): Promise<Metric<C
   if (!r) return blank(BLANK_REASON.NO_DM_TABLE);
 
   const asOf: AsOf = { date: r.dmAsofDate, stage: r.dmAsofStage as AsOfStage };
-  return value<CapPlusValue>(
+  return badged<CapPlusValue>(
     {
       capplus: r.capplus,
       perfIndex: r.perfIndex,
@@ -78,10 +113,13 @@ export async function getCapPlus(season: number, team: string): Promise<Metric<C
       wasFloored: r.wasFloored,
       deadMoneyRec: r.deadMoneyRec,
       seasonRank: r.seasonRank,
-      badge: r.badge as CapPlusValue['badge'],
+      badge: r.badge as CapPlusBadge,
+      badgeReason: r.badgeReason,
+      dmIsModeled: r.dmIsModeled,
     },
     asOf,
-    r.badge === 'provisional',
+    r.badge as CapPlusBadge,
+    r.badgeReason,
   );
 }
 

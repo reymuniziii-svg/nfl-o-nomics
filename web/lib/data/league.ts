@@ -13,7 +13,14 @@
 import { and, eq, inArray, sql } from 'drizzle-orm';
 import { getDb } from '@/db/client';
 import * as s from '@/db/schema';
-import { BLANK_REASON, blank, partial, value, type Metric } from '@/lib/metric';
+import {
+  BLANK_REASON,
+  blank,
+  partial,
+  value,
+  type CapPlusBadge,
+  type Metric,
+} from '@/lib/metric';
 import { divisionName, eraIdentity, type DivisionSlug, type TeamAbbr } from '@/lib/teams';
 import { isSeeded } from './registry';
 import { TIER2_FIRST_SEASON, getCostPerWin, type CostNumerator, type CostPerWin } from './metrics';
@@ -433,17 +440,18 @@ export async function getIndexDeltaPrior(season: number, useCapPlus: boolean): P
 /* League frames — one season of all 32 clubs, for the scrubbed charts   */
 /* ------------------------------------------------------------------ */
 
-/** The three published indices a club can be placed by under the Review control. */
+/** The two published indices a club can be placed by under the Review control. */
 export interface FrameIndices {
   capplus: number;
   capplusRank: number;
   qbNeutral: number;
   qbNeutralRank: number;
-  /** CANDIDATE — renders only as `CAPPLUS_OBLIGATION_LABEL`, beside Cap+. */
-  obligation: number;
-  obligationRank: number;
   /** Rank among this season's rookie-window clubs, or among its veteran-QB clubs. */
   stratumRank: number;
+  /** The season's Cap+ badge (`capplus_official.badge`). */
+  badge: CapPlusBadge | null;
+  /** The badge's sentence; null for preseason / in_season. */
+  badgeReason: string | null;
 }
 
 export interface FrameClub {
@@ -457,7 +465,7 @@ export interface FrameClub {
   cash: Metric<number>;
   /** Cash ÷ that season's league cap — `team_season_cap.cash_pct_of_league`, verbatim. */
   cashShare: Metric<number>;
-  /** Blank in the four whole-season Cap+ blanks, with the mart's reason. */
+  /** Blank only in a whole-season Cap+ blank (SAFE-only reversal), with the mart's reason. */
   indices: Metric<FrameIndices>;
   /** `null` where `capplus_context` has no row (pre-2013). */
   rookieWindow: boolean | null;
@@ -480,7 +488,7 @@ export interface LeagueFrame {
 export async function getLeagueFrame(season: number): Promise<LeagueFrame> {
   const db = await getDb();
   const meta = await getTeamMetaMap();
-  const [results, capRows, context, avgCashPerWin, leagueCap] = await Promise.all([
+  const [results, capRows, context, avgCashPerWin, leagueCap, badgeRows] = await Promise.all([
     db.select().from(s.teamSeasonResults).where(eq(s.teamSeasonResults.season, season)),
     (await isSeeded('team_season_cap'))
       ? db
@@ -495,9 +503,20 @@ export async function getLeagueFrame(season: number): Promise<LeagueFrame> {
     getLeagueContext(season),
     getLeagueAvgCostPerWin(season, 'cash'),
     getLeagueCap(season),
+    (await isSeeded('capplus_official'))
+      ? db
+          .select({
+            team: s.capplusOfficial.team,
+            badge: s.capplusOfficial.badge,
+            badgeReason: s.capplusOfficial.badgeReason,
+          })
+          .from(s.capplusOfficial)
+          .where(eq(s.capplusOfficial.season, season))
+      : Promise.resolve([] as { team: string; badge: CapPlusBadge; badgeReason: string | null }[]),
   ]);
 
   const capBy = new Map(capRows.map((r) => [r.team, r]));
+  const badgeBy = new Map(badgeRows.map((r) => [r.team, r]));
   const ctxBy = new Map(context.state === 'blank' ? [] : context.value.map((c) => [c.team as string, c]));
   const noCap = season < TIER2_FIRST_SEASON ? BLANK_REASON.PRE_TIER2 : BLANK_REASON.MART_ABSENT;
   const noCtx = context.state === 'blank' ? context.reason : BLANK_REASON.MART_ABSENT;
@@ -515,9 +534,9 @@ export async function getLeagueFrame(season: number): Promise<LeagueFrame> {
               capplusRank: ctx.indices.value.capplusRank,
               qbNeutral: ctx.indices.value.capplusQbNeutral,
               qbNeutralRank: ctx.indices.value.qbNeutralRank,
-              obligation: ctx.indices.value.capplusObligation,
-              obligationRank: ctx.indices.value.obligationRank,
               stratumRank: ctx.indices.value.stratumRank,
+              badge: (badgeBy.get(r.team)?.badge as CapPlusBadge | undefined) ?? null,
+              badgeReason: badgeBy.get(r.team)?.badgeReason ?? null,
             });
     }
     return {

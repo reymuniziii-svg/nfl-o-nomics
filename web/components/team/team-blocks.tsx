@@ -9,12 +9,12 @@
 
 import Link from "next/link";
 import css from "./team.module.css";
-import { AsOf, BlankReason, Chip, IndexBadge, MetricText } from "../primitives";
+import { AsOf, BadgeChip, BlankReason, Chip, IndexBadge, MetricText } from "../primitives";
 import { TeamMark } from "../marks";
 import { IconChevronLeft } from "../icons";
 import { partialSuffix, usdShort } from "@/lib/display";
 import { ledgerSplit } from "@/lib/format";
-import { NOT_A_32_TEAM_READING, type Metric } from "@/lib/metric";
+import { NOT_A_32_TEAM_READING, modeledRangeLabel, type Metric } from "@/lib/metric";
 import type { TeamMark as TeamMarkData } from "@/lib/marks";
 import type { LedgerRow, Lens } from "@/lib/data/team";
 
@@ -82,8 +82,9 @@ export function TeamHeader({
         the badge carries. Inside Tier 2 that is Cap+ — but where Cap+ is
         blanked, dropping Team Rating entirely loses a figure that exists for
         all 861 team-seasons and that `/compare` already renders for the same
-        team-season. `CAPPLUS_MEMO.md` §4: "The four uncovered seasons inside
-        the Cap+ era get the same treatment" as the pre-2013 pages. So the Cap+
+        team-season. `CAPPLUS_MEMO.md` §4: an uncovered season inside the Cap+
+        era (now only under the SAFE-only reversal) gets the same treatment as
+        the pre-2013 pages. So the Cap+
         slot states its blank in full, and Team Rating renders beside it under
         its own name and without band color (`DECISIONS.md` 83). */}
         <div className={css.badges}>
@@ -137,17 +138,27 @@ export function ThreeLens({ lenses }: { lenses: Lens[] }) {
               <BlankReason reason={lens.amount.reason} />
             ) : lens.asOf ? (
               <>
-                <AsOf
-                  value={usdShort(lens.amount.value)}
-                  date={lens.asOf.date}
-                  stage={lens.asOf.stage}
-                  valueClass={`yy-num ${css.lensFigure}`}
-                />
+                {lens.range ? (
+                  /* SPEC §2.2 / §7.5 — a MODELED figure never renders bare:
+                     "estimated as of {date}, 80% range $lo–$hi". */
+                  <span className={css.lensModeled}>
+                    <span className={`yy-num ${css.lensFigure}`}>{usdShort(lens.amount.value)}</span>
+                    <span className={`yy-label ${css.lensModeledStamp}`}>
+                      {modeledRangeLabel(lens.asOf.date, usdShort(lens.range.lo), usdShort(lens.range.hi))}
+                    </span>
+                  </span>
+                ) : (
+                  <AsOf
+                    value={usdShort(lens.amount.value)}
+                    date={lens.asOf.date}
+                    stage={lens.asOf.stage}
+                    valueClass={`yy-num ${css.lensFigure}`}
+                  />
+                )}
+                {lens.range ? <BadgeChip metric={lens.amount} /> : null}
                 {/* `SPEC.md` §2.8 / `CAPPLUS_MEMO.md` §3 — the season's league
                   median renders BESIDE the figure. $85.2M is an indictment on
-                  its own and an unremarkable number against a $50.3M median,
-                  and the memo's defense of λ=1.5 rests on the reader seeing the
-                  second one. */}
+                  its own and an unremarkable number against a $50.3M median. */}
                 {lens.leagueMedianUsd !== null ? (
                   <span className={`yy-label ${css.lensBenchmark}`}>
                     League median {usdShort(lens.leagueMedianUsd)} this season

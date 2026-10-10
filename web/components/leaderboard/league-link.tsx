@@ -16,30 +16,26 @@
  */
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
-import {
-  CAPPLUS_OBLIGATION_LABEL,
-  CAPPLUS_QB_NEUTRAL_LABEL,
-} from '@/lib/metric';
+import { CAPPLUS_QB_NEUTRAL_LABEL } from '@/lib/metric';
 
-export type ReviewMode = 'raw' | 'qbn' | 'obl';
+/**
+ * Two modes. The obligation candidate was retired 2026-10-10 (`DECISIONS.md`
+ * 111): a stale `?review=obl` falls back to Raw like any unknown value.
+ */
+export type ReviewMode = 'raw' | 'qbn';
 
-export const REVIEW_MODES: ReviewMode[] = ['raw', 'qbn', 'obl'];
+export const REVIEW_MODES: ReviewMode[] = ['raw', 'qbn'];
 
 /** Control labels — short, because they sit in a segmented control at 375. */
 export const REVIEW_SHORT: Record<ReviewMode, string> = {
   raw: 'Raw',
   qbn: 'QB-neutral',
-  obl: 'Obligation',
 };
 
-/**
- * The index's name wherever it is printed. `SPEC.md` §2.10: the obligation
- * index is a CANDIDATE and never renders as "Cap+" alone.
- */
+/** The index's name wherever it is printed. */
 export const REVIEW_NAME: Record<ReviewMode, string> = {
   raw: 'Cap+',
   qbn: CAPPLUS_QB_NEUTRAL_LABEL,
-  obl: `${CAPPLUS_OBLIGATION_LABEL} — candidate`,
 };
 
 export type Numerator = 'cash' | 'cap';

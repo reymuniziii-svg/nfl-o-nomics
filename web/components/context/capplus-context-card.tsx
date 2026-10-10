@@ -7,8 +7,8 @@
  *      among clubs in the same position;
  *  (b) how much of Cap+ the QB's contract timing explains — usually about
  *      three points, which is the point;
- *  (c) what the roster has already charged to future caps, and what Cap+ would
- *      read if half of that were billed now (a CANDIDATE, printed beside Cap+);
+ *  (c) the cash the roster has already paid ahead of cap — the future-cap
+ *      mortgage, the bridge between cash per win and cap per win;
  *  (d) the franchise's Cap+ era with the rookie windows shaded.
  *
  * Server component. Blank seasons render their reason strings; nothing is
@@ -24,9 +24,9 @@ import { usdShort } from '@/lib/display';
 import type { Metric } from '@/lib/metric';
 import type { CapPlusContext, LeagueContextRow, StrataSummary } from '@/lib/data/context';
 
-/** `CAPPLUS_MEMO.md` §8.1 — the pooled 2013–2025 measurement the caption cites. */
-const ROOKIE_WINDOW_MEAN_QB_PTS = 2.8;
-const ROOKIE_WINDOW_N = 100;
+/** `CAPPLUS_MEMO.md` §9.4 — the pooled 2013–2025 measurement the caption cites (416 team-seasons). */
+const ROOKIE_WINDOW_MEAN_QB_PTS = 3.2;
+const ROOKIE_WINDOW_N = 146;
 
 export function CapPlusContextBody({
   context,
@@ -115,15 +115,15 @@ export function CapPlusContextBody({
                 strata.value.veteran.state !== 'blank'
                   ? `, against ${season} averages of ${signedIndex(strata.value.rookieWindow.value.meanQbTimingPts)} for clubs with a rookie-deal starter (${strata.value.rookieWindow.value.n}) and ${signedIndex(strata.value.veteran.value.meanQbTimingPts)} for clubs with a veteran-deal starter (${strata.value.veteran.value.n})`
                   : ''
-              }. Across the nine covered seasons, rookie-deal starters average +${ROOKIE_WINDOW_MEAN_QB_PTS} over ${ROOKIE_WINDOW_N} team-seasons, a fifth of one standard deviation (15 points). A cheap quarterback moves Cap+ far less than the debate assumes.`}
+              }. Across all thirteen seasons, 2013–2025, rookie-deal starters average +${ROOKIE_WINDOW_MEAN_QB_PTS} over ${ROOKIE_WINDOW_N} team-seasons, a fifth of one standard deviation (15 points). A cheap quarterback moves Cap+ far less than the debate assumes.`}
             </p>
           </>
         )}
       </section>
 
-      {/* (c) THE MORTGAGE + the candidate beside Cap+ */}
+      {/* (c) THE MORTGAGE — cash paid ahead of cap */}
       <section className={css.block} aria-label="Future-cap mortgage">
-        <p className={`yy-label ${css.blockLabel}`}>Already charged to future caps</p>
+        <p className={`yy-label ${css.blockLabel}`}>Cash paid ahead of cap</p>
         <FutureMortgage
           usd={c.futureMortgageUsd}
           share={c.futureMortgageShare}
@@ -131,8 +131,6 @@ export function CapPlusContextBody({
           rank={mortRank}
           n={n}
           rowsUnknown={c.mortgageRowsUnknown}
-          alpha={c.mortgageAlpha}
-          indices={ix}
         />
       </section>
 

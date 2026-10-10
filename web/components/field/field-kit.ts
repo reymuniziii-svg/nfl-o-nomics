@@ -94,8 +94,18 @@ export interface ScrubClub {
   cash: number | null;
   /** Cash ÷ league cap (`cash_pct_of_league`). */
   share: number | null;
-  /** The three published indices and their ranks, or null in a blank season. */
-  ix: { raw: number; rawRank: number; qbn: number; qbnRank: number; obl: number; oblRank: number } | null;
+  /**
+   * The two published indices and their ranks, or null in a blank season.
+   * `badge` is the season's chip-worthy Cap+ badge (estimated / provisional).
+   */
+  ix: {
+    raw: number;
+    rawRank: number;
+    qbn: number;
+    qbnRank: number;
+    badge: 'estimated' | 'provisional' | null;
+    badgeReason: string | null;
+  } | null;
   rookie: boolean | null;
   qb: string | null;
 }

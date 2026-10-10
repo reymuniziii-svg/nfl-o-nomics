@@ -8,11 +8,53 @@
  */
 
 import { eraIdentity, type TeamAbbr } from './teams';
-import type { Metric } from './metric';
+import { modeledRangeLabel, type Metric } from './metric';
 
 /* ------------------------------------------------------------------ */
 /* Records and names                                                    */
 /* ------------------------------------------------------------------ */
+
+/** The deepest postseason round, in words. Context only — never an index input. */
+export type PlayoffResultCode =
+  | 'none'
+  | 'wild_card'
+  | 'divisional'
+  | 'conference'
+  | 'super_bowl_loss'
+  | 'super_bowl_win';
+
+const PLAYOFF_WORDS: Record<PlayoffResultCode, string> = {
+  none: 'missed playoffs',
+  wild_card: 'lost Wild Card',
+  divisional: 'lost Divisional',
+  conference: 'lost Conference Championship',
+  super_bowl_loss: 'lost Super Bowl',
+  super_bowl_win: 'Super Bowl champion',
+};
+
+/** `lost Divisional` / `Super Bowl champion` / `missed playoffs`. */
+export function playoffWords(result: PlayoffResultCode): string {
+  return PLAYOFF_WORDS[result] ?? PLAYOFF_WORDS.none;
+}
+
+/** `12–5 · lost Divisional`, or `Super Bowl champion · 15–2` for a title season. */
+export function recordWithPlayoffs(
+  wins: number,
+  losses: number,
+  ties: number,
+  result: PlayoffResultCode,
+): string {
+  const rec = recordDash(wins, losses, ties);
+  return `${rec} · ${playoffWords(result)}`;
+}
+
+/**
+ * A modeled dead-money figure, never bare (SPEC §2.2 / §7.5):
+ * `$9.9M estimated as of 2016-10-05, 80% range $7.2M–$16.4M`.
+ */
+export function modeledDeadMoney(usd: number, asOfDate: string, lo: number, hi: number): string {
+  return `${usdShort(usd)} ${modeledRangeLabel(asOfDate, usdShort(lo), usdShort(hi))}`;
+}
 
 /** `13–4` (en dash), `9–7–1` when the season had a tie. `TYPE.md`-set figure. */
 export function recordDash(wins: number, losses: number, ties: number): string {

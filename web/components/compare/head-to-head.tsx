@@ -34,7 +34,7 @@
  */
 
 import css from './head-to-head.module.css';
-import { ChartCaption, Legend, type LegendItem } from '../primitives';
+import { BadgeChip, ChartCaption, Legend, type LegendItem } from '../primitives';
 import { usdShort } from '@/lib/display';
 import type { BenchmarkRow, BenchmarkSide, CompareBundle } from '@/lib/data/compare';
 import type { Coverage } from '@/lib/display';
@@ -386,7 +386,6 @@ function Readout({ row, side }: { row: BenchmarkRow; side: 'a' | 'b' }) {
   const raw = rawText(row.unit, s.raw.value);
   const usd = s.secondaryUsd !== null && s.secondaryUsd !== undefined ? usdShort(s.secondaryUsd) : null;
   const lg = s.leagueAvg !== null ? rawText(row.unit, s.leagueAvg) : null;
-  const provisional = s.raw.state === 'value' && s.raw.provisional;
 
   return (
     <div className={cls}>
@@ -412,9 +411,9 @@ function Readout({ row, side }: { row: BenchmarkRow; side: 'a' | 'b' }) {
         ) : null}
       </span>
       {usd ? <span className={`yy-label ${css.raw}`}>{usd}</span> : null}
-      {provisional ? (
-        <span className={`yy-label ${css.provisional}`}>Provisional</span>
-      ) : null}
+      {/* Provisional / Estimated, with the reason on hover; a modeled dead-money
+          figure prints its range in full, since it never renders bare. */}
+      <BadgeChip metric={s.raw} sentence={row.key === 'dead_money' ? 'inline' : 'export'} />
       {s.raw.state === 'partial' ? (
         <span className={`yy-label ${css.raw}`}>{s.raw.reason}</span>
       ) : null}

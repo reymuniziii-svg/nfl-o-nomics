@@ -31,7 +31,7 @@
 
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import css from './field.module.css';
-import { ChartCaption } from '../primitives';
+import { ChartCaption, Chip } from '../primitives';
 import {
   END_ZONE,
   HASH_LINES,
@@ -59,7 +59,7 @@ import {
 } from '../leaderboard/league-link';
 import { DIVISION_SLUGS } from '@/lib/teams';
 import { recordDash } from '@/lib/display';
-import { CAPPLUS_OBLIGATION_LABEL, FUTURE_MORTGAGE_CAVEAT } from '@/lib/metric';
+import { badgeSentence } from '@/lib/metric';
 
 /** Wide: the widest abbreviation label plus air, px — turned into yards at the measured width. */
 const WIDE_LABEL_PX = 28;
@@ -77,12 +77,12 @@ const LANE_HEAD: Record<string, [string, string]> = Object.fromEntries(
 
 function valueOf(c: ScrubClub, mode: ReviewMode): number | null {
   if (!c.ix) return null;
-  return mode === 'raw' ? c.ix.raw : mode === 'qbn' ? c.ix.qbn : c.ix.obl;
+  return mode === 'raw' ? c.ix.raw : c.ix.qbn;
 }
 
 function rankOf(c: ScrubClub, mode: ReviewMode): number | null {
   if (!c.ix) return null;
-  return mode === 'raw' ? c.ix.rawRank : mode === 'qbn' ? c.ix.qbnRank : c.ix.oblRank;
+  return mode === 'raw' ? c.ix.rawRank : c.ix.qbnRank;
 }
 
 interface Placed {
@@ -167,6 +167,10 @@ export function LeagueField({
   const name = REVIEW_NAME[mode];
   const seasons = frames.map((f) => f.season);
   const blankSeasons = frames.filter((f) => f.ixReason !== null).map((f) => f.season);
+  // Whole-season badge: every club in the frame shares it.
+  const badgeClub = frame.clubs.find((c) => c.ix?.badge);
+  const frameBadge = badgeClub?.ix?.badge ?? null;
+  const frameBadgeSentence = frameBadge ? badgeSentence(frameBadge, badgeClub?.ix?.badgeReason) : null;
   const focusLane = DIVISION_SLUGS.indexOf(focusDivision as (typeof DIVISION_SLUGS)[number]);
 
   return (
@@ -195,10 +199,13 @@ export function LeagueField({
             ? `${frame.season}: ${frame.ixReason}`
             : mode === 'raw'
               ? 'Placed by Cap+, which divides a team’s performance by what its roster cost. Pick another review and every club moves. A ring marks where raw Cap+ had it.'
-              : mode === 'qbn'
-                ? `Placed by ${name}. Each starting QB is priced at the season’s median starter’s cap number. Rings mark raw Cap+.`
-                : `Placed by ${name}. Cost counts cap, 1.5× dead money and half the future-cap mortgage. ${FUTURE_MORTGAGE_CAVEAT} Not a published claim yet; rings mark raw Cap+.`}
+              : `Placed by ${name}. Each starting QB is priced at the season’s median starter’s cap number. Rings mark raw Cap+.`}
         </p>
+        {covered && frameBadge && frameBadgeSentence ? (
+          <p className={`yy-caption ${css.reviewNote} ${css.badgeNote}`}>
+            <Chip kind={frameBadge} title={frameBadgeSentence} /> <span>{frameBadgeSentence}</span>
+          </p>
+        ) : null}
       </div>
 
       <div className={css.pitch}>
@@ -305,6 +312,7 @@ export function LeagueField({
                       css.ball,
                       lit ? css.ballLit : '',
                       hot === d.club.team ? css.ballHot : '',
+                      d.club.ix?.badge === 'estimated' ? css.ballEstimated : '',
                     ].join(' ')}
                     data-slot={d.slot}
                     style={
@@ -315,7 +323,7 @@ export function LeagueField({
                         '--i': Math.min(i, 8),
                       } as CSSProperties
                     }
-                    aria-label={`${d.club.name}, ${frame.season}: ${name} ${d.v.toFixed(1)}${rank ? `, ${ordinal(rank)} of 32` : ''}, ${fieldPositionWords(d.v)}`}
+                    aria-label={`${d.club.name}, ${frame.season}: ${name} ${d.v.toFixed(1)}${d.club.ix?.badge === 'estimated' ? ' (estimated)' : ''}${rank ? `, ${ordinal(rank)} of 32` : ''}, ${fieldPositionWords(d.v)}`}
                     {...bind(d, pos.x, pos.y)}
                     onPointerEnter={(e) => {
                       bind(d, pos.x, pos.y).onPointerEnter(e);
@@ -401,6 +409,11 @@ export function LeagueField({
             <i className={css.keyRing} aria-hidden="true" /> Raw Cap+ spot
           </li>
         ) : null}
+        {covered && frameBadge === 'estimated' ? (
+          <li className={`yy-label ${css.fieldKeyItem}`}>
+            <i className={css.keyEstimated} aria-hidden="true" /> Estimated season
+          </li>
+        ) : null}
         <li className={`yy-label ${css.fieldKeyItem}`}>
           <i className={css.keyRed} aria-hidden="true" /> {RED_ZONE_LABEL}
         </li>
@@ -450,6 +463,12 @@ function FieldTip({ d, season, mode }: { d: Placed; season: number; mode: Review
         ) : null}
         <dt>Field</dt>
         <dd>{fieldPositionWords(d.v)}</dd>
+        {c.ix?.badge ? (
+          <>
+            <dt>Badge</dt>
+            <dd>{badgeSentence(c.ix.badge, c.ix.badgeReason)}</dd>
+          </>
+        ) : null}
         <dt>Record</dt>
         <dd>{recordDash(c.w, c.l, c.t)}</dd>
         {c.qb ? (
@@ -462,7 +481,6 @@ function FieldTip({ d, season, mode }: { d: Placed; season: number; mode: Review
           </>
         ) : null}
       </dl>
-      {mode === 'obl' ? <p className={css.tipNote}>{CAPPLUS_OBLIGATION_LABEL} is a candidate index.</p> : null}
       <a className={css.tipLink} href={`/team/${c.team.toLowerCase()}/${season}`}>
         Open {c.team} {season} →
       </a>
