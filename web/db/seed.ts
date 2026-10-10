@@ -478,6 +478,8 @@ const regimeEvents = loader({
     dmNext1AsofStage: asText(r.dm_next1_asof_stage) as 'preseason' | null,
     dmNext1LeagueMedianUsd: asNumber(r.dm_next1_league_median_usd),
     dmNext1BlankReason: asText(r.dm_next1_blank_reason),
+    dmNext1Badge: asText(r.dm_next1_badge) || null,
+    dmNext1IsModeled: asText(r.dm_next1_is_modeled) === 'True',
     dmNext2Season: asInt(r.dm_next2_season),
     dmNext2State: asText(r.dm_next2_state) as 'value' | null,
     dmNext2Usd: asNumber(r.dm_next2_usd),
@@ -485,6 +487,8 @@ const regimeEvents = loader({
     dmNext2AsofStage: asText(r.dm_next2_asof_stage) as 'preseason' | null,
     dmNext2LeagueMedianUsd: asNumber(r.dm_next2_league_median_usd),
     dmNext2BlankReason: asText(r.dm_next2_blank_reason),
+    dmNext2Badge: asText(r.dm_next2_badge) || null,
+    dmNext2IsModeled: asText(r.dm_next2_is_modeled) === 'True',
   }),
 });
 

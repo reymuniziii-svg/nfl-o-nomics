@@ -215,6 +215,9 @@ export interface RegimeDeadMoney {
   asOf: AsOf | null;
   leagueMedianUsd: number | null;
   reason: string | null;
+  /** Snapshot badge for that season; 'estimated' when the reading is modeled. */
+  badge: string | null;
+  isModeled: boolean;
 }
 
 export interface RegimeEvent {
@@ -674,6 +677,8 @@ export async function getTeamBundle(
       asOf: asOfOf(x.dmNext1AsofDate, x.dmNext1AsofStage),
       leagueMedianUsd: x.dmNext1LeagueMedianUsd,
       reason: x.dmNext1BlankReason,
+      badge: x.dmNext1Badge ?? null,
+      isModeled: Boolean(x.dmNext1IsModeled),
     },
     dmNext2: {
       season: x.dmNext2Season,
@@ -682,6 +687,8 @@ export async function getTeamBundle(
       asOf: asOfOf(x.dmNext2AsofDate, x.dmNext2AsofStage),
       leagueMedianUsd: x.dmNext2LeagueMedianUsd,
       reason: x.dmNext2BlankReason,
+      badge: x.dmNext2Badge ?? null,
+      isModeled: Boolean(x.dmNext2IsModeled),
     },
   }));
 

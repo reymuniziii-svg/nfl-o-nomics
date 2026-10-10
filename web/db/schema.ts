@@ -461,6 +461,8 @@ export const regimeEvents = pgTable(
     dmNext1AsofStage: asofStageEnum('dm_next1_asof_stage'),
     dmNext1LeagueMedianUsd: doublePrecision('dm_next1_league_median_usd'),
     dmNext1BlankReason: text('dm_next1_blank_reason'),
+    dmNext1Badge: text('dm_next1_badge'),
+    dmNext1IsModeled: boolean('dm_next1_is_modeled'),
 
     dmNext2Season: integer('dm_next2_season'),
     dmNext2State: metricStateEnum('dm_next2_state'),
@@ -469,6 +471,8 @@ export const regimeEvents = pgTable(
     dmNext2AsofStage: asofStageEnum('dm_next2_asof_stage'),
     dmNext2LeagueMedianUsd: doublePrecision('dm_next2_league_median_usd'),
     dmNext2BlankReason: text('dm_next2_blank_reason'),
+    dmNext2Badge: text('dm_next2_badge'),
+    dmNext2IsModeled: boolean('dm_next2_is_modeled'),
   },
   (t) => [primaryKey({ columns: [t.team, t.season] })],
 );

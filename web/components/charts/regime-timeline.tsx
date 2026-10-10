@@ -281,6 +281,9 @@ export function RegimeTimeline({
                       {dm.state === 'value' && dm.usd !== null && dm.asOf ? (
                         <>
                           <AsOf value={usdShort(dm.usd)} date={dm.asOf.date} stage={dm.asOf.stage} />
+                          {dm.isModeled ? (
+                            <span className={`yy-label ${shell.itemMedian}`}> · estimated</span>
+                          ) : null}
                           {/* `SPEC.md` §2.8 step 7 — beside the league median for its own season. */}
                           {dm.leagueMedianUsd !== null ? (
                             <span className={`yy-label ${shell.itemMedian}`}>
