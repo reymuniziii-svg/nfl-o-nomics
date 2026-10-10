@@ -7,11 +7,14 @@
 
 .divisionWrap {
   position: sticky;
-  top: 62px;
+  /* the header's measured height, set by the component; 71px is the 375
+     fallback before hydration (the header measures 71, not the budget's 62) */
+  top: var(--yy-sticky-top, 71px);
   z-index: 2;
   background: var(--yy-bg);
   margin-inline: calc(var(--yy-space-4) * -1);
-  padding-block: var(--yy-space-2);
+  /* the sticky band is the pill row and nothing else: 32px pills + 2×4 */
+  padding-block: var(--yy-space-1);
   border-bottom: 1px solid transparent;
   transition: border-color var(--yy-dur-fast) var(--yy-ease-standard);
 }
@@ -22,7 +25,7 @@
 
 @media (min-width: 1024px) {
   .divisionWrap {
-    top: 84px;
+    top: var(--yy-sticky-top, 84px);
     margin-inline: 0;
   }
 }
@@ -97,15 +100,8 @@
 }
 
 .alignmentNote {
-  margin: var(--yy-space-2) 0 0;
-  padding-inline: var(--yy-space-4);
+  margin: 0;
   color: var(--yy-fg-3);
-}
-
-@media (min-width: 1024px) {
-  .alignmentNote {
-    padding-inline: 0;
-  }
 }
 
 /* ══════════════════════════════════════════════════════════════════════════ */

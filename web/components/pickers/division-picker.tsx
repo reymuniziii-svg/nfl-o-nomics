@@ -4,7 +4,11 @@
  * `DivisionPicker` — `COMPONENTS.md` §12.1, `SPEC.md` §3.1.1.
  *
  * Eight divisions, current alignment only, AFC East default. Sticky beneath the
- * app header. **The selected pill scrolls itself into view on mount** — the
+ * app header — at the header's MEASURED height, not a constant: the header is
+ * 71px at 375 (its type and padding are tokens that move), and a hard-coded
+ * `top: 62px` slid the picker 9px under it. Only the pill row sticks; the
+ * alignment note scrolls away beneath it (`MOBILE_PATTERNS.md` §5: exactly
+ * three things stick, and a caption is not one of them). **The selected pill scrolls itself into view on mount** — the
  * eight pills are ~640px wide against 390px of viewport, and the edge fade is
  * how the reader learns there are more.
  *
@@ -33,9 +37,24 @@ export function DivisionPicker({
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
-    const el = listRef.current?.querySelector<HTMLElement>('[aria-selected="true"]');
-    el?.scrollIntoView({ block: 'nearest', inline: 'center' });
+    // Scroll the ROW, not the page: `scrollIntoView` also scrolls every
+    // ancestor and was fighting the row's scroll-snap.
+    const list = listRef.current;
+    const el = list?.querySelector<HTMLElement>('[aria-selected="true"]');
+    if (list && el) list.scrollLeft = el.offsetLeft - (list.clientWidth - el.offsetWidth) / 2;
   }, [selected]);
+
+  const wrapRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const header = document.querySelector('header');
+    const wrap = wrapRef.current;
+    if (!header || !wrap) return;
+    const sync = () => wrap.style.setProperty('--yy-sticky-top', `${header.getBoundingClientRect().height}px`);
+    sync();
+    const ro = new ResizeObserver(sync);
+    ro.observe(header);
+    return () => ro.disconnect();
+  }, []);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 0);
@@ -71,7 +90,8 @@ export function DivisionPicker({
   }
 
   return (
-    <div className={`${css.divisionWrap} ${scrolled ? css.divisionScrolled : ''}`}>
+    <>
+    <div ref={wrapRef} className={`${css.divisionWrap} ${scrolled ? css.divisionScrolled : ''}`}>
       <div
         className={css.pills}
         role="tablist"
@@ -95,8 +115,10 @@ export function DivisionPicker({
           );
         })}
       </div>
-      {/* Below the picker, ALWAYS (`DECISIONS.md` 45). */}
-      <p className={`yy-caption ${css.alignmentNote}`}>{ALIGNMENT_NOTE}</p>
     </div>
+    {/* Below the picker, ALWAYS (`DECISIONS.md` 45) — and outside the sticky
+      region, so it scrolls instead of eating the viewport. */}
+    <p className={`yy-caption ${css.alignmentNote}`}>{ALIGNMENT_NOTE}</p>
+    </>
   );
 }

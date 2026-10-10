@@ -217,12 +217,71 @@ a.row:hover {
 
 /* The gold tick sits on EVERY bar, including the ones it does not cross, and it
    is centred on the TRACK, not on the card. It never animates. */
+/* 2px in the SOLID benchmark ink (`--yy-benchmark`: #D4AF37 dark, #8A6D14
+   light) — the translucent `--yy-benchmark-tick` measured ~2:1 on white, below
+   SC 1.4.11's 3:1. The 1px card-coloured halo is what separates gold from a
+   coral fill it crosses (gold on #D9503C is under 2:1 on its own). No token
+   change was needed: the solid ink passes in both themes. */
 .tick {
   position: absolute;
   top: -4px;
   bottom: -4px;
+  width: 2px;
+  margin-left: -1px;
+  background: var(--yy-benchmark);
+  box-shadow: 0 0 0 1px var(--yy-bg-card-flat);
+  z-index: 2;
+}
+
+/* The benchmark named ON THE TRACK, above the first row's tick — the strap at
+   the foot of the card still names it in full. */
+.tickLabel {
+  position: absolute;
+  bottom: calc(100% + 2px);
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-family: var(--yy-font-athletic);
+  font-weight: var(--yy-weight-label);
+  font-size: var(--yy-size-label);
+  line-height: 1;
+  letter-spacing: var(--yy-track-label);
+  text-transform: uppercase;
+  color: var(--yy-benchmark);
+}
+
+.tickLabelEnd {
+  left: auto;
+  right: 0;
+  transform: none;
+}
+
+.tickLabelStart {
+  left: 0;
+  transform: none;
+}
+
+/* One faint tick per club in the league. Above the fill so the cheaper clubs
+   stay visible, and neutral: it is context, not a series. */
+.ghost {
+  position: absolute;
+  top: 1px;
+  bottom: 1px;
   width: 1px;
-  background: var(--yy-benchmark-tick);
+  background: color-mix(in srgb, var(--yy-fg-1) 32%, transparent);
+  z-index: 1;
+}
+
+/* `#2 of 32` — the league rank beside the figure. */
+.lgRank {
+  font-family: var(--yy-font-athletic);
+  font-weight: var(--yy-weight-label);
+  font-size: var(--yy-size-label);
+  line-height: var(--yy-lh-label);
+  letter-spacing: var(--yy-track-label);
+  text-transform: uppercase;
+  color: var(--yy-fg-2);
+  white-space: nowrap;
 }
 
 .val {

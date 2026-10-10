@@ -1,231 +1,478 @@
+'use client';
+
 /**
  * `LeagueField` — the first of the two field-literal surfaces.
  * `SPEC.md` §4, `CHART_ANATOMY.md` §7, `DECISIONS.md` 43.
  *
- * All 32 clubs placed by `yards_to_opponent_goal = 150 − Cap+`, clamped 0…100,
- * with a CONVENTIONAL CAP+ AXIS ALONGSIDE — two encodings of one number, never
- * one instead of the other (§7). It sits above the leaderboard's row list and
- * does not replace it: the list is the tabular reading and stays.
+ * All 32 clubs placed by `yards_to_opponent_goal = 150 − Cap+`, on a domain
+ * PINNED at Cap+ 50–150 for every season, with a CONVENTIONAL CAP+ AXIS
+ * ALONGSIDE — two encodings of one number, never one instead of the other.
  *
- * WHAT THIS IS NOT. There is no turf texture, no crowd, no stadium, no green
- * fill. "The field is a coordinate system, not an illustration" (§7). The
- * ground is `--yy-bg-card-flat`, the yard lines *are* the gridlines and obey the
- * same 15% ceiling as any other, and the only two tinted bands are the ones the
- * spec names.
+ * THE LANES ARE THE EIGHT DIVISIONS. A club's lane never changes, so a season
+ * scrub or a Review re-placement moves every mark along the field and only
+ * along the field — the one direction that carries data. The picked division's
+ * lane is lit and its four clubs take the chart's one lime; the field and the
+ * division picker are the same control.
  *
- * BUILT IN HTML, NOT IN A SCALED SVG. Every label here is real page type at its
- * real size, so nothing on this surface can drift under the 11px floor when the
- * container changes width — and the marks are `TeamMark`s, which are images and
- * belong in the document, not in a viewBox.
+ * LABELS ARE ABBREVIATIONS ONLY, placed collision-aware (`field-kit.ts`): a
+ * mark is never nudged off its yard line; a label that cannot be placed is
+ * suppressed, and the value is one hover, focus or tap away in a tooltip that
+ * repeats and enriches (§8) — the full table stays directly beneath.
+ *
+ * ORIENTATION. Landscape at ≥1024px; below it the field stands up — the
+ * opponent's end zone at the top — because a 300px-long field cannot hold 32
+ * labels side by side (`2026-10-10-existing-review.md` B.5).
+ *
+ * MOTION (§6.1/§6.2). Marks travel on a season or Review change, because the
+ * domain is pinned; durations are tokens, so reduced motion collapses them to
+ * 1ms. Nothing moves on first paint. The gold midfield (the benchmark) never
+ * moves at all.
  */
 
+import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import css from './field.module.css';
-import { TeamMark } from '../marks';
 import { ChartCaption } from '../primitives';
 import {
+  END_ZONE,
   HASH_LINES,
   RED_ZONE_CAPPLUS,
   RED_ZONE_LABEL,
-  SAFETY_CAPPLUS,
-  SAFETY_LABEL,
   YARD_LINES,
+  alongField,
+  alongYard,
   capplusAt,
-  downfield,
+  dodgeLabels,
+  fieldPositionWords,
+  wideLabelSlots,
   yardNumber,
-  yardsToGoal,
+  type ScrubClub,
+  type ScrubFrame,
 } from './field-kit';
-import { teamMark } from '@/lib/marks';
-import type { TeamAbbr } from '@/lib/teams';
-import type { Metric } from '@/lib/metric';
+import { SeasonScrubber, Segmented } from './season-scrubber';
+import { tooltipStyle, useChartTooltip } from '../charts/chart-kit';
+import {
+  REVIEW_MODES,
+  REVIEW_NAME,
+  REVIEW_SHORT,
+  useLeagueLink,
+  type ReviewMode,
+} from '../leaderboard/league-link';
+import { DIVISION_SLUGS } from '@/lib/teams';
+import { recordDash } from '@/lib/display';
+import { CAPPLUS_OBLIGATION_LABEL, FUTURE_MORTGAGE_CAVEAT } from '@/lib/metric';
 
-export interface FieldTeam {
-  team: string;
-  teamName: string;
-  index: Metric<number>;
-  href: string;
+/** Wide: the widest abbreviation label plus air, px — turned into yards at the measured width. */
+const WIDE_LABEL_PX = 28;
+/** Wide, before the plot is measured: the gap at a 1024px viewport. */
+const WIDE_GAP_YARDS = 4.6;
+/** Tall: labels are ~13px apart; the tall plot draws 100 yards in ~443px. */
+const TALL_GAP_YARDS = 3.1;
+
+const LANE_HEAD: Record<string, [string, string]> = Object.fromEntries(
+  DIVISION_SLUGS.map((d) => {
+    const [conf, div] = d.split('-');
+    return [d, [conf.toUpperCase(), div.toUpperCase()]];
+  }),
+);
+
+function valueOf(c: ScrubClub, mode: ReviewMode): number | null {
+  if (!c.ix) return null;
+  return mode === 'raw' ? c.ix.raw : mode === 'qbn' ? c.ix.qbn : c.ix.obl;
 }
 
-/** Marks this far apart (as a fraction of field length) can share a lane. */
-const LANE_GAP = 0.075;
-const LANE_H = 30;
-/** Clearance above the first lane and below the last, so no mark sits on a rule. */
-const FIELD_PAD = 22;
+function rankOf(c: ScrubClub, mode: ReviewMode): number | null {
+  if (!c.ix) return null;
+  return mode === 'raw' ? c.ix.rawRank : mode === 'qbn' ? c.ix.qbnRank : c.ix.oblRank;
+}
 
-/**
- * Lane assignment. Thirty-two clubs inside a 100-yard field collide; the answer
- * is vertical stacking in the order they sit on the field, never nudging a mark
- * off its own yard line. A mark's `left` is always exactly its Cap+.
- */
-function assignLanes(placed: { fraction: number }[]): number[] {
-  const laneLastX: number[] = [];
-  return placed.map((p) => {
-    let lane = 0;
-    while (laneLastX[lane] !== undefined && p.fraction - laneLastX[lane] < LANE_GAP) lane += 1;
-    laneLastX[lane] = p.fraction;
-    return lane;
-  });
+interface Placed {
+  club: ScrubClub;
+  v: number;
+  p: number;
+  p0: number;
+  lane: number;
+  slot: 'below' | 'above' | 'none';
+  dy: number;
 }
 
 export function LeagueField({
-  teams,
-  season,
-  focusTeams = [],
+  frames,
+  latestSeason,
+  focusDivision,
 }: {
-  teams: FieldTeam[];
-  season: number;
-  focusTeams?: string[];
+  frames: ScrubFrame[];
+  latestSeason: number;
+  focusDivision: string;
 }) {
-  const covered = teams
-    .filter((t) => t.index.state !== 'blank')
-    .map((t) => ({
-      ...t,
-      capplus: t.index.state === 'blank' ? 0 : t.index.value,
-    }))
-    .map((t) => ({ ...t, fraction: downfield(t.capplus), yards: yardsToGoal(t.capplus) }))
-    .sort((x, y) => x.fraction - y.fraction);
+  const { season, setSeason, review, setReview, hot, setHot } = useLeagueLink(latestSeason);
+  const frame = frames.find((f) => f.season === season) ?? frames[frames.length - 1];
+  const covered = frame.ixReason === null;
+  const mode: ReviewMode = covered ? review : 'raw';
 
-  /**
-   * `CHART_ANATOMY.md` §7: a club with a blank Cap+ is OFF THE FIELD, in a
-   * labelled group beneath it. It is never placed at a goal line, which would
-   * read as Cap+ 150 or Cap+ 50 — a value it does not have.
-   */
-  const notCovered = teams.filter((t) => t.index.state === 'blank');
-  const notCoveredReason =
-    notCovered.length && notCovered[0].index.state === 'blank' ? notCovered[0].index.reason : '';
+  const [wide, setWide] = useState(false);
+  const plotRef = useRef<HTMLDivElement>(null);
+  const [plotW, setPlotW] = useState<number | null>(null);
+  useEffect(() => {
+    const mq = window.matchMedia('(min-width: 1024px)');
+    const on = () => setWide(mq.matches);
+    on();
+    mq.addEventListener('change', on);
+    const el = plotRef.current;
+    const ro = el ? new ResizeObserver(() => setPlotW(el.getBoundingClientRect().width)) : null;
+    if (el && ro) ro.observe(el);
+    return () => {
+      mq.removeEventListener('change', on);
+      ro?.disconnect();
+    };
+  }, []);
+  // labels need WIDE_LABEL_PX of field; the hundred yards are 82% of the plot
+  const wideGap = plotW ? WIDE_LABEL_PX / ((plotW * (1 - 2 * END_ZONE)) / 100) : WIDE_GAP_YARDS;
 
-  const lanes = assignLanes(covered);
-  const laneCount = Math.max(1, ...lanes.map((l) => l + 1));
-  const focus = new Set(focusTeams);
+  const placed: Placed[] = useMemo(() => {
+    const live = frame.clubs
+      .map((club) => ({ club, v: valueOf(club, mode), raw: club.ix?.raw ?? null }))
+      .filter((x): x is { club: ScrubClub; v: number; raw: number } => x.v !== null && x.raw !== null);
+    const slots = new Map<string, 'below' | 'above' | 'none'>();
+    const dys = new Map<string, number>();
+    DIVISION_SLUGS.forEach((d) => {
+      const inLane = live.filter((x) => x.club.div === d).map((x) => ({ key: x.club.team, at: x.v }));
+      wideLabelSlots(inLane, wideGap).forEach((v, k) => slots.set(k, v));
+      dodgeLabels(inLane, TALL_GAP_YARDS).forEach((v, k) => dys.set(k, v));
+    });
+    return live.map((x) => ({
+      club: x.club,
+      v: x.v,
+      p: alongField(x.v),
+      p0: alongField(x.raw),
+      lane: Math.max(0, DIVISION_SLUGS.indexOf(x.club.div as (typeof DIVISION_SLUGS)[number])),
+      slot: slots.get(x.club.team) ?? 'none',
+      dy: dys.get(x.club.team) ?? 0,
+    }));
+  }, [frame, mode, wideGap]);
 
-  const redZoneStart = downfield(RED_ZONE_CAPPLUS) * 100;
+  const { tip, tipId, bind, pin, hide } = useChartTooltip<Placed>((d) => d.club.team);
+  // a season or mode change re-places every mark; an open tooltip would point at nothing
+  useEffect(() => hide(), [season, mode, hide]);
+
+  const at = (d: Placed) =>
+    wide
+      ? { x: d.p * 100, y: ((d.lane + 0.5) / 8) * 100 }
+      : { x: ((d.lane + 0.3) / 8) * 100, y: (1 - d.p) * 100 };
+
+  const ranked = [...placed].sort((a, b) => b.v - a.v);
+  const best = ranked[0];
+  const worst = ranked[ranked.length - 1];
+  const tds = placed.filter((d) => d.v >= 150);
+  const safeties = placed.filter((d) => d.v < 50);
+  const name = REVIEW_NAME[mode];
+  const seasons = frames.map((f) => f.season);
+  const blankSeasons = frames.filter((f) => f.ixReason !== null).map((f) => f.season);
+  const focusLane = DIVISION_SLUGS.indexOf(focusDivision as (typeof DIVISION_SLUGS)[number]);
 
   return (
     <div className={css.wrap}>
-      <div
-        className={css.field}
-        style={{ height: `${laneCount * LANE_H + FIELD_PAD}px` }}
-        role="img"
-        aria-label={`All 32 clubs placed by Cap+ as field position, ${season}. Cap+ 150 is the opponent goal line, Cap+ 50 the club's own.`}
-      >
-        {/* the two named bands — the only tinted regions on the field */}
-        <div className={css.redZone} style={{ left: `${redZoneStart}%` }} aria-hidden="true" />
-        <div className={css.safety} aria-hidden="true" />
-
-        {/* hash marks every 5 yards; dropped at mobile, where the field is
-          under the 320px of length §7 sets as their floor */}
-        {HASH_LINES.map((f) => (
-          <div className={css.hash} key={`h${f}`} style={{ left: `${f * 100}%` }} aria-hidden="true" />
-        ))}
-
-        {/* yard lines every 10 — these ARE the gridlines */}
-        {YARD_LINES.map((f) => (
-          <div
-            className={f === 0.5 ? `${css.yardLine} ${css.midfield}` : css.yardLine}
-            key={`y${f}`}
-            style={{ left: `${f * 100}%` }}
-            aria-hidden="true"
+      <div className={css.controls}>
+        <SeasonScrubber
+          seasons={seasons}
+          value={frame.season}
+          onChange={setSeason}
+          blankSeasons={blankSeasons}
+          label="Field season"
+        />
+        <div className={css.reviewRow}>
+          <span className={`yy-label ${css.reviewLabel}`}>Review</span>
+          <Segmented
+            options={REVIEW_MODES}
+            value={mode}
+            onChange={setReview}
+            label="Review: which index places the clubs"
+            disabled={!covered}
+            names={REVIEW_SHORT}
           />
-        ))}
+        </div>
+        <p className={`yy-caption ${css.reviewNote}`}>
+          {!covered
+            ? `${frame.season}: ${frame.ixReason}`
+            : mode === 'raw'
+              ? 'Placed by Cap+. Switch the review to re-place every club; the raw Cap+ spot stays as a ring.'
+              : mode === 'qbn'
+                ? `Placed by ${name}: the starting QB's cap number swapped for the season's median starter. Rings mark raw Cap+.`
+                : `Placed by ${name}: cost counts cap, 1.5× dead money and half the future-cap mortgage. Not yet a published claim; rings mark raw Cap+. Mortgage: ${FUTURE_MORTGAGE_CAVEAT.charAt(0).toLowerCase()}${FUTURE_MORTGAGE_CAVEAT.slice(1)}`}
+        </p>
+      </div>
 
-        {covered.map((t, i) => {
-          const mark = teamMark(t.team as TeamAbbr, t.teamName);
-          return (
-            <a
-              key={t.team}
-              href={t.href}
-              className={`${css.mark} ${focus.has(t.team) ? css.markFocus : ''}`}
-              style={{ left: `${t.fraction * 100}%`, top: `${lanes[i] * LANE_H}px` }}
-            >
-              <span className={css.stem} aria-hidden="true" />
-              <TeamMark mark={mark} size="xs" dense />
-              <span className={`yy-label ${css.markLabel}`}>
-                {t.team} {t.capplus.toFixed(0)}
+      <div className={css.pitch}>
+        <div className={css.laneHeads} aria-hidden="true">
+          {DIVISION_SLUGS.map((d, i) => (
+            <span key={d} className={`yy-label ${css.laneHead} ${i === focusLane ? css.laneHeadOn : ''}`}>
+              <span>{LANE_HEAD[d][0]}</span>{' '}
+              <span>
+                <span className={css.divFull}>{LANE_HEAD[d][1]}</span>
+                <span className={css.divShort}>{LANE_HEAD[d][1][0]}</span>
               </span>
-            </a>
-          );
-        })}
-      </div>
+            </span>
+          ))}
+        </div>
 
-      {/* yard numbers — 10…50…10 from each goal line, as a field is painted */}
-      <div className={css.axis} aria-hidden="true">
-        {YARD_LINES.filter((f) => f > 0 && f < 1).map((f) => (
-          <span className={`yy-label ${css.yardNumber}`} key={`n${f}`} style={{ left: `${f * 100}%` }}>
-            {yardNumber(f)}
-          </span>
-        ))}
-      </div>
-
-      {/* THE CAP+ AXIS IS MANDATORY AND CONVENTIONAL — §7 and §2. The field is
-        the second encoding, never the only one. The two end ticks anchor to
-        their own edge rather than centring on it: a centred `150` at the goal
-        line paints half of itself outside the card and reads as `15`. */}
-      <div className={css.axis}>
-        {YARD_LINES.filter((_, i) => i % 2 === 0).map((f) => (
-          <span
-            className={`yy-label ${css.capTick} ${f === 0 ? css.tickStart : ''} ${f === 1 ? css.tickEnd : ''}`}
-            key={`c${f}`}
-            style={{ left: `${f * 100}%` }}
+        <div ref={plotRef} className={css.plot} onPointerLeave={() => (tip?.pinned ? null : hide())}>
+          {/* the ground: everything here is drawn, nothing is interactive */}
+          <div
+            className={css.ground}
+            role="img"
+            aria-label={
+              covered
+                ? `League field, ${frame.season}: all ${placed.length} clubs placed by ${name} as field position, in eight division lanes. Midfield is ${name} 100, the league average; the opponent goal line is 150. ${best ? `${best.club.team} is furthest downfield at ${best.v.toFixed(1)}; ${worst.club.team} is deepest at ${worst.v.toFixed(1)}.` : ''}`
+                : `League field, ${frame.season}: no clubs placed. ${frame.ixReason}`
+            }
           >
-            {capplusAt(f).toFixed(0)}
-          </span>
-        ))}
-      </div>
-      <p className={`yy-label ${css.axisTitle}`}>Cap+ · 100 = league average</p>
+            <div className={`${css.endZone} ${css.endZoneOwn}`}>
+              <span className={css.ezName}>Safety · Cap+ below 50</span>
+              {covered && worst ? (
+                <span className={css.ezNote}>
+                  {safeties.length
+                    ? `${safeties.length} club${safeties.length === 1 ? '' : 's'}: ${safeties.map((d) => d.club.team).join(', ')}`
+                    : `Deepest: ${worst.club.team} ${worst.v.toFixed(1)}`}
+                </span>
+              ) : null}
+            </div>
+            <div className={`${css.endZone} ${css.endZoneOpp}`}>
+              <span className={css.ezName}>Touchdown · Cap+ 150+</span>
+              {covered && best ? (
+                <span className={css.ezNote}>
+                  {tds.length
+                    ? `${tds.length} club${tds.length === 1 ? '' : 's'}: ${tds.map((d) => d.club.team).join(', ')}`
+                    : `Furthest: ${best.club.team} ${best.v.toFixed(1)}`}
+                </span>
+              ) : null}
+            </div>
+            <div
+              className={css.redZone}
+              style={{ '--a': alongField(RED_ZONE_CAPPLUS), '--b': alongYard(1) } as CSSProperties}
+            />
+            {focusLane >= 0 ? (
+              <div className={css.laneBand} style={{ '--lane': focusLane } as CSSProperties} />
+            ) : null}
+            {DIVISION_SLUGS.slice(1).map((d, i) => (
+              <div
+                key={d}
+                className={`${css.laneRule} ${i === 3 ? css.laneRuleConf : ''}`}
+                style={{ '--lane': i + 1 } as CSSProperties}
+              />
+            ))}
+            {HASH_LINES.map((f) => (
+              <div className={css.hash} key={`h${f}`} style={{ '--p': alongYard(f) } as CSSProperties} />
+            ))}
+            {YARD_LINES.map((f) =>
+              f === 0.5 ? null : (
+                <div className={css.yardLine} key={`y${f}`} style={{ '--p': alongYard(f) } as CSSProperties} />
+              ),
+            )}
+            {/* MIDFIELD = 100 = THE LEAGUE AVERAGE. The benchmark: gold, named
+              in the legend beneath, and the one line on the field that never
+              moves. */}
+            <div className={css.midfield} style={{ '--p': alongYard(0.5) } as CSSProperties} />
+          </div>
 
-      <ul className={css.bandKey}>
-        <li className={`yy-label ${css.bandKeyItem}`}>
-          <span className={`${css.bandSwatch} ${css.bandSwatchRed}`} aria-hidden="true" />
-          {RED_ZONE_LABEL}
+          {covered && mode !== 'raw'
+            ? placed.map((d) => (
+                <span
+                  key={`g-${d.club.team}`}
+                  className={css.reviewTrail}
+                  style={
+                    {
+                      '--a': Math.min(d.p, d.p0),
+                      '--b': Math.max(d.p, d.p0),
+                      '--lane': d.lane,
+                    } as CSSProperties
+                  }
+                  aria-hidden="true"
+                >
+                  <i className={css.ghostRing} data-end={d.p0 <= d.p ? 'a' : 'b'} />
+                </span>
+              ))
+            : null}
+
+          {covered
+            ? placed.map((d, i) => {
+                const lit = d.club.div === focusDivision;
+                const pos = at(d);
+                const rank = rankOf(d.club, mode);
+                return (
+                  <a
+                    key={d.club.team}
+                    href={`/team/${d.club.team.toLowerCase()}/${frame.season}`}
+                    className={[
+                      css.ball,
+                      lit ? css.ballLit : '',
+                      hot === d.club.team ? css.ballHot : '',
+                    ].join(' ')}
+                    data-slot={d.slot}
+                    style={
+                      {
+                        '--p': d.p,
+                        '--lane': d.lane,
+                        '--dy': d.dy,
+                        '--i': Math.min(i, 8),
+                      } as CSSProperties
+                    }
+                    aria-label={`${d.club.name}, ${frame.season}: ${name} ${d.v.toFixed(1)}${rank ? `, ${ordinal(rank)} of 32` : ''}, ${fieldPositionWords(d.v)}`}
+                    {...bind(d, pos.x, pos.y)}
+                    onPointerEnter={(e) => {
+                      bind(d, pos.x, pos.y).onPointerEnter(e);
+                      setHot(d.club.team);
+                    }}
+                    onPointerLeave={(e) => {
+                      bind(d, pos.x, pos.y).onPointerLeave(e);
+                      setHot(null);
+                    }}
+                    onFocus={() => {
+                      bind(d, pos.x, pos.y).onFocus();
+                      setHot(d.club.team);
+                    }}
+                    onBlur={() => {
+                      bind(d, pos.x, pos.y).onBlur();
+                      setHot(null);
+                    }}
+                    onClick={(e) => {
+                      // touch: the first tap reads, the tooltip's link navigates
+                      if ((e.nativeEvent as PointerEvent).pointerType === 'touch') {
+                        e.preventDefault();
+                        pin(d, pos.x, pos.y);
+                      }
+                    }}
+                  >
+                    <span className={css.dot} />
+                    <span className={css.ballLabel}>{d.club.team}</span>
+                  </a>
+                );
+              })
+            : null}
+
+          {!covered ? (
+            <div className={css.blankPlot}>
+              <p className="yy-label">Not covered — {frame.season}</p>
+              <p className="yy-caption">{frame.ixReason}</p>
+            </div>
+          ) : null}
+
+          {tip ? (
+            <div
+              id={tipId}
+              role="tooltip"
+              className={`${css.tip} ${tip.pinned ? css.tipPinned : ''}`}
+              style={tooltipStyle(tip.x, tip.y)}
+            >
+              <FieldTip d={tip.datum} season={frame.season} mode={mode} />
+            </div>
+          ) : null}
+        </div>
+
+        {/* yard numbers, as a field is painted — they reinforce the axis */}
+        <div className={css.yardAxis} aria-hidden="true">
+          {YARD_LINES.filter((f) => f > 0 && f < 1).map((f) => (
+            <span className={`yy-label ${css.tickAt}`} key={`n${f}`} style={{ '--p': alongYard(f) } as CSSProperties}>
+              {yardNumber(f)}
+            </span>
+          ))}
+        </div>
+        {/* THE CAP+ AXIS — mandatory and conventional (§7, §2) */}
+        <div className={css.capAxis} aria-hidden="true">
+          {YARD_LINES.filter((_, i) => i % 2 === 0).map((f) => (
+            <span
+              className={`yy-label ${css.tickAt} ${css.capTick}`}
+              key={`c${f}`}
+              style={{ '--p': alongYard(f) } as CSSProperties}
+            >
+              {capplusAt(f).toFixed(0)}
+            </span>
+          ))}
+        </div>
+      </div>
+      <p className={`yy-label ${css.axisTitle}`}>{name} · axis 50–150, pinned for every season</p>
+      <ul className={css.fieldKey}>
+        <li className={`yy-label ${css.fieldKeyItem}`}>
+          <i className={css.keyMid} aria-hidden="true" /> Midfield = 100 = league average
         </li>
-        <li className={`yy-label ${css.bandKeyItem}`}>
-          <span className={`${css.bandSwatch} ${css.bandSwatchSafety}`} aria-hidden="true" />
-          {SAFETY_LABEL}
+        <li className={`yy-label ${css.fieldKeyItem}`}>
+          <i className={css.keyLit} aria-hidden="true" /> {LANE_HEAD[focusDivision]?.join(' ') ?? ''} clubs
+        </li>
+        {covered && mode !== 'raw' ? (
+          <li className={`yy-label ${css.fieldKeyItem}`}>
+            <i className={css.keyRing} aria-hidden="true" /> Raw Cap+ position
+          </li>
+        ) : null}
+        <li className={`yy-label ${css.fieldKeyItem}`}>
+          <i className={css.keyRed} aria-hidden="true" /> {RED_ZONE_LABEL}
         </li>
       </ul>
 
-      {notCovered.length ? (
-        <div className={css.offField}>
-          <p className={`yy-label ${css.offFieldHead}`}>
-            Not covered — {notCoveredReason || 'no Cap+ was published for this season.'}
-          </p>
-          <ul className={css.offFieldList}>
-            {notCovered.map((t) => (
-              <li key={t.team}>
-                <a className={`yy-label ${css.offFieldItem}`} href={t.href}>
-                  <TeamMark mark={teamMark(t.team as TeamAbbr, t.teamName)} size="xs" dense />
-                  {t.teamName}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </div>
-      ) : null}
+      <ol className="yy-visually-hidden">
+        {ranked.map((d) => (
+          <li key={d.club.team}>
+            {d.club.name}: {name} {d.v.toFixed(1)}, {fieldPositionWords(d.v)}
+            {mode !== 'raw' && d.club.ix ? ` (Cap+ ${d.club.ix.raw.toFixed(1)})` : ''}
+          </li>
+        ))}
+      </ol>
 
       <ChartCaption>
-        Field position is Cap+ read a second way: {`yards to the opponent's goal = 150 − Cap+`},
-        clamped to the hundred yards between the two goal lines. Fifteen index points is fifteen
-        yards. The Cap+ axis beneath carries the same numbers conventionally — the field never
-        replaces them.
-      </ChartCaption>
-      <ChartCaption>
-        A club is placed by where its Cap+ falls, not by where it finished:{' '}
-        {covered.length ? describeExtremes(covered) : 'no club has a Cap+ this season.'}
+        Field position is {name}{' '}read a second way: yards to the opponent&apos;s goal = 150 − the
+        index, on a field pinned at 50–150 for every season, so a club slides yard by yard as you
+        scrub. The axis beneath carries the same numbers conventionally.{' '}
+        {covered && best && worst
+          ? `${best.club.team} is furthest downfield in ${frame.season} (${best.v.toFixed(1)}); ${worst.club.team} is deepest (${worst.v.toFixed(1)}).`
+          : ''}
       </ChartCaption>
     </div>
   );
 }
 
-function describeExtremes(covered: { team: string; capplus: number; yards: number }[]): string {
-  const best = covered[covered.length - 1];
-  const worst = covered[0];
-  const inRedZone = covered.filter((t) => t.capplus >= RED_ZONE_CAPPLUS).length;
-  const inSafety = covered.filter((t) => t.capplus < SAFETY_CAPPLUS).length;
+function FieldTip({ d, season, mode }: { d: Placed; season: number; mode: ReviewMode }) {
+  const c = d.club;
+  const rank = rankOf(c, mode);
   return (
-    `${best.team} is furthest downfield at the ${Math.max(1, Math.round(best.yards))}, ` +
-    `${worst.team} is deepest in its own half at the ${Math.round(100 - worst.yards)}. ` +
-    (inRedZone
-      ? `${inRedZone} club${inRedZone === 1 ? ' is' : 's are'} in the red zone.`
-      : 'The red zone is empty this season, which is the correct reading and not a missing mark.') +
-    (inSafety ? ` ${inSafety} club${inSafety === 1 ? ' is' : 's are'} behind the safety line.` : '')
+    <>
+      <p className={css.tipHead}>
+        {c.name} · {season}
+      </p>
+      <dl className={css.tipList}>
+        <dt>{REVIEW_NAME[mode]}</dt>
+        <dd>
+          {d.v.toFixed(1)}
+          {rank ? ` · ${ordinal(rank)} of 32` : ''}
+        </dd>
+        {mode !== 'raw' && c.ix ? (
+          <>
+            <dt>Cap+ (raw)</dt>
+            <dd>
+              {c.ix.raw.toFixed(1)} · {ordinal(c.ix.rawRank)}
+            </dd>
+          </>
+        ) : null}
+        <dt>Field</dt>
+        <dd>{fieldPositionWords(d.v)}</dd>
+        <dt>Record</dt>
+        <dd>{recordDash(c.w, c.l, c.t)}</dd>
+        {c.qb ? (
+          <>
+            <dt>Starting QB</dt>
+            <dd>
+              {c.qb}
+              {c.rookie ? ' · rookie deal' : ''}
+            </dd>
+          </>
+        ) : null}
+      </dl>
+      {mode === 'obl' ? <p className={css.tipNote}>{CAPPLUS_OBLIGATION_LABEL} is a candidate index.</p> : null}
+      <a className={css.tipLink} href={`/team/${c.team.toLowerCase()}/${season}`}>
+        Open {c.team} {season} →
+      </a>
+    </>
   );
+}
+
+export function ordinal(n: number): string {
+  const s = ['th', 'st', 'nd', 'rd'];
+  const v = n % 100;
+  return `${n}${s[(v - 20) % 10] || s[v] || s[0]}`;
 }

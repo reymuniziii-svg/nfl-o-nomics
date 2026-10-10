@@ -17,6 +17,7 @@ import { BLANK_REASON, blank, partial, value, type Metric } from '@/lib/metric';
 import { divisionName, eraIdentity, type DivisionSlug, type TeamAbbr } from '@/lib/teams';
 import { isSeeded } from './registry';
 import { TIER2_FIRST_SEASON, getCostPerWin, type CostNumerator, type CostPerWin } from './metrics';
+import { getLeagueContext } from './context';
 
 /* ------------------------------------------------------------------ */
 /* team_meta — conference / division / colours, memoised per process    */
@@ -380,4 +381,160 @@ export async function snapshotHasPlaceholderData(): Promise<boolean> {
     .from(s.seedManifest)
     .where(and(eq(s.seedManifest.status, 'seeded'), sql`${s.seedManifest.sourceFile} is null`));
   return (rows[0]?.n ?? 0) > 0;
+}
+
+/* ------------------------------------------------------------------ */
+/* Δ vs the last covered season — the leaderboard's trend column         */
+/* ------------------------------------------------------------------ */
+
+export interface PriorDelta {
+  /** The most recent earlier season with a published reading under the same name. */
+  priorSeason: number | null;
+  deltas: Map<string, Metric<number>>;
+}
+
+/**
+ * The index against the LAST SEASON THAT HAS ONE, under the same metric name —
+ * replacing a fixed five-season lag that landed on 2020, a whole-season blank,
+ * and so rendered "not covered" in all 32 rows. Cap+ is differenced only
+ * against Cap+, Team Rating only against Team Rating (`DECISIONS.md` 18).
+ */
+export async function getIndexDeltaPrior(season: number, useCapPlus: boolean): Promise<PriorDelta> {
+  const out = new Map<string, Metric<number>>();
+  const db = await getDb();
+  const table = useCapPlus ? 'capplus_official' : 'team_rating';
+  if (!(await isSeeded(table))) return { priorSeason: null, deltas: out };
+
+  const rows = useCapPlus
+    ? await db
+        .select({ team: s.capplusOfficial.team, season: s.capplusOfficial.season, v: s.capplusOfficial.capplus })
+        .from(s.capplusOfficial)
+    : await db
+        .select({ team: s.teamRating.team, season: s.teamRating.season, v: s.teamRating.perfIndex })
+        .from(s.teamRating);
+
+  const earlier = [...new Set(rows.map((r) => r.season))].filter((y) => y < season).sort((a, b) => b - a);
+  const prior = earlier[0] ?? null;
+  const now = new Map(rows.filter((r) => r.season === season).map((r) => [r.team, r.v]));
+  const then = new Map(rows.filter((r) => r.season === prior).map((r) => [r.team, r.v]));
+  for (const [team, v] of now) {
+    const p = then.get(team);
+    out.set(
+      team,
+      p === undefined
+        ? blank(`Not available — no earlier ${useCapPlus ? 'Cap+' : 'Team Rating'} reading exists for this club.`)
+        : value(v - p),
+    );
+  }
+  return { priorSeason: prior, deltas: out };
+}
+
+/* ------------------------------------------------------------------ */
+/* League frames — one season of all 32 clubs, for the scrubbed charts   */
+/* ------------------------------------------------------------------ */
+
+/** The three published indices a club can be placed by under the Review control. */
+export interface FrameIndices {
+  capplus: number;
+  capplusRank: number;
+  qbNeutral: number;
+  qbNeutralRank: number;
+  /** CANDIDATE — renders only as `CAPPLUS_OBLIGATION_LABEL`, beside Cap+. */
+  obligation: number;
+  obligationRank: number;
+  /** Rank among this season's rookie-window clubs, or among its veteran-QB clubs. */
+  stratumRank: number;
+}
+
+export interface FrameClub {
+  team: TeamAbbr;
+  teamName: string;
+  divisionSlug: DivisionSlug;
+  wins: number;
+  losses: number;
+  ties: number;
+  /** Cash spent, USD — `team_season_cap.cash_spent_total`. */
+  cash: Metric<number>;
+  /** Cash ÷ that season's league cap — `team_season_cap.cash_pct_of_league`, verbatim. */
+  cashShare: Metric<number>;
+  /** Blank in the four whole-season Cap+ blanks, with the mart's reason. */
+  indices: Metric<FrameIndices>;
+  /** `null` where `capplus_context` has no row (pre-2013). */
+  rookieWindow: boolean | null;
+  startingQb: string | null;
+}
+
+export interface LeagueFrame {
+  season: number;
+  /** League cash per win, `Σ cash ÷ Σ wins` — the frontier's gold isoline. */
+  avgCashPerWin: Metric<number>;
+  leagueCap: Metric<number>;
+  clubs: FrameClub[];
+}
+
+/**
+ * Every club for one season, joined across the marts the Field and the frontier
+ * read. Nothing is computed here: every number is a mart column, except the
+ * league cost-per-win benchmark, which is `getLeagueAvgCostPerWin` unchanged.
+ */
+export async function getLeagueFrame(season: number): Promise<LeagueFrame> {
+  const db = await getDb();
+  const meta = await getTeamMetaMap();
+  const [results, capRows, context, avgCashPerWin, leagueCap] = await Promise.all([
+    db.select().from(s.teamSeasonResults).where(eq(s.teamSeasonResults.season, season)),
+    (await isSeeded('team_season_cap'))
+      ? db
+          .select({
+            team: s.teamSeasonCap.team,
+            cash: s.teamSeasonCap.cashSpentTotal,
+            share: s.teamSeasonCap.cashPctOfLeague,
+          })
+          .from(s.teamSeasonCap)
+          .where(eq(s.teamSeasonCap.season, season))
+      : Promise.resolve([] as { team: string; cash: number; share: number }[]),
+    getLeagueContext(season),
+    getLeagueAvgCostPerWin(season, 'cash'),
+    getLeagueCap(season),
+  ]);
+
+  const capBy = new Map(capRows.map((r) => [r.team, r]));
+  const ctxBy = new Map(context.state === 'blank' ? [] : context.value.map((c) => [c.team as string, c]));
+  const noCap = season < TIER2_FIRST_SEASON ? BLANK_REASON.PRE_TIER2 : BLANK_REASON.MART_ABSENT;
+  const noCtx = context.state === 'blank' ? context.reason : BLANK_REASON.MART_ABSENT;
+
+  const clubs: FrameClub[] = results.map((r) => {
+    const cap = capBy.get(r.team);
+    const ctx = ctxBy.get(r.team);
+    let indices: Metric<FrameIndices> = blank(noCtx);
+    if (ctx) {
+      indices =
+        ctx.indices.state === 'blank'
+          ? blank(ctx.indices.reason)
+          : value({
+              capplus: ctx.indices.value.capplus,
+              capplusRank: ctx.indices.value.capplusRank,
+              qbNeutral: ctx.indices.value.capplusQbNeutral,
+              qbNeutralRank: ctx.indices.value.qbNeutralRank,
+              obligation: ctx.indices.value.capplusObligation,
+              obligationRank: ctx.indices.value.obligationRank,
+              stratumRank: ctx.indices.value.stratumRank,
+            });
+    }
+    return {
+      team: r.team as TeamAbbr,
+      teamName: eraIdentity(r.team as TeamAbbr, season).name,
+      divisionSlug: (meta.get(r.team)?.divisionSlug ?? 'afc-east') as DivisionSlug,
+      wins: r.wins,
+      losses: r.losses,
+      ties: r.ties,
+      cash: cap ? value(cap.cash) : blank(noCap),
+      cashShare: cap ? value(cap.share) : blank(noCap),
+      indices,
+      rookieWindow: ctx ? ctx.qbRookieWindow : null,
+      startingQb: ctx ? ctx.startingQb : null,
+    };
+  });
+  clubs.sort((a, b) => a.team.localeCompare(b.team));
+
+  return { season, avgCashPerWin, leagueCap, clubs };
 }

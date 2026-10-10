@@ -1,0 +1,177 @@
+/* The home ledger — share of that season's cap first, dollars second. */
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+@media (min-width: 1024px) {
+  .list {
+    grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+    column-gap: var(--yy-space-6);
+  }
+}
+
+.item {
+  padding: var(--yy-space-3) 0;
+  border-top: 1px solid var(--yy-line-divider);
+  display: flex;
+  flex-direction: column;
+  gap: var(--yy-space-2);
+}
+
+.head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--yy-space-1) var(--yy-space-2);
+}
+
+.player {
+  font-family: var(--yy-font-display);
+  font-weight: var(--yy-weight-display);
+  font-size: var(--yy-size-display-xs);
+  letter-spacing: var(--yy-track-display);
+  line-height: var(--yy-lh-tight);
+  color: var(--yy-fg-1);
+}
+
+.meta {
+  color: var(--yy-fg-3);
+}
+
+/* One standing chip per row, at the 11px floor (the shared chip is 10px). */
+.chip {
+  margin-left: auto;
+  font-family: var(--yy-font-athletic);
+  font-weight: var(--yy-weight-label);
+  font-size: var(--yy-size-label);
+  letter-spacing: var(--yy-track-label);
+  text-transform: uppercase;
+  line-height: 1;
+  padding: var(--yy-space-1) var(--yy-space-2);
+  border-radius: var(--yy-radius-chip);
+  border: 1px solid currentColor;
+  white-space: nowrap;
+}
+
+.chipVerified {
+  color: var(--yy-verified);
+  border-color: color-mix(in srgb, currentColor 40%, transparent);
+}
+
+.chipEst {
+  color: var(--yy-provisional);
+  border: 1px dashed var(--yy-provisional-stroke);
+}
+
+.seasons {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--yy-space-1);
+}
+
+.season {
+  display: grid;
+  grid-template-columns: 36px minmax(48px, 1fr) minmax(0, auto);
+  align-items: center;
+  gap: var(--yy-space-2);
+}
+
+.seasonYear {
+  color: var(--yy-fg-2);
+}
+
+.track {
+  position: relative;
+  height: var(--yy-bar-h);
+  background: var(--yy-bg-sunken);
+  border-radius: var(--yy-radius-mark);
+}
+
+.fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  border-radius: var(--yy-radius-mark);
+  background: var(--yy-fg-mid);
+}
+
+.itemEst .fill {
+  background: transparent;
+  border: 1px dashed var(--yy-fg-mid);
+}
+
+.trackBlank {
+  position: absolute;
+  inset: 0;
+  border: 1px dashed var(--yy-absence);
+  border-radius: var(--yy-radius-mark);
+}
+
+.figure {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: flex-end;
+  gap: 0 var(--yy-space-1);
+  text-align: right;
+  max-width: 22ch;
+}
+
+.pct,
+.pctBlank {
+  font-size: var(--yy-size-metric-xs);
+  color: var(--yy-fg-1);
+}
+
+.pctBlank {
+  color: var(--yy-fg-2);
+}
+
+.usd {
+  color: var(--yy-fg-3);
+}
+
+.noSplit {
+  margin: 0;
+  color: var(--yy-fg-3);
+}
+
+.foot {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--yy-space-3);
+}
+
+.total {
+  white-space: nowrap;
+  color: var(--yy-fg-1);
+}
+
+.stamp {
+  color: var(--yy-fg-3);
+}
+
+.source {
+  color: var(--yy-fg-2);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  position: relative;
+}
+
+.source::after {
+  content: '';
+  position: absolute;
+  inset: 50% -8px auto;
+  height: var(--yy-tap-target);
+  transform: translateY(-50%);
+}

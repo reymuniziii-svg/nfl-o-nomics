@@ -5,19 +5,36 @@
   flex-direction: column;
 }
 
-/* §2.2 — the sticky group: the column-header row sticks at the top of the
-   scroll container. No pagination, no "show more", no virtualisation. */
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--yy-space-2) var(--yy-space-4);
+  margin-bottom: var(--yy-space-3);
+}
+
+.seasonNote {
+  color: var(--yy-fg-3);
+}
+
+/* §2.2 — the column-header row sticks at the top of its card. */
 .headRow {
   position: sticky;
   top: 0;
   z-index: 1;
   background: var(--yy-bg-card-flat);
   display: grid;
-  grid-template-columns: 26px 1fr 74px 52px;
+  grid-template-columns: 26px minmax(0, 1fr) 64px 52px;
   align-items: center;
   gap: var(--yy-space-3);
-  padding: var(--yy-space-2) 0;
+  padding: var(--yy-space-2) 0 var(--yy-space-2) var(--yy-space-2);
   border-bottom: 1px solid var(--yy-line-hairline);
+}
+
+.rankNote {
+  margin: var(--yy-space-1) 0;
+  color: var(--yy-fg-3);
 }
 
 .sortBtn {
@@ -46,40 +63,49 @@
 }
 
 .caret {
-  color: var(--yy-accent);
+  color: var(--yy-fg-1);
   flex: none;
 }
 
 .alignRight {
   text-align: right;
   justify-content: flex-end;
+  width: 100%;
 }
 
-/* ── ROW, mobile 390 — §2.1 ─────────────────────────────────────────────── */
+/* ── ROW, mobile ─────────────────────────────────────────────────────────── */
 
 .row {
   display: grid;
-  grid-template-columns: 26px 1fr 74px 52px;
+  grid-template-columns: 26px minmax(0, 1fr) 64px 52px;
   align-items: center;
   gap: var(--yy-space-3);
   padding: var(--yy-space-2) 0;
+  padding-inline-start: var(--yy-space-2);
   border-top: 1px solid var(--yy-line-divider);
+  border-inline-start: var(--yy-space-0h) solid transparent;
   min-height: 48px;
   text-decoration: none;
   color: inherit;
-  border-inline-start: var(--yy-space-0h) solid transparent;
-  padding-inline-start: var(--yy-space-2);
+  position: relative;
+  background: var(--yy-bg-card-flat);
 }
 
-.row:hover {
-  background: var(--yy-bg-hover);
+@media (hover: hover) {
+  .row:hover {
+    background: var(--yy-bg-hover);
+  }
 }
 
-/* §2.1 focus row — the tint alone is 1.06:1 and is not a distinction, so it is
-   always paired with a 2px lime left rule. */
+/* §2.1 focus row — the tint alone is 1.06:1, so it is paired with the rule. */
 .rowFocus {
   background: var(--yy-tint-selected);
   border-inline-start-color: var(--yy-accent);
+}
+
+/* lit from the Field or the frontier */
+.rowHot {
+  box-shadow: inset 0 0 0 1px var(--yy-fg-2);
 }
 
 .rank {
@@ -89,21 +115,13 @@
   padding-right: 0.03em;
 }
 
-.rankTop {
-  color: var(--yy-accent);
-}
-
 .teamCell {
   min-width: 0;
   display: flex;
-  align-items: center;
-  gap: var(--yy-space-2);
+  flex-direction: column;
 }
 
-.teamText {
-  min-width: 0;
-}
-
+/* MOBILE_PATTERNS.md §4 — nothing here truncates; long names wrap. */
 .teamName {
   font-family: var(--yy-font-display);
   font-weight: var(--yy-weight-display);
@@ -111,66 +129,102 @@
   letter-spacing: var(--yy-track-display);
   line-height: var(--yy-lh-tight);
   color: var(--yy-fg-1);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  overflow-wrap: anywhere;
 }
 
 .teamSub {
   color: var(--yy-fg-3);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: block;
+  overflow-wrap: anywhere;
+  margin-top: 2px;
 }
 
-/* spend → wins: two stacked 5px tracks */
-.pair {
+/* the R chip — a rookie-window starting QB */
+.rChip {
+  display: inline-grid;
+  place-items: center;
+  width: 16px;
+  height: 16px;
+  margin-left: var(--yy-space-1);
+  border-radius: var(--yy-radius-chip);
+  border: 1px solid var(--yy-fg-2);
+  color: var(--yy-fg-1);
+  font-family: var(--yy-font-athletic);
+  font-weight: var(--yy-weight-metric);
+  font-size: var(--yy-size-label);
+  letter-spacing: 0;
+  line-height: 1;
+  vertical-align: 2px;
+  flex: none;
+}
+
+/* ── $/win mark: one league-wide domain, gold league tick ────────────────── */
+
+.cpw {
   display: flex;
-  flex-direction: column;
-  gap: var(--yy-space-1);
+  align-items: center;
+  gap: var(--yy-space-2);
+  justify-content: flex-end;
 }
 
-.track {
+.cpwTrack {
+  position: relative;
+  flex: 1;
+  min-width: 48px;
   height: var(--yy-bar-h-sm);
   background: var(--yy-bg-sunken);
   border-radius: var(--yy-radius-mark);
-  overflow: hidden;
 }
 
-/* `display: block` IS THE MARK. `.track` blockifies as a flex item; a `<span>`
-   inside it does not, and an inline box ignores `width` and `height` entirely —
-   so every spend bar in this list painted 0px while carrying a correct
-   percentage in its inline style. */
-.trackFill {
-  display: block;
-  width: 0;
-  height: 100%;
+.cpwTrackBlank {
+  background: var(--yy-absence-fill);
+  border: 1px dashed var(--yy-absence);
+}
+
+.cpwFill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
   border-radius: var(--yy-radius-mark);
-  /* SC 1.4.11 — the bar carries the data, so it needs ≥3:1 against its own
-     track. `--yy-bg-track` is the NEXT STEP ON THE SAME SURFACE LADDER as
-     `--yy-bg-sunken` (1.22:1 light, 1.27:1 dark): two adjacent greys cannot
-     encode a value. The spend bar takes a foreground weight, like the wins bar
-     directly beneath it. */
   background: var(--yy-fg-mid);
+  /* the domain is pinned across both numerators — width may travel */
+  transition: width var(--yy-dur-chart) var(--yy-ease-standard);
 }
 
-.winsAbove {
-  background: var(--yy-accent);
+.cpwTick {
+  position: absolute;
+  top: -3px;
+  bottom: -3px;
+  width: 2px;
+  margin-left: -1px;
+  background: var(--yy-benchmark);
+  box-shadow: 0 0 0 1px var(--yy-bg-card-flat);
 }
 
-.winsMid {
-  background: var(--yy-fg-mid);
+.cpwValue {
+  flex: none;
+  width: 6ch;
+  text-align: right;
 }
 
-.winsBelow {
-  background: var(--yy-negative-fill);
+/* ── index ───────────────────────────────────────────────────────────────── */
+
+.indexStack {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-end;
+  width: 100%;
 }
 
 .index {
   text-align: right;
   font-size: var(--yy-size-metric-xs);
   padding-right: 0.03em;
+}
+
+.indexRaw {
+  color: var(--yy-fg-3);
+  white-space: nowrap;
 }
 
 .indexAbove {
@@ -190,21 +244,12 @@
   color: var(--yy-fg-1);
 }
 
-.indexBlank {
-  color: var(--yy-fg-3);
-  font-size: var(--yy-size-label);
-}
-
-/* A blank cell's SHORT FORM. Never a dash, never empty — the full reason rides
-   along as the cell's accessible text. */
 .blankCell {
   color: var(--yy-fg-3);
   font-size: var(--yy-size-label);
-  white-space: nowrap;
 }
 
-/* §2.3 — blanks sort to a LABELLED group at the bottom, never interleaved and
-   never sorted as zero. */
+/* §2.3 — blanks sort to a LABELLED group at the bottom */
 .blankGroup {
   margin-top: var(--yy-space-4);
   padding-top: var(--yy-space-3);
@@ -219,7 +264,16 @@
   max-width: var(--yy-measure);
 }
 
-/* ── DESKTOP TABLE — §2.4. Originated; none exists in the mockup. ────────── */
+.blankList {
+  list-style: none;
+  margin: var(--yy-space-2) 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--yy-space-2) var(--yy-space-4);
+}
+
+/* ── DESKTOP TABLE ───────────────────────────────────────────────────────── */
 
 .tableWrap {
   display: none;
@@ -232,7 +286,6 @@
 @media (min-width: 1024px) {
   .tableWrap {
     display: block;
-    overflow-x: auto;
   }
 
   .mobileList {
@@ -257,17 +310,22 @@
   border-bottom: 1px solid var(--yy-line-hairline);
   position: sticky;
   top: 0;
-  background: var(--yy-bg-card-lg);
+  background: var(--yy-bg-card-flat);
   z-index: 1;
+  vertical-align: bottom;
 }
 
 .table tbody tr {
   border-top: 1px solid var(--yy-line-divider);
+  background: var(--yy-bg-card-flat);
+  position: relative;
   transition: background-color var(--yy-dur-fast) var(--yy-ease-standard);
 }
 
-.table tbody tr:hover {
-  background: var(--yy-bg-hover);
+@media (hover: hover) {
+  .table tbody tr:hover {
+    background: var(--yy-bg-hover);
+  }
 }
 
 .table tbody tr.rowFocus {
@@ -275,11 +333,55 @@
   box-shadow: inset var(--yy-space-0h) 0 0 0 var(--yy-accent);
 }
 
-/* Column min-width for a figure column, measured at the widest possible value. */
+.table tbody tr.rowHot {
+  box-shadow: inset 0 0 0 1px var(--yy-fg-2);
+}
+
+.table tbody tr.rowFocus.rowHot {
+  box-shadow:
+    inset var(--yy-space-0h) 0 0 0 var(--yy-accent),
+    inset 0 0 0 1px var(--yy-fg-2);
+}
+
 .numCell {
   text-align: right;
-  min-width: var(--yy-space-11);
   padding-right: 0.03em;
+}
+
+.rankHead {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-end;
+  line-height: 1.1;
+}
+
+.rankHeadSub {
+  font-size: var(--yy-size-label);
+  color: var(--yy-fg-3);
+  text-transform: uppercase;
+}
+
+.rankCell {
+  color: var(--yy-fg-mid);
+  width: 3.5em;
+}
+
+.idxHead {
+  white-space: normal !important;
+  max-width: 14ch;
+}
+
+.cpwHead {
+  width: 30%;
+}
+
+.cpwCell {
+  width: 30%;
+}
+
+.recordInline {
+  margin-left: var(--yy-space-2);
+  color: var(--yy-fg-3);
 }
 
 .link {
@@ -289,6 +391,83 @@
 
 .link:hover {
   text-decoration: underline;
+}
+
+/* ── split view: rookie-window vs veteran QB, each against its own mean ──── */
+
+.split {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--yy-space-5);
+}
+
+@media (min-width: 1024px) {
+  .split {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: var(--yy-space-6);
+  }
+}
+
+.splitCol {
+  min-width: 0;
+}
+
+.splitHead {
+  margin: 0 0 var(--yy-space-2);
+  color: var(--yy-fg-1);
+  letter-spacing: var(--yy-track-label-wide);
+}
+
+.splitNote {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: var(--yy-fg-2);
+  max-width: var(--yy-measure);
+}
+
+/* the group's own midfield — a benchmark, so gold, and named in words */
+.meanRule {
+  position: relative;
+  height: 0;
+  margin: var(--yy-space-3) 0;
+  border-top: 2px dashed var(--yy-benchmark);
+}
+
+.meanLabel {
+  position: absolute;
+  right: 0;
+  top: -0.7em;
+  padding-left: var(--yy-space-2);
+  background: var(--yy-bg-card-flat);
+  color: var(--yy-benchmark);
+}
+
+/* ── key + captions ──────────────────────────────────────────────────────── */
+
+.key {
+  list-style: none;
+  margin: var(--yy-space-3) 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--yy-space-2) var(--yy-space-4);
+}
+
+.keyItem {
+  display: flex;
+  align-items: center;
+  gap: var(--yy-space-2);
+  color: var(--yy-fg-2);
+}
+
+.keyItem .rChip {
+  margin-left: 0;
+}
+
+.keyTick {
+  width: 2px;
+  height: 12px;
+  background: var(--yy-benchmark);
 }
 
 .caption {
