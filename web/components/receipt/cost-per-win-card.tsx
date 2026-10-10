@@ -11,7 +11,7 @@
  * THE LIME RULE (§1.3, `DECISIONS.md` 71) is selected by the `subject` prop and
  * the card STATES WHICH MODE IT IS IN, in the strap, so a reader who screenshots
  * it can still tell:
- *   subject undefined → lime = favourable vs the benchmark (subjectless surface)
+ *   subject undefined → lime = favorable vs the benchmark (subjectless surface)
  *   subject set       → lime = the subject, regardless of what it costs
  *
  * RED requires a rendered benchmark (`DECISIONS.md` 72). If `leagueAvg` is not
@@ -95,8 +95,8 @@ const LENS_LINE: Record<Numerator, string> = {
 
 /** §1.8(b) — the full sentence, one tap away, in-card. */
 const LENS_SENTENCE: Record<Numerator, string> = {
-  cash: 'Cash to players on the roster. Cash paid to players released in-year is not included.',
-  cap: 'Cap hit is an end-of-league-year restatement, not an in-season reading. Cap held by players on the roster — not cap used.',
+  cash: 'Cash paid to players on the roster. Cash paid to players released in-year is left out.',
+  cap: 'Cap hit is an end-of-league-year restatement, not an in-season reading. It is cap held by players on the roster, not cap used.',
 };
 
 const SIZE_CLASS: Record<ReceiptSize, string> = {
@@ -405,7 +405,7 @@ function ReceiptRow({
       <div className={css.bar}>
         <div className={css.fill} style={{ width: `${widthPct}%` }} />
         {/* Every club in the league, faintly — where this row sits in the
-          whole season, not just in its division. Not a series: no colour. */}
+          whole season, not just in its division. Not a series: no color. */}
         {ghostPcts.map((g, i) => (
           <i className={css.ghost} key={i} style={{ left: `${g}%` }} aria-hidden="true" />
         ))}
@@ -464,7 +464,7 @@ export function NumeratorToggle({
   }
 
   return (
-    <div className={css.toggle} role="radiogroup" aria-label="Numerator" onKeyDown={onKeyDown}>
+    <div className={css.toggle} role="radiogroup" aria-label="Cost basis" onKeyDown={onKeyDown}>
       {NUMERATORS.map((n) => (
         <button
           key={n}

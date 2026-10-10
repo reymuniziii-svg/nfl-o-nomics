@@ -20,8 +20,8 @@
  * redrawn at the new season's price. The faint ±25% lines are neutral
  * references, not benchmarks.
  *
- * ONE LIME SERIES: the division's four clubs, labelled. The other 28 are
- * neutral, unlabelled, and one hover, focus or tap from a tooltip that repeats
+ * ONE LIME SERIES: the division's four clubs, labeled. The other 28 are
+ * neutral, unlabeled, and one hover, focus or tap from a tooltip that repeats
  * and enriches.
  */
 
@@ -140,7 +140,7 @@ export function Frontier({
             viewBox="0 0 100 100"
             preserveAspectRatio="none"
             role="img"
-            aria-label={`Efficiency frontier, ${frame.season}: wins against cash spent as a share of the season's cap for ${dots.length} clubs.${
+            aria-label={`Efficiency frontier, ${frame.season}: wins against cash spent as a share of the season's cap, for ${dots.length} clubs.${
               k !== null && frame.avgCpw !== null
                 ? ` The gold line is the league price, ${usdShort(frame.avgCpw)} of cash per win; clubs above it bought wins cheaper.`
                 : ''
@@ -170,7 +170,7 @@ export function Frontier({
                 25% cheaper
               </IsoLabel>
               <IsoLabel at={exitLabel(k / 1.25)} className={css.isoLabelFaint}>
-                25% dearer
+                25% pricier
               </IsoLabel>
             </>
           ) : (
@@ -181,7 +181,7 @@ export function Frontier({
             ↑ Cheaper wins
           </span>
           <span className={`yy-label ${css.corner} ${css.cornerBr}`} aria-hidden="true">
-            Dearer wins ↓
+            Pricier wins ↓
           </span>
 
           {dots.map((d, i) => (
@@ -258,7 +258,7 @@ export function Frontier({
         {ordered.map((d) => (
           <li key={d.club.team}>
             {d.club.name}: {d.club.w} wins, {usdShort(d.cash)} cash ({(d.share * 100).toFixed(0)}% of cap),{' '}
-            {d.perWin !== null ? `${usdShort(d.perWin)} per win` : 'no wins — ratio suppressed'}
+            {d.perWin !== null ? `${usdShort(d.perWin)} per win` : 'no wins, ratio suppressed'}
           </li>
         ))}
       </ol>

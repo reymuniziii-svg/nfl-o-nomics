@@ -114,7 +114,7 @@ export function LedgerBoard({
             ) : (
               /* NEVER AN INFERRED SPLIT (`SPEC.md` §2.7). */
               <p className={`yy-caption ${css.noSplit}`}>
-                Per-season split not established — the total is not divided across seasons.
+                Per-season split not established, so the total is not divided across seasons.
               </p>
             )}
 

@@ -5,7 +5,7 @@
  *
  * **All 32 rows. Not a top-10.** Two compositions, one dataset: the row-card
  * list below 1024px and the real table at 1024+. Clubs whose index is `blank`
- * sort to a labelled group at the bottom, never interleaved, never zero.
+ * sort to a labeled group at the bottom, never interleaved, never zero.
  *
  * What the 2026-10-10 review changed (B.6, D #9, D #10):
  *   - THE RANK FOLLOWS THE SORT. Sorted by $/win, `#1` is the cheapest club,
@@ -268,7 +268,7 @@ export function CapPlusLeaderboard({
           onChange={setSplit}
           label="Leaderboard view"
           disabled={!splitAvailable}
-          names={{ all: 'All 32', split: 'By QB deal' }}
+          names={{ all: 'All 32', split: 'QB deal' }}
         />
         {fieldSeason !== season ? (
           <span className={`yy-label ${css.seasonNote}`}>Table shows {season}</span>
@@ -414,7 +414,7 @@ export function CapPlusLeaderboard({
 
           {blanked.length ? (
             <>
-              <p className={`yy-label ${css.blankGroup}`}>Not covered — {blanked.length} clubs</p>
+              <p className={`yy-label ${css.blankGroup}`}>Not covered · {blanked.length} clubs</p>
               <p className={`yy-caption ${css.blankReason}`}>{blankReason}</p>
               <ul className={css.blankList}>
                 {blanked.map((r) => (
@@ -447,16 +447,17 @@ export function CapPlusLeaderboard({
       </ul>
       <p className={`yy-caption ${css.caption}`}>
         {n === 'cash'
-          ? 'Cash · roster only — cash to players on the roster; cash paid to players released in-year is not included.'
-          : 'Cap hit · season-final · roster only — an end-of-league-year restatement of cap held by players on the roster.'}{' '}
-        The lens follows the toggle on the cost-per-win card above. A club with no wins shows its
+          ? 'Cash · roster only means cash paid to players on the roster, not to players released in-year.'
+          : 'Cap hit · season-final · roster only means the end-of-league-year restatement of cap held by players on the roster.'}{' '}
+        The toggle on the cost-per-win card above sets the lens, and a club with no wins shows its
         spend and no ratio.
       </p>
       {strataReason && isCapPlus ? <p className={`yy-caption ${css.caption}`}>{strataReason}</p> : null}
       <p className={`yy-caption ${css.caption}`}>
-        <CapPlusCaption /> — {indexName} is a season-relative index, not a front-office grade.
+        <CapPlusCaption /> —{' '}
+        {`${indexName} scores each club against its own season’s league. It is not a front-office grade.`}
         {mode === 'obl'
-          ? ` ${REVIEW_NAME.obl} is not yet a published claim; raw Cap+ is shown beside it.`
+          ? ` ${REVIEW_NAME.obl} is not a published claim yet, so raw Cap+ runs beside it.`
           : ''}
       </p>
       {csvSlot}
@@ -523,9 +524,9 @@ function SplitView({
         );
       })}
       <p className={`yy-caption ${css.splitNote}`}>
-        Ranked within each group on Cap+; the gold rule is that group&apos;s own mean, its midfield.
-        Rookie-window clubs average below 100 because, on average, they are worse teams — the
-        cheap QB is worth about three index points (CAPPLUS_MEMO §8.1).
+        Each group ranks on Cap+ against itself, and the gold rule marks that group&apos;s own mean.
+        Rookie-window clubs average below 100 because, on average, they are worse teams; the cheap
+        QB deal adds only about 2.8 points (CAPPLUS_MEMO §8.1).
       </p>
     </div>
   );
@@ -544,7 +545,7 @@ function MeanRule({ mean, n }: { mean: number; n: number }) {
 function RChip({ qb }: { qb: string | null }) {
   return (
     <span className={css.rChip} title={`Starting QB on his rookie deal${qb ? `: ${qb}` : ''}`}>
-      R<span className="yy-visually-hidden"> — starting QB on his rookie deal{qb ? `: ${qb}` : ''}</span>
+      R<span className="yy-visually-hidden">, starting QB on his rookie deal{qb ? `: ${qb}` : ''}</span>
     </span>
   );
 }
@@ -635,7 +636,7 @@ function BlankCell({ reason, short }: { reason: string; short: string }) {
   return (
     <span className={`yy-label ${css.blankCell}`} title={reason}>
       {short}
-      <span className="yy-visually-hidden"> — {reason}</span>
+      <span className="yy-visually-hidden">. {reason}</span>
     </span>
   );
 }

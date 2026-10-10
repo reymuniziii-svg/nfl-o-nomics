@@ -194,10 +194,10 @@ export function LeagueField({
           {!covered
             ? `${frame.season}: ${frame.ixReason}`
             : mode === 'raw'
-              ? 'Placed by Cap+. Switch the review to re-place every club; the raw Cap+ spot stays as a ring.'
+              ? 'Placed by Cap+, a team’s performance divided by what its roster cost. Pick another review and every club moves; a ring marks where raw Cap+ had it.'
               : mode === 'qbn'
-                ? `Placed by ${name}: the starting QB's cap number swapped for the season's median starter. Rings mark raw Cap+.`
-                : `Placed by ${name}: cost counts cap, 1.5× dead money and half the future-cap mortgage. Not yet a published claim; rings mark raw Cap+. Mortgage: ${FUTURE_MORTGAGE_CAVEAT.charAt(0).toLowerCase()}${FUTURE_MORTGAGE_CAVEAT.slice(1)}`}
+                ? `Placed by ${name}. Each starting QB is priced at the season’s median starter’s cap number. Rings mark raw Cap+.`
+                : `Placed by ${name}. Cost counts cap, 1.5× dead money and half the future-cap mortgage. ${FUTURE_MORTGAGE_CAVEAT} Not a published claim yet; rings mark raw Cap+.`}
         </p>
       </div>
 
@@ -221,7 +221,7 @@ export function LeagueField({
             role="img"
             aria-label={
               covered
-                ? `League field, ${frame.season}: all ${placed.length} clubs placed by ${name} as field position, in eight division lanes. Midfield is ${name} 100, the league average; the opponent goal line is 150. ${best ? `${best.club.team} is furthest downfield at ${best.v.toFixed(1)}; ${worst.club.team} is deepest at ${worst.v.toFixed(1)}.` : ''}`
+                ? `League field, ${frame.season}: all ${placed.length} clubs placed by ${name} as field position, in eight division lanes. Midfield is ${name} 100, the league average; the opponent's goal line is 150. ${best ? `${best.club.team} is furthest downfield at ${best.v.toFixed(1)}; ${worst.club.team} is deepest at ${worst.v.toFixed(1)}.` : ''}`
                 : `League field, ${frame.season}: no clubs placed. ${frame.ixReason}`
             }
           >
@@ -350,7 +350,7 @@ export function LeagueField({
 
           {!covered ? (
             <div className={css.blankPlot}>
-              <p className="yy-label">Not covered — {frame.season}</p>
+              <p className="yy-label">Not covered · {frame.season}</p>
               <p className="yy-caption">{frame.ixReason}</p>
             </div>
           ) : null}
@@ -398,7 +398,7 @@ export function LeagueField({
         </li>
         {covered && mode !== 'raw' ? (
           <li className={`yy-label ${css.fieldKeyItem}`}>
-            <i className={css.keyRing} aria-hidden="true" /> Raw Cap+ position
+            <i className={css.keyRing} aria-hidden="true" /> Raw Cap+ spot
           </li>
         ) : null}
         <li className={`yy-label ${css.fieldKeyItem}`}>
@@ -416,9 +416,8 @@ export function LeagueField({
       </ol>
 
       <ChartCaption>
-        Field position is {name}{' '}read a second way: yards to the opponent&apos;s goal = 150 − the
-        index, on a field pinned at 50–150 for every season, so a club slides yard by yard as you
-        scrub. The axis beneath carries the same numbers conventionally.{' '}
+        Yards to the opponent&apos;s goal = 150 − the index, on a field pinned at 50–150 every
+        season, so clubs slide yard by yard as you scrub.{' '}
         {covered && best && worst
           ? `${best.club.team} is furthest downfield in ${frame.season} (${best.v.toFixed(1)}); ${worst.club.team} is deepest (${worst.v.toFixed(1)}).`
           : ''}

@@ -18,7 +18,7 @@
  * the club under the pointer, lit on every surface at once.
  *
  * This is a SUBJECTLESS surface, so the Receipt runs in BENCHMARK MODE: lime
- * means favourable versus the benchmark, red means dearer, and the strap
+ * means favorable versus the benchmark, red means pricier, and the strap
  * discloses the mode by naming the benchmark without a subject
  * (`DECISIONS.md` 71 / 72).
  */
@@ -67,7 +67,7 @@ const NOT_TIER2 = 'Not available — league-wide contract coverage begins in 201
 function ratioOf(s: LeagueSpendRow | undefined): Metric<number> {
   if (!s) return blank(NOT_TIER2);
   return s.perWin === null
-    ? blank(`${usdShort(s.spend)} spent · 0 wins — the ratio is suppressed by rule.`)
+    ? blank(`${usdShort(s.spend)} spent · 0 wins. The ratio is suppressed by rule.`)
     : value(s.perWin);
 }
 
@@ -165,7 +165,7 @@ export async function DivisionView({ slug }: { slug: DivisionSlug }) {
       },
       perWin: { cash: ratioOf(cash), cap: ratioOf(cap) },
       delta:
-        prior.deltas.get(r.team) ?? blank('Not available — no earlier reading exists for this club.'),
+        prior.deltas.get(r.team) ?? blank('Not available — this club has no earlier reading.'),
       href: `/team/${r.team.toLowerCase()}/${season}`,
       ctx:
         c && c.indices.state !== 'blank'
@@ -234,7 +234,7 @@ export async function DivisionView({ slug }: { slug: DivisionSlug }) {
 
         {/* 3 — the frontier: every club's wins against what it paid */}
         <Card ariaLabel="Wins against cash spent, all 32 clubs">
-          <CardHeader eyebrow={`League · ${division.name} lit`} title="WINS VS. WHAT THEY COST" />
+          <CardHeader eyebrow={`All 32 clubs · ${division.name} highlighted`} title="WINS VS. WHAT THEY COST" />
           <Frontier
             frames={scrub}
             latestSeason={season}
@@ -242,10 +242,9 @@ export async function DivisionView({ slug }: { slug: DivisionSlug }) {
             divisionName={division.name}
           />
           <ChartCaption>
-            Each dot is a club: games won against the cash it paid its roster, as a share of that
-            season&apos;s cap. On the gold line a club paid the league price for a win; above it,
-            wins came cheaper. Cash is roster-only — cash paid to players released in-year is not
-            included.
+            Each dot is a club: wins against the cash it paid its roster (not players released
+            in-year), as a share of that season&apos;s cap. On the gold line a club paid the league
+            price for a win; above it, wins came cheaper.
           </ChartCaption>
         </Card>
 
@@ -385,10 +384,10 @@ export async function DivisionView({ slug }: { slug: DivisionSlug }) {
           <LedgerBoard rows={ledger.value} caps={caps} />
         )}
         <ChartCaption>
-          Each season&apos;s charge is shown as a share of that season&apos;s salary cap, dollars
-          second — the cap was $123M in 2013 and $279M in 2025. Every charge carries the date it was
-          verified and a link to its source; charges are never averaged, and never split across
-          seasons unless the split is published.
+          Dead money is cap you still pay for players who are gone. Each charge leads as a share of
+          that season&apos;s cap, which grew from $123M in 2013 to $279M in 2025. Every one carries
+          a verified date and a source link, and none is averaged or split across seasons unless
+          the split is published.
         </ChartCaption>
       </Card>
 
@@ -418,9 +417,9 @@ export async function DivisionView({ slug }: { slug: DivisionSlug }) {
 }
 
 const EXAMPLE_NOTE: Record<string, string> = {
-  Team: 'The full team season: history, the three lenses, allocation, dead money, coaching and draft.',
+  Team: 'The full team season: history, the three money lenses, cap by position, dead money, coaching and the draft.',
   Player:
-    'Contract terms, cap versus cash by year with dead-money markers, and availability. No value grade, ever.',
+    'Contract terms, cap hit against cash by year, dead-money markers and availability. No value grade, ever.',
   'Head-to-head':
-    'Two team-seasons, each scored against its own season’s league — which is what makes a 2007 team and a 2024 team comparable.',
+    'Two team-seasons, each scored against its own season’s league. That is why a 2007 team and a 2024 team can sit side by side.',
 };
