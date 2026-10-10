@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "web-prod",
+      "runtimeExecutable": "sh",
+      "runtimeArgs": ["-c", "cd web && npx next start -p 3005"],
+      "port": 3005
+    },
+    {
+      "name": "web-dev",
+      "runtimeExecutable": "sh",
+      "runtimeArgs": ["-c", "cd web && npx next dev -p 3000"],
+      "port": 3000
+    }
+  ]
+}
