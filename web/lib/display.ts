@@ -95,10 +95,10 @@ export function indexBand(v: number): Band {
 }
 
 /* ------------------------------------------------------------------ */
-/* Favourability — only ever applied where a benchmark renders            */
+/* Favorability — only ever applied where a benchmark renders            */
 /* ------------------------------------------------------------------ */
 
-export type Favourability = 'cheap' | 'mid' | 'dear';
+export type Favorability = 'cheap' | 'mid' | 'dear';
 
 /**
  * `COMPONENTS.md` §1.3, benchmark mode. "At average" is a ±2% band so a club a
@@ -106,7 +106,7 @@ export type Favourability = 'cheap' | 'mid' | 'dear';
  * 72 makes red conditional on the benchmark actually rendering, which is the
  * caller's job: pass `null` and everything comes back `mid`.
  */
-export function favourability(v: number, benchmark: number | null): Favourability {
+export function favorability(v: number, benchmark: number | null): Favorability {
   if (benchmark === null || !Number.isFinite(benchmark) || benchmark === 0) return 'mid';
   const rel = (v - benchmark) / benchmark;
   if (rel < -0.02) return 'cheap';

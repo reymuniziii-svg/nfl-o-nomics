@@ -25,7 +25,7 @@ import Link from 'next/link';
 import css from './receipt.module.css';
 import type { Metric } from '@/lib/metric';
 import {
-  favourability,
+  favorability,
   metricValue,
   pctVsLeague,
   usdShort,
@@ -380,7 +380,7 @@ function ReceiptRow({
       : ''
     : benchmark === null
       ? css.isMid
-      : { cheap: css.isCheap, mid: css.isMid, dear: css.isDear }[favourability(v, benchmark)];
+      : { cheap: css.isCheap, mid: css.isMid, dear: css.isDear }[favorability(v, benchmark)];
 
   const widthPct = Math.max(0, Math.min(100, (v / domainMax) * 100));
 

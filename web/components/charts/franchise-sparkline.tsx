@@ -7,7 +7,7 @@
  * 1px `--yy-fg-dim` vertical.
  *
  * Blanked seasons BREAK the path; they are **not** hatched at this size — there
- * is no room for the label, and an unlabelled hatch is worse than a visible gap.
+ * is no room for the label, and an unlabeled hatch is worse than a visible gap.
  * Nothing animates.
  */
 
