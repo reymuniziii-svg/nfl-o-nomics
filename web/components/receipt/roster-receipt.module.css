@@ -1,7 +1,7 @@
 /* THE ROSTER RECEIPT — `roster-receipt.tsx`.
  *
  * Paper is a FIXED light surface in both themes (blind proposal §2: "off-white
- * paper on the dark page"), so every colour below is a light-ink token, never a
+ * paper on the dark page"), so every color below is a light-ink token, never a
  * theme-switching semantic one. Figures are columnar, so they take
  * `--yy-font-num` with tabular figures (TYPE.md §5); labels take the athletic
  * face; the club name takes the display face.

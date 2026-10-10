@@ -18,12 +18,12 @@ Cap+ is a price tag, not a grade.
 
 ## How it's computed
 
-Performance, called P, blends three measures with equal weights, each compared with the rest of
-that season: win percentage (a tie counts as half a win), point differential per game, and EPA
-margin per play. EPA, expected points added, is how many points a play added beyond what the
+Performance, called P, blends three measures with equal weights: win percentage (a tie counts as
+half a win), point differential per game, and EPA margin per play. Each is compared with the rest
+of that season. EPA, expected points added, is how many points a play added beyond what the
 down, distance and field position predicted. The margin is offensive EPA per play minus
 defensive EPA per play, on runs and passes. Regular season only. Alternate weightings correlate
-at least 0.9968 with this one and move no team more than 0.74 places on average.
+at least 0.9968 with this one and shift teams 0.74 places or less on average.
 
 Cost is the cap charged to rostered players plus dead money, the cap you still pay for players
 who are gone, with each dead dollar counted at $1.50. We divide by the league cap, compare with
@@ -60,15 +60,16 @@ against their on-field rank.
 | **$1.50 (ours)** | **down 3.22 places, 5.5 points** | **89 (27th)** |
 | $2.00 | down 5.33 places, 9.2 points | 83 (30th) |
 
-At $1.00, dead money does almost nothing, and Atlanta, 24th on the field in 2022, lands 19th.
-It rates poorly only because we chose $1.50. At $2.00 we'd punish ordinary charges. Denver's
-$85.2M as of 2024-11-27 sat above the $50.3M league median, but its total cap consumption was
-exactly the 2024 median, and $2.00 would drop it to 20th.
+At $1.00, dead money does almost nothing, and Atlanta, 24th on the field in 2022, lands 19th. It
+rates poorly only because we chose $1.50. At $2.00 we'd punish ordinary charges. Denver's $85.2M
+as of 2024-11-27 sat above the $50.3M league median. Its cap consumption, rostered cap plus dead
+money as a share of the league cap, was still exactly the 2024 median. At $2.00 it would drop to
+20th.
 
 ### The floor
 
-A pure ratio rewards a team for not spending, so no team's cost counts as lower than the 25th
-percentile of its season, which puts eight teams a season on the floor by construction. The
+A pure ratio rewards a team for not spending. So no team's cost counts as lower than the 25th
+percentile of its season. That puts eight teams a season on the floor by construction. The
 league average is taken after the floor, so R = 1.00 still means league-average cost. The floor
 is why the 0-16 Browns of 2017 rate 32nd. Without it, they rated 23rd for not spending.
 
@@ -107,20 +108,20 @@ borrowed against. The next sections measure that gap.
 
 The theory says a team with a quarterback on his first contract has a built-in edge. We tested it.
 The starting QB is the one with the most offensive snaps. He's in his rookie window if the team
-drafted him, he's still on his draft-year contract, and the season falls within four seasons of
-the draft, which admits the fifth-year option. Of the 288 Cap+ team-seasons, 100 are
-rookie-window.
+drafted him and he's still on his draft-year contract. The season must fall within four seasons
+of the draft, which admits the fifth-year option. Of the 288 Cap+ team-seasons, 100 have a starter
+in his rookie window. We call that a rookie-deal starter.
 
-| | Teams | Average Cap+ | Average Team Rating | QB-timing points |
+| | Teams | Avg Cap+ | Avg Team Rating | QB-timing points |
 |---|---:|---:|---:|---:|
-| Rookie-window QB | 100 | 98.0 | 97.4 | +2.8 |
+| Rookie-deal QB | 100 | 98.0 | 97.4 | +2.8 |
 | Veteran-deal QB | 188 | 101.1 | 101.4 | −1.5 |
 
-Rookie-window teams average below 100 because they're usually still bad. Give each a
-league-median-priced starter and Cap+ rises 2.8 points on average, a fifth of one standard
-deviation. The 2019 Chiefs move −2.4: their cost was already under the floor, so a cheap
-quarterback bought them nothing Cap+ could see. Within each season, Cap+ and QB share of the cap
-correlate positively, from +0.12 to +0.45.
+Teams with a rookie-deal starter average below 100 because they're usually still bad. Their cheap
+quarterbacks add 2.8 points on average, a fifth of one standard deviation. Give each a league-
+median-priced starter and Cap+ falls by that much. The 2019 Chiefs score −2.4: their cost was
+already under the floor, so a cheap quarterback bought them nothing Cap+ could see. Within each
+season, Cap+ and QB share of the cap correlate positively, from +0.12 to +0.45.
 
 ## QB-neutral Cap+
 
@@ -135,31 +136,33 @@ roster points    = QB-neutral Cap+ − 100
 ```
 
 QB-timing points are what the quarterback's contract was worth. Roster points are everything
-else. Rookie-window teams are also ranked against each other, and veteran-deal teams likewise.
+else. Teams with a rookie-deal starter are also ranked against each other, and teams with a
+veteran-deal starter likewise.
 
 ## The future-cap mortgage
 
 A signing bonus is charged to the cap in equal yearly slices. The slices that land in later
-seasons are a mortgage. For each rostered player we multiply his prorated bonus by the contract
-seasons left after this one, then add up the team.
+seasons are the future-cap mortgage. For each rostered player we multiply his prorated bonus by
+the contract seasons left after this one, then add up the team.
 
 This is where the money varies. As a share of one league cap, the mortgage has a within-season
 standard deviation of 0.16, against 0.055 for cap consumed and 0.12 for cash paid.
 
-It's an estimate. It assumes flat proration, can't see void years or restructures not yet
-signed, and counts 504 of 32,105 player-seasons as zero for lack of a contract length.
+It's an estimate. It assumes flat proration. It can't see void years, the dummy contract years
+that push cap hits later, or restructures not yet signed. It counts 504 of 32,105 player-seasons
+as zero for lack of a contract length.
 
-## Cap+ (obligation), a candidate
+## Cap+ (obligation) — candidate
 
-Cap+ (obligation) adds 0.5 × the mortgage to cost, with the same floor and calibration. Its
-correlation with Team Rating drops from 0.95 to 0.89, and teams move 3.6 places on average, up
-from 2.2. In 2025, Buffalo falls from third to 16th, with 92% of a cap already charged to future
-seasons.
+Cap+ (obligation) — candidate adds 0.5 × the future-cap mortgage to cost, with the same floor
+and calibration. Its correlation with Team Rating drops from 0.95 to 0.89, and teams move 3.6
+places from their on-field rank on average, up from 2.2. In 2025, Buffalo falls from third to
+16th, with 92% of a cap already charged to future seasons.
 
 The 0.5 is a candidate, not a published claim, the way the $1.50 is a claim. So the index
-carries the word "candidate" and always sits beside Cap+, never alone: in the Review control on
-the league Field, the Review column on the leaderboard, and the "What Cap+ can't see" card on
-each team page.
+carries the word "candidate" and always sits beside Cap+, never alone. It appears in three
+places: the Review control on the league Field, the Review column on the leaderboard, and the
+"What Cap+ can't see" card on each team page.
 
 ---
 
@@ -196,8 +199,7 @@ can't support one. The cap total we can see covers players on the roster only. I
 to the cap over time, so cash and cap differ. Cash leaves out money paid to players released
 during the year.
 
-**Dead money** is the cap charge left behind by a player who's gone. Dan Graziano of ESPN
-defines it:
+**Dead money** is cap you still pay for players who are gone. Dan Graziano of ESPN defines it:
 
 > "A dead money charge is a charge on an NFL team's salary cap for a player who is no longer
 > on the roster. It represents any remaining signing bonus proration that was not accounted
@@ -213,8 +215,8 @@ hit. Both name the currency beside the figure. The 2023 49ers paid $258,275,910 
 wins, or $21.52M per win. A team with zero wins gets no ratio, only its spending and a "0 wins"
 label.
 
-The **receipt verdict** sorts every club in a season by cap hit per win and cuts the list at that
-season's quintiles. From cheapest to costliest, the labels are STEAL, WORTH IT, FAIR PRICE,
+The **receipt verdict** sorts every club in a season by cap per win and cuts the list at that
+season's quintiles, or fifths. From cheapest to costliest, the labels are STEAL, WORTH IT, FAIR PRICE,
 OVERPAID and MONEY PIT. Zero-win clubs are excluded. The cutoffs reset every season, so a verdict
 means cheap or expensive for that year's league. It judges the price of wins, which Cap+
 doesn't, so the two can disagree.
@@ -240,11 +242,12 @@ public reporting, with a source link on every row. Nothing is estimated.
 Chart](https://overthecap.com/draft-trade-value-chart), published at Over The Cap. Its units are
 dollars of surplus value, like the rest of this site, which the 1990s Jimmy Johnson chart's
 aren't. On a draft card, **capital counts every pick a team made, while realized return counts
-only picks that carry a `gsis_id` to join on.** Excluded picks are counted beside it.
+only picks that carry a `gsis_id`, the player ID the join needs.** Excluded picks are counted
+beside it.
 
 **Coaching staffs for every team from 2000 to 2025** (head coach and both coordinators) are
 compiled row by row with sources. Every head-coach row was checked against an independent
-franchise record, and a random 10% of coordinators against a second source.
+franchise record, and a 10% sample of coordinators against a second source.
 
 **Games played and snap counts run 2013 to 2025.** The 2012 snap file has no rows, and the games
 column stops at 2013, so a games total counts only that window and the page says so. Tom Brady's

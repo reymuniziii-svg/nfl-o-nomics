@@ -40,7 +40,7 @@
 }
 
 /* SPEC §2.8 step 7 — the season's league median, beside the reading it
-   benchmarks. Never coloured: a benchmark is context, not a verdict. */
+   benchmarks. Never colored: a benchmark is context, not a verdict. */
 .itemMedian {
   color: var(--yy-fg-3);
   letter-spacing: var(--yy-track-label);

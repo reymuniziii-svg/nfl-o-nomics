@@ -115,7 +115,7 @@ export interface CompareBundle {
   rows: BenchmarkRow[];
 }
 
-/** League averages for one season, from the marts. Memoised per process. */
+/** League averages for one season, from the marts. Memoized per process. */
 const seasonAvgCache = new Map<number, Promise<Record<string, number | null>>>();
 
 function seasonAverages(season: number): Promise<Record<string, number | null>> {

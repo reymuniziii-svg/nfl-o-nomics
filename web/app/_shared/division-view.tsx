@@ -67,7 +67,7 @@ const NOT_TIER2 = 'Not available — league-wide contract coverage begins in 201
 function ratioOf(s: LeagueSpendRow | undefined): Metric<number> {
   if (!s) return blank(NOT_TIER2);
   return s.perWin === null
-    ? blank(`${usdShort(s.spend)} spent · 0 wins. The ratio is suppressed by rule.`)
+    ? blank(`${usdShort(s.spend)} spent · 0 wins. A winless club gets no ratio.`)
     : value(s.perWin);
 }
 

@@ -61,7 +61,7 @@ export function CapPlusContextBody({
     mortRank = 1 + shares.filter((v) => v > c.futureMortgageShare).length;
   }
 
-  const stratumName = c.qbRookieWindow ? 'rookie-window' : 'veteran-QB';
+  const stratumName = c.qbRookieWindow ? 'rookie-deal' : 'veteran-deal';
 
   return (
     <div className={css.body}>
@@ -109,13 +109,13 @@ export function CapPlusContextBody({
               qbNeutral={ix.value.capplusQbNeutral}
             />
             <p className={`yy-caption ${css.caption}`}>
-              {`QB contract timing is worth ${signedIndex(ix.value.qbTimingPts)} here${
+              {`QB-timing points are ${signedIndex(ix.value.qbTimingPts)} here${
                 strata.state !== 'blank' &&
                 strata.value.rookieWindow.state !== 'blank' &&
                 strata.value.veteran.state !== 'blank'
-                  ? `, against ${season} averages of ${signedIndex(strata.value.rookieWindow.value.meanQbTimingPts)} for clubs with a rookie-deal starter (${strata.value.rookieWindow.value.n}) and ${signedIndex(strata.value.veteran.value.meanQbTimingPts)} for veteran-QB clubs (${strata.value.veteran.value.n})`
+                  ? `, against ${season} averages of ${signedIndex(strata.value.rookieWindow.value.meanQbTimingPts)} for clubs with a rookie-deal starter (${strata.value.rookieWindow.value.n}) and ${signedIndex(strata.value.veteran.value.meanQbTimingPts)} for clubs with a veteran-deal starter (${strata.value.veteran.value.n})`
                   : ''
-              }. Since 2013, rookie-deal starters average +${ROOKIE_WINDOW_MEAN_QB_PTS} across ${ROOKIE_WINDOW_N} team-seasons, a fifth of one standard deviation (15 points), so Cap+ pays a cheap quarterback far less than the debate assumes and mostly rewards winning.`}
+              }. Across the nine covered seasons, rookie-deal starters average +${ROOKIE_WINDOW_MEAN_QB_PTS} over ${ROOKIE_WINDOW_N} team-seasons, a fifth of one standard deviation (15 points). A cheap quarterback moves Cap+ far less than the debate assumes.`}
             </p>
           </>
         )}
@@ -137,7 +137,7 @@ export function CapPlusContextBody({
       </section>
 
       {/* (d) THE FRANCHISE'S WINDOWS */}
-      <section className={`${css.block} ${css.blockWide}`} aria-label="Rookie-QB windows">
+      <section className={`${css.block} ${css.blockWide}`} aria-label="Rookie-deal seasons">
         <p className={`yy-label ${css.blockLabel}`}>
           {teamName} · Cap+ vs QB-neutral, {series.state === 'blank' ? '' : `${series.value[0]?.season}–${series.value[series.value.length - 1]?.season}`}
         </p>
@@ -147,7 +147,7 @@ export function CapPlusContextBody({
           <>
             <QbWindowTimeline series={series.value} currentSeason={season} teamName={teamName} />
             <p className={`yy-caption ${css.caption}`}>
-              {`Where the two lines part, the quarterback’s contract moved Cap+; the record starts in 2013, the first season with league-wide contract data. ${windowSentence(series.value)}`}
+              {`Where the two lines part, the quarterback’s contract moved Cap+. The record starts in 2013, the first season with league-wide contract data. ${windowSentence(series.value)}`}
             </p>
           </>
         )}

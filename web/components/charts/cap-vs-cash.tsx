@@ -109,8 +109,8 @@ export function CapVsCash({
       <Legend items={legend} />
       <ChartCaption>
         Cap number is what the player counted against the cap that season; cash paid is what the
-        club actually paid out. A dead-money marker (cap still owed for a player who is gone) names
-        the club that ate the charge, which may not be the club on the player&rsquo;s row.
+        club actually paid out. A dead-money marker (cap you still pay for players who are gone)
+        names the club that ate the charge. That may not be the club on the player&rsquo;s row.
       </ChartCaption>
       {spikeSeasons.length ? (
         <ChartCaption>
@@ -118,8 +118,8 @@ export function CapVsCash({
           {spikeSeasons
             .map((p) => `${p.season} (+${usdShort((p.cashPaid ?? 0) - p.capNumber)})`)
             .join(', ')}
-          . Cash ahead of cap means a bonus paid that year and charged across later cap years; the
-          record does not say whether it came from a new deal or a restructure.
+          . Cash ahead of cap means a bonus was paid that year and charged across later cap years.
+          The record does not say whether it came from a new deal or a restructure.
         </ChartCaption>
       ) : null}
       <ChartCaption>{coverage.statement}</ChartCaption>

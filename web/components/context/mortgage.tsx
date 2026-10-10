@@ -52,7 +52,7 @@ export function FutureMortgage({
       <p className={css.mortHead}>
         <span className={`yy-num ${css.mortFigure}`}>{usdShort(usd)}</span>
         <span className={`yy-label ${css.mortUnit}`}>
-          {`charged to future seasons (the “mortgage”) · ${Math.round(share * 100)}% of one league cap`}
+          {`charged to future seasons (the future-cap mortgage) · ${Math.round(share * 100)}% of one league cap`}
           {rank !== null ? ` · ${ordinal(rank)}-largest of ${n}` : ''}
         </span>
       </p>
@@ -110,7 +110,7 @@ export function FutureMortgage({
             <span className={`yy-label ${css.pairRank}`}>{ordinal(indices.value.obligationRank)} of 32</span>
           </div>
           <p className={`yy-caption ${css.pairNote}`}>
-            {`${CAPPLUS_OBLIGATION_LABEL} charges ${alpha === 0.5 ? 'half' : `${alpha * 100}%`} of the mortgage to this season’s cost. It is a candidate under review, not the published index.`}
+            {`${CAPPLUS_OBLIGATION_LABEL} charges ${alpha === 0.5 ? 'half' : `${alpha * 100}%`} of the future-cap mortgage to this season’s cost. It is a candidate under review, not the published index.`}
           </p>
         </div>
       )}

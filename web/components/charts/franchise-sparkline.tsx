@@ -67,7 +67,7 @@ export function FranchiseSparkline({
       className={css.spark}
       viewBox={`0 0 ${W} ${H}`}
       role="img"
-      aria-label={`${label}: ${hasCapPlus ? 'Cap+' : 'Team rating'} by season, 100 is league average`}
+      aria-label={`${label}: ${hasCapPlus ? 'Cap+' : 'Team Rating'} by season, 100 = league average`}
     >
       {/* the single gold tick at the 100 baseline */}
       <line

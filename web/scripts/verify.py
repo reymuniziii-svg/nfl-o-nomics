@@ -280,7 +280,7 @@ def main() -> int:
                     )
                 ctx.close()
 
-        # The square export crops, rasterised from the card element itself at
+        # The square export crops, rasterized from the card element itself at
         # 2.7x — 400 x 400 becomes the 1080 x 1080 the feed wants. Both themes,
         # because both have to pass the eight criteria (§8).
         for theme in THEMES:

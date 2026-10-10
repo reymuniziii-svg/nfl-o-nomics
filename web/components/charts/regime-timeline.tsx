@@ -256,7 +256,7 @@ export function RegimeTimeline({
       />
 
       <ChartCaption>
-        {`Lime marks the ${currentSeason} head coach; that season’s coordinators are outlined. A new regime starts with each head-coach change, an event rather than a verdict, so its marker never takes the negative color; the two dated dead-money readings after each change are listed below in plain view.`}
+        {`Lime marks the ${currentSeason} head coach, with that season’s coordinators outlined. Each head-coach change starts a new regime. It is an event, not a verdict, so its marker never takes the negative color. The dead-money readings after each change are listed below.`}
       </ChartCaption>
 
       <ul className={shell.list}>

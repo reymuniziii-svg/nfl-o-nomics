@@ -214,7 +214,7 @@
   color: var(--yy-negative-text);
 }
 
-/* DECISIONS 83 — Team Rating is NEVER band-coloured. */
+/* DECISIONS 83 — Team Rating is NEVER band-colored. */
 .badgeNeutral {
   color: var(--yy-fg-1);
 }
@@ -375,7 +375,7 @@
   max-width: var(--yy-measure);
 }
 
-/* ── Section — a labelled block on a view ───────────────────────────────── */
+/* ── Section — a labeled block on a view ───────────────────────────────── */
 
 .sectionLabel {
   color: var(--yy-fg-3);

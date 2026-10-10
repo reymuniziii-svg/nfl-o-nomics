@@ -72,18 +72,18 @@ export function VerdictStrip(p: VerdictProps) {
         {p.inTier2 ? (
           <Stat
             label="Cap+"
-            value={p.capplus.state === 'blank' ? p.capplus.reason : p.capplus.value.capplus.toFixed(1)}
+            value={p.capplus.state === 'blank' ? 'Not covered' : p.capplus.value.capplus.toFixed(1)}
             note={
               p.capplus.state === 'blank'
                 ? undefined
-                : `${ordinal(p.capplus.value.seasonRank)} of 32 · 100 = league avg`
+                : `${ordinal(p.capplus.value.seasonRank)} of 32 · 100 = league average`
             }
             chip={p.capplus.state === 'value' && p.capplus.provisional ? 'provisional' : undefined}
           />
         ) : null}
         {!p.inTier2 || p.capplus.state === 'blank' ? (
           <Stat
-            label="Team rating"
+            label="Team Rating"
             value={p.teamRating.state === 'blank' ? p.teamRating.reason : p.teamRating.value.toFixed(1)}
             note="Performance only"
           />
@@ -91,7 +91,7 @@ export function VerdictStrip(p: VerdictProps) {
       </dl>
 
       {p.capplus.state === 'value' && p.capplus.provisional ? (
-        <p className={`yy-caption ${css.verdictNote}`}>Provisional Cap+: {PROVISIONAL_BADGE_COPY}</p>
+        <p className={`yy-caption ${css.verdictNote}`}>{PROVISIONAL_BADGE_COPY}</p>
       ) : null}
     </div>
   );
@@ -134,7 +134,7 @@ function PreTier2Items(p: VerdictProps) {
   return (
     <>
       {p.teamRating.state !== 'blank' ? (
-        <Item n={p.teamRating.value.toFixed(1)} unit="team rating" lead />
+        <Item n={p.teamRating.value.toFixed(1)} unit="Team Rating" lead />
       ) : null}
       <span className={`yy-label ${css.verdictUnit}`}>· No dollar figures before 2013</span>
     </>
@@ -165,7 +165,7 @@ function Stat({
     <div className={css.verdictStat}>
       <dt className={`yy-label ${css.verdictStatLabel}`}>{label}</dt>
       <dd className={css.verdictStatValue}>
-        <span className={`yy-num ${value.startsWith('Not available') ? css.verdictStatBlank : ''}`}>
+        <span className={`yy-num ${value.startsWith('Not available') || value === 'Not covered' ? css.verdictStatBlank : ''}`}>
           {value}
         </span>
         {chip ? (
@@ -207,6 +207,7 @@ function Reconcile(p: VerdictProps) {
     ranks && ranks.epaMarginRank.state !== 'blank' ? ranks.epaMarginRank.value : null;
 
   const reasons: string[] = [];
+  let usesEpa = false;
   if (ranks) {
     const ahead = (r: number) => (capHigh ? r < ranks.winPctRank : r > ranks.winPctRank);
     const drivers = [
@@ -214,6 +215,7 @@ function Reconcile(p: VerdictProps) {
       epaRank !== null && ahead(epaRank) ? `EPA margin (${ordinal(epaRank)})` : null,
     ].filter(Boolean);
     if (drivers.length) {
+      usesEpa = epaRank !== null && ahead(epaRank);
       reasons.push(
         `${drivers.join(' and ')} ${capHigh ? 'outran' : 'trailed'} the record (${ordinal(ranks.winPctRank)} of ${n} on win %)`,
       );
@@ -222,17 +224,18 @@ function Reconcile(p: VerdictProps) {
   const costPct = Math.round(Math.abs(cp.rRec - 1) * 100);
   if (capHigh ? cp.rRec < 0.99 : cp.rRec > 1.01) {
     reasons.push(
-      `its cap cost ran ${costPct}% ${cp.rRec < 1 ? 'below' : 'above'} the league average${
+      `cap cost ran ${costPct}% ${cp.rRec < 1 ? 'below' : 'above'} the league average${
         cp.wasFloored ? ' (floored at the 25th percentile)' : ''
       }`,
     );
   }
 
-  const lead = `Cap+ is ${cp.capplus.toFixed(1)}, ${capHigh ? 'above' : 'below'} 100,`;
+  const lead = `Cap+ is ${cp.capplus.toFixed(1)}, ${capHigh ? 'above' : 'below'} 100.`;
+  const sentence = (s: string) => `${s.charAt(0).toUpperCase()}${s.slice(1)}.`;
   const body = reasons.length
-    ? ` because ${reasons.join(', and ')}.`
-    : ' because it scores point differential and EPA margin as well as wins.';
-  const tail = ' Cost per win counts wins only, and prices them in cash, not cap.';
+    ? ` ${reasons.map(sentence).join(' ')}${usesEpa ? ' EPA is expected points added per play.' : ''}`
+    : ' It scores point differential and EPA margin, expected points added per play, as well as wins.';
+  const tail = ' Cost per win counts wins only and prices them in cash, not cap.';
 
   return (
     <p className={`yy-caption ${css.verdictReconcile}`}>

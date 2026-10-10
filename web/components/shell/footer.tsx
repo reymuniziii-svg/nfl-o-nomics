@@ -44,10 +44,10 @@ export function AppFooter({
       </p>
 
       <p className={`yy-label ${css.stamp}`}>
-        Snapshot: {stamp.tables_seeded ?? 0} marts ·{' '}
+        Data snapshot: {stamp.tables_seeded ?? 0} tables ·{' '}
         {(stamp.rows_total ?? 0).toLocaleString('en-US')} rows
         {stamp.tables_skipped ? ` · ${stamp.tables_skipped} not in this snapshot` : ''} · dead-money
-        tier {stamp.dead_money_tier ?? deadMoneyTier} · TeamMark{' '}
+        sources {stamp.dead_money_tier ?? deadMoneyTier} · team logos{' '}
         {logosEnabled ? 'on' : 'off (typographic fallback)'}
       </p>
     </footer>

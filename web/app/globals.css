@@ -220,7 +220,7 @@
   }
 
   /* MOBILE_PATTERNS.md §6.3 — one breakpoint. Below 1024 the mobile
-     composition runs fluid to a centred 560px column; at and above, the desktop
+     composition runs fluid to a centered 560px column; at and above, the desktop
      composition runs fluid to 1344. */
   .yy-page {
     flex: 1;

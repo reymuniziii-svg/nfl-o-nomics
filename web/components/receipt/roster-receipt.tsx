@@ -90,6 +90,10 @@ export function RosterReceipt({
   const cpw = r.costPerWin.state === 'value' ? r.costPerWin.value : null;
   const lg = r.leagueCostPerWin.state !== 'blank' ? r.leagueCostPerWin.value : null;
   const verdict = r.verdict.state === 'value' ? r.verdict.value : null;
+  /* The same blank reason prints once, on the dead-money line. */
+  const deadReason = r.dead.state === 'blank' ? r.dead.reason : null;
+  const reasonOnce = (reason: string) =>
+    reason === deadReason ? 'not available without dead money.' : reason;
 
   return (
     <div className={`${css.paper} ${sizeClass}`} data-export-root>
@@ -193,7 +197,7 @@ export function RosterReceipt({
             <span className={css.num}>{usdShort(r.charged.value)}</span>
           </div>
         ) : (
-          <p className={css.fine}>Cap+ cost: {r.charged.reason}</p>
+          <p className={css.fine}>Cap+ cost: {reasonOnce(r.charged.reason)}</p>
         )}
 
         <hr className={css.rule} />
@@ -236,17 +240,17 @@ export function RosterReceipt({
                 </span>
               </div>
             ) : (
-              <p className={css.fine}>Cap+: {r.capplus.reason}</p>
+              <p className={css.fine}>Cap+: {reasonOnce(r.capplus.reason)}</p>
             )}
             <div className={css.line}>
-              <span className={css.totalLabel}>Cap hit / win</span>
+              <span className={css.totalLabel}>Cap per win</span>
               <span className={css.big}>
                 {cpw?.perWin != null ? usdShort(cpw.perWin) : (cpw?.zeroWinLabel ?? '')}
               </span>
             </div>
             {lg !== null ? (
               <div className={css.line}>
-                <span className={`${css.totalLabel} ${css.bench}`}>League avg / win</span>
+                <span className={`${css.totalLabel} ${css.bench}`}>League avg per win</span>
                 <span className={`${css.num} ${css.bench}`}>{usdShort(lg)}</span>
               </div>
             ) : null}
@@ -255,7 +259,7 @@ export function RosterReceipt({
             <div
               className={`${css.stamp} ${STAMP_TONE[verdict.quintile]}`}
               role="img"
-              aria-label={`Verdict: ${verdict.label}, ranked ${verdict.rank} of ${verdict.of} on cap hit per win`}
+              aria-label={`Verdict: ${verdict.label}, ranked ${verdict.rank} of ${verdict.of} on cap per win`}
             >
               <span className={css.stampLabel}>{verdict.label}</span>
               <span className={css.stampRank}>
@@ -275,10 +279,13 @@ export function RosterReceipt({
             </p>
           ) : null}
           <p className={css.fine}>
-            Cap = season-final cap hit of rostered players. Dead money, cap paid for players who are
-            gone, bills separately as VOID at the Cap+ weight (×{DEAD_MONEY_WEIGHT}). Games sit
-            beside cap, never divided into it: a bill, not a player grade. Quintiles split the
-            league into fifths.
+            Cap is the season-final cap hit of rostered players. Dead money is cap you still pay for
+            players who are gone. It bills separately as VOID, weighted ×{DEAD_MONEY_WEIGHT} as in
+            Cap+. Games sit beside cap and are never divided into it. This is a bill, not a player
+            grade.
+            {r.unspent !== null
+              ? ' Unspent cap tops the bill up to the season’s cost floor, the 25th percentile of team cost. Spending less than that earns no credit.'
+              : ''}
             {unlinkedGames ? ' *n/r: no snap record links to this contract.' : ''}
           </p>
           <span className={css.mark} aria-hidden="true">

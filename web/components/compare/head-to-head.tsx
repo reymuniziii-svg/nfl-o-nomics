@@ -257,10 +257,10 @@ export function HeadToHead({ bundle, coverage }: { bundle: CompareBundle; covera
       <Legend items={legend} />
       <ChartCaption>
         Every row uses one fixed scale for all pairings, so a dot near the edge sits near the most
-        extreme season on record. Higher wins on results rows and lower wins on cost per win and
-        dead money (cap you still pay for players who are gone), since this site prices wins; cash
-        spent and cap held are context only, because cost per win already covers cost and raw
-        spend rewards cheap teams whether or not they won.
+        extreme season on record. Higher wins on results rows. Lower wins on cost per win and on
+        dead money, the cap you still pay for players who are gone. Cash spent and cap held are
+        context only, because cost per win already covers cost and raw spend rewards cheap teams
+        whether or not they won.
       </ChartCaption>
       <ChartCaption>{coverage.statement}</ChartCaption>
     </div>
@@ -269,7 +269,7 @@ export function HeadToHead({ bundle, coverage }: { bundle: CompareBundle; covera
 
 function sideSentence(row: BenchmarkRow, side: BenchmarkSide): string {
   const who = tag(side);
-  if (side.raw.state === 'blank') return `${who} not covered (${side.raw.reason})`;
+  if (side.raw.state === 'blank') return `${who} not covered. ${side.raw.reason}`;
   const raw = rawText(row.unit, side.raw.value);
   if (side.delta === null) return `${who} ${raw}, no comparable league benchmark`;
   const d = deltaParts(row.unit, side.delta);
@@ -283,7 +283,8 @@ function rowSentence(row: BenchmarkRow): string {
     better === 'higher' ? 'Higher is better.' : better === 'lower' ? 'Lower is better.' : 'Context only, not scored.';
   const verdict =
     e === 1 ? `${tag(row.a)} ahead.` : e === -1 ? `${tag(row.b)} ahead.` : e === 0 ? 'Level.' : '';
-  return `${row.label}: ${sideSentence(row, row.a)}; ${sideSentence(row, row.b)}. ${dir} ${verdict}`.trim();
+  const end = (s: string) => (s.endsWith('.') ? s : `${s}.`);
+  return `${row.label}. ${end(sideSentence(row, row.a))} ${end(sideSentence(row, row.b))} ${dir} ${verdict}`.trim();
 }
 
 /** Position on the track, 0–100%, and whether the value ran off the axis. */

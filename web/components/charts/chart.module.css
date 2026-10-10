@@ -1,7 +1,7 @@
 /* Chart surfaces — CHART_ANATOMY.md.
  *
  * The SVG is emitted on the server and never hydrates; everything that could be
- * a colour is bound as a custom property directly on the SVG attribute, so a
+ * a color is bound as a custom property directly on the SVG attribute, so a
  * theme flip needs no re-render. What lives here is layout, type and the two
  * responsive compositions.
  */
@@ -9,7 +9,7 @@
 /* THE DEFAULT INK IS SET ON THE ROOT AND INHERITED — never declared on a text
  * class. `fill` in a CSS rule beats a `fill="…"` presentation attribute on the
  * same element no matter how specific the attribute looks, so a class that
- * declares `fill` silently swallows every per-element colour a chart sets. That
+ * declares `fill` silently swallows every per-element color a chart sets. That
  * is how the coach name on the lime regime band ended up drawn in `--yy-fg-3`
  * at 1.20:1 while the code plainly said `--yy-fg-on-accent`, and how the gold
  * `100` tick on the franchise arc lost its gold. Inheritance is the lowest
@@ -159,7 +159,7 @@
 
 .allocValue {
   text-align: right;
-  /* §7.2 — the value ink is NEVER coloured by sign. */
+  /* §7.2 — the value ink is NEVER colored by sign. */
   color: var(--yy-fg-1);
   font-size: var(--yy-size-metric-xs);
   padding-right: 0.03em;
@@ -210,10 +210,10 @@
   align-items: center;
 }
 
-/* §5.3 — a bar grows OUTWARD FROM THE CENTRE when the side is above its own
+/* §5.3 — a bar grows OUTWARD FROM THE CENTER when the side is above its own
    season's league average, and INWARD TOWARD IT when below. Length is always
    |distance from that side's own benchmark|; the anchor carries the sign, and
-   the signed delta beneath says it in words. Neither direction is coloured:
+   the signed delta beneath says it in words. Neither direction is colored:
    favorability is not encoded by hue anywhere on `/compare`. */
 .h2hTrackA {
   justify-content: flex-end;
@@ -256,9 +256,9 @@
   background: color-mix(in srgb, var(--yy-accent) 75%, transparent);
 }
 
-/* THE GOLD TICK for each side sits at its own zero — which IS the centre
+/* THE GOLD TICK for each side sits at its own zero — which IS the center
    divider — so there is one gold element, not two. */
-.h2hCentre {
+.h2hCenter {
   width: 1px;
   align-self: stretch;
   background: var(--yy-benchmark-tick);
@@ -366,7 +366,7 @@
   display: block;
 }
 
-/* The track's own centre line at the league share — gold, the benchmark. */
+/* The track's own center line at the league share — gold, the benchmark. */
 .lolliZero {
   position: absolute;
   left: 50%;

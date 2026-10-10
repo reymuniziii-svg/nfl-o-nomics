@@ -85,7 +85,7 @@ export default async function PlayerIndexPage() {
             </ol>
           )}
           <ChartCaption>
-            {`${season} cap hits among the 251 players with a page. Cap number is what a player counts against the cap; percent is of the club’s adjusted cap.`}
+            {`${season} cap hits among the 251 players with a page. Cap number is what a player counts against the cap; percent is of the club’s adjusted cap, the league cap plus carryover.`}
           </ChartCaption>
         </Card>
 
@@ -124,7 +124,7 @@ export default async function PlayerIndexPage() {
           )}
           <ChartCaption>
             The largest single charges in the marquee ledger, each with its verification date. Dead
-            money is cap you still pay for players who are gone; the club named is the one that ate
+            money is cap you still pay for players who are gone. The club named is the one that ate
             the charge.
           </ChartCaption>
         </Card>

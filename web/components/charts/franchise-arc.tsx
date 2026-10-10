@@ -137,7 +137,7 @@ export function FranchiseArc({
     effectiveMode === 'index'
       ? [
           { swatch: 'solid', label: 'Cap+', tone: 'accent' },
-          { swatch: 'dashed', label: 'Team rating (performance only)', tone: 'compare' },
+          { swatch: 'dashed', label: 'Team Rating (performance only)', tone: 'compare' },
           { swatch: 'benchmark', label: '100 = league average', tone: 'benchmark' },
           { swatch: 'hatch', label: 'Season not covered', tone: 'absence' },
           ...(anyOffWindow
@@ -178,7 +178,7 @@ export function FranchiseArc({
           <TipRow name="Field" value={fieldSpot(p.capplus.value)} />
         ) : null}
         <TipRow
-          name="Team rating"
+          name="Team Rating"
           value={p.teamRating.state === 'blank' ? p.teamRating.reason : p.teamRating.value.toFixed(1)}
         />
         {d ? (
@@ -201,7 +201,7 @@ export function FranchiseArc({
           : p.capplus.state === 'blank'
             ? 'Cap+ not covered'
             : `Cap+ ${p.capplus.value.toFixed(1)}${d?.capplusRank ? `, ${ordinal(d.capplusRank)} of 32` : ''}`;
-      const tr = p && p.teamRating.state !== 'blank' ? `Team rating ${p.teamRating.value.toFixed(1)}` : '';
+      const tr = p && p.teamRating.state !== 'blank' ? `Team Rating ${p.teamRating.value.toFixed(1)}` : '';
       const pw = d && d.perWin.state !== 'blank' ? d.perWin.value : '';
       return {
         season: s,
@@ -398,7 +398,7 @@ function IndexView({
   const ticks = budget.filter(
     (s) =>
       (s === currentSeason || Math.abs(px(s) - px(currentSeason)) >= 26) &&
-      // phone: the "Tier 2 →" marker owns the axis just right of the break
+      // phone: the "Contracts →" marker owns the axis just right of the break
       !(compact && px(s) > px(TIER2_BREAK) - 14 && px(s) < px(TIER2_BREAK) + 56),
   );
   const grid = gridValues(INDEX_DOMAIN, 4).filter((v) => Math.abs(v - 100) > 3);
@@ -521,7 +521,7 @@ function IndexView({
           />
           {compact ? (
             <text className={css.micro} x={px(TIER2_BREAK) + 3} y={innerH + 17} textAnchor="start">
-              Tier 2 →
+              Contracts →
             </text>
           ) : (
             <text
@@ -531,7 +531,7 @@ function IndexView({
               textAnchor="start"
               transform={`rotate(90 ${px(TIER2_BREAK) + 6} 18)`}
             >
-              Tier 2 begins 2013
+              Contract data begins 2013
             </text>
           )}
 
@@ -681,7 +681,7 @@ function IndexView({
               textAnchor={ratingLabel.anchor}
               fill="var(--yy-compare)"
             >
-              {compact && lastRating ? `Rating ${lastRating.y.toFixed(1)}` : 'Team rating'}
+              {compact && lastRating ? `Rating ${lastRating.y.toFixed(1)}` : 'Team Rating'}
             </text>
           ) : null}
 
@@ -732,9 +732,9 @@ function IndexView({
       />
       <p id={`${id}-d`} className="yy-visually-hidden">
         Two indices on one season axis, with a hard break at 2013. Team Rating scores performance
-        only and runs 1999 to 2025. Cap+ divides the same performance score by cap cost and runs
-        2014 to 2025; its four blanked seasons show as hatched gaps and are never interpolated.
-        The {currentSeason} season is marked. Each season below the chart is a link with its values.
+        only and runs 1999 to 2025. Cap+ runs 2014 to 2025, with 2016, 2020 and 2021 blank. Blank
+        seasons, 2013 included, show as hatched gaps and are never interpolated. The {currentSeason}{' '}
+        season is marked. Each season below the chart is a link with its values.
       </p>
     </div>
   );
@@ -767,10 +767,10 @@ function FieldView({
   const geo = driveGeometry(width);
   const seasons = tier2.map((p) => p.season);
   // Rows: the season axis runs down the field, one row per season.
-  const rowCentre = (s: number) => seasons.indexOf(s) * geo.rowH + geo.rowH / 2;
+  const rowCenter = (s: number) => seasons.indexOf(s) * geo.rowH + geo.rowH / 2;
   const hits = hitSeasons(
     { w: geo.w, h: geo.h, ml: 0, mr: geo.mr, mt: geo.mt, mb: geo.mb, compact: geo.w < COMPACT_BELOW },
-    rowCentre,
+    rowCenter,
     seasons,
   );
   return (

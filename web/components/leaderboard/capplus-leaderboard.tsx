@@ -336,7 +336,7 @@ export function CapPlusLeaderboard({
           <div className={css.tableWrap}>
             <table className={css.table}>
               <caption className="yy-visually-hidden">
-                {indexName} for all 32 clubs, {season}. 100 is league average. Sorted by{' '}
+                {indexName} for all 32 clubs, {season}. 100 = league average. Sorted by{' '}
                 {SORT_LABEL[key]}, {dir === BEST_FIRST[key] ? 'best first' : 'worst first'}.
               </caption>
               <thead>
@@ -446,18 +446,15 @@ export function CapPlusLeaderboard({
         ) : null}
       </ul>
       <p className={`yy-caption ${css.caption}`}>
-        {n === 'cash'
-          ? 'Cash · roster only means cash paid to players on the roster, not to players released in-year.'
-          : 'Cap hit · season-final · roster only means the end-of-league-year restatement of cap held by players on the roster.'}{' '}
-        The toggle on the cost-per-win card above sets the lens, and a club with no wins shows its
-        spend and no ratio.
+        {n === 'cash' ? '$/win is cash per win' : '$/win is cap per win'}, set by the toggle on the
+        cost-per-win card above.
       </p>
       {strataReason && isCapPlus ? <p className={`yy-caption ${css.caption}`}>{strataReason}</p> : null}
       <p className={`yy-caption ${css.caption}`}>
         <CapPlusCaption /> —{' '}
         {`${indexName} scores each club against its own season’s league. It is not a front-office grade.`}
         {mode === 'obl'
-          ? ` ${REVIEW_NAME.obl} is not a published claim yet, so raw Cap+ runs beside it.`
+          ? ' Raw Cap+ runs beside the candidate in the table.'
           : ''}
       </p>
       {csvSlot}
@@ -486,7 +483,7 @@ function SplitView({
 }) {
   const groups = [
     { key: 'rookie', title: 'QB on his rookie deal', line: strata.rookie, rows: rows.filter((r) => r.rookie) },
-    { key: 'veteran', title: 'Veteran QB deal', line: strata.veteran, rows: rows.filter((r) => r.rookie === false) },
+    { key: 'veteran', title: 'QB on a veteran deal', line: strata.veteran, rows: rows.filter((r) => r.rookie === false) },
   ];
   return (
     <div className={css.split}>
@@ -524,9 +521,9 @@ function SplitView({
         );
       })}
       <p className={`yy-caption ${css.splitNote}`}>
-        Each group ranks on Cap+ against itself, and the gold rule marks that group&apos;s own mean.
-        Rookie-window clubs average below 100 because, on average, they are worse teams; the cheap
-        QB deal adds only about 2.8 points (CAPPLUS_MEMO §8.1).
+        Each group ranks on Cap+ against itself, and the gold rule marks the group&apos;s own mean.
+        Across the nine covered seasons, clubs with a rookie-deal starter average below 100
+        because they are usually still bad. The cheap QB deal adds only about 2.8 points.
       </p>
     </div>
   );

@@ -222,7 +222,7 @@ export default async function TeamSeasonPage({
       ? `${listSeasons(b.deadMoney.emptyBlankSeasons)} have neither and show as empty rings on the baseline.`
       : '',
     missingBurden
-      ? `${missingBurden} reading${missingBurden === 1 ? '' : 's'} can't be placed on this axis: no published burden denominator.`
+      ? `${missingBurden} reading${missingBurden === 1 ? '' : 's'} can't be placed on this axis: no published adjusted cap to measure it against.`
       : '',
   ]
     .filter(Boolean)
@@ -376,11 +376,11 @@ export default async function TeamSeasonPage({
           <ChartCaption>{ARC_FIELD_NOTE}</ChartCaption>
           {offWindow ? (
             <ChartCaption>
-              {`The index axis is fixed at ${INDEX_DOMAIN[0]}–${INDEX_DOMAIN[1]} so any two clubs read on the same scale. ${offWindow} ${offWindow === 1 ? 'season here falls' : 'seasons here fall'} outside it, marked at the edge with the true value printed rather than clamped onto the axis.`}
+              {`The index axis is fixed at ${INDEX_DOMAIN[0]}–${INDEX_DOMAIN[1]} so any two clubs read on the same scale. That leaves ${offWindow} ${offWindow === 1 ? 'season' : 'seasons'} outside it, marked at the edge with the true value printed rather than clamped onto the axis.`}
             </ChartCaption>
           ) : null}
           <ChartCaption>
-            {`Team Rating covers 1999–2025; Cap+ covers 2014–2025, minus 2013, 2016, 2020 and 2021, which are blank for the whole season. ${BLANK_REASON.NO_DM_TABLE}`}
+            {`Team Rating covers 1999–2025. Cap+ covers 2014–2025, with 2016, 2020 and 2021 blank for the whole season; 2013 is blank too. ${BLANK_REASON.NO_DM_TABLE}`}
           </ChartCaption>
         </FinePrint>
       </Card>
@@ -388,7 +388,7 @@ export default async function TeamSeasonPage({
       {/* ── 7. THE THREE LENSES ──────────────────────────────────────────── */}
       <Card ariaLabel="Spending, three ways">
         <CardHeader eyebrow="Never one number" title="THREE LENSES" />
-        {inTier2 ? <ThreeLens lenses={b.lenses} /> : <BoundaryMessage season={season} />}
+        {inTier2 ? <ThreeLens lenses={b.lenses} /> : <BoundaryMessage season={season} body={BLANK_REASON.PRE_TIER2} />}
       </Card>
 
       {/* ── 8. ALLOCATION ────────────────────────────────────────────────── */}
@@ -472,7 +472,7 @@ export default async function TeamSeasonPage({
           currentSeason={season}
           coverage={{
             statement:
-              'The coaching record starts in 2000; Houston joins in 2002. A dead-money reading after a regime change exists only where a league-wide table was published that year.',
+              'The coaching record starts in 2000; Houston joins in 2002. A dead-money reading after a regime change exists only where a league-wide table was published that year. Stability index runs 0 to 100, and 100 means no coaching change in the last three seasons. Churn points score this season’s changes: 3 for a head coach, 1 for a coordinator, 1.5× if made in-season.',
           }}
         />
       </Card>
@@ -662,12 +662,12 @@ function DraftBody({
         ) : null}
         <ChartCaption>
           We use this chart over the Jimmy Johnson chart. Its values track surplus value, what a pick
-          returns beyond its rookie-contract cost, which is the economics the rest of the site uses;
-          the Johnson chart is a 1990s trade-negotiation heuristic never tied to on-field results.
+          returns beyond its rookie-contract cost, which is the economics the rest of the site uses.
+          The Johnson chart is a 1990s trade-negotiation heuristic never tied to on-field results.
         </ChartCaption>
         <ChartCaption>
-          Capital and realized return are Tier 1 and run the full record; dollar framings of a draft
-          class are Tier 2 and start in 2013.{' '}
+          Capital and realized return run the full record. Dollar framings of a draft class start in
+          2013.{' '}
           {dollarFraming.state === 'blank'
             ? dollarFraming.reason
             : 'A dollar view exists for this class, but this card does not show it.'}
@@ -746,17 +746,18 @@ function AlternateReadings({
 
 /** Visible beside BRIDGE_SENTENCE — the corrected definition (SPEC §2.2, §2.4). */
 const ARC_SHORT =
-  'Cap+ divides that score (win %, point differential and EPA margin) by cap cost; Team Rating ' +
-  'leaves cost out. Hatched seasons fall outside coverage.';
+  'Cap+ divides that score by cap cost. Team Rating leaves cost out. Hatched seasons fall outside ' +
+  'coverage.';
 
 /** v1 said Cap+ "scores wins produced per dollar". It does not: wins are one of three inputs. */
 const ARC_BRIDGE =
-  'Team Rating (1999–2025) scores performance only: equal parts win %, point differential per ' +
-  'game and EPA margin per play (expected points added, offense minus defense), standardized ' +
-  'within each season. Cap+ (2014–2025) divides that score by roster cost against the cap, with ' +
-  'dead money weighted 1.5×. Together they show where cost moved a club; they don’t measure the same thing.';
+  'Team Rating (1999–2025) is performance only. It weights win %, point differential per game ' +
+  'and EPA margin per play equally, and compares each with the rest of its season. EPA is ' +
+  'expected points added, offense minus defense. Cap+ (2014–2025) divides that score by roster ' +
+  'cost against the cap, with dead money weighted 1.5×. Together they show where cost moved a ' +
+  'club. They don’t measure the same thing.';
 
 const ARC_FIELD_NOTE =
   '“Field” redraws Cap+ as a drive: midfield is Cap+ 100, one index point is one yard, ' +
-  'and each season is a carry from midfield to its spot. It covers 2013–2025, the Cap+ era; ' +
-  'Team Rating stays off the field.';
+  'and each season is a carry from midfield to its spot. It covers 2013–2025, the seasons with ' +
+  'contract data. Team Rating stays off the field.';

@@ -148,7 +148,7 @@ a.row:hover {
 
 /* §1.5 — top-3 in BENCHMARK mode take the accent. It is a rank encoding, not a
    favorability one, so it follows the rank and not the bar's color. In
-   subject mode no rank is coloured. */
+   subject mode no rank is colored. */
 .rankTop {
   color: var(--yy-accent);
 }
@@ -194,7 +194,7 @@ a.row:hover {
 }
 
 /* §1.5 — one linear domain shared by all rows. The bar is the only place the
-   true spread survives, so it is never per-row normalised. */
+   true spread survives, so it is never per-row normalized. */
 .bar {
   flex: 1;
   min-width: 40px;
@@ -216,10 +216,10 @@ a.row:hover {
 }
 
 /* The gold tick sits on EVERY bar, including the ones it does not cross, and it
-   is centred on the TRACK, not on the card. It never animates. */
+   is centered on the TRACK, not on the card. It never animates. */
 /* 2px in the SOLID benchmark ink (`--yy-benchmark`: #D4AF37 dark, #8A6D14
    light) — the translucent `--yy-benchmark-tick` measured ~2:1 on white, below
-   SC 1.4.11's 3:1. The 1px card-coloured halo is what separates gold from a
+   SC 1.4.11's 3:1. The 1px card-colored halo is what separates gold from a
    coral fill it crosses (gold on #D9503C is under 2:1 on its own). No token
    change was needed: the solid ink passes in both themes. */
 .tick {
@@ -314,7 +314,7 @@ a.row:hover {
   margin-top: var(--yy-space-0h);
 }
 
-/* ── COLOUR MEANING — BENCHMARK MODE (no subject). §1.3 ──────────────────── */
+/* ── COLOR MEANING — BENCHMARK MODE (no subject). §1.3 ──────────────────── */
 
 .isCheap .num {
   color: var(--yy-accent);
@@ -342,7 +342,7 @@ a.row:hover {
   background: var(--yy-negative-fill);
 }
 
-/* ── COLOUR MEANING — SUBJECT MODE. Lime = the subject, whatever it costs. ── */
+/* ── COLOR MEANING — SUBJECT MODE. Lime = the subject, whatever it costs. ── */
 
 .subjectMode .num {
   color: var(--yy-fg-1);

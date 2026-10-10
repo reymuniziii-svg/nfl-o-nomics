@@ -511,7 +511,7 @@ export async function getTeamBundle(
       label: 'Dead money',
       amount: mapMetric(deadMoneyResolved, (d) => d.usd),
       caveat:
-        'A dated press snapshot, not a figure we calculate. Value, date and stage always appear together, and we never average readings or connect them across seasons.',
+        'Dead money is cap you still pay for players who are gone. This is a dated press snapshot, not a figure we calculate. Value, date and stage always appear together, and we never average readings or connect them across seasons.',
       asOf: resolvedSnapshot?.asOf ?? null,
       leagueMedianUsd: resolvedSnapshot?.leagueMedianUsd ?? null,
       sourceUrl: resolvedSnapshot?.sourceUrl ?? null,
@@ -815,7 +815,7 @@ function quantileSorted(xs: readonly number[], q: number): number {
 
 const seasonCapPerWinCache = new Map<number, Promise<Map<string, number>>>();
 
-/** Every club's cap-per-win for one season (wins > 0 only). Memoised per season. */
+/** Every club's cap-per-win for one season (wins > 0 only). Memoized per season. */
 function seasonCapPerWin(season: number): Promise<Map<string, number>> {
   let p = seasonCapPerWinCache.get(season);
   if (!p) {
@@ -871,7 +871,7 @@ export async function getReceiptVerdict(
     cutoffs,
     rank,
     of: sorted.length,
-    rule: `Verdict comes from ${season} quintiles of cap hit per win across ${sorted.length} clubs. Clubs with 0 wins are left out.`,
+    rule: `The verdict comes from ${season} quintiles, or fifths, of cap per win across ${sorted.length} clubs. Clubs with 0 wins are left out.`,
   });
 }
 

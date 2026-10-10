@@ -1,9 +1,9 @@
 /* TeamMark (COMPONENTS.md §9) and PlayerMark (§10).
  *
- * Team colour appears in EXACTLY ONE PLACE in this product: the TeamMark
+ * Team color appears in EXACTLY ONE PLACE in this product: the TeamMark
  * fallback chip and the PlayerMark fallback card (`DECISIONS.md` 80). Both read
  * it from `chipdata.json` as data — it is never a token and never a chart
- * colour.
+ * color.
  */
 
 /* ══════════════════════════════════════════════════════════════════════════ */
@@ -206,7 +206,7 @@
   font-size: 70px; /* 44% of 160 */
 }
 
-/* NO OPACITY. The glyph colour in `chipdata.json` is the precomputed
+/* NO OPACITY. The glyph color in `chipdata.json` is the precomputed
    black-or-white value whose contrast against the team primary was verified —
    worst case LAC at 4.66:1. Compositing it toward the fill at 75% destroys
    exactly the guarantee that computation existed to make: KC falls to 3.12:1,
@@ -218,7 +218,7 @@
 }
 
 /* §10.3 the visible attribution credit line — 91.4% of assets legally require
-   it, and a credit behind a hover is a licence violation, not a preference.
+   it, and a credit behind a hover is a license violation, not a preference.
    The space is reserved whether or not the asset needs one. */
 .credit {
   color: var(--yy-fg-3);

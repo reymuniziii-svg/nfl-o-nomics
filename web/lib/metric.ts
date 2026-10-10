@@ -98,7 +98,7 @@ export const BLANK_REASON = {
 
 /** The provisional badge explanation — 2014 and 2019. */
 export const PROVISIONAL_BADGE_COPY =
-  'published before the league year opened; understates the final figure.';
+  'This Cap+ is provisional. Its dead-money table came out before the league year opened, so it understates the final figure.';
 
 /** SPEC §2.3 — never "Cap+ (performance only)", anywhere, in any surface. */
 export const TEAM_RATING_NAME = 'Team Rating (performance only)';
@@ -115,13 +115,13 @@ export const CAPPLUS_QB_NEUTRAL_LABEL = 'QB-neutral Cap+';
 
 /** SPEC §2.10 — travels with every rendering of `future_mortgage_usd` / `_share`. */
 export const FUTURE_MORTGAGE_CAVEAT =
-  'An estimate of bonus money already booked against future caps. It spreads each bonus evenly, so it misses void years, the dummy contract years that push cap hits later.';
+  'The future-cap mortgage is bonus money already booked against later caps. It’s an estimate that spreads each bonus evenly, so it misses void years, the dummy contract years that push cap hits later.';
 
 /** SPEC §3.4 — rendered in the UI on the head-to-head view, not buried. */
 export const CROSS_ERA_STATEMENT =
-  'Both teams are scored against their own season’s league. Every input is standardized ' +
-  'within its season first, measured against that year’s average and spread, which is what ' +
-  'lets a 2003 team and a 2024 team sit side by side.';
+  'Both teams are scored against their own season’s league. Every input is first measured as ' +
+  'its distance from that year’s average, in units of that year’s spread. That is what lets a ' +
+  '2003 team and a 2024 team sit side by side.';
 
 /** SPEC §3.2 item 2 — the bridge sentence under every franchise time series. */
 export const BRIDGE_SENTENCE =

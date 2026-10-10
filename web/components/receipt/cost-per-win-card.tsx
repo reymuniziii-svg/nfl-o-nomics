@@ -137,7 +137,7 @@ export function CostPerWinCard(props: CostPerWinCardProps) {
   const isStatic = isExport || size === 'wide';
   const showToggle = !!onNumeratorChange && size !== 'square' && !isExport;
 
-  /* ---- the shared linear domain. §1.5: never per-row normalised. ---- */
+  /* ---- the shared linear domain. §1.5: never per-row normalized. ---- */
   const ratios = rows
     .map((r) => (isSuppressed(r.costPerWin) ? null : metricValue(r.costPerWin)))
     .filter((v): v is number => v !== null && Number.isFinite(v));
@@ -196,7 +196,7 @@ export function CostPerWinCard(props: CostPerWinCardProps) {
           <div>
             <p className={css.eyebrow}>
               {size === 'square' || isExport
-                ? `Cost per win · ${numerator === 'cash' ? 'cash' : 'cap hit'} · ${season}`
+                ? `Cost per win · ${numerator === 'cash' ? 'cash' : 'cap'} · ${season}`
                 : `Cost per win · ${season}`}
             </p>
             <h2 className={css.title}>{title}</h2>

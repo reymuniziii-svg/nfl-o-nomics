@@ -43,7 +43,8 @@ import { useMeasuredWidth } from '@/lib/hooks/use-measured-width';
 /** Always beneath the plot. */
 export const DOT_PLOT_CAPTION =
   'Each dot is its own dated reading, taken at a different point in a different league year. ' +
-  'Dots are not a trend, so nothing connects them.';
+  'Dots are not a trend, so nothing connects them. Height is dead money as a share of the ' +
+  'adjusted cap, the league cap plus carryover.';
 
 /** `SPEC.md` §1.1 — the first season of player-level economics. */
 const TIER2_FIRST_SEASON = 2013;
@@ -332,14 +333,13 @@ function DotsSvg({
 
         {/* The axis label STATES ITS DENOMINATOR (`SPEC.md` §2.7). */}
         <text className={css.axisTitle} x={4} y={h - 6} textAnchor="start">
-          Season · share of implied adjusted cap
+          Season · share of adjusted cap
         </text>
       </svg>
       <p id={`${id}-d`} className="yy-visually-hidden">
-        A dot plot of dated dead-money readings, deliberately not connected: each is a separate
-        press snapshot from a different point in a different league year. A filled dot is a
-        reading from a league-wide table. An open dashed ring is a reading from a leaders list,
-        which is not a 32-team reading.
+        A dot plot of dated dead-money readings. A filled dot is a reading from a league-wide
+        table. An open dashed ring is a reading from a leaders list, which is not a 32-team
+        reading.
       </p>
     </>
   );

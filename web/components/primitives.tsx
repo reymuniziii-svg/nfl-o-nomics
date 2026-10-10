@@ -179,7 +179,7 @@ export function BoundaryMessage({
 }) {
   const copy =
     body ??
-    `Player-level economics begin in 2013. For ${season ?? 'this season'} we have team results, EPA, coaching and draft, but no contract, cap or cash data. Nothing here is estimated to fill the gap.`;
+    `Player-level economics begin in 2013. For ${season ?? 'this season'} we have team results, expected points added (EPA), coaching and draft, but no contract, cap or cash data. Nothing here is estimated to fill the gap.`;
   return (
     <div className={css.boundary}>
       <p className={`yy-label ${css.sectionLabel}`}>Coverage</p>
@@ -337,7 +337,7 @@ export function IndexBadge({
           <CapPlusMark />
         ) : (
           <>
-            Team rating
+            Team Rating
             <br />
             <span className={css.badgeSub}>Performance only</span>
           </>

@@ -42,7 +42,7 @@ against: `npm run seed` writes `.data/pglite` and dumps it to `.data/pgdata.tar.
 | `lib/teams.ts` | The 32 codes, divisions, legacy redirects, and the era-identity table |
 | `lib/marks.ts` | TeamMark / PlayerMark loaders and the kill-switch branch |
 | `lib/flags.ts` | GATE #3 flags: env var > `etl/config.py` bridge > literal default |
-| `lib/display.ts` | Display helpers and the `Coverage` shape every chart takes. Decides band NAMES, never colours |
+| `lib/display.ts` | Display helpers and the `Coverage` shape every chart takes. Decides band NAMES, never colors |
 | `lib/view.ts` | View models — bundle → component props, so a page file is routing and composition only |
 | `lib/csv.ts` | The CSV projection, run on the server beside the render (`DECISIONS.md` 55) |
 | `components/` | The design system: primitives, marks, charts, the Receipt, the leaderboard, pickers, shell |
@@ -75,7 +75,7 @@ dynamic and loses the prerender. The two share routes mount the same components 
 surfaces, 1 ms durations), **force-expands every disclosure**, removes the controls and moves the
 lens state into the eyebrow.
 
-The card carries `[data-export-root]`; a rasteriser screenshots that element at
+The card carries `[data-export-root]`; a rasterizer screenshots that element at
 `devicePixelRatio ≥ 2` for the 1080 × 1080 crop. The theme is the reader's own
 (`SCREENSHOT_VARIANTS.md` §8) and is always pinned EXPLICITLY on `<html>` by the boot script in
 `app/layout.tsx` — `tokens.css` §27 pairs `.yy-export` with `[data-theme="light"]` only, so an
@@ -85,7 +85,7 @@ ink.
 ## Fonts
 
 All three faces are **self-hosted, latin-subset WOFF2**, under OFL 1.1, in `public/fonts/` with
-their licences and a reproducible subset command (`public/fonts/README.md`). There are no
+their licenses and a reproducible subset command (`public/fonts/README.md`). There are no
 third-party font requests. Bebas Neue is declared at **400 only** — it is a single-weight family
 and 700 would invite a synthetic bold (`TYPE.md` §1).
 
@@ -107,8 +107,8 @@ has not published yet). Components bind to the semantic layer — `--yy-bg`, `--
 
 `globals.css` also carries the composed type recipes from `TYPE.md` §6 verbatim (`.yy-label`,
 `.yy-num`, `.yy-caption`, …). A component composes them and never invents a variant. Everything
-else is a CSS Module beside its component, and **no component names a colour, a radius, a
-spacing or a font family** — team colour is the one exception and it arrives as data from
+else is a CSS Module beside its component, and **no component names a color, a radius, a
+spacing or a font family** — team color is the one exception and it arrives as data from
 `chipdata.json`, in the two places `DECISIONS.md` 80 allows.
 
 ## Verification
@@ -127,6 +127,6 @@ spacing or a font family** — team colour is the one exception and it arrives a
 9. no page error and no hydration mismatch;
 10. `data-theme` pinned explicitly on `<html>`.
 
-It also rasterises the two square exports at 2.7× (1080 × 1080) in both themes and checks the
+It also rasterizes the two square exports at 2.7× (1080 × 1080) in both themes and checks the
 crop geometry, the absence of any collapsed disclosure, and the product mark. Output —
 screenshots plus `report.json` — lands in `web/verify/`, which is gitignored.

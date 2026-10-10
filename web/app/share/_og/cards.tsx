@@ -382,7 +382,7 @@ export function TeamOg({ card }: { card: TeamCard }) {
         <Line label="Dead money" value="No dated snapshot" valueColor={OG.ink2} />
       )}
       <Line
-        label="Cap hit per win"
+        label="Cap per win"
         value={cpw.value}
         aside={cpw.lg && cpw.perWin ? `LEAGUE ${cpw.lg}` : undefined}
       />
@@ -636,7 +636,7 @@ export function CompareOg({ a, b }: { a: TeamCard; b: TeamCard }) {
           {cell(`${b.team} ${b.season}`, OG.ink2)}
         </div>
         {row('Cap+', capStr(a), capStr(b))}
-        {row('Cap hit per win', cpwStr(a), cpwStr(b))}
+        {row('Cap per win', cpwStr(a), cpwStr(b))}
         {row('League per win', lgStr(a), lgStr(b), OG.gold)}
         {row('Void ×1.5', deadStr(a), deadStr(b), OG.negativeSoft)}
       </div>

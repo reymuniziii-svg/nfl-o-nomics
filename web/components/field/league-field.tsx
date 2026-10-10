@@ -194,7 +194,7 @@ export function LeagueField({
           {!covered
             ? `${frame.season}: ${frame.ixReason}`
             : mode === 'raw'
-              ? 'Placed by Cap+, a team’s performance divided by what its roster cost. Pick another review and every club moves; a ring marks where raw Cap+ had it.'
+              ? 'Placed by Cap+, which divides a team’s performance by what its roster cost. Pick another review and every club moves. A ring marks where raw Cap+ had it.'
               : mode === 'qbn'
                 ? `Placed by ${name}. Each starting QB is priced at the season’s median starter’s cap number. Rings mark raw Cap+.`
                 : `Placed by ${name}. Cost counts cap, 1.5× dead money and half the future-cap mortgage. ${FUTURE_MORTGAGE_CAVEAT} Not a published claim yet; rings mark raw Cap+.`}
@@ -416,8 +416,8 @@ export function LeagueField({
       </ol>
 
       <ChartCaption>
-        Yards to the opponent&apos;s goal = 150 − the index, on a field pinned at 50–150 every
-        season, so clubs slide yard by yard as you scrub.{' '}
+        Yards to the opponent&apos;s goal equal 150 minus the index. The field is pinned at 50–150
+        every season, so clubs slide yard by yard as you scrub.{' '}
         {covered && best && worst
           ? `${best.club.team} is furthest downfield in ${frame.season} (${best.v.toFixed(1)}); ${worst.club.team} is deepest (${worst.v.toFixed(1)}).`
           : ''}

@@ -16,11 +16,11 @@ export function signedIndex(v: number, digits = 1): string {
   return `${sign}${Math.abs(r).toFixed(digits)}`;
 }
 
-/** `60% over league` / `21% under league` / `at league average`. */
+/** `60% over league average` / `21% under league average` / `at league average`. */
 export function vsLeague(v: number, benchmark: number): string {
   if (!Number.isFinite(benchmark) || benchmark === 0) return '';
   const rel = (v - benchmark) / benchmark;
   const pct = Math.round(Math.abs(rel) * 100);
   if (pct === 0) return 'at league average';
-  return `${pct}% ${rel > 0 ? 'over' : 'under'} league`;
+  return `${pct}% ${rel > 0 ? 'over' : 'under'} league average`;
 }

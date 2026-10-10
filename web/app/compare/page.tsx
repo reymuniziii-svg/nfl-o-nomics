@@ -136,8 +136,8 @@ export default async function ComparePage({
         <CardHeader eyebrow="Curated lists only" title="HEAD-TO-HEAD" />
         <ComparePicker teams={teamOptions} seasons={seasons} a={a} b={b} />
         <ChartCaption>
-          Pick one team and one season per side. There is no free-form query builder in v1; every
-          list is curated.
+          Pick one team and one season per side. There is no free-form query builder. Every list is
+          curated.
         </ChartCaption>
       </Card>
 
@@ -218,7 +218,7 @@ export default async function ComparePage({
             bundle={bundle}
             coverage={{
               statement:
-                'Every row is measured against the league average of its own season. Where one side has no cap or cash data, only that side shows the boundary message; the other side is unchanged and neither side shows zero.',
+                'Where one side has no cap or cash data, only that side shows the coverage note. The other side is unchanged, and neither side shows a zero.',
             }}
           />
         </Card>

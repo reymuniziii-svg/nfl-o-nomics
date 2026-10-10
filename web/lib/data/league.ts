@@ -20,7 +20,7 @@ import { TIER2_FIRST_SEASON, getCostPerWin, type CostNumerator, type CostPerWin 
 import { getLeagueContext } from './context';
 
 /* ------------------------------------------------------------------ */
-/* team_meta — conference / division / colors, memoised per process    */
+/* team_meta — conference / division / colors, memoized per process    */
 /* ------------------------------------------------------------------ */
 
 export interface TeamMetaRow {

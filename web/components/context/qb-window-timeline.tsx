@@ -98,7 +98,7 @@ export function QbWindowTimeline({
         height={h}
         viewBox={`0 0 ${w} ${h}`}
         role="img"
-        aria-label={`${teamName} — Cap+ and ${CAPPLUS_QB_NEUTRAL_LABEL} by season, ${seasons[0]} to ${seasons[seasons.length - 1]}, rookie-QB seasons shaded`}
+        aria-label={`${teamName} — Cap+ and ${CAPPLUS_QB_NEUTRAL_LABEL} by season, ${seasons[0]} to ${seasons[seasons.length - 1]}, rookie-deal seasons shaded`}
         aria-describedby={`${id}-d`}
       >
         <defs>
@@ -268,8 +268,8 @@ export function QbWindowTimeline({
         {series
           .map((r) =>
             r.indices.state === 'blank'
-              ? `${r.season}: ${r.startingQb}${r.qbRookieWindow ? ', rookie window' : ''}; not covered.`
-              : `${r.season}: ${r.startingQb}${r.qbRookieWindow ? ', rookie window' : ''}; Cap+ ${r.indices.value.capplus.toFixed(1)}, ${CAPPLUS_QB_NEUTRAL_LABEL} ${r.indices.value.capplusQbNeutral.toFixed(1)}.`,
+              ? `${r.season}: ${r.startingQb}${r.qbRookieWindow ? ', rookie deal' : ''}; not covered.`
+              : `${r.season}: ${r.startingQb}${r.qbRookieWindow ? ', rookie deal' : ''}; Cap+ ${r.indices.value.capplus.toFixed(1)}, ${CAPPLUS_QB_NEUTRAL_LABEL} ${r.indices.value.capplusQbNeutral.toFixed(1)}.`,
           )
           .join(' ')}
       </p>

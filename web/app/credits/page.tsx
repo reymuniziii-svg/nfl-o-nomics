@@ -59,8 +59,18 @@ export default async function CreditsPage() {
           {policy.photo_source ??
             'Wikimedia Commons only. No press photography, no team media, no scraped images.'}
         </p>
-        {policy.attribution ? <p className="yy-caption">{policy.attribution}</p> : null}
-        {policy.sharealike ? <p className="yy-caption">{policy.sharealike}</p> : null}
+        {policy.attribution ? (
+          <p className="yy-caption">
+            Every credit below shows in full on the page. None hides behind a hover or an info
+            icon.
+          </p>
+        ) : null}
+        {policy.sharealike ? (
+          <p className="yy-caption">
+            We serve the unmodified Commons file or a Commons-made resize, so the ShareAlike terms
+            on derivative works never apply.
+          </p>
+        ) : null}
 
         <StatGrid>
           <KpiTile label="Assets credited" value={String(credits.totalPhotoAssets)} />
@@ -79,8 +89,9 @@ export default async function CreditsPage() {
           Population: {PLAYERMARK_COUNTS.csv_rows ?? 0} audited players · {PLAYERMARK_COUNTS.ok ?? 0}{' '}
           with a served photograph · {PLAYERMARK_COUNTS.no_usable_image ?? 0} with none ·{' '}
           {PLAYERMARK_COUNTS.skipped_by_floor ?? 0} below the resolution floor. Treatment:{' '}
-          {IMAGE_TREATMENT_MODE.replace(/_/g, ' ')}. The duotone is applied in CSS when the page
-          renders, over the untouched original, so no derivative file exists.
+          {IMAGE_TREATMENT_MODE.replace(/_/g, ' ').replace(/\bcss\b/i, 'CSS')}. The duotone is
+          applied in CSS when the page renders, over the untouched original, so no derivative file
+          exists.
         </ChartCaption>
       </Card>
 

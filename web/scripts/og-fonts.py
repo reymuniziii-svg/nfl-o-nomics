@@ -3,8 +3,8 @@
 `next/og` (Satori) reads TTF, OTF or WOFF only -- never WOFF2 -- and it cannot
 drive a variable font's axes. This script turns the shipped WOFF2 subsets in
 `public/fonts/` into static TTFs in `public/fonts/og/`, which the OG routes read
-as buffers (`app/share/_og/fonts.ts`). Same glyphs, same OFL 1.1 licence as the
-WOFF2 parents (licence texts sit one directory up); Inter is pinned to two
+as buffers (`app/share/_og/fonts.ts`). Same glyphs, same OFL 1.1 license as the
+WOFF2 parents (license texts sit one directory up); Inter is pinned to two
 static instances because Satori renders the default instance of a variable font.
 
 Run from `web/`:   python3 scripts/og-fonts.py

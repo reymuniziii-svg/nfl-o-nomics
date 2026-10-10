@@ -5,7 +5,7 @@
  *
  * `DECISIONS.md` 85: **season options are never disabled for lack of coverage.**
  * A year with no Tier 2 data is selectable and the page renders the boundary
- * message. Greying it out would hide the product's own coverage story behind a
+ * message. Graying it out would hide the product's own coverage story behind a
  * disabled control.
  */
 
