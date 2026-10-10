@@ -344,7 +344,7 @@
         "TAM"
       ],
       "extended_picks": 25,
-      "games_coverage": 0.912,
+      "games_coverage": 0.9139,
       "golden_brady": {
         "chart_value": 318,
         "pick": 199,
@@ -352,13 +352,13 @@
         "round": 6,
         "team": "NE"
       },
-      "gsis_coverage": 0.9571,
-      "pfr_coverage": 0.9615,
+      "gsis_coverage": 0.9573,
+      "pfr_coverage": 0.9616,
       "picks": 6644,
       "raw_team_codes": 35,
       "seasons": "2000-2025",
       "seasons_started_coverage": 1.0,
-      "w_av_coverage": 0.912
+      "w_av_coverage": 0.9139
     },
     "fs_chart": {
       "rows": 262,
@@ -704,12 +704,16 @@
         "n_excluded_no_gsis",
         "snaps_available",
         "dollar_framing_available",
-        "dollar_framing_blank_reason"
+        "dollar_framing_blank_reason",
+        "seasons_elapsed",
+        "maturity",
+        "draft_index",
+        "draft_index_rank"
       ],
       "contract": "SPEC §7.8 — capital spent vs realized return per team-class",
       "file": "data/marts/draft_class_summary.csv",
-      "md5": "bf49f32fdd0b9050d05943a3315927f1",
-      "n_columns": 17,
+      "md5": "2d512e1c5f20afdbcef79aeae19d6eeb",
+      "n_columns": 21,
       "rows": 830,
       "source_data": [
         {
@@ -738,12 +742,13 @@
         "seasons_started",
         "probowls",
         "allpro",
-        "hof"
+        "hof",
+        "seasons_elapsed"
       ],
       "contract": "SPEC §7.8 — 6,644 picks 2000-2025, car_av excluded",
       "file": "data/marts/draft_pick.csv",
-      "md5": "bea21b338b860fcef7d879de29e4a984",
-      "n_columns": 18,
+      "md5": "9d7efb5d22c42c3c18d474befb06e3b8",
+      "n_columns": 19,
       "rows": 6644,
       "source_data": [
         {
@@ -1035,17 +1040,21 @@
         "def_epa_per_play",
         "epa_margin_per_play",
         "off_epa_total",
-        "def_epa_total"
+        "def_epa_total",
+        "off_epa_per_play_adj",
+        "def_epa_per_play_adj",
+        "epa_margin_per_play_adj",
+        "sos_epa"
       ],
       "contract": "SPEC §7.2 — 861 rows, REG only, play_type IN ('pass','run')",
       "file": "data/marts/team_season_epa.csv",
-      "md5": "cc202528bbe64929b9a9c5dd4513b6bf",
-      "n_columns": 9,
+      "md5": "3ea054add5dc023aa979ed87e103e7dd",
+      "n_columns": 13,
       "rows": 861,
       "source_data": [
         {
           "asset": "pbp",
-          "rows": 870208,
+          "rows": 870218,
           "source": "nflverse play_by_play_{year}.parquet",
           "window": "1999-2025 REG pass+run"
         }
@@ -1062,12 +1071,15 @@
         "win_pct",
         "points_for",
         "points_against",
-        "point_diff"
+        "point_diff",
+        "playoff_result",
+        "playoff_games",
+        "playoff_wins"
       ],
       "contract": "SPEC §7.1 — 861 rows, grain (season, team)",
       "file": "data/marts/team_season_results.csv",
-      "md5": "71a746ff3ba85fad68eb19f40ec87050",
-      "n_columns": 10,
+      "md5": "48809a632a62d9ac7c4aae0c32f075f2",
+      "n_columns": 13,
       "rows": 861,
       "source_data": [
         {

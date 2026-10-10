@@ -105,6 +105,14 @@ REGISTRY: tuple[Mart, ...] = (
             "ties": Col("int"), "win_pct": Col("float"),
             "points_for": Col("int"), "points_against": Col("int"),
             "point_diff": Col("int"),
+            # ETL implementation note: postseason outcome from the same
+            # schedules file (game_type WC/DIV/CON/SB). Additive; the
+            # regular-season columns above are REG only and unchanged.
+            "playoff_result": Col("str", REQUIRED, frozenset({
+                "none", "wild_card", "divisional", "conference",
+                "super_bowl_loss", "super_bowl_win",
+            })),
+            "playoff_games": Col("int"), "playoff_wins": Col("int"),
         },
         grain=("season", "team"), rows=861, seasons=(1999, 2025),
         note="No nullable fields.",
@@ -119,6 +127,13 @@ REGISTRY: tuple[Mart, ...] = (
             "off_epa_per_play": Col("float"), "def_epa_per_play": Col("float"),
             "epa_margin_per_play": Col("float"),
             "off_epa_total": Col("float"), "def_epa_total": Col("float"),
+            # ETL implementation note: opponent-adjusted EPA/play (additive
+            # play-weighted fit, sum-to-zero team effects; season team-means
+            # preserved) and schedule strength (mean raw opponent margin).
+            "off_epa_per_play_adj": Col("float"),
+            "def_epa_per_play_adj": Col("float"),
+            "epa_margin_per_play_adj": Col("float"),
+            "sos_epa": Col("float"),
         },
         grain=("season", "team"), rows=861, seasons=(1999, 2025),
     ),
@@ -353,6 +368,10 @@ REGISTRY: tuple[Mart, ...] = (
             "games": Col("number", NULLABLE), "w_av": Col("number", NULLABLE),
             "seasons_started": Col("int"),
             "probowls": Col("int"), "allpro": Col("int"), "hof": Col("bool"),
+            # Time context (additive). `w_av` is CUMULATIVE, so older classes
+            # have had longer to accumulate it. seasons_elapsed = 2025 -
+            # season + 1, draft season inclusive.
+            "seasons_elapsed": Col("int"),
         },
         forbidden=("car_av",),
         grain=("season", "pick"), rows=6644, seasons=(2000, 2025),
@@ -390,6 +409,17 @@ REGISTRY: tuple[Mart, ...] = (
             "seasons_started_per_1000_capital": Col("number"),
             "dollar_framing_available": Col("bool"),
             "dollar_framing_blank_reason": Col("str", NULLABLE),
+            # Time normalisation (additive). Cumulative return mostly ranks
+            # classes by age, and a per-season rate reverses the bias (careers
+            # end), so neither compares across draft years. draft_index =
+            # return_w_av / that draft year's mean class x 100 (100 = the
+            # average class of its year); draft_index_rank is 1..n within the
+            # year. maturity = 'mature' once seasons_elapsed >= 4 (a full
+            # rookie contract; 2022 is mature, 2023-2025 early).
+            "seasons_elapsed": Col("int"),
+            "maturity": Col("str", REQUIRED, frozenset({"early", "mature"})),
+            "draft_index": Col("number"),
+            "draft_index_rank": Col("int"),
         },
         grain=("season", "team"), seasons=(2000, 2025),
         note="`snaps_available` must be true exactly when season >= 2013.",

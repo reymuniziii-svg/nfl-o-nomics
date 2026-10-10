@@ -12,12 +12,24 @@ Two rules are load-bearing and both are settled decisions:
   definition that attributes penalty-nullified and `no_play` snaps.
 * **A tie counts as half a win**, on per-team game counts, never a constant
   (`DECISIONS.md` 10). 2022 BUF and 2022 CIN played 16 games, not 17.
+
+Two additive layers sit on top and never touch the columns above:
+
+* `team_season_results.playoff_*` — the postseason outcome from the same
+  schedules file (`game_type` WC/DIV/CON/SB). Regular-season columns are built
+  first and asserted unchanged after the merge.
+* `team_season_epa.*_adj` — opponent-adjusted EPA/play. Per season, game-level
+  offensive EPA/play is fitted as `league + offense_i + defense_j` by
+  play-weighted least squares with sum-to-zero team effects (numpy only); the
+  adjusted rate is the raw team-mean plus the effect, so each season's
+  team-mean is preserved exactly.
 """
 
 from __future__ import annotations
 
 import time
 
+import numpy as np
 import pandas as pd
 
 from . import config, io_utils, sources
@@ -29,10 +41,48 @@ _SCRIM = "play_type IN ('pass','run')"
 _HASPOS = "posteam IS NOT NULL AND posteam <> ''"
 _HASDEF = "defteam IS NOT NULL AND defteam <> ''"
 
-NEEDED_PBP_COLS = "season, season_type, posteam, defteam, play_type, epa"
+NEEDED_PBP_COLS = "season, season_type, game_id, posteam, defteam, play_type, epa"
 
 # League-mean offensive EPA/play sanity band (DATA_AUDIT.md S6).
 EPA_BAND = (-0.15, 0.15)
+
+# --- opponent adjustment (team_season_epa *_adj columns) -------------------
+# Ridge penalty on the team effects, in plays. 0 = plain constrained least
+# squares: the adjustment is then purely "who you played", with no shrinkage
+# toward the league mean mixed in. The schedule graph is connected every
+# season, so the constrained system is non-singular without it.
+ADJ_RIDGE_PLAYS = 0.0
+# No team's offensive or defensive EPA/play may move by more than this. A larger
+# shift means the fit or the game join broke, not that a schedule was that hard.
+ADJ_MAX_SHIFT = 0.08
+# Adjusted and raw EPA margin must stay this correlated within every season.
+ADJ_MIN_CORR = 0.9
+# Mean-preservation tolerance (pre-rounding).
+ADJ_MEAN_TOL = 1e-9
+# nflverse pbp omits three REG games outright (zero rows, any season_type):
+# 1999_01_BAL_STL, 2000_03_SD_KC, 2000_06_BUF_MIA. These six team-seasons'
+# EPA -- raw and adjusted -- covers 15 games, not 16. Declared, not tolerated:
+# a new gap fails the build.
+PBP_MISSING_GAMES = {
+    (1999, "BAL"): 1, (1999, "LA"): 1,
+    (2000, "LAC"): 1, (2000, "KC"): 1,
+    (2000, "BUF"): 1, (2000, "MIA"): 1,
+}
+
+# --- playoff result (team_season_results playoff_* columns) ----------------
+# nflverse game_type -> round order. Same four names 1999-2025.
+PLAYOFF_ROUNDS = {"WC": 1, "DIV": 2, "CON": 3, "SB": 4}
+# The round a team was eliminated in (by its last game, lost).
+PLAYOFF_LOST_IN = {1: "wild_card", 2: "divisional", 3: "conference", 4: "super_bowl_loss"}
+PLAYOFF_RESULTS = ("none", "wild_card", "divisional", "conference",
+                   "super_bowl_loss", "super_bowl_win")
+# 12-team field through 2019; 14 from 2020 (six WC games, one bye per conference).
+PLAYOFF_FIELD_EXPANDED = 2020
+
+
+def playoff_field(season: int) -> int:
+    return 14 if season >= PLAYOFF_FIELD_EXPANDED else 12
+
 
 # Golden structural tests carried into the build (DATA_AUDIT.md §3, tests 1-4).
 GOLDEN_RECORDS = [
@@ -93,13 +143,87 @@ def build_team_season_results(*, verbose: bool = True) -> pd.DataFrame:
     # Ties count as half a win; per-team game counts drive the denominator.
     m["win_pct"] = ((m["wins"] + 0.5 * m["ties"]) / m["games"]).round(config.ROUND_RATIO)
     m["point_diff"] = m["points_for"] - m["points_against"]
-    out = m[[
+    reg_cols = [
         "season", "team", "games", "wins", "losses", "ties", "win_pct",
         "points_for", "points_against", "point_diff",
-    ]].sort_values(["season", "team"]).reset_index(drop=True)
+    ]
+    base = m[reg_cols].sort_values(["season", "team"]).reset_index(drop=True)
+
+    po = _playoffs(win)
+    po["team"] = po["team"].astype(base["team"].dtype)
+    out = base.merge(po, on=["season", "team"], how="left", validate="1:1")
+    out["playoff_result"] = out["playoff_result"].fillna("none")
+    for c in ("playoff_games", "playoff_wins"):
+        out[c] = out[c].fillna(0).astype(int)
+    # Additive only: the regular-season block must survive the merge untouched.
+    if not out[reg_cols].equals(base):
+        raise AssertionError("playoff merge altered a regular-season column")
 
     _check_results(out, verbose=verbose)
+    _check_playoffs(out, po, verbose=verbose)
     return out
+
+
+def _playoffs(win: pd.DataFrame) -> pd.DataFrame:
+    """One row per playoff team-season: games, wins, and the round it went out."""
+    post = win[win["game_type"] != "REG"].copy()
+    unknown = set(post["game_type"]) - set(PLAYOFF_ROUNDS)
+    if unknown:
+        raise AssertionError(f"unknown postseason game_type(s): {sorted(unknown)}")
+    if (post["home_score"].isna() | post["away_score"].isna()).any():
+        raise AssertionError("a postseason game in the window has a null score")
+    if (post["home_score"] == post["away_score"]).any():
+        raise AssertionError("a postseason game ended tied")
+    ASSET_ROWS["games_post"] = len(post)
+    post["round"] = post["game_type"].map(PLAYOFF_ROUNDS)
+    long = pd.concat([
+        pd.DataFrame({"season": post["season"], "team": post["home_team"],
+                      "round": post["round"],
+                      "won": (post["home_score"] > post["away_score"]).astype(int)}),
+        pd.DataFrame({"season": post["season"], "team": post["away_team"],
+                      "round": post["round"],
+                      "won": (post["away_score"] > post["home_score"]).astype(int)}),
+    ], ignore_index=True)
+    rows = []
+    for (season, team), g in long.groupby(["season", "team"], sort=True):
+        if g["round"].duplicated().any():
+            raise AssertionError(f"{season} {team}: two games in one playoff round")
+        last = g.loc[g["round"].idxmax()]
+        if int(g["won"].sum()) != len(g) - (0 if last["won"] else 1):
+            raise AssertionError(f"{season} {team}: won after being eliminated")
+        if last["won"]:
+            if int(last["round"]) != PLAYOFF_ROUNDS["SB"]:
+                raise AssertionError(f"{season} {team}: last playoff game is a non-SB win")
+            result = "super_bowl_win"
+        else:
+            result = PLAYOFF_LOST_IN[int(last["round"])]
+        rows.append({"season": int(season), "team": team, "playoff_result": result,
+                     "playoff_games": len(g), "playoff_wins": int(g["won"].sum())})
+    return pd.DataFrame(rows)
+
+
+def _check_playoffs(out: pd.DataFrame, po: pd.DataFrame, *, verbose: bool) -> None:
+    if len(po) != (out["playoff_result"] != "none").sum():
+        raise AssertionError("a playoff team is missing from the regular-season frame")
+    bad = set(out["playoff_result"]) - set(PLAYOFF_RESULTS)
+    if bad:
+        raise AssertionError(f"playoff_result outside vocabulary: {sorted(bad)}")
+    for season, grp in out.groupby("season"):
+        vc = grp["playoff_result"].value_counts()
+        if vc.get("super_bowl_win", 0) != 1 or vc.get("super_bowl_loss", 0) != 1:
+            raise AssertionError(f"{season}: not exactly one SB winner and one SB loser")
+        field = int((grp["playoff_result"] != "none").sum())
+        if field != playoff_field(int(season)):
+            raise AssertionError(f"{season}: {field} playoff teams, "
+                                 f"expected {playoff_field(int(season))}")
+        # Every playoff game has exactly one winner.
+        n_games = grp["playoff_games"].sum() / 2
+        if grp["playoff_wins"].sum() != n_games or n_games != field - 1:
+            raise AssertionError(f"{season}: playoff games/wins do not balance")
+    if verbose:
+        n = out[out["playoff_result"] != "none"].groupby("season").size()
+        print(f"  playoffs: field {n.min()}-{n.max()} per season; one SB winner and "
+              f"loser in every season; regular-season columns unchanged")
 
 
 def _check_results(out: pd.DataFrame, *, verbose: bool) -> None:
@@ -159,6 +283,83 @@ def _season_epa(con, year: int) -> pd.DataFrame:
     return m
 
 
+def _season_games(con) -> pd.DataFrame:
+    """Offensive EPA by game: one row per (game_id, offense, defense)."""
+    g = con.execute(f"""
+        SELECT game_id, posteam AS off, defteam AS def,
+               count(*) AS plays, sum(epa) AS epa_total
+        FROM pbp
+        WHERE season_type='REG' AND {_SCRIM} AND epa IS NOT NULL
+              AND {_HASPOS} AND {_HASDEF}
+        GROUP BY 1, 2, 3
+    """).df()
+    g["off"] = normalize_series(g["off"])
+    g["def"] = normalize_series(g["def"])
+    g = (g.dropna(subset=["off", "def"])
+          .groupby(["game_id", "off", "def"], as_index=False)[["plays", "epa_total"]].sum()
+          .sort_values(["game_id", "off", "def"], kind="stable")
+          .reset_index(drop=True))
+    return g
+
+
+def _opponent_adjust(games: pd.DataFrame, ts: pd.DataFrame, year: int) -> pd.DataFrame:
+    """Fit epa_game = mu + offense_i + defense_j, play-weighted, sum-to-zero.
+
+    Solved as one KKT system (numpy only):
+        min  sum_g plays_g * (y_g - mu - o_i - d_j)^2 + ridge*(|o|^2 + |d|^2)
+        s.t. sum(o) = 0,  sum(d) = 0
+    Adjusted rate = the raw team-mean for that side + the team's effect, so the
+    unweighted season mean of each side is preserved exactly.
+    """
+    teams = sorted(ts["team"])
+    ix = {t: k for k, t in enumerate(teams)}
+    n, m = len(teams), len(games)
+    oi, dj = games["off"].map(ix), games["def"].map(ix)
+    if oi.isna().any() or dj.isna().any():
+        raise AssertionError(f"{year}: a game team is missing from the season frame")
+    oi, dj = oi.to_numpy(dtype=int), dj.to_numpy(dtype=int)
+    w = games["plays"].to_numpy(dtype=float)
+    y = games["epa_total"].to_numpy(dtype=float) / w
+
+    # Normal equations X'WX, X'Wy accumulated directly (each game row has a 1 in
+    # the intercept, its offense and its defense column): no BLAS matmul, fixed
+    # summation order, byte-stable.
+    p = 1 + 2 * n
+    cols = np.stack([np.zeros(m, dtype=int), 1 + oi, 1 + n + dj], axis=1)
+    A = np.zeros((p, p))
+    b = np.zeros(p)
+    for a in range(3):
+        np.add.at(b, cols[:, a], w * y)
+        for c in range(3):
+            np.add.at(A, (cols[:, a], cols[:, c]), w)
+    A[1:, 1:] += ADJ_RIDGE_PLAYS * np.eye(2 * n)
+    C = np.zeros((2, p))
+    C[0, 1:1 + n] = 1.0
+    C[1, 1 + n:] = 1.0
+    K = np.block([[A, C.T], [C, np.zeros((2, 2))]])
+    sol = np.linalg.solve(K, np.concatenate([b, np.zeros(2)]))
+    off_eff, def_eff = sol[1:1 + n], sol[1 + n:p]
+
+    raw = ts.set_index("team").loc[teams]
+    adj = pd.DataFrame({"team": teams})
+    adj["off_epa_per_play_adj"] = raw["off_epa_per_play"].mean() + off_eff
+    adj["def_epa_per_play_adj"] = raw["def_epa_per_play"].mean() + def_eff
+    adj["epa_margin_per_play_adj"] = (adj["off_epa_per_play_adj"]
+                                      - adj["def_epa_per_play_adj"])
+
+    # Strength of schedule, for display: mean raw EPA margin of the opponent in
+    # each game played (a twice-met division rival counts twice).
+    margin = raw["epa_margin_per_play"]
+    gp = games.assign(opp_margin=games["def"].map(margin))
+    sos = gp.groupby("off")["opp_margin"].agg(["mean", "size"])
+    full = sos["size"] + [PBP_MISSING_GAMES.get((year, t), 0) for t in sos.index]
+    bad = full[~full.isin([16, 17])]
+    if not bad.empty:
+        raise AssertionError(f"{year}: pbp game counts outside 16/17: {bad.to_dict()}")
+    adj["sos_epa"] = adj["team"].map(sos["mean"])
+    return adj
+
+
 def build_team_season_epa(*, download: bool = False, verbose: bool = True) -> pd.DataFrame:
     lo, hi = config.PERF_WINDOW
     con = sources.duck_connect()
@@ -170,6 +371,8 @@ def build_team_season_epa(*, download: bool = False, verbose: bool = True) -> pd
             download=download,
         )
         ts = _season_epa(con, year)
+        ts = ts.merge(_opponent_adjust(_season_games(con), ts, year),
+                      on="team", how="left", validate="1:1")
         exp = EXPECTED_TEAMS[year]
         if len(ts) != exp:
             raise AssertionError(f"{year}: {len(ts)} teams in pbp, expected {exp}")
@@ -185,8 +388,13 @@ def build_team_season_epa(*, download: bool = False, verbose: bool = True) -> pd
         "season", "team", "off_plays", "def_plays",
         "off_epa_per_play", "def_epa_per_play", "epa_margin_per_play",
         "off_epa_total", "def_epa_total",
+        "off_epa_per_play_adj", "def_epa_per_play_adj", "epa_margin_per_play_adj",
+        "sos_epa",
     ]].sort_values(["season", "team"]).reset_index(drop=True)
-    for c in ("off_epa_per_play", "def_epa_per_play", "epa_margin_per_play"):
+    _check_adjusted(mart, verbose=verbose)  # on unrounded values
+    for c in ("off_epa_per_play", "def_epa_per_play", "epa_margin_per_play",
+              "off_epa_per_play_adj", "def_epa_per_play_adj",
+              "epa_margin_per_play_adj", "sos_epa"):
         mart[c] = mart[c].round(config.ROUND_RATIO)
     for c in ("off_epa_total", "def_epa_total"):
         mart[c] = mart[c].round(config.ROUND_EPA_TOTAL)
@@ -194,6 +402,39 @@ def build_team_season_epa(*, download: bool = False, verbose: bool = True) -> pd
     io_utils.assert_rows(mart, "team_season_epa")
     assert_canonical(mart["team"], "team_season_epa")
     return mart
+
+
+def _check_adjusted(mart: pd.DataFrame, *, verbose: bool) -> None:
+    if mart[["off_epa_per_play_adj", "def_epa_per_play_adj", "sos_epa"]].isna().any().any():
+        raise AssertionError("null opponent-adjusted value")
+    worst = {"off": 0.0, "def": 0.0, "margin": 0.0}
+    for season, g in mart.groupby("season"):
+        for side in ("off", "def"):
+            raw, adj = g[f"{side}_epa_per_play"], g[f"{side}_epa_per_play_adj"]
+            if abs(adj.mean() - raw.mean()) > ADJ_MEAN_TOL:
+                raise AssertionError(f"{season}: adjusted {side} mean drifted "
+                                     f"{adj.mean() - raw.mean():+.2e}")
+            worst[side] = max(worst[side], float((adj - raw).abs().max()))
+        worst["margin"] = max(worst["margin"], float(
+            (g["epa_margin_per_play_adj"] - g["epa_margin_per_play"]).abs().max()))
+        r = np.corrcoef(g["epa_margin_per_play_adj"], g["epa_margin_per_play"])[0, 1]
+        if r <= ADJ_MIN_CORR:
+            raise AssertionError(f"{season}: corr(adj, raw margin) {r:.3f} <= {ADJ_MIN_CORR}")
+    if max(worst["off"], worst["def"]) > ADJ_MAX_SHIFT:
+        raise AssertionError(f"opponent adjustment moved a side by "
+                             f"{max(worst['off'], worst['def']):.4f} > {ADJ_MAX_SHIFT}")
+    if verbose:
+        print(f"  opponent adjustment: max |shift| off {worst['off']:.4f}, "
+              f"def {worst['def']:.4f}, margin {worst['margin']:.4f} EPA/play; "
+              f"season means preserved; corr(adj, raw margin) > {ADJ_MIN_CORR} every season")
+        last = mart[mart["season"] == mart["season"].max()].copy()
+        last["shift"] = last["epa_margin_per_play_adj"] - last["epa_margin_per_play"]
+        top = last.reindex(last["shift"].abs().sort_values(ascending=False).index).head(5)
+        print(f"  {int(last['season'].iloc[0])} biggest movers (margin raw -> adj, sos):")
+        for _, r in top.iterrows():
+            print(f"    {r.team:<4} {r.epa_margin_per_play:+.4f} -> "
+                  f"{r.epa_margin_per_play_adj:+.4f}  ({r['shift']:+.4f})  "
+                  f"sos {r.sos_epa:+.4f}")
 
 
 # --------------------------------------------------------------------------- #
