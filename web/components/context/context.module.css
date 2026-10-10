@@ -1,0 +1,446 @@
+/* "WHAT CAP+ CAN'T SEE" — SPEC.md §2.10. Every colour is a token. */
+
+.body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--yy-space-5);
+}
+
+@media (min-width: 1024px) {
+  .body {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--yy-space-6);
+  }
+}
+
+.block {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--yy-space-2);
+}
+
+.block + .block {
+  padding-top: var(--yy-space-4);
+  border-top: 1px solid var(--yy-line-divider);
+}
+
+@media (min-width: 1024px) {
+  .block + .block {
+    padding-top: 0;
+    border-top: 0;
+  }
+
+  .blockWide {
+    grid-column: 1 / -1;
+    padding-top: var(--yy-space-4) !important;
+    border-top: 1px solid var(--yy-line-divider) !important;
+  }
+}
+
+.blockLabel {
+  margin: 0;
+  color: var(--yy-fg-3);
+  letter-spacing: var(--yy-track-label-wide);
+}
+
+.blank {
+  margin: 0;
+  color: var(--yy-fg-3);
+  max-width: var(--yy-measure);
+}
+
+.caption {
+  margin: 0;
+  color: var(--yy-fg-2);
+  max-width: var(--yy-measure);
+}
+
+.fine {
+  margin: 0;
+  color: var(--yy-fg-3);
+  font-size: var(--yy-size-caption);
+  max-width: var(--yy-measure);
+}
+
+/* ── (a) quarterback ─────────────────────────────────────────────────────── */
+
+.qbLine {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--yy-space-2);
+  flex-wrap: wrap;
+}
+
+.qbName {
+  font-family: var(--yy-font-display);
+  font-weight: var(--yy-weight-display);
+  font-size: var(--yy-size-display-xs);
+  letter-spacing: var(--yy-track-display);
+  color: var(--yy-fg-1);
+}
+
+/* The "R" chip — 11px, the floor; outlined, never lime (one lime per card). */
+.rChip {
+  font-family: var(--yy-font-athletic);
+  font-weight: var(--yy-weight-metric);
+  font-size: var(--yy-size-label);
+  line-height: 1;
+  color: var(--yy-fg-1);
+  border: 1px solid var(--yy-fg-2);
+  border-radius: var(--yy-radius-chip);
+  padding: 3px 6px;
+}
+
+.qbVet {
+  color: var(--yy-fg-3);
+}
+
+.qbMeta {
+  margin: 0;
+  color: var(--yy-fg-3);
+}
+
+.stratum {
+  margin: var(--yy-space-1) 0 0;
+  display: flex;
+  align-items: baseline;
+  gap: var(--yy-space-2);
+  flex-wrap: wrap;
+}
+
+.stratumRank {
+  font-size: var(--yy-size-metric-sm);
+  color: var(--yy-fg-1);
+}
+
+.stratumUnit {
+  color: var(--yy-fg-2);
+}
+
+/* ── (b) waterfall ───────────────────────────────────────────────────────── */
+
+.wf {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.wfRow,
+.wfAxis {
+  display: grid;
+  grid-template-columns: 104px minmax(0, 1fr) 52px;
+  align-items: center;
+  gap: var(--yy-space-2);
+  min-height: 24px;
+}
+
+.wfName {
+  color: var(--yy-fg-2);
+}
+
+.wfTrack,
+.wfAxisTrack {
+  position: relative;
+  height: 20px;
+  display: block;
+}
+
+.wfTrack {
+  background: var(--yy-bg-track);
+  border-radius: var(--yy-radius-mark);
+}
+
+.wfGold {
+  position: absolute;
+  top: -2px;
+  bottom: -2px;
+  width: 1px;
+  background: var(--yy-benchmark-tick);
+}
+
+.wfStart {
+  position: absolute;
+  top: 6px;
+  width: 8px;
+  height: 8px;
+  margin-left: -4px;
+  border-radius: 50%;
+  border: 1px solid var(--yy-benchmark-tick);
+  background: var(--yy-bg-card);
+}
+
+.wfBar {
+  position: absolute;
+  top: 5px;
+  height: 10px;
+  background: var(--yy-series-neutral);
+  border-radius: var(--yy-radius-mark);
+}
+
+/* A negative term reads by direction and by its printed sign — never by red:
+   a cheap-QB discount that went the other way is not a failing. */
+.wfBarNeg {
+  background: repeating-linear-gradient(
+      45deg,
+      var(--yy-bg-card-flat) 0 1px,
+      transparent 1px 4px
+    ),
+    var(--yy-series-neutral);
+}
+
+.wfMark {
+  position: absolute;
+  top: 2px;
+  bottom: 2px;
+  width: 2px;
+  margin-left: -1px;
+  background: var(--yy-compare);
+}
+
+.wfDot {
+  position: absolute;
+  top: 4px;
+  width: 12px;
+  height: 12px;
+  margin-left: -6px;
+  border-radius: 50%;
+  background: var(--yy-accent);
+  box-shadow: 0 0 0 1px var(--yy-bg-card-flat);
+}
+
+.wfOff {
+  position: absolute;
+  top: 4px;
+  width: 0;
+  height: 0;
+  border-block: 6px solid transparent;
+}
+
+.wfOffHi {
+  right: -2px;
+  border-left: 7px solid var(--yy-fg-2);
+}
+
+.wfOffLo {
+  left: -2px;
+  border-right: 7px solid var(--yy-fg-2);
+}
+
+.wfValue {
+  text-align: right;
+  color: var(--yy-fg-1);
+  font-size: var(--yy-size-label-lg);
+  padding-right: 0.03em;
+}
+
+.wfBench {
+  color: var(--yy-benchmark);
+}
+
+.wfTotal {
+  font-size: var(--yy-size-metric-xs);
+}
+
+.wfTick {
+  position: absolute;
+  transform: translateX(-50%);
+  color: var(--yy-fg-3);
+  top: 2px;
+}
+
+.wfTickBench {
+  color: var(--yy-benchmark);
+}
+
+.wfNeutral {
+  margin: var(--yy-space-1) 0 0;
+  color: var(--yy-fg-3);
+  padding-inline-start: var(--yy-space-3);
+  position: relative;
+}
+
+.wfNeutral::before {
+  content: '';
+  position: absolute;
+  left: 2px;
+  top: 2px;
+  bottom: 2px;
+  width: 2px;
+  background: var(--yy-compare);
+}
+
+/* ── (c) mortgage ────────────────────────────────────────────────────────── */
+
+.mort {
+  display: flex;
+  flex-direction: column;
+  gap: var(--yy-space-2);
+}
+
+.mortHead {
+  margin: 0;
+  display: flex;
+  align-items: baseline;
+  gap: var(--yy-space-2);
+  flex-wrap: wrap;
+}
+
+.mortFigure {
+  font-size: var(--yy-size-metric-sm);
+  color: var(--yy-fg-1);
+}
+
+.mortUnit {
+  color: var(--yy-fg-2);
+}
+
+.mortTrack {
+  position: relative;
+  height: 16px;
+  background: var(--yy-bg-track);
+  border-radius: var(--yy-radius-mark);
+  margin-top: var(--yy-space-1);
+}
+
+.mortBar {
+  position: absolute;
+  left: 0;
+  top: 3px;
+  height: 10px;
+  border-radius: var(--yy-radius-mark);
+  /* "not yet paid" — hatched over the neutral fill */
+  background: repeating-linear-gradient(
+      45deg,
+      var(--yy-bg-card-flat) 0 1px,
+      transparent 1px 4px
+    ),
+    var(--yy-series-neutral);
+}
+
+.mortOver {
+  position: absolute;
+  right: -2px;
+  top: 2px;
+  border-block: 6px solid transparent;
+  border-left: 7px solid var(--yy-fg-2);
+}
+
+.mortCap {
+  position: absolute;
+  top: -3px;
+  bottom: -3px;
+  width: 1px;
+  background: var(--yy-fg-dim);
+}
+
+.mortMedian {
+  position: absolute;
+  top: -4px;
+  bottom: -4px;
+  width: 2px;
+  margin-left: -1px;
+  background: var(--yy-benchmark-tick);
+}
+
+.mortScale {
+  position: relative;
+  height: 16px;
+  color: var(--yy-fg-3);
+}
+
+.mortScale > span {
+  position: absolute;
+  top: 0;
+  white-space: nowrap;
+}
+
+.mortScale > span + span {
+  transform: translateX(-50%);
+}
+
+.mortMedianLabel {
+  margin: 0;
+  color: var(--yy-benchmark);
+  display: flex;
+  align-items: center;
+  gap: var(--yy-space-2);
+}
+
+.mortMedianKey {
+  display: inline-block;
+  width: 2px;
+  height: 12px;
+  background: var(--yy-benchmark-tick);
+}
+
+.pair {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--yy-space-2) var(--yy-space-4);
+  padding-top: var(--yy-space-3);
+  border-top: 1px solid var(--yy-line-divider);
+  margin-top: var(--yy-space-2);
+}
+
+.pairCell {
+  display: flex;
+  flex-direction: column;
+  gap: var(--yy-space-1);
+  min-width: 0;
+}
+
+.pairLabel {
+  color: var(--yy-fg-3);
+}
+
+.pairValue {
+  font-size: var(--yy-size-metric-xs);
+  color: var(--yy-fg-1);
+}
+
+.pairRank {
+  color: var(--yy-fg-3);
+}
+
+/* "Candidate" — SPEC §2.10: never Cap+ alone. Provisional ink, 11px floor. */
+.candidate {
+  display: inline-block;
+  margin-inline-start: var(--yy-space-1);
+  padding: 1px 5px;
+  border: 1px solid var(--yy-provisional-stroke);
+  border-radius: var(--yy-radius-chip);
+  color: var(--yy-provisional);
+  font-size: var(--yy-size-label);
+}
+
+.pairNote {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: var(--yy-fg-3);
+  max-width: var(--yy-measure);
+}
+
+/* ── (d) timeline ────────────────────────────────────────────────────────── */
+
+.timeline {
+  width: 100%;
+  min-width: 0;
+}
+
+.rKey {
+  margin: var(--yy-space-2) 0 0;
+  display: flex;
+  align-items: center;
+  gap: var(--yy-space-2);
+  color: var(--yy-fg-2);
+}
+
+.rSwatch {
+  display: inline-block;
+  width: 16px;
+  height: 12px;
+  background: var(--yy-bg-sunken);
+  border: 1px solid var(--yy-line-card);
+}

@@ -45,3 +45,20 @@
   color: var(--yy-fg-3);
   letter-spacing: var(--yy-track-label);
 }
+
+/* One line for all the regime changes with no follow-on reading. */
+.blankSummary {
+  margin: var(--yy-space-3) 0 0;
+  padding-top: var(--yy-space-3);
+  border-top: 1px solid var(--yy-line-divider);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--yy-space-2);
+  max-width: var(--yy-measure);
+}
+
+.scroll:focus-visible {
+  outline: var(--yy-focus-width) solid var(--yy-focus-ring);
+  outline-offset: var(--yy-focus-offset);
+}

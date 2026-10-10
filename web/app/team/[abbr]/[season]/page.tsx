@@ -4,18 +4,31 @@ import css from './team-page.module.css';
 import {
   allTeamSeasons,
   divisionSlugForTeam,
+  getCapPlusContext,
   getDivisionPeers,
+  getDraftLeagueMedians,
+  getFranchiseSeasonFacts,
   getLeagueAvgCostPerWin,
+  getLeagueContext,
+  getLeagueSpend,
+  getQbWindowSeries,
+  getRosterReceipt,
+  getSeasonInputRanks,
+  getStrataSummary,
   getTeamBundle,
   getTeamMetaMap,
   TIER2_FIRST_SEASON,
 } from '@/lib/data';
 import {
+  BLANK_REASON,
+  BRIDGE_SENTENCE,
   DEAD_MONEY_DEFINITION,
   DEAD_MONEY_DEFINITION_CREDIT,
   DRAFT_CHART_NAME,
   DRAFT_CHART_URL,
+  blank,
   mapMetric,
+  value,
   type Metric,
 } from '@/lib/metric';
 import { eraIdentity, toAbbr } from '@/lib/teams';
@@ -29,18 +42,27 @@ import {
   Card,
   CardHeader,
   ChartCaption,
-  Chip,
   KpiTile,
   MetricText,
 } from '@/components/primitives';
 import { TeamHeader, ThreeLens, DeadMoneyLedger, StatGrid } from '@/components/team/team-blocks';
+import { VerdictStrip } from '@/components/team/verdict-strip';
+import { FinePrint } from '@/components/team/fine-print';
+import { ordinal, vsLeague } from '@/components/team/format';
 import { Receipt } from '@/components/receipt/receipt';
-import { FranchiseArc } from '@/components/charts/franchise-arc';
-import { TeamDrive } from '@/components/field/team-drive';
+import { RosterReceipt } from '@/components/receipt/roster-receipt';
+import { ShareButton } from '@/components/share/share-button';
+import { FranchiseArc, type ArcSeasonDetail } from '@/components/charts/franchise-arc';
+import { INDEX_DOMAIN } from '@/components/charts/chart-kit';
 import { AllocationBars } from '@/components/charts/allocation-bars';
 import { DeadMoneyDots } from '@/components/charts/dead-money-dots';
 import { RegimeTimeline } from '@/components/charts/regime-timeline';
-import { SeasonPicker, TeamPicker } from '@/components/pickers/team-season-picker';
+import { CapPlusContextBody } from '@/components/context/capplus-context-card';
+import {
+  SeasonPicker,
+  SeasonStepper,
+  TeamPicker,
+} from '@/components/pickers/team-season-picker';
 import { CsvExport } from '@/components/csv-export';
 import { csvTable } from '@/lib/csv';
 
@@ -62,9 +84,14 @@ export async function generateMetadata({
   const team = toAbbr(abbr);
   if (!team) return {};
   const id = eraIdentity(team, Number(season));
+  const path = `/team/${abbr.toLowerCase()}/${season}`;
+  const description = `${id.name}, ${season}: what the club spent, what it got, and where the record stops.`;
   return {
     title: `${id.name} · ${season}`,
-    description: `${id.name}, ${season}: what the club spent, what it got, and where the record stops.`,
+    description,
+    alternates: { canonical: path },
+    openGraph: { type: 'article', url: path, title: `${id.name} · ${season} — the receipt`, description },
+    twitter: { title: `${id.name} · ${season} — the receipt` },
   };
 }
 
@@ -91,6 +118,64 @@ export default async function TeamSeasonPage({
     getLeagueAvgCostPerWin(season, 'cash'),
     getLeagueAvgCostPerWin(season, 'cap'),
   ]);
+  const [leagueSpend, inputRanks, context, qbSeries, strata, leagueContext, facts, draftMedians, rosterReceipt] =
+    await Promise.all([
+      getLeagueSpend(season, 'cash'),
+      getSeasonInputRanks(season, team),
+      getCapPlusContext(season, team),
+      getQbWindowSeries(team),
+      getStrataSummary(season),
+      getLeagueContext(season),
+      getFranchiseSeasonFacts(team),
+      getDraftLeagueMedians(season),
+      getRosterReceipt(season, team),
+    ]);
+
+  /* League rank by cash per win, cheapest = 1st. Zero-win clubs have no ratio
+     and are excluded from the ordering, never sorted to an end (§2.5). */
+  const ratios = [...leagueSpend.values()]
+    .map((r) => r.perWin)
+    .filter((v): v is number => v !== null);
+  const mine = leagueSpend.get(team)?.perWin ?? null;
+  const cpwRank =
+    mine === null || !ratios.length
+      ? null
+      : { rank: 1 + ratios.filter((v) => v < mine).length, n: ratios.length };
+
+  const ctxIndices = context.state === 'blank' ? null : context.value.indices;
+  const qbTimingPts = ctxIndices && ctxIndices.state !== 'blank' ? ctxIndices.value.qbTimingPts : null;
+
+  /* The arc's inspection readout: record, cash per win against the league, and
+     Cap+ rank — each formatted here, on the server, from mart rows. */
+  const rankBySeason = new Map<number, number>();
+  if (qbSeries.state !== 'blank') {
+    for (const r of qbSeries.value) {
+      if (r.indices.state !== 'blank') rankBySeason.set(r.season, r.indices.value.capplusRank);
+    }
+  }
+  const arcDetails: ArcSeasonDetail[] = facts.map((f) => {
+    let perWin: Metric<string>;
+    if (f.cashSpend.state === 'blank') perWin = blank(f.cashSpend.reason);
+    else if (f.wins === 0) perWin = value(`${usdShort(f.cashSpend.value)} spent · 0 wins`);
+    else {
+      const pw = f.cashSpend.value / f.wins;
+      const lg = f.leagueCashPerWin.state === 'blank' ? null : f.leagueCashPerWin.value;
+      perWin = value(`${usdShort(pw)} per win, cash${lg ? ` · ${vsLeague(pw, lg)}` : ''}`);
+    }
+    return {
+      season: f.season,
+      record: recordDash(f.wins, f.losses, f.ties),
+      perWin,
+      capplusRank: rankBySeason.get(f.season) ?? null,
+    };
+  });
+  const offWindow = b.history.points.filter(
+    (p) =>
+      (p.capplus.state !== 'blank' && (p.capplus.value > INDEX_DOMAIN[1] || p.capplus.value < INDEX_DOMAIN[0])) ||
+      (p.teamRating.state !== 'blank' &&
+        (p.teamRating.value > INDEX_DOMAIN[1] || p.teamRating.value < INDEX_DOMAIN[0])),
+  ).length;
+  const abbrLower = team.toLowerCase();
 
   const results = b.results.state === 'value' ? b.results.value : null;
   const record = results ? recordDash(results.wins, results.losses, results.ties) : '';
@@ -145,7 +230,7 @@ export default async function TeamSeasonPage({
 
   return (
     <>
-      {/* ── 1. HEADER ─────────────────────────────────────────────────────── */}
+      {/* ── 1. HEADER — with time navigation and share ────────────────────── */}
       <TeamHeader
         name={b.identity.name.toUpperCase()}
         identityLine={identityLine}
@@ -155,77 +240,103 @@ export default async function TeamSeasonPage({
         season={season}
         tier2FirstSeason={TIER2_FIRST_SEASON}
         backHref={slug ? `/division/${slug}` : '/'}
+        stepper={
+          <SeasonStepper seasons={b.seasons} season={season} hrefPattern={`/team/${abbrLower}/{season}`} />
+        }
+        actions={
+          <ShareButton
+            path={`/team/${abbrLower}/${season}`}
+            imageUrl={`/team/${abbrLower}/${season}/opengraph-image`}
+            fileName={`yieldyard-${abbrLower}-${season}.png`}
+          />
+        }
       />
 
       <div className={css.pickers}>
         <TeamPicker teams={teamOptions} team={team} hrefPattern={`/team/{abbr}/${season}`} />
-        <SeasonPicker
-          seasons={b.seasons}
-          season={season}
-          hrefPattern={`/team/${team.toLowerCase()}/{season}`}
-        />
+        <SeasonPicker seasons={b.seasons} season={season} hrefPattern={`/team/${abbrLower}/{season}`} />
       </div>
 
-      {/* ── the season at a glance ────────────────────────────────────────── */}
-      <Card ariaLabel="Season results">
-        <CardHeader eyebrow={`${b.identity.name} · ${season}`} title="THE SEASON" />
-        <StatGrid>
-          <KpiTile label="Record" value={record || '—'} />
-          <KpiTile
-            label="Point differential"
-            value={
-              results
-                ? results.pointDiff > 0
-                  ? `+${results.pointDiff}`
-                  : String(results.pointDiff)
-                : '—'
-            }
-          />
-          <KpiTile
-            label="EPA margin / play"
-            value={
-              <MetricText metric={b.epa} format={(e) => e.epaMarginPerPlay.toFixed(3)} inlineBlank />
-            }
-          />
-          <KpiTile
-            label={inTier2 ? 'Cap+' : 'Team rating'}
-            value={
-              <MetricText
-                metric={inTier2 ? capplusIndex : b.teamRating}
-                format={(v) => v.toFixed(1)}
-                inlineBlank
-              />
-            }
-            unit={inTier2 ? '100 = league average' : 'performance only'}
-          />
-          {/* Team Rating exists for all 861 team-seasons. On a blanked Cap+
-              season it is the reading the page still has, and dropping it left
-              these 128 pages with no index at all. */}
-          {inTier2 && capplusIndex.state === 'blank' ? (
-            <KpiTile
-              label="Team rating"
-              value={<MetricText metric={b.teamRating} format={(v) => v.toFixed(1)} inlineBlank />}
-              unit="performance only"
-            />
-          ) : null}
-        </StatGrid>
-        {b.capplus.state === 'value' && b.capplus.provisional ? (
-          <p className={css.chipRow}>
-            <Chip kind="provisional" />
-            <span className="yy-caption">{PROVISIONAL_NOTE}</span>
-          </p>
-        ) : null}
+      {/* ── 2. THE VERDICT — the page's question, answered first (review D #1) ── */}
+      <Card ariaLabel="Was it worth it">
+        <CardHeader eyebrow={`${b.identity.name} · ${season}`} title="WAS IT WORTH IT?" />
+        <VerdictStrip
+          teamName={b.identity.name}
+          season={season}
+          inTier2={inTier2}
+          results={b.results}
+          epa={b.epa}
+          cashPerWin={b.costPerWin}
+          leagueCashPerWin={avgCash}
+          cpwRank={cpwRank}
+          capplus={b.capplus}
+          teamRating={b.teamRating}
+          inputRanks={inputRanks}
+          qbTimingPts={qbTimingPts}
+        />
       </Card>
 
-      {/* ── 2. THE 25-SEASON HISTORY ─────────────────────────────────────── */}
+      {/* ── 3. THE ROSTER RECEIPT — the itemised bill, beside the verdict ── */}
+      {inTier2 ? (
+        <Card ariaLabel="Roster receipt">
+          <CardHeader eyebrow={`The itemised bill · ${season}`} title="ROSTER RECEIPT" />
+          <div className={css.receiptPaper}>
+            <RosterReceipt receipt={rosterReceipt} size="column" fallbackTitle={`${b.identity.name} · ${season}`} />
+          </div>
+        </Card>
+      ) : null}
+
+      {/* ── 4. COST PER WIN — SUBJECT MODE, straight after the bill ──────────── */}
+      {peersCash && peersCap && inTier2 ? (
+        <div className={css.receiptWrap}>
+          <Receipt
+            title={`${b.team} vs ${peersCash.name.toUpperCase()}`}
+            wideTitle={`${b.team} vs ${peersCash.name.toUpperCase()} — WHAT A WIN COST`}
+            season={season}
+            subject={team}
+            rows={{ cash: receiptRows(peersCash), cap: receiptRows(peersCap) }}
+            leagueAvg={{ cash: avgCash, cap: avgCap }}
+            coverage={receiptCoverage(season, peersCash.teams.length)}
+          />
+          {/* RESOLUTIONS Q1 — one meaning per surface, and the surface says
+              which. On `/` lime means cheaper than the league; here it means
+              this club, whatever it paid. */}
+          <p className={`yy-caption ${css.limeNote}`}>
+            <span className={css.limeKey} aria-hidden="true" />
+            Lime marks {b.identity.name} on this card, whatever it paid. On the league and division
+            views lime means cheaper than average; here cheap or dear is read against the gold league
+            line.
+          </p>
+        </div>
+      ) : (
+        <Card ariaLabel="Cost per win">
+          <CardHeader eyebrow={`Cost per win · ${season}`} title="WHAT A WIN COST" />
+          <BoundaryMessage season={season} />
+        </Card>
+      )}
+
+      {/* ── 5. WHAT CAP+ CAN'T SEE — the gate #1 reopen (SPEC §2.10) ─────── */}
+      <Card ariaLabel="What Cap+ can't see">
+        <CardHeader eyebrow="QB contract · future cap" title="WHAT CAP+ CAN’T SEE" />
+        <CapPlusContextBody
+          context={context}
+          series={qbSeries}
+          strata={strata}
+          league={leagueContext}
+          season={season}
+          teamName={b.identity.name}
+        />
+      </Card>
+
+      {/* ── 6. THE 25-SEASON HISTORY — with the Drive folded in ──────────── */}
       <Card ariaLabel="Franchise history">
         <CardHeader
-          eyebrow="1999–2025"
+          eyebrow={`1999–2025 · ${season} marked`}
           title="THE FRANCHISE ARC"
           right={
             <CsvExport
               title="Franchise arc"
-              filename={`yieldyard_history_${team.toLowerCase()}.csv`}
+              filename={`yieldyard_history_${abbrLower}.csv`}
               table={csvTable(b.history.points, [
                 { key: 'season', label: 'season', get: (p) => p.season },
                 {
@@ -255,34 +366,36 @@ export default async function TeamSeasonPage({
         <FranchiseArc
           points={b.history.points}
           team={b.identity.name}
-          bridgeSentence={ARC_BRIDGE}
-          coverage={{
-            statement:
-              'Team Rating covers 1999–2025. Cap+ covers 2014–2025; 2013, 2016, 2020 and 2021 have no league-wide dead-money table and are blanked whole-season.',
-          }}
+          abbr={abbrLower}
+          currentSeason={season}
+          details={arcDetails}
         />
+        {/* §4.4 — the bridge sentence is always visible; the rest is precision. */}
+        <FinePrint short={<>{BRIDGE_SENTENCE} {ARC_SHORT}</>}>
+          <ChartCaption>{ARC_BRIDGE}</ChartCaption>
+          <ChartCaption>{ARC_FIELD_NOTE}</ChartCaption>
+          {offWindow ? (
+            <ChartCaption>
+              The index window is fixed at {INDEX_DOMAIN[0]}–{INDEX_DOMAIN[1]} so any two clubs can be
+              read against one another. {offWindow} season{offWindow === 1 ? '' : 's'} here fall
+              outside it; each is marked at the edge with its true value printed, never clamped onto
+              the axis as though measured there.
+            </ChartCaption>
+          ) : null}
+          <ChartCaption>
+            Team Rating covers 1999–2025. Cap+ covers 2014–2025; 2013, 2016, 2020 and 2021 have no
+            league-wide dead-money table and are blanked whole-season. {BLANK_REASON.NO_DM_TABLE}
+          </ChartCaption>
+        </FinePrint>
       </Card>
 
-      {/* ── 2b. THE DRIVE — the second field-literal surface (`SPEC.md` §4) ── */}
-      <Card ariaLabel="Cap+ as field position">
-        <CardHeader eyebrow="The same number, read as ground" title="THE DRIVE" />
-        <TeamDrive
-          points={b.history.points}
-          team={b.identity.name}
-          coverage={{
-            statement:
-              'Cap+ covers 2014–2025; 2013, 2016, 2020 and 2021 have no league-wide dead-money table and are blanked whole-season. Nothing is clipped: the field runs Cap+ 50 to 150, which contains every value in the record.',
-          }}
-        />
-      </Card>
-
-      {/* ── 3. THE THREE LENSES ──────────────────────────────────────────── */}
+      {/* ── 7. THE THREE LENSES ──────────────────────────────────────────── */}
       <Card ariaLabel="Spending, three ways">
         <CardHeader eyebrow="Never one number" title="THREE LENSES" />
         {inTier2 ? <ThreeLens lenses={b.lenses} /> : <BoundaryMessage season={season} />}
       </Card>
 
-      {/* ── 4. ALLOCATION ────────────────────────────────────────────────── */}
+      {/* ── 8. ALLOCATION ────────────────────────────────────────────────── */}
       <Card ariaLabel="Allocation versus the league">
         <CardHeader
           eyebrow="Nine position groups"
@@ -291,7 +404,7 @@ export default async function TeamSeasonPage({
             b.allocation.state === 'value' ? (
               <CsvExport
                 title="Spend mix versus league"
-                filename={`yieldyard_allocation_${team.toLowerCase()}_${season}.csv`}
+                filename={`yieldyard_allocation_${abbrLower}_${season}.csv`}
                 table={csvTable(b.allocation.value, [
                   { key: 'group', label: 'position_group', get: (a) => a.positionGroup },
                   { key: 'cap_usd', label: 'cap_usd', get: (a) => a.capUsd },
@@ -319,8 +432,9 @@ export default async function TeamSeasonPage({
         {b.allocation.state === 'value' ? (
           <AllocationBars
             bars={b.allocation.value}
+            team={b.team}
             coverage={{
-              statement: `Nine position groups, ${season}, in a fixed order that never changes between clubs — which is what makes two clubs comparable.`,
+              statement: `Nine position groups, ${season}, in a fixed order that never changes between clubs — which is what makes two clubs comparable. The delta axis is fixed at ±15 points for every club.`,
             }}
           />
         ) : (
@@ -328,25 +442,7 @@ export default async function TeamSeasonPage({
         )}
       </Card>
 
-      {/* ── 5. COST PER WIN — SUBJECT MODE ───────────────────────────────── */}
-      {peersCash && peersCap && inTier2 ? (
-        <Receipt
-          title={`${b.team} vs ${peersCash.name.toUpperCase()}`}
-          wideTitle={`${b.team} vs ${peersCash.name.toUpperCase()} — WHAT A WIN COST`}
-          season={season}
-          subject={team}
-          rows={{ cash: receiptRows(peersCash), cap: receiptRows(peersCap) }}
-          leagueAvg={{ cash: avgCash, cap: avgCap }}
-          coverage={receiptCoverage(season, peersCash.teams.length)}
-        />
-      ) : (
-        <Card ariaLabel="Cost per win">
-          <CardHeader eyebrow={`Cost per win · ${season}`} title="WHAT A WIN COST" />
-          <BoundaryMessage season={season} />
-        </Card>
-      )}
-
-      {/* ── 6. COACHING STABILITY + REGIME TIMELINE ──────────────────────── */}
+      {/* ── 9. COACHING STABILITY + REGIME TIMELINE ──────────────────────── */}
       <Card ariaLabel="Coaching stability and regimes">
         <CardHeader eyebrow="Continuity" title="COACHING & REGIMES" />
         <StatGrid>
@@ -385,7 +481,7 @@ export default async function TeamSeasonPage({
         />
       </Card>
 
-      {/* ── 7. DEAD MONEY ────────────────────────────────────────────────── */}
+      {/* ── 10. DEAD MONEY ───────────────────────────────────────────────── */}
       <Card ariaLabel="Dead money">
         <CardHeader
           eyebrow="Dated readings, never a trend"
@@ -394,7 +490,7 @@ export default async function TeamSeasonPage({
             b.deadMoney.series.length ? (
               <CsvExport
                 title="Dead money"
-                filename={`yieldyard_deadmoney_${team.toLowerCase()}.csv`}
+                filename={`yieldyard_deadmoney_${abbrLower}.csv`}
                 table={csvTable(b.deadMoney.series, [
                   { key: 'season', label: 'season', get: (s) => s.season },
                   { key: 'usd', label: 'dead_money_usd', get: (s) => s.usd },
@@ -438,29 +534,16 @@ export default async function TeamSeasonPage({
           />
         ) : null}
 
-        <div className={css.ledgerBlock}>
-          <p className="yy-label">This season</p>
-          {inTier2 ? (
-            <ThreeLens lenses={b.lenses.filter((l) => l.key === 'dead_money')} />
-          ) : (
-            <BoundaryMessage season={season} />
-          )}
-        </div>
-
-        {/* `SPEC.md` §7.5 — where more than one dated reading exists for this
-            (season, team) the UI picks ONE by the pinned rule and shows the
-            others as alternate readings. They are never averaged and never
-            merged: CHI 2022 reads $57.6M preseason and $91.8M final, and both
-            are true of the dates they carry. */}
+        {/* The season's own reading is in THREE LENSES above, with its date,
+            stage and league median; v1 printed it a second time here. The
+            alternate readings belong to this card and stay. */}
         <AlternateReadings
           alternates={b.deadMoney.alternates}
           resolved={b.deadMoney.resolved}
           season={season}
         />
 
-        {/* `SPEC.md` §2.1 — the definition renders in BOTH places it is
-            specified: the methodology page and this card's info panel, quoted
-            verbatim with its credit. */}
+        {/* `SPEC.md` §2.1 — the definition, verbatim with its credit. */}
         <div className={css.ledgerBlock}>
           <p className="yy-label">What a dead-money charge is</p>
           <blockquote className={css.definition}>
@@ -477,7 +560,7 @@ export default async function TeamSeasonPage({
             {b.deadMoney.ledger.length ? (
               <CsvExport
                 title="Marquee dead-money charges"
-                filename={`yieldyard_deadmoney_ledger_${team.toLowerCase()}.csv`}
+                filename={`yieldyard_deadmoney_ledger_${abbrLower}.csv`}
                 table={csvTable(b.deadMoney.ledger, LEDGER_COLUMNS, [
                   `YIELD/YARD — ${b.identity.name} marquee dead-money charges`,
                   'source mart: dead_money_ledger',
@@ -491,61 +574,15 @@ export default async function TeamSeasonPage({
         </div>
       </Card>
 
-      {/* ── 8. DRAFT ROI ─────────────────────────────────────────────────── */}
+      {/* ── 11. DRAFT ROI — with units and the league median (review D bug sweep) ── */}
       <Card ariaLabel="Draft class">
         <CardHeader eyebrow={`${season} class`} title="DRAFT CAPITAL & RETURN" />
         {b.draft.summary.state === 'value' ? (
-          <>
-            <StatGrid>
-              <KpiTile label="Picks" value={String(b.draft.summary.value.nPicks)} />
-              <KpiTile
-                label="Capital"
-                value={b.draft.summary.value.capital.toFixed(1)}
-                unit={`rank ${b.draft.summary.value.capitalRank}`}
-              />
-              <KpiTile
-                label="Return · games"
-                value={b.draft.summary.value.returnGames?.toFixed(0) ?? '—'}
-              />
-              <KpiTile
-                label="Return · wAV"
-                value={b.draft.summary.value.returnWAv?.toFixed(0) ?? '—'}
-              />
-            </StatGrid>
-            {/* `SPEC.md` §2.9 — the excluded count is printed on the card,
-                because capital counts every pick while return counts only the
-                picks that carry a gsis_id to join on. Two figures beside one
-                another over different pick sets, unlabelled, is the thing this
-                line exists to prevent. */}
-            {b.draft.summary.value.nExcludedNoGsis > 0 ? (
-              <ChartCaption>
-                Return is measured over{' '}
-                {b.draft.summary.value.nPicks - b.draft.summary.value.nExcludedNoGsis} of{' '}
-                {b.draft.summary.value.nPicks} picks: {b.draft.summary.value.nExcludedNoGsis} carr
-                {b.draft.summary.value.nExcludedNoGsis === 1 ? 'ies' : 'y'} no gsis_id and{' '}
-                {b.draft.summary.value.nExcludedNoGsis === 1 ? 'is' : 'are'} excluded from the return
-                join. They remain in the capital total.
-              </ChartCaption>
-            ) : null}
-            <ChartCaption>
-              Capital and realised return are Tier 1 and run the full record. Any framing of a draft
-              class in DOLLARS is Tier 2 and renders only for 2013 onward.{' '}
-              {b.draft.dollarFraming.state === 'blank'
-                ? b.draft.dollarFraming.reason
-                : 'It is available for this class but is not yet surfaced on this card.'}
-            </ChartCaption>
-            {/* §2.9 — the chart is cited where its unit is printed. */}
-            <ChartCaption>
-              Capital is the summed pick value from the{' '}
-              <a href={DRAFT_CHART_URL} rel="noopener noreferrer" target="_blank">
-                {DRAFT_CHART_NAME}
-              </a>
-              , published at Over The Cap. It is used in preference to the Jimmy Johnson chart
-              because its units are dollars of surplus value against rookie-contract cost — the same
-              units as the rest of this product — rather than a 1990s trade-negotiation heuristic
-              never calibrated to on-field outcome.
-            </ChartCaption>
-          </>
+          <DraftBody
+            summary={b.draft.summary.value}
+            medians={draftMedians}
+            dollarFraming={b.draft.dollarFraming}
+          />
         ) : (
           <BoundaryMessage season={season} body={b.draft.summary.reason} />
         )}
@@ -555,6 +592,98 @@ export default async function TeamSeasonPage({
         Franchise continuity is preserved, geography is not: {b.identity.name} is the identity this
         franchise carried in {season}, and the route key is the current one.
       </ChartCaption>
+    </>
+  );
+}
+
+/**
+ * The draft card. Every figure carries its unit and the league median beside
+ * it — "CAPITAL 4982.0" with no unit and no benchmark broke the "benchmark
+ * always named" rule.
+ */
+function DraftBody({
+  summary: d,
+  medians,
+  dollarFraming,
+}: {
+  summary: {
+    nPicks: number;
+    capital: number;
+    capitalRank: number;
+    returnGames: number | null;
+    returnWAv: number | null;
+    nExcludedNoGsis: number;
+  };
+  medians: Metric<{ n: number; capital: number; returnWAv: Metric<number>; returnGames: Metric<number> }>;
+  dollarFraming: Metric<null>;
+}) {
+  const med = medians.state === 'blank' ? null : medians.value;
+  const fmt = (v: number) => Math.round(v).toLocaleString('en-US');
+  const medNote = (m: Metric<number> | number | undefined, unit: string) => {
+    if (m === undefined) return undefined;
+    if (typeof m === 'number') return `League median ${fmt(m)} ${unit}`;
+    return m.state === 'blank' ? undefined : `League median ${fmt(m.value)} ${unit}`;
+  };
+  const measured = d.nPicks - d.nExcludedNoGsis;
+  return (
+    <>
+      <StatGrid>
+        <KpiTile label="Picks" value={String(d.nPicks)} unit="selections" />
+        <KpiTile
+          label="Capital"
+          value={fmt(d.capital)}
+          unit={`chart pts · ${ordinal(d.capitalRank)} of ${med?.n ?? 32}`}
+          note={medNote(med?.capital, 'pts')}
+        />
+        <KpiTile
+          label="Return · wAV"
+          value={d.returnWAv === null ? 'Not available' : fmt(d.returnWAv)}
+          unit="weighted approx. value"
+          note={medNote(med?.returnWAv, 'wAV')}
+        />
+        <KpiTile
+          label="Return · games"
+          value={d.returnGames === null ? 'Not available' : fmt(d.returnGames)}
+          unit="games played"
+          note={medNote(med?.returnGames, 'games')}
+        />
+      </StatGrid>
+      <FinePrint
+        short={
+          <>
+            Capital is the summed pick value on the{' '}
+            <a href={DRAFT_CHART_URL} rel="noopener noreferrer" target="_blank">
+              {DRAFT_CHART_NAME}
+            </a>
+            , in chart points. Return is measured over {measured} of {d.nPicks} picks.
+          </>
+        }
+      >
+        {d.nExcludedNoGsis > 0 ? (
+          <ChartCaption>
+            {d.nExcludedNoGsis} pick{d.nExcludedNoGsis === 1 ? '' : 's'} carr
+            {d.nExcludedNoGsis === 1 ? 'ies' : 'y'} no gsis_id and{' '}
+            {d.nExcludedNoGsis === 1 ? 'is' : 'are'} excluded from the return join. They remain in
+            the capital total.
+          </ChartCaption>
+        ) : null}
+        <ChartCaption>
+          The chart is used in preference to the Jimmy Johnson chart because its values are anchored
+          to surplus value against rookie-contract cost — the same economics as the rest of this
+          product — rather than a 1990s trade-negotiation heuristic never calibrated to on-field
+          outcome.
+        </ChartCaption>
+        <ChartCaption>
+          Capital and realised return are Tier 1 and run the full record. Any framing of a draft
+          class in dollars is Tier 2 and renders only for 2013 onward.{' '}
+          {dollarFraming.state === 'blank'
+            ? dollarFraming.reason
+            : 'It is available for this class but is not surfaced on this card.'}
+        </ChartCaption>
+        {med ? (
+          <ChartCaption>League medians are taken across the {med.n} clubs with a draft class this season.</ChartCaption>
+        ) : null}
+      </FinePrint>
     </>
   );
 }
@@ -623,10 +752,20 @@ function AlternateReadings({
   );
 }
 
-const PROVISIONAL_NOTE =
-  'This season’s Cap+ was published before the league year opened; it understates the final figure.';
+/** Visible beside BRIDGE_SENTENCE — the corrected definition (SPEC §2.2, §2.4). */
+const ARC_SHORT =
+  'Cap+ divides a performance composite — win %, point differential and EPA margin — by cap cost; ' +
+  'Team Rating is the same composite with no cost. Hatched seasons are not covered.';
 
+/** v1 said Cap+ "scores wins produced per dollar". It does not: wins are one of three inputs. */
 const ARC_BRIDGE =
-  'Two metrics are plotted. Team Rating (1999–2025) scores performance only. Cap+ (2014–2025) ' +
-  'scores wins produced per dollar. They are shown together on the overlap so you can see where ' +
-  'they disagree — not because they measure the same thing.';
+  'Two metrics are plotted. Team Rating (1999–2025) scores performance only: an equal blend of ' +
+  'win %, point differential per game and EPA margin per play, standardised within each season. ' +
+  'Cap+ (2014–2025) is that same composite divided by what the roster cost against the cap, with ' +
+  'dead money weighted 1.5×. They are shown together on the overlap so you can see where cost ' +
+  'moved a club — not because they measure the same thing.';
+
+const ARC_FIELD_NOTE =
+  '“Read as field” redraws Cap+ as a drive: midfield is Cap+ 100, one index point is one yard, ' +
+  'and each season is a carry from midfield to its spot. It covers the Cap+ era only, 2013–2025; ' +
+  'Team Rating has no place on the field.';

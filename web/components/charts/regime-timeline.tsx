@@ -18,6 +18,7 @@ import shell from './regime.module.css';
 import { AsOf, BlankReason, ChartCaption, Legend } from '../primitives';
 import { chartId, scaleLinear } from './chart-kit';
 import { usdShort } from '@/lib/display';
+import { ScrollToX } from '../team/scroll-to-x';
 import type { RegimeEvent, StabilityRow } from '@/lib/data/team';
 import type { Coverage } from '@/lib/display';
 
@@ -127,7 +128,11 @@ export function RegimeTimeline({
 
   return (
     <div>
-      <div className={shell.scroll}>
+      <ScrollToX
+        className={shell.scroll}
+        x={ml + x(Math.min(Math.max(currentSeason, first), last))}
+        label="Coaching tenure — scroll sideways"
+      >
         {/* The band paints at its INTRINSIC 900 units — scale exactly 1.0 —
           inside the scroller, so its 10px type is 10px and not the 7.8px a
           640px squeeze produced (`DECISIONS.md` 65). */}
@@ -153,16 +158,23 @@ export function RegimeTimeline({
                     const x1 = x(run.to + 1);
                     const w = Math.max(2, x1 - x0 - 2);
                     const isCurrent = run.from <= currentSeason && currentSeason <= run.to;
+                    // ONE LIME PER CHART (`CHART_ANATOMY.md` §1.2). v1 lit the
+                    // current HC, OC and DC runs all lime. Only the head coach —
+                    // the regime — takes it; the current coordinators are
+                    // outlined in the primary ink instead.
+                    const lime = isCurrent && role === 'HC';
                     const label = displayName(role, run.name);
                     return (
                       <g key={`${role}-${run.from}`}>
                         <rect
-                          x={x0}
-                          y={y0}
-                          width={w}
-                          height={rowH}
+                          x={x0 + (isCurrent && !lime ? 0.75 : 0)}
+                          y={y0 + (isCurrent && !lime ? 0.75 : 0)}
+                          width={w - (isCurrent && !lime ? 1.5 : 0)}
+                          height={rowH - (isCurrent && !lime ? 1.5 : 0)}
                           rx={2}
-                          fill={isCurrent ? 'var(--yy-accent)' : 'var(--yy-bg-sunken)'}
+                          fill={lime ? 'var(--yy-accent)' : 'var(--yy-bg-sunken)'}
+                          stroke={isCurrent && !lime ? 'var(--yy-fg-1)' : undefined}
+                          strokeWidth={isCurrent && !lime ? 1.5 : undefined}
                         />
                         {/* Colour comes from a CLASS, not a presentation
                           attribute: `.micro` used to declare `fill` and a CSS
@@ -170,7 +182,7 @@ export function RegimeTimeline({
                           on-accent ink never reached the element. */}
                         {fits(label, w) ? (
                           <text
-                            className={`${css.micro} ${isCurrent ? css.microOnAccent : css.microOnSunken}`}
+                            className={`${css.micro} ${lime ? css.microOnAccent : css.microOnSunken}`}
                             x={x0 + 6}
                             y={y0 + rowH / 2 + 3}
                           >
@@ -233,16 +245,17 @@ export function RegimeTimeline({
           Three bands showing head coach, offensive coordinator and defensive coordinator tenure
           runs across the season axis, with a marker at each head-coach change.
         </p>
-      </div>
+      </ScrollToX>
 
       <Legend
         items={[
-          { swatch: 'solid', label: 'Tenure — current regime', tone: 'accent' },
+          { swatch: 'solid', label: `Head coach in ${currentSeason}`, tone: 'accent' },
           { swatch: 'absence', label: 'Head-coach change (dashed = in-season)', tone: 'absence' },
         ]}
       />
 
       <ChartCaption>
+        Lime is the head coach in {currentSeason}; that season&rsquo;s coordinators are outlined.
         A regime marker is a head-coach change — an event, not a judgement, and it is never drawn in
         the negative colour. Solid marks an offseason change, dashed marks an in-season one. The two
         dated dead-money readings that follow each change are printed below — they are never behind
@@ -250,45 +263,93 @@ export function RegimeTimeline({
       </ChartCaption>
 
       <ul className={shell.list}>
-        {regimes.map((r) => (
-          <li className={shell.item} key={`${r.season}-${r.regimeId}`}>
-            <p className={`yy-label ${shell.itemHead}`}>
-              {r.season} · {r.kind === 'in_season' ? 'In-season' : 'Offseason'} · {r.outgoingHc} →{' '}
-              {r.incomingHc}
-            </p>
-            {[r.dmNext1, r.dmNext2].map((dm, i) => (
-              <p className={shell.itemDm} key={i}>
-                <span className={`yy-label ${shell.itemDmSeason}`}>
-                  {dm.season ?? `${r.season + i + 1}`} dead money
-                </span>{' '}
-                {dm.state === 'value' && dm.usd !== null && dm.asOf ? (
-                  <>
-                    <AsOf value={usdShort(dm.usd)} date={dm.asOf.date} stage={dm.asOf.stage} />
-                    {/* `SPEC.md` §2.8 step 7 — the reading renders BESIDE THE
-                      LEAGUE MEDIAN for its own season. Without it "$85.2M"
-                      reads as an indictment; against a $50.3M median it reads
-                      as what it is. `CAPPLUS_MEMO.md` §3 makes this a day-one
-                      disclosure, not a nicety. */}
-                    {dm.leagueMedianUsd !== null ? (
-                      <span className={`yy-label ${shell.itemMedian}`}>
-                        {' '}
-                        · league median {usdShort(dm.leagueMedianUsd)}
-                      </span>
-                    ) : null}
-                  </>
-                ) : (
-                  <BlankReason
-                    reason={dm.reason ?? 'Not available — no league-wide table was published.'}
-                    inline
-                  />
-                )}
+        {regimes.map((r) => {
+          const dms = [r.dmNext1, r.dmNext2];
+          const allBlank = dms.every((dm) => !(dm.state === 'value' && dm.usd !== null && dm.asOf));
+          return (
+            <li className={shell.item} key={`${r.season}-${r.regimeId}`}>
+              <p className={`yy-label ${shell.itemHead}`}>
+                {r.season} · {r.kind === 'in_season' ? 'In-season' : 'Offseason'} · {r.outgoingHc} →{' '}
+                {r.incomingHc}
               </p>
-            ))}
-          </li>
-        ))}
+              {/* Changes whose two follow-on seasons both lack a reading are
+                  summarised ONCE below — v1 printed the same reason ten times. */}
+              {allBlank
+                ? null
+                : dms.map((dm, i) => (
+                    <p className={shell.itemDm} key={i}>
+                      <span className={`yy-label ${shell.itemDmSeason}`}>
+                        {dm.season ?? `${r.season + i + 1}`} dead money
+                      </span>{' '}
+                      {dm.state === 'value' && dm.usd !== null && dm.asOf ? (
+                        <>
+                          <AsOf value={usdShort(dm.usd)} date={dm.asOf.date} stage={dm.asOf.stage} />
+                          {/* `SPEC.md` §2.8 step 7 — beside the league median for its own season. */}
+                          {dm.leagueMedianUsd !== null ? (
+                            <span className={`yy-label ${shell.itemMedian}`}>
+                              {' '}
+                              · league median {usdShort(dm.leagueMedianUsd)}
+                            </span>
+                          ) : null}
+                        </>
+                      ) : (
+                        <BlankReason
+                          reason={dm.reason ?? 'Not available — no league-wide table was published.'}
+                          inline
+                        />
+                      )}
+                    </p>
+                  ))}
+            </li>
+          );
+        })}
       </ul>
+      <BlankRegimeSummary regimes={regimes} />
 
       <ChartCaption>{coverage.statement}</ChartCaption>
     </div>
   );
+}
+
+/**
+ * One line for every regime change with no dated dead-money reading in either
+ * follow-on season, grouped by reason. The reason still renders — in full,
+ * once — and every season it covers is named.
+ */
+function BlankRegimeSummary({ regimes }: { regimes: RegimeEvent[] }) {
+  // The mart's reason names its own season ("…published for 2002"); the
+  // grouping key drops that year so one sentence can name every season.
+  const groups = new Map<string, { changes: number[]; years: Set<number>; raw: string }>();
+  for (const r of regimes) {
+    const dms = [r.dmNext1, r.dmNext2];
+    if (dms.some((dm) => dm.state === 'value' && dm.usd !== null && dm.asOf)) continue;
+    const raw = dms.find((dm) => dm.reason)?.reason ?? 'Not available — no league-wide table was published.';
+    const key = raw.replace(/\s+for\s+\d{4}\.?$/, '');
+    const g = groups.get(key) ?? { changes: [], years: new Set<number>(), raw };
+    g.changes.push(r.season);
+    dms.forEach((dm, i) => g.years.add(dm.season ?? r.season + i + 1));
+    groups.set(key, g);
+  }
+  if (!groups.size) return null;
+  return (
+    <>
+      {[...groups.entries()].map(([key, g]) => {
+        const years = [...g.years].sort((a, b) => a - b);
+        const reason = key === g.raw ? g.raw : `${key} for ${listYears(years)}.`;
+        return (
+          <p key={key} className={`yy-caption ${shell.blankSummary}`}>
+            <span className={`yy-label ${shell.itemDmSeason}`}>
+              Dead money after the {listYears(g.changes)} change{g.changes.length === 1 ? '' : 's'}
+            </span>{' '}
+            <BlankReason reason={reason} inline />
+          </p>
+        );
+      })}
+    </>
+  );
+}
+
+function listYears(ys: number[]): string {
+  if (ys.length === 1) return String(ys[0]);
+  return `${ys.slice(0, -1).join(', ')} and ${ys[ys.length - 1]}`;
 }

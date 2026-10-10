@@ -83,3 +83,36 @@
 .alternatesMeta {
   color: var(--yy-fg-3);
 }
+
+/* The cost-per-win card and the lime disclosure that travels with it. */
+.receiptWrap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--yy-space-2);
+}
+
+.limeNote {
+  margin: 0;
+  padding: 0 var(--yy-space-3);
+  color: var(--yy-fg-2);
+  max-width: var(--yy-measure);
+  display: flex;
+  align-items: baseline;
+  gap: var(--yy-space-2);
+}
+
+.limeKey {
+  flex: none;
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  background: var(--yy-accent);
+  transform: translateY(1px);
+}
+
+/* The receipt is a fixed light paper in both themes; centred, never stretched. */
+.receiptPaper {
+  display: flex;
+  justify-content: center;
+}
