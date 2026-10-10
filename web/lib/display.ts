@@ -2,7 +2,7 @@
  * Display helpers for the designed components.
  *
  * Presentation only — nothing here changes a value, and nothing here decides a
- * colour: a component asks for a BAND NAME (`above` | `mid` | `below`) and binds
+ * color: a component asks for a BAND NAME (`above` | `mid` | `below`) and binds
  * it to a semantic token in its own stylesheet. Hex never appears in TypeScript
  * either (`SPEC.md` §4).
  */
@@ -64,7 +64,7 @@ export function pctVsLeague(v: number, benchmark: number): string {
   return `${pct}% ${rel < 0 ? 'BELOW' : 'ABOVE'} LEAGUE`;
 }
 
-/** `+3.6` / `−2.3` — allocation bars. Never coloured (`COMPONENTS.md` §7.2). */
+/** `+3.6` / `−2.3` — allocation bars. Never colored (`COMPONENTS.md` §7.2). */
 export function signedPoints(fraction: number, digits = 1): string {
   const v = fraction * 100;
   const sign = v > 0 ? '+' : v < 0 ? '−' : '';
@@ -82,7 +82,7 @@ export function stageWords(stage: string): string {
 }
 
 /* ------------------------------------------------------------------ */
-/* Index bands — the product's core colour-encoding rule                */
+/* Index bands — the product's core color-encoding rule                */
 /* ------------------------------------------------------------------ */
 
 export type Band = 'above' | 'mid' | 'below';

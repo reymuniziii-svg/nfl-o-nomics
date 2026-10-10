@@ -6,7 +6,7 @@
  * `LensToggle`) live in their own `'use client'` modules.
  *
  * Every value here is a token binding in `primitives.module.css`; no component
- * in this file names a colour, a radius, a spacing or a font.
+ * in this file names a color, a radius, a spacing or a font.
  */
 
 import Link from 'next/link';
@@ -179,7 +179,7 @@ export function BoundaryMessage({
 }) {
   const copy =
     body ??
-    `Player-level economics begin in 2013. For ${season ?? 'this season'} this product has team results, EPA, coaching and draft — but no contract, cap or cash data. Nothing here is estimated to fill the gap.`;
+    `Player-level economics begin in 2013. For ${season ?? 'this season'} we have team results, EPA, coaching and draft, but no contract, cap or cash data. Nothing here is estimated to fill the gap.`;
   return (
     <div className={css.boundary}>
       <p className={`yy-label ${css.sectionLabel}`}>Coverage</p>
@@ -291,12 +291,12 @@ const BAND_CLASS: Record<Band, string> = {
  * The Cap+ / Team Rating figure with its name beneath.
  *
  * `metricName` is load-bearing, not decoration:
- *  - `capplus` → band-coloured, label `CAP+`;
- *  - `teamRating` → **never band-coloured** (`DECISIONS.md` 83), label
+ *  - `capplus` → band-colored, label `CAP+`;
+ *  - `teamRating` → **never band-colored** (`DECISIONS.md` 83), label
  *    `TEAM RATING` over a `PERFORMANCE ONLY` sub-label, and the badge column
  *    widens to 96px because the label wraps to two lines.
  *
- * The two indexes never share a badge, a colour or a label.
+ * The two indexes never share a badge, a color or a label.
  */
 export function IndexBadge({
   metric,
@@ -392,7 +392,7 @@ export function ProductMark({ className }: { className?: string }) {
 
 /* ══════════════════════════════════════════════════════════════════════════ */
 /* LEGEND — CHART_ANATOMY.md §5. Every series has a direct label AND a          */
-/* shape/pattern distinction; colour is never the sole carrier.                 */
+/* shape/pattern distinction; color is never the sole carrier.                 */
 /* ══════════════════════════════════════════════════════════════════════════ */
 
 export type LegendTone = 'accent' | 'compare' | 'absence' | 'partial' | 'benchmark';

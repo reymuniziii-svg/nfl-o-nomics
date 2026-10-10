@@ -20,7 +20,7 @@ import { TIER2_FIRST_SEASON, getCostPerWin, type CostNumerator, type CostPerWin 
 import { getLeagueContext } from './context';
 
 /* ------------------------------------------------------------------ */
-/* team_meta — conference / division / colours, memoised per process    */
+/* team_meta — conference / division / colors, memoised per process    */
 /* ------------------------------------------------------------------ */
 
 export interface TeamMetaRow {
@@ -122,7 +122,7 @@ export async function getLeagueAvgCostPerWin(
         avg,
         rows.length,
         32,
-        `Not a full-league reading — ${rows.length} of 32 clubs have a cap row this season.`,
+        `Not a full-league reading — ${rows.length} of 32 clubs have cap data this season.`,
       )
     : value(avg);
 }
@@ -281,7 +281,7 @@ export async function getIndexDelta5y(
       out.set(
         team,
         p === undefined
-          ? blank(`Not available — ${prior} Cap+ was not published, so no five-season delta exists.`)
+          ? blank(`Not available — ${prior} Cap+ was not published, so there is no five-season change.`)
           : value(v - p),
       );
     }
@@ -300,7 +300,7 @@ export async function getIndexDelta5y(
     out.set(
       team,
       p === undefined
-        ? blank(`Not available — the record begins after ${prior} for this franchise.`)
+        ? blank(`Not available — this franchise has no ${prior} record to compare against.`)
         : value(v - p),
     );
   }
@@ -359,7 +359,7 @@ export async function getLeagueCap(season: number): Promise<Metric<number>> {
   const r = rows[0];
   if (!r) return blank(BLANK_REASON.MART_ABSENT);
   return r.capUsd === null
-    ? blank(r.note ?? 'Not available — 2010 was uncapped, so no denominator exists.')
+    ? blank(r.note ?? 'Not available — 2010 was uncapped, so there is no cap to divide by.')
     : value(r.capUsd);
 }
 
@@ -422,7 +422,7 @@ export async function getIndexDeltaPrior(season: number, useCapPlus: boolean): P
     out.set(
       team,
       p === undefined
-        ? blank(`Not available — no earlier ${useCapPlus ? 'Cap+' : 'Team Rating'} reading exists for this club.`)
+        ? blank(`Not available — this club has no earlier ${useCapPlus ? 'Cap+' : 'Team Rating'} reading.`)
         : value(v - p),
     );
   }

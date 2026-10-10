@@ -112,7 +112,7 @@ export interface StrataSummary {
 }
 
 /** A season in which one stratum has no team. Not observed 2013–2025. */
-export const EMPTY_STRATUM_REASON = 'Not available — no team fell in this stratum this season.';
+export const EMPTY_STRATUM_REASON = 'Not available — no team falls in this group (rookie-deal or veteran-deal quarterback) this season.';
 
 /* ------------------------------------------------------------------ */
 /* Row mapping                                                          */

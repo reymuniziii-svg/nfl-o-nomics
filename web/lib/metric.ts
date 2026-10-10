@@ -115,28 +115,26 @@ export const CAPPLUS_QB_NEUTRAL_LABEL = 'QB-neutral Cap+';
 
 /** SPEC §2.10 — travels with every rendering of `future_mortgage_usd` / `_share`. */
 export const FUTURE_MORTGAGE_CAVEAT =
-  'Estimate: prorated bonus already charged to future seasons, flat proration, blind to void years.';
+  'An estimate of bonus money already booked against future caps. It spreads each bonus evenly, so it misses void years, the dummy contract years that push cap hits later.';
 
 /** SPEC §3.4 — rendered in the UI on the head-to-head view, not buried. */
 export const CROSS_ERA_STATEMENT =
   'Both teams are scored against their own season’s league. Every input is standardized ' +
-  'within its season before comparison — that is what makes a 2003 team and a 2024 team ' +
-  'comparable here.';
+  'within its season first, measured against that year’s average and spread, which is what ' +
+  'lets a 2003 team and a 2024 team sit side by side.';
 
 /** SPEC §3.2 item 2 — the bridge sentence under every franchise time series. */
 export const BRIDGE_SENTENCE =
-  'Both indices are built from the identical performance composite; only the cap adjustment ' +
-  'starts in 2013.';
+  'Both indices use the same performance score. Only the cap adjustment starts in 2013.';
 
 /** SPEC §6 — stated on the page, not just in the methodology. */
 export const ERA_CONTINUITY_NOTE =
-  'Franchise continuity is preserved, geography is not. A query for LA in 1999 returns the ' +
-  'St. Louis Rams.';
+  'We follow franchises, not cities. Ask for LA in 1999 and you get the St. Louis Rams.';
 
 /** SPEC §6 — stated on the division view. */
 export const DIVISION_ALIGNMENT_NOTE =
-  'Current alignment only. The realignment of 2002 is not modelled; a 1999 team-season is ' +
-  'reachable through its franchise’s current division.';
+  'Current alignment only. We don’t model the 2002 realignment, so a 1999 team-season sits in ' +
+  'its franchise’s current division.';
 
 /**
  * SPEC §2.1 — the dead-money definition, quoted VERBATIM with its credit, in

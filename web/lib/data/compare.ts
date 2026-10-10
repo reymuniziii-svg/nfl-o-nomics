@@ -199,7 +199,7 @@ function seasonAverages(season: number): Promise<Record<string, number | null>> 
       }
 
       return {
-        // Both indices are centred on 100 by construction; the league average is
+        // Both indices are centered on 100 by construction; the league average is
         // read from the definition, not recomputed from the rows.
         index: 100,
         winPct: num(res?.winPct),
@@ -260,7 +260,7 @@ async function sideOf(
 function costRatio(m: Metric<CostPerWin>): Metric<number> {
   if (m.state !== 'value') return m as Metric<number>;
   return m.value.perWin === null
-    ? blank(m.value.zeroWinLabel ?? '0 wins — the ratio is suppressed by rule.')
+    ? blank(m.value.zeroWinLabel ?? '0 wins, so no cost per win is shown.')
     : value(m.value.perWin);
 }
 
@@ -421,7 +421,7 @@ export async function getCompareBundle(
     if (m.state !== 'value') return m;
     if (!leagueCap) {
       return blank(
-        'Not available — no league cap is recorded for this season, so the ratio cannot be put on a comparable scale.',
+        'Not available — no league cap is on record for this season, so the ratio can’t be scaled to its own cap.',
       );
     }
     return value(m.value / leagueCap);

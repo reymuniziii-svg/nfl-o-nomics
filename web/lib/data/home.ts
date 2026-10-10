@@ -134,8 +134,8 @@ export async function getLeagueLeaderboard(season: number): Promise<Leaderboard>
     season,
     capplusCovered: covered,
     caption: covered
-      ? '100 = league average. Cap+ is a season-relative index, not a front-office grade.'
-      : `100 = league average. ${TEAM_RATING_NAME}: no cap adjustment exists before 2013.`,
+      ? '100 = league average. Read Cap+ as what this season’s wins cost, not as a front-office grade.'
+      : `100 = league average. ${TEAM_RATING_NAME} has no cap adjustment before 2013.`,
     rows,
   };
 }

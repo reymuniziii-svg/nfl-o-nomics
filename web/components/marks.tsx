@@ -82,7 +82,7 @@ export type PlayerMarkSize = 'chip' | 'card';
 
 /**
  * The fallback is a DESIGNED ROSTER CARD, not a missing photo: the same box,
- * filled with the player's current team primary colour and its precomputed
+ * filled with the player's current team primary color and its precomputed
  * glyph, carrying the jersey number (or the player's initials where the number
  * is unknown) over the position. A reader who sees a page of them sees a style,
  * not a failure.

@@ -76,7 +76,7 @@ export interface HistoryPoint {
   season: number;
   /** All 861 team-seasons carry this. */
   teamRating: Metric<number>;
-  /** Nine seasons carry this; four render as LABELLED GAPS, never interpolated. */
+  /** Nine seasons carry this; four render as LABELED GAPS, never interpolated. */
   capplus: Metric<number>;
 }
 
@@ -117,7 +117,7 @@ export interface AllocationBar {
   capUsd: number;
   shareOfRosteredCap: number;
   leagueShare: number;
-  /** Diverging from a zero-centred league-average axis. */
+  /** Diverging from a zero-centered league-average axis. */
   deltaVsLeague: number;
 }
 
@@ -172,7 +172,7 @@ export interface DeadMoneySnapshot {
   coverage: string;
   /**
    * `full32` | `leaders_only`. A leaders list is not a league table
-   * (`SPEC.md` §7.5) and the reading is labelled partial wherever it renders.
+   * (`SPEC.md` §7.5) and the reading is labeled partial wherever it renders.
    */
   seasonCoverage: string | null;
   licenseTier: string;
@@ -461,7 +461,7 @@ export async function getTeamBundle(
 
   /**
    * `SPEC.md` §1.2 / §7.5 — a leaders-list reading is a PARTIAL season, and a
-   * partial season is labelled partial. The covered count is read from the mart
+   * partial season is labeled partial. The covered count is read from the mart
    * (how many clubs the published list actually names), never assumed.
    */
   const leadersOnly = resolvedSnapshot?.seasonCoverage === 'leaders_only';
@@ -480,7 +480,7 @@ export async function getTeamBundle(
           resolvedSnapshot,
           coveredClubs,
           32,
-          `${NOT_A_32_TEAM_READING} — no league-wide table was published for ${season}; this figure comes from a published leaders list naming ${coveredClubs} of 32 clubs.`,
+          `${NOT_A_32_TEAM_READING} — no league-wide table was published for ${season}, so this comes from a published leaders list that names ${coveredClubs} of 32 clubs.`,
         )
       : value(resolvedSnapshot, resolvedSnapshot.asOf)
     : season < TIER2_FIRST_SEASON
@@ -511,7 +511,7 @@ export async function getTeamBundle(
       label: 'Dead money',
       amount: mapMetric(deadMoneyResolved, (d) => d.usd),
       caveat:
-        'A dated press snapshot, not a derived figure. Value, date and stage always render together; readings are never averaged or connected across seasons.',
+        'A dated press snapshot, not a figure we calculate. Value, date and stage always appear together, and we never average readings or connect them across seasons.',
       asOf: resolvedSnapshot?.asOf ?? null,
       leagueMedianUsd: resolvedSnapshot?.leagueMedianUsd ?? null,
       sourceUrl: resolvedSnapshot?.sourceUrl ?? null,
@@ -567,7 +567,7 @@ export async function getTeamBundle(
   const thisSeasonStability = track.find((x) => x.season === season);
   const stability: Metric<StabilityRow> = thisSeasonStability
     ? value(thisSeasonStability)
-    : blank('Not available — the coaching record begins in 2000 (Houston enters 2002).');
+    : blank('Not available — the coaching record begins in 2000 (Houston enters in 2002).');
 
   const regimeRows = (await isSeeded('regime_events'))
     ? await db
@@ -852,7 +852,7 @@ export async function getReceiptVerdict(
   const all = await seasonCapPerWin(season);
   const mine = all.get(team);
   if (mine === undefined) {
-    return blank('No verdict — a club with 0 wins is excluded from per-win rankings.');
+    return blank('No verdict — clubs with 0 wins sit out the per-win rankings.');
   }
   const sorted = [...all.values()].sort((a, b) => a - b);
   if (sorted.length < 5) return blank(NOT_A_32_TEAM_READING);
@@ -871,7 +871,7 @@ export async function getReceiptVerdict(
     cutoffs,
     rank,
     of: sorted.length,
-    rule: `Verdict = ${season} quintiles of cap hit per win across ${sorted.length} clubs (0-win clubs excluded).`,
+    rule: `Verdict comes from ${season} quintiles of cap hit per win across ${sorted.length} clubs. Clubs with 0 wins are left out.`,
   });
 }
 
@@ -934,7 +934,7 @@ export async function getRosterReceipt(
         : blank(
             c.gsisId
               ? 'No snap record for this player with this club this season.'
-              : 'This contract has no player id linking it to snap records.',
+              : 'No player ID ties this contract to snap records.',
           ),
   }));
   const topSum = top.reduce((a, c) => a + c.capHit, 0);
@@ -960,7 +960,7 @@ export async function getRosterReceipt(
   const coaches = hcRows.map((r) => r.name).filter((n) => n && n !== 'NONE');
   const regime: Metric<string> = coaches.length
     ? value(coaches.join(' → '))
-    : blank('No head coach of record in the coaching mart.');
+    : blank('No head coach on record in the coaching data.');
 
   /* --- Cap+ and the dead-money snapshot it read --- */
   const capplus = await getCapPlus(season, team);
@@ -1001,9 +1001,9 @@ export async function getRosterReceipt(
     } else {
       voidLines.push({ label: 'Dead money', usd: deadUsd, weighted: deadUsd * DEAD_MONEY_WEIGHT });
       if (named && attributed > deadUsd) {
-        note = `${named}'s verified charge is larger than this dated snapshot; the snapshot pre-dates it.`;
+        note = `${named}'s verified charge is larger than this dated snapshot shows. The snapshot predates it.`;
       } else if (named && !dm?.ledgerSplitAllEstablished) {
-        note = `Includes ${named}; per-season split not established.`;
+        note = `Includes ${named}. The split by season is not confirmed.`;
       }
     }
     dead = value(
@@ -1179,7 +1179,7 @@ export interface SeasonInputRanks {
 /**
  * Rank (1 = best) of the club's win %, point differential per game and EPA
  * margin per play among that season's clubs. The three inputs of `SPEC.md`
- * §2.4, read from their marts and ordered — nothing is standardised or blended
+ * §2.4, read from their marts and ordered — nothing is standardized or blended
  * here, so no index is recomputed. Ties share the better rank.
  */
 export async function getSeasonInputRanks(
@@ -1265,7 +1265,7 @@ export async function getTeamSeasonResults(
     .from(s.teamSeasonResults)
     .where(and(eq(s.teamSeasonResults.team, team), eq(s.teamSeasonResults.season, season)))
     .limit(1);
-  if (!r) return blank('Not available — no results row exists for this team-season.');
+  if (!r) return blank('Not available — no results are on record for this team-season.');
   return value<TeamResults>({
     season: r.season,
     team: r.team as TeamAbbr,

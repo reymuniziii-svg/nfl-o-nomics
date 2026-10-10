@@ -126,8 +126,8 @@ export const NUMERATOR_LABEL: Record<CostNumerator, string> = {
 
 /** The §2.1 lens caveat travels with the selection. */
 export const NUMERATOR_CAVEAT: Record<CostNumerator, string> = {
-  cash: 'Cash paid to players released during the year is not included — this is cash to players on the roster.',
-  cap: 'Cap held by players on the roster, not cap used: dead money is absent, so this runs structurally 15–22% below the team’s actual cap.',
+  cash: 'Counts cash paid to players on the roster. Cash paid to players released during the year is not included.',
+  cap: 'Counts cap held by players on the roster, not cap used. Dead money is left out, so this lands 15–22% below a team’s actual cap by design.',
 };
 
 export interface CostPerWin {
