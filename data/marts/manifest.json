@@ -687,14 +687,14 @@
     },
     "regime_events": {
       "aggregate": {
-        "mean_vs_league_median": 1.3621,
-        "median_vs_league_median": 1.1357,
-        "n_pairs": 187,
-        "pct_above_league_median": 0.5561,
+        "mean_vs_league_median": 1.347,
+        "median_vs_league_median": 1.0835,
+        "n_pairs": 243,
+        "pct_above_league_median": 0.5309,
         "wording": "association, never cause"
       },
-      "dm_next1_value": 94,
-      "dm_next2_value": 93,
+      "dm_next1_value": 122,
+      "dm_next2_value": 121,
       "events": 214,
       "in_season": 54,
       "offseason": 160
@@ -720,59 +720,7 @@
     }
   },
   "data_version": {
-    "capplus_estimated_seasons": [
-      2016,
-      2020,
-      2021
-    ],
-    "capplus_seasons": [
-      2013,
-      2014,
-      2015,
-      2016,
-      2017,
-      2018,
-      2019,
-      2020,
-      2021,
-      2022,
-      2023,
-      2024,
-      2025
-    ],
     "coaching_window": "2000-2025",
-    "dead_money_blank_seasons": [],
-    "dead_money_covered_seasons": [
-      2013,
-      2014,
-      2015,
-      2016,
-      2017,
-      2018,
-      2019,
-      2020,
-      2021,
-      2022,
-      2023,
-      2024,
-      2025
-    ],
-    "dead_money_resolved_rows": 416,
-    "dead_money_snapshots": {
-      "2013": "2013-03-18 (preseason, provisional)",
-      "2014": "2014-02-18 (preseason, provisional)",
-      "2015": "2015-10-28 (midseason, in_season)",
-      "2016": "2016-10-05 (midseason, estimated)",
-      "2017": "2017-07-05 (preseason, preseason)",
-      "2018": "2018-07-14 (preseason, preseason)",
-      "2019": "2019-03-10 (preseason, provisional)",
-      "2020": "2020-06-02 (preseason, estimated)",
-      "2021": "2021-09-06 (preseason, estimated)",
-      "2022": "2022-07-05 (preseason, preseason)",
-      "2023": "2023-07-14 (preseason, preseason)",
-      "2024": "2024-11-27 (late_season, in_season)",
-      "2025": "2025-12-17 (late_season, in_season)"
-    },
     "draft_window": "2000-2025",
     "excluded_season": 2026,
     "league_cap_window": "1994-2025",
@@ -1284,18 +1232,22 @@
         "dm_next1_asof_stage",
         "dm_next1_league_median_usd",
         "dm_next1_blank_reason",
+        "dm_next1_badge",
+        "dm_next1_is_modeled",
         "dm_next2_season",
         "dm_next2_state",
         "dm_next2_usd",
         "dm_next2_asof_date",
         "dm_next2_asof_stage",
         "dm_next2_league_median_usd",
-        "dm_next2_blank_reason"
+        "dm_next2_blank_reason",
+        "dm_next2_badge",
+        "dm_next2_is_modeled"
       ],
       "contract": "SPEC §7.7 — HC identity changes + dated s+1/s+2 dead-money links",
       "file": "data/marts/regime_events.csv",
-      "md5": "e2410cf72c35c015c85cbe22f263f76a",
-      "n_columns": 20,
+      "md5": "e70298951d026b8d5ebd44a124dfb769",
+      "n_columns": 24,
       "rows": 214,
       "source_data": [
         {

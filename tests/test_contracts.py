@@ -342,6 +342,8 @@ REGISTRY: tuple[Mart, ...] = (
                     ("_asof_stage", Col("str", NULLABLE, frozenset(ASOF_STAGES))),
                     ("_league_median_usd", Col("number", NULLABLE)),
                     ("_blank_reason", Col("str", NULLABLE)),
+                    ("_badge", Col("str", NULLABLE, frozenset(CAPPLUS_BADGES))),
+                    ("_is_modeled", Col("bool")),
                 )
             },
         },
