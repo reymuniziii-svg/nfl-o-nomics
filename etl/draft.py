@@ -86,6 +86,19 @@ FS_EXTENSION_NOTE = (
 GOLDEN_BRADY = {"season": 2000, "name": "Tom Brady", "round": 6, "pick": 199,
                 "team_raw": "NWE", "team": "NE"}
 
+#: Time context for realized return. `w_av` is CUMULATIVE career value, so a
+#: 2015 class has had a decade to accumulate and a 2024 class one season; ranking
+#: classes on the cumulative total mostly ranks them by age. `seasons_elapsed`
+#: counts completed NFL seasons since the draft, inclusive of the draft season,
+#: through the last season in the data: LAST_DRAFT_DATA_SEASON - season + 1.
+LAST_DRAFT_DATA_SEASON = config.DRAFT_WINDOW[1]
+#: A class is `mature` once it has played out a full rookie contract (four
+#: seasons; the fifth-year option is why the threshold is four, as in decision
+#: 102). Younger classes are `early`: their index is a one-to-three-season read.
+MATURE_SEASONS = 4
+#: `draft_index` = class return_w_av / that draft year's mean class x 100.
+INDEX_DECIMALS = 4
+
 
 # --------------------------------------------------------------------------- #
 # 1. the curated chart
@@ -209,6 +222,16 @@ def build_draft_pick(chart: pd.DataFrame, *, download: bool = False,
         "probowls", "allpro",
     ])
 
+    # Additive (see LAST_DRAFT_DATA_SEASON). Existing columns are untouched;
+    # seasons_elapsed is appended at the end.
+    if int(out["season"].max()) != LAST_DRAFT_DATA_SEASON:
+        raise AssertionError(
+            f"draft_pick: latest season {int(out['season'].max())} != "
+            f"DRAFT_WINDOW end {LAST_DRAFT_DATA_SEASON}")
+    out["seasons_elapsed"] = (
+        LAST_DRAFT_DATA_SEASON - out["season"] + 1).astype("Int64")
+    _assert_seasons_elapsed(out, "draft_pick")
+
     io_utils.assert_rows(out, "draft_pick")
     io_utils.assert_no_column(out, "draft_pick", "car_av")
     assert_full_32(out["team"], "draft_pick")
@@ -290,6 +313,21 @@ def build_draft_class_summary(picks: pd.DataFrame) -> pd.DataFrame:
     ]
     g["snaps_available"] = g["season"] >= config.SNAP_START
 
+    # Time normalisation (additive). Cumulative w_av grows with class age and
+    # plateaus once a class retires, so neither the raw total nor a
+    # per-season rate compares classes across draft years (w_av /
+    # seasons_elapsed reverses the bias: the 2000 mean is 5.6 a season, 2022's
+    # 21.4). Every class in one draft year has had the same exposure, so the
+    # index divides by that year's mean class: 100 = the average class of its
+    # draft year, comparable across years.
+    g["seasons_elapsed"] = LAST_DRAFT_DATA_SEASON - g["season"] + 1
+    g["maturity"] = ["mature" if n >= MATURE_SEASONS else "early"
+                     for n in g["seasons_elapsed"]]
+    year_mean = g.groupby("season")["return_w_av"].transform("mean")
+    g["draft_index"] = g["return_w_av"] / year_mean * 100.0
+    g["draft_index_rank"] = g.groupby("season")["draft_index"].rank(
+        ascending=False, method="min")
+
     out = g[[
         "season", "team", "n_picks", "capital", "capital_rank",
         "return_games", "return_w_av", "return_seasons_started",
@@ -298,16 +336,19 @@ def build_draft_class_summary(picks: pd.DataFrame) -> pd.DataFrame:
         "seasons_started_per_1000_capital",
         "n_excluded_no_gsis", "snaps_available",
         "dollar_framing_available", "dollar_framing_blank_reason",
+        "seasons_elapsed", "maturity", "draft_index", "draft_index_rank",
     ]].sort_values(["season", "team"]).reset_index(drop=True)
 
     out = io_utils.round_cols(out, {
         "w_av_per_1000_capital": 4, "games_per_1000_capital": 4,
         "seasons_started_per_1000_capital": 4,
+        "draft_index": INDEX_DECIMALS,
     })
     out = io_utils.as_int64(out, [
         "n_picks", "capital", "capital_rank",
         "return_games", "return_w_av", "return_seasons_started",
         "return_probowls", "return_allpro", "n_excluded_no_gsis",
+        "seasons_elapsed", "draft_index_rank",
     ])
     out["snaps_available"] = out["snaps_available"].astype(bool)
     out["dollar_framing_available"] = out["dollar_framing_available"].astype(bool)
@@ -316,7 +357,43 @@ def build_draft_class_summary(picks: pd.DataFrame) -> pd.DataFrame:
     io_utils.assert_unique(out, ["season", "team"], "draft_class_summary")
     if int(out["capital"].sum()) != int(picks["chart_value"].sum()):
         raise AssertionError("draft_class_summary: capital does not tie to picks")
+    _assert_seasons_elapsed(out, "draft_class_summary")
+    _assert_maturity(out)
+    _assert_draft_index(out)
     return out
+
+
+def _assert_seasons_elapsed(df: pd.DataFrame, name: str) -> None:
+    se = df["seasons_elapsed"].astype(int)
+    if not ((se >= 1) & (se == LAST_DRAFT_DATA_SEASON - df["season"] + 1)).all():
+        raise AssertionError(f"{name}: seasons_elapsed is not "
+                             f"{LAST_DRAFT_DATA_SEASON} - season + 1")
+
+
+def _assert_maturity(out: pd.DataFrame) -> None:
+    """Early exactly when seasons_elapsed < 4 (classes 2023-2025 against 2025
+    data); 2022 has four seasons, a full rookie contract, and is mature."""
+    cutoff = LAST_DRAFT_DATA_SEASON - MATURE_SEASONS + 2  # first early class, 2023
+    expect = ["early" if s >= cutoff else "mature" for s in out["season"]]
+    if list(out["maturity"]) != expect:
+        raise AssertionError("draft_class_summary: maturity does not split at "
+                             f"{cutoff - 1}/{cutoff}")
+
+
+def _assert_draft_index(out: pd.DataFrame) -> None:
+    """Each draft year's index averages 100; ranks run 1..n within the year."""
+    tol = 0.5 * 10 ** -INDEX_DECIMALS
+    for season, grp in out.groupby("season"):
+        mean = float(grp["draft_index"].mean())
+        if abs(mean - 100.0) > tol:
+            raise AssertionError(
+                f"draft_class_summary {season}: draft_index mean {mean} != 100")
+        r = grp["draft_index_rank"].astype(int)
+        top = grp.loc[grp["draft_index"].idxmax(), "draft_index_rank"]
+        if r.min() != 1 or r.max() > len(grp) or len(grp) > 32 or int(top) != 1:
+            raise AssertionError(
+                f"draft_class_summary {season}: draft_index_rank spans "
+                f"{r.min()}..{r.max()} over {len(grp)} classes")
 
 
 # --------------------------------------------------------------------------- #

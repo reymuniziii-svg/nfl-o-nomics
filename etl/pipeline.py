@@ -203,6 +203,8 @@ def run(selected: list[str] | None = None, *, verbose: bool = True,
         df = m.builder(ctx)
         path = io_utils.write_csv(df, m.path)
         digest = io_utils.md5_file(path)
+        # Take the first pass's notes BEFORE any re-build: they are the record.
+        sources_noted = ctx.take_sources()
 
         if check_stable:
             df2 = m.builder(ctx)
@@ -210,14 +212,14 @@ def run(selected: list[str] | None = None, *, verbose: bool = True,
             io_utils.write_csv(df2, tmp)
             second = io_utils.md5_file(tmp)
             tmp.unlink()
-            ctx.take_sources()  # the second pass's notes are duplicates
+            ctx.take_sources()  # discard the second pass's duplicate notes
             if second != digest:
                 unstable.append(m.name)
                 print(f"  !! NOT BYTE-STABLE: {digest} != {second}")
             elif verbose:
                 print(f"  byte-stable on re-run ({digest})")
 
-        manifest_marts[m.name] = _describe(df, path, ctx.take_sources(), m.note)
+        manifest_marts[m.name] = _describe(df, path, sources_noted, m.note)
         if verbose:
             print(f"  wrote {path.relative_to(config.REPO)}  "
                   f"({len(df)} rows x {len(df.columns)} cols, md5 {digest[:12]}…, "
