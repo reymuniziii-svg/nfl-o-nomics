@@ -85,6 +85,7 @@ const CHIP_CLASS = {
   projected: css.chipProjected,
   verified: css.chipVerified,
   sample: css.chipSample,
+  live: css.chipLive,
 } as const;
 
 const CHIP_TEXT = {
@@ -94,6 +95,7 @@ const CHIP_TEXT = {
   projected: 'Projected',
   verified: 'Verified actual',
   sample: 'Sample',
+  live: 'Live',
 } as const;
 
 export function Chip({

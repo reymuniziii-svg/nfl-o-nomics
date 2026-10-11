@@ -19,6 +19,8 @@ export const OG = {
   negative: '#D9503C', // --yy-negative
   negativeSoft: '#E8A08D', // --yy-negative-soft
   mid: '#8FA39A', // --yy-band-mid
+  track: '#39423E', // --yy-bg-track (dark)
+  partial: 'rgba(168, 177, 173, 0.28)', // --yy-partial (dark) — the partial hatch
   borderExport: 'rgba(168, 177, 173, 0.42)', // --yy-card-border-export
   chalk: 'rgba(234, 241, 236, 0.18)', // --yy-ink-dark-1 at gridline weight
   chalkStrong: 'rgba(234, 241, 236, 0.45)', // goal lines

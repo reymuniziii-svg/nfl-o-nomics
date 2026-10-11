@@ -12,6 +12,7 @@ import {
   type TeamResults,
 } from '@/lib/data';
 import type { Metric } from '@/lib/metric';
+import { getLiveTeam, shortHash, type LiveTeamRow } from '@/lib/data/live';
 import { teamChip } from '@/lib/marks';
 import { divisionName, eraIdentity, type DivisionSlug, type TeamAbbr } from '@/lib/teams';
 import { OG } from './theme';
@@ -75,4 +76,42 @@ export async function loadDivisionCard(slug: DivisionSlug, season: number): Prom
   const summary = await getDivisionSummary(slug, season, 'cap');
   const teams = await Promise.all(summary.teams.map((t) => loadTeamCard(t.team, season)));
   return { slug, name: divisionName(slug), season, teams };
+}
+
+/* ── the live tier (DECISIONS 116) ─────────────────────────────────────── */
+
+/**
+ * A live team card: the club's 2026 reading as of the closed week. No verdict,
+ * no receipt, no money — the card prints the mandatory as-of line instead.
+ */
+export interface LiveTeamCard {
+  team: TeamAbbr;
+  season: number;
+  name: string;
+  bg: string;
+  fg: string;
+  week: number;
+  date: string | null;
+  /** The club's live row, or null with the whole-season reason. */
+  row: LiveTeamRow | null;
+  reason: string | null;
+  pbpShort: string;
+}
+
+export async function loadLiveTeamCard(team: TeamAbbr): Promise<LiveTeamCard | null> {
+  const live = await getLiveTeam(team);
+  if (!live) return null;
+  const chip = teamChip(team);
+  return {
+    team,
+    season: live.status.season,
+    name: eraIdentity(team, live.status.season).name,
+    bg: chip?.primary ?? OG.surfaceCard,
+    fg: chip?.glyph ?? OG.ink1,
+    week: live.status.week,
+    date: live.status.date,
+    row: live.row,
+    reason: live.reason,
+    pbpShort: shortHash(live.status.pbpSha256),
+  };
 }

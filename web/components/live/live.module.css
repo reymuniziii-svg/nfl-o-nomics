@@ -1,0 +1,439 @@
+/* The live tier — the 2026 season in progress (SPEC §7.14, DECISIONS 116).
+   Every mark here is a PARTIAL mark (CHART_ANATOMY §5.2): normal fill at full
+   opacity plus the 45° 2px `--yy-partial` hatch over the whole mark. The LIVE
+   chip is `--yy-live`: never gold, never lime. */
+
+/* ── the final | live segmented control ─────────────────────────────────── */
+
+.modeBar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--yy-space-2) var(--yy-space-3);
+  margin: 0 0 var(--yy-space-3);
+}
+
+.modeNote {
+  margin: 0;
+  color: var(--yy-fg-3);
+}
+
+/* ── the cross-fade (CHART_ANATOMY §6.1): a different kind of reading, so
+      the frames fade over each other and no mark travels between them ───── */
+
+.frames {
+  position: relative;
+}
+
+/* only while a frame is leaving: a taller outgoing frame never spills over
+   the card below during the fade */
+.frames[data-leaving] {
+  overflow: clip;
+}
+
+.frameIn {
+  animation: liveFadeIn var(--yy-dur-fast) var(--yy-ease-standard, ease) both;
+}
+
+.frameOut {
+  position: absolute;
+  inset: 0 0 auto 0;
+  pointer-events: none;
+  animation: liveFadeOut var(--yy-dur-fast) var(--yy-ease-standard, ease) both;
+}
+
+@keyframes liveFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes liveFadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+/* ── the partial hatch, for HTML marks ──────────────────────────────────── */
+
+.hatch {
+  background-image: repeating-linear-gradient(
+    45deg,
+    var(--yy-partial) 0 2px,
+    transparent 2px 6px
+  );
+}
+
+/* ── Team Rating live: a bar from the gold 100, on one pinned domain ─────── */
+
+.rating {
+  display: flex;
+  align-items: center;
+  gap: var(--yy-space-2);
+  min-width: 0;
+}
+
+.ratingTrack {
+  position: relative;
+  flex: 1;
+  min-width: 56px;
+  height: var(--yy-bar-h-lg);
+  background: var(--yy-bg-sunken);
+  border-radius: var(--yy-radius-mark);
+}
+
+/* The partial mark. Its body is the track ink with a 1px mid-ink edge, so the
+   `--yy-partial` hatch (a light stripe in the dark theme, a dark one in the
+   light theme) reads over it in both — on a solid mid-grey fill the stripe
+   vanishes. */
+.ratingFill {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  border-radius: var(--yy-radius-mark);
+  background-color: var(--yy-bg-track);
+  box-shadow: inset 0 0 0 1px var(--yy-fg-mid);
+}
+
+/* On a bar the hatch is laid twice: one `--yy-partial` layer (28% alpha) is
+   too faint at a 10px bar height; two layers of the same token read. */
+.ratingFill.hatch {
+  background-image:
+    repeating-linear-gradient(45deg, var(--yy-partial) 0 2px, transparent 2px 6px),
+    repeating-linear-gradient(45deg, var(--yy-partial) 0 2px, transparent 2px 6px);
+}
+
+.ratingTick {
+  position: absolute;
+  top: -3px;
+  bottom: -3px;
+  width: 2px;
+  margin-left: -1px;
+  background: var(--yy-benchmark);
+  box-shadow: 0 0 0 1px var(--yy-bg-card-flat);
+}
+
+.ratingOff {
+  position: absolute;
+  top: 50%;
+  width: 0;
+  height: 0;
+  margin-top: -4px;
+  border-top: 4px solid transparent;
+  border-bottom: 4px solid transparent;
+}
+
+.ratingOffRight {
+  right: -7px;
+  border-left: 6px solid var(--yy-fg-mid);
+}
+
+.ratingOffLeft {
+  left: -7px;
+  border-right: 6px solid var(--yy-fg-mid);
+}
+
+.ratingValue {
+  flex: none;
+  min-width: 4.5ch;
+  text-align: right;
+}
+
+.cover {
+  flex: none;
+  color: var(--yy-fg-3);
+}
+
+/* ── the division live strip (the hero in live mode) ────────────────────── */
+
+.strip {
+  display: grid;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.stripRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--yy-space-2);
+  padding: var(--yy-space-3) 0;
+  border-top: 1px solid var(--yy-line-hairline);
+}
+
+.stripRow:first-child {
+  border-top: 0;
+}
+
+.stripHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--yy-space-1) var(--yy-space-3);
+}
+
+.stripName {
+  color: var(--yy-fg-1);
+  text-decoration: none;
+}
+
+.stripName:hover {
+  text-decoration: underline;
+}
+
+.stripFacts {
+  color: var(--yy-fg-2);
+}
+
+@media (min-width: 1024px) {
+  .stripRow {
+    grid-template-columns: minmax(0, 18rem) minmax(0, 1fr);
+    align-items: center;
+    gap: var(--yy-space-5);
+  }
+}
+
+.asofLine {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--yy-space-2);
+  margin: 0 0 var(--yy-space-3);
+  color: var(--yy-fg-2);
+}
+
+.why {
+  margin: var(--yy-space-3) 0 0;
+  color: var(--yy-fg-3);
+}
+
+/* ── the Field, live: every club in the off-field group ──────────────────── */
+
+.offField {
+  border: 1px dashed var(--yy-absence);
+  border-radius: var(--yy-radius-card-sm);
+  padding: var(--yy-space-3);
+  margin: 0 0 var(--yy-space-4);
+}
+
+.offHead {
+  margin: 0 0 var(--yy-space-2);
+  color: var(--yy-fg-2);
+}
+
+.offGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--yy-space-2) var(--yy-space-5);
+  margin: var(--yy-space-3) 0 0;
+}
+
+@media (min-width: 768px) {
+  .offGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.offDiv {
+  display: grid;
+  grid-template-columns: 6.5rem minmax(0, 1fr);
+  align-items: baseline;
+  gap: var(--yy-space-2);
+}
+
+.offDivName {
+  margin: 0;
+  color: var(--yy-fg-3);
+}
+
+.offList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--yy-space-1) var(--yy-space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.offClub {
+  color: var(--yy-fg-2);
+  text-decoration: none;
+}
+
+.offClubLit {
+  color: var(--yy-fg-1);
+}
+
+.offClub:hover {
+  text-decoration: underline;
+}
+
+.reviewRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--yy-space-2) var(--yy-space-3);
+  margin: 0 0 var(--yy-space-2);
+}
+
+/* ── the frontier, withheld ─────────────────────────────────────────────── */
+
+.withheld {
+  border: 1px dashed var(--yy-absence);
+  border-radius: var(--yy-radius-card-sm);
+  padding: var(--yy-space-5) var(--yy-space-4);
+  text-align: center;
+}
+
+.withheld p {
+  margin: 0;
+}
+
+.withheld p + p {
+  margin-top: var(--yy-space-2);
+}
+
+/* ── the coverage strip (the live team page) ────────────────────────────── */
+
+.coverage {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--yy-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (min-width: 768px) {
+  .coverage {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.coverageItem {
+  border: 1px dashed var(--yy-absence);
+  border-radius: var(--yy-radius-mark);
+  padding: var(--yy-space-2) var(--yy-space-3);
+}
+
+.coverageItem p {
+  margin: 0;
+}
+
+.coverageName {
+  color: var(--yy-fg-2);
+}
+
+/* ── the live team page ─────────────────────────────────────────────────── */
+
+.facts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--yy-space-3);
+  margin: 0;
+}
+
+@media (min-width: 768px) {
+  .facts {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.fact {
+  margin: 0;
+}
+
+.factLabel {
+  margin: 0;
+  color: var(--yy-fg-2);
+}
+
+.factValue {
+  margin: var(--yy-space-1) 0 0;
+  font-size: var(--yy-size-metric, 1.5rem);
+  color: var(--yy-fg-1);
+}
+
+.factNote {
+  margin: var(--yy-space-1) 0 0;
+  color: var(--yy-fg-3);
+}
+
+.big {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--yy-space-2) var(--yy-space-3);
+  margin: 0 0 var(--yy-space-3);
+}
+
+.bigValue {
+  font-size: var(--yy-size-metric-hero, 3rem);
+  line-height: 1;
+  color: var(--yy-fg-1);
+}
+
+.forward {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--yy-space-2);
+  color: var(--yy-fg-1);
+  text-decoration: none;
+}
+
+.forward:hover {
+  text-decoration: underline;
+}
+
+.epaGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--yy-space-3);
+  margin: var(--yy-space-3) 0 0;
+}
+
+/* ── the live leaderboard: the rating column ─────────────────────────────── */
+
+.lbRating {
+  min-width: 12rem;
+}
+
+.lbRow {
+  grid-template-columns: 26px minmax(0, 1fr) 52px 72px;
+}
+
+/* mobile: the figure over its hatched bar, inside one 72px column */
+.mobRating {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 2px;
+  text-align: right;
+  min-width: 0;
+}
+
+.mobRating .ratingTrack {
+  min-width: 0;
+}
+
+/* the live team page: the as-of line under the header */
+.headerLive {
+  margin: 0 0 var(--yy-space-4);
+}
+
+.headerLive p {
+  margin: 0;
+}
+
+.headerLive p + p {
+  margin-top: var(--yy-space-1);
+  color: var(--yy-fg-2);
+}

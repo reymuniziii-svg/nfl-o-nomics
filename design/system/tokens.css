@@ -405,6 +405,11 @@
   --yy-provisional: #D4AF37;
   --yy-asof: #849489;
   --yy-verified: #A6E22E;
+  /* LIVE — the in-season chip (SPEC §7.14, DECISIONS 116). An ALIAS of --yy-fg-2
+     so it follows the theme; chips draw it with a 1px currentColor @40% border.
+     Never gold (gold already means provisional in the chip register and the
+     benchmark on the chart), never lime (lime is the one selected club). */
+  --yy-live: var(--yy-fg-2);
   --yy-elevation-menu: none;
   --yy-border-export: rgba(168, 177, 173, 0.42);
   --yy-feed-check: #111416;

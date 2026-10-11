@@ -25,6 +25,9 @@ and asserts the rules the design system says are non-negotiable:
      `data-theme` the boot script pinned and silently changes the theme.
  10. The theme is pinned EXPLICITLY on `<html>` (`SCREENSHOT_VARIANTS.md` §7
      step 2 — an export must never inherit its theme).
+ 11. THE LIVE TIER (`DECISIONS.md` 116, plan §5): no verdict label on a live
+     page (`/team/*/2026`, its share page); the as-of line is present on it;
+     and the compare picker offers no 2026.
 
 Usage:  python3 scripts/verify.py [base_url]
 """
@@ -53,6 +56,8 @@ SURFACES = [
     ("compare-buf07-kc24", "/compare?a=buf-2007&b=kc-2024"),
     ("share-receipt", "/share/receipt/afc-east/2025"),
     ("share-team", "/share/team/ne/2025"),
+    ("team-kc-2026-live", "/team/kc/2026"),
+    ("share-team-kc-2026-live", "/share/team/kc/2026"),
     ("methodology", "/methodology"),
     ("credits", "/credits"),
 ]
@@ -61,6 +66,10 @@ CANVASES = [("390", 390, 844), ("1280", 1280, 900)]
 THEMES = ["dark", "light"]
 
 BAD_NUMBER = re.compile(r"\b(?:-?Infinity|NaN)\b")
+#: Check 11 — the live tier. The season in progress, and its two promises.
+LIVE_SEASON = "2026"
+VERDICT_LABEL = re.compile(r"\b(?:STEAL|WORTH IT|FAIR PRICE|OVERPAID|MONEY PIT)\b")
+LIVE_ASOF = re.compile(r"AS OF WEEK \d+ · THROUGH \d{4}-\d{2}-\d{2}")
 
 results: list[dict] = []
 failures: list[str] = []
@@ -211,6 +220,25 @@ def check(page, name: str, path: str, theme: str, width: int) -> dict:
             failures.append(
                 f"{tag}: season(s) {d['clash']} carry BOTH an absence ring and a reading"
             )
+
+    # 11 — the live tier: no verdict, the as-of line present, no 2026 in compare
+    if f"/{LIVE_SEASON}" in path and ("/team/" in path):
+        upper = body_text.upper()
+        verdicts = VERDICT_LABEL.findall(upper)
+        row["live_verdicts"] = verdicts
+        if verdicts:
+            failures.append(f"{tag}: verdict label(s) on a live page: {sorted(set(verdicts))}")
+        if not LIVE_ASOF.search(upper):
+            failures.append(f"{tag}: live page without its 'AS OF WEEK N · THROUGH date' line")
+    if path.startswith("/compare"):
+        picker = page.query_selector('[aria-label="Choose two team-seasons"]')
+        picker_text = picker.inner_text() if picker else ""
+        options = page.evaluate(
+            "() => [...document.querySelectorAll('option, [role=option], [role=menuitemradio]')]"
+            ".map(o => (o.textContent || '').trim())"
+        )
+        if LIVE_SEASON in picker_text or any(LIVE_SEASON in o for o in options):
+            failures.append(f"{tag}: the compare picker offers {LIVE_SEASON}, a season in progress")
 
     # 7 — the page never scrolls sideways
     overflow = page.evaluate(

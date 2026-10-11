@@ -8,6 +8,9 @@
  *   season  — the scrubbed season the Field and the frontier show.
  *   hot     — the club under the reader's pointer or focus, lit on every
  *             surface at once (`2026-10-10-existing-review.md` D #7).
+ *   mode    — `final` (the last complete season, the default) or `live` (the
+ *             season in progress, `?season=live`, DECISIONS 116). Not a stop
+ *             on the season scrubber: live is a different kind of reading.
  *
  * Plus `useUrlParam`, the one way a control on these static pages writes its
  * state into the address bar (`?sort=cpw&n=cap`) without opting the route out
@@ -38,6 +41,10 @@ export const REVIEW_NAME: Record<ReviewMode, string> = {
   qbn: CAPPLUS_QB_NEUTRAL_LABEL,
 };
 
+/** `?season=live` — the in-season frame. The default `final` is never written to the URL. */
+export type SeasonMode = 'final' | 'live';
+export const SEASON_MODES: SeasonMode[] = ['final', 'live'];
+
 export type Numerator = 'cash' | 'cap';
 export const NUMERATORS: Numerator[] = ['cash', 'cap'];
 
@@ -51,25 +58,46 @@ interface LinkState {
   setSeason: (s: number) => void;
   hot: string | null;
   setHot: (t: string | null) => void;
+  /** Final or live frame. Always `final` when the snapshot has no live tier. */
+  mode: SeasonMode;
+  setMode: (m: SeasonMode) => void;
+  liveAvailable: boolean;
 }
 
 const Ctx = createContext<LinkState | null>(null);
 
 export function LeagueLinkProvider({
   initialSeason,
+  liveAvailable = false,
   children,
 }: {
   initialSeason: number;
+  /** True when the snapshot carries a live tier; otherwise `?season=live` is ignored. */
+  liveAvailable?: boolean;
   children: ReactNode;
 }) {
+  const [modeParam, setModeParam] = useUrlParam<SeasonMode>('season', 'final', SEASON_MODES);
+  const mode: SeasonMode = liveAvailable ? modeParam : 'final';
   const [review, setReviewState] = useUrlParam<ReviewMode>('review', 'raw', REVIEW_MODES);
   const [numerator, setNumerator] = useUrlParam<Numerator>('n', 'cash', NUMERATORS);
   const [season, setSeason] = useState(initialSeason);
   const [hot, setHot] = useState<string | null>(null);
   const setReview = useCallback((m: ReviewMode) => setReviewState(m), [setReviewState]);
   const v = useMemo(
-    () => ({ numerator, setNumerator, review, setReview, season, setSeason, hot, setHot }),
-    [numerator, setNumerator, review, setReview, season, hot],
+    () => ({
+      numerator,
+      setNumerator,
+      review,
+      setReview,
+      season,
+      setSeason,
+      hot,
+      setHot,
+      mode,
+      setMode: setModeParam,
+      liveAvailable,
+    }),
+    [numerator, setNumerator, review, setReview, season, hot, mode, setModeParam, liveAvailable],
   );
   return <Ctx.Provider value={v}>{children}</Ctx.Provider>;
 }
@@ -92,6 +120,9 @@ export function useLeagueLink(fallbackSeason: number): LinkState {
       setSeason: () => {},
       hot: null,
       setHot: () => {},
+      mode: 'final',
+      setMode: () => {},
+      liveAvailable: false,
     }
   );
 }

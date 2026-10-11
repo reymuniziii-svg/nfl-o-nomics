@@ -343,8 +343,12 @@
     inset 0 0 0 1px var(--yy-fg-2);
 }
 
-.numCell {
+.numCell,
+.table .numCell {
   text-align: right;
+}
+
+.numCell {
   padding-right: 0.03em;
 }
 

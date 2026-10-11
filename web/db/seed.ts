@@ -24,7 +24,7 @@
  *     reported as warnings while Phase 1 is in flight; `--strict` makes them fail.
  */
 
-import { createReadStream } from 'node:fs';
+import { createReadStream, existsSync } from 'node:fs';
 import { mkdir, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { parse } from 'csv-parse';
@@ -33,7 +33,7 @@ import { sql, type SQL } from 'drizzle-orm';
 import type { PgTable } from 'drizzle-orm/pg-core';
 import { getTableConfig } from 'drizzle-orm/pg-core';
 
-import { findMart, MARTS_DIR, rel, REPO_DIR } from '../lib/paths';
+import { findMart, LIVE_DIR, MARTS_DIR, rel, REPO_DIR } from '../lib/paths';
 import { LICENSE_TIERS_ALLOWED, DEAD_MONEY_TIER } from '../lib/flags';
 import { divisionSlug } from '../lib/teams';
 import * as s from './schema';
@@ -155,6 +155,11 @@ interface Loader<T> {
   map: (r: Row) => T | null;
   /** Expected row count from `etl/config.py::EXPECTED_ROWS`, for the report. */
   expected?: number;
+  /**
+   * Read ONLY from this directory, never through `findMart`. Set for the live
+   * tier (`LIVE_DIR`), which the frozen search path must never resolve.
+   */
+  dir?: string;
 }
 
 function loader<T>(l: Loader<T>): Loader<T> {
@@ -711,6 +716,121 @@ const leagueCap = loader({
   }),
 });
 
+/* ------------------------------------------------------------------ */
+/* §7.14 — THE LIVE TIER. Read from `data/marts/live/` by exact path    */
+/* (`LIVE_DIR`), never through the frozen search path. Separate tables; */
+/* nothing here touches the 861/416 marts.                             */
+/* ------------------------------------------------------------------ */
+
+const liveStatus = loader({
+  table: s.liveStatus,
+  name: 'live_status',
+  dir: LIVE_DIR,
+  candidates: ['live_status'],
+  required: [
+    'season', 'asof_week', 'asof_date', 'weeks_in_season', 'games_scheduled_per_team', 'league_games_played',
+    'pbp_sha256', 'pbp_asset_updated_at', 'games_commit_sha', 'money_asof_date', 'contracts_sha256',
+    'dm_asof_date', 'dm_asof_stage', 'dm_basis', 'perf_state', 'perf_blank_reason', 'capplus_state',
+    'capplus_blank_reason',
+  ],
+  expected: 1,
+  map: (r) => ({
+    season: asInt(r.season)!,
+    asofWeek: asInt(r.asof_week)!,
+    asofDate: asText(r.asof_date),
+    weeksInSeason: asInt(r.weeks_in_season)!,
+    gamesScheduledPerTeam: asInt(r.games_scheduled_per_team)!,
+    leagueGamesPlayed: asInt(r.league_games_played)!,
+    pbpSha256: asText(r.pbp_sha256)!,
+    pbpAssetUpdatedAt: asText(r.pbp_asset_updated_at)!,
+    gamesCommitSha: asText(r.games_commit_sha)!,
+    moneyAsofDate: asText(r.money_asof_date),
+    contractsSha256: asText(r.contracts_sha256),
+    dmAsofDate: asText(r.dm_asof_date),
+    dmAsofStage: asText(r.dm_asof_stage) as 'preseason' | 'midseason' | 'late_season' | 'final' | null,
+    dmBasis: (asText(r.dm_basis) ?? 'none') as 'full32' | 'estimated' | 'none',
+    perfState: asText(r.perf_state)! as 'value' | 'blank',
+    perfBlankReason: asText(r.perf_blank_reason),
+    capplusState: asText(r.capplus_state)! as 'value' | 'blank',
+    capplusBlankReason: asText(r.capplus_blank_reason),
+  }),
+});
+
+const liveTeamPerf = loader({
+  table: s.liveTeamPerf,
+  name: 'live_team_perf',
+  dir: LIVE_DIR,
+  candidates: ['live_team_perf'],
+  required: [
+    'season', 'team', 'asof_week', 'games_played', 'games_scheduled', 'bye_week', 'bye_taken', 'wins', 'losses',
+    'ties', 'win_pct', 'points_for', 'points_against', 'point_diff', 'point_diff_per_game', 'off_plays',
+    'def_plays', 'off_epa_per_play', 'def_epa_per_play', 'epa_margin_per_play', 'off_epa_per_play_adj',
+    'def_epa_per_play_adj', 'epa_margin_per_play_adj', 'sos_epa', 'P_live', 'perf_index_live', 'perf_rank_live',
+    'badge', 'badge_reason',
+  ],
+  expected: 32,
+  map: (r) => ({
+    season: asInt(r.season)!,
+    team: asText(r.team)!,
+    asofWeek: asInt(r.asof_week)!,
+    gamesPlayed: asInt(r.games_played)!,
+    gamesScheduled: asInt(r.games_scheduled)!,
+    byeWeek: asInt(r.bye_week)!,
+    byeTaken: asBool(r.bye_taken)!,
+    wins: asInt(r.wins)!,
+    losses: asInt(r.losses)!,
+    ties: asInt(r.ties)!,
+    winPct: asNumber(r.win_pct)!,
+    pointsFor: asInt(r.points_for)!,
+    pointsAgainst: asInt(r.points_against)!,
+    pointDiff: asInt(r.point_diff)!,
+    pointDiffPerGame: asNumber(r.point_diff_per_game)!,
+    offPlays: asInt(r.off_plays)!,
+    defPlays: asInt(r.def_plays)!,
+    offEpaPerPlay: asNumber(r.off_epa_per_play)!,
+    defEpaPerPlay: asNumber(r.def_epa_per_play)!,
+    epaMarginPerPlay: asNumber(r.epa_margin_per_play)!,
+    offEpaPerPlayAdj: asNumber(r.off_epa_per_play_adj)!,
+    defEpaPerPlayAdj: asNumber(r.def_epa_per_play_adj)!,
+    epaMarginPerPlayAdj: asNumber(r.epa_margin_per_play_adj)!,
+    sosEpa: asNumber(r.sos_epa)!,
+    pLive: asNumber(r.P_live)!,
+    perfIndexLive: asNumber(r.perf_index_live)!,
+    perfRankLive: asInt(r.perf_rank_live)!,
+    badge: asText(r.badge)! as 'in_season_live',
+    badgeReason: asText(r.badge_reason)!,
+  }),
+});
+
+const liveCapplus = loader({
+  table: s.liveCapplus,
+  name: 'live_capplus',
+  dir: LIVE_DIR,
+  candidates: ['live_capplus'],
+  required: [
+    'season', 'team', 'capplus_live', 'cost_live', 'cap_consumed_live', 'cost_floor_live', 'R_live',
+    'was_floored', 'capplus_rank_live', 'asof_week', 'games_played', 'badge', 'badge_reason',
+  ],
+  // 0 while gated (live_status.capplus_state = 'blank'); 32 once it publishes.
+  map: (r) => ({
+    season: asInt(r.season)!,
+    team: asText(r.team)!,
+    capplusLive: asNumber(r.capplus_live)!,
+    costLive: asNumber(r.cost_live)!,
+    capConsumedLive: asNumber(r.cap_consumed_live)!,
+    costFloorLive: asNumber(r.cost_floor_live)!,
+    rLive: asNumber(r.R_live)!,
+    wasFloored: asBool(r.was_floored)!,
+    capplusRankLive: asInt(r.capplus_rank_live)!,
+    asofWeek: asInt(r.asof_week)!,
+    gamesPlayed: asInt(r.games_played)!,
+    badge: asText(r.badge)! as 'in_season_live',
+    badgeReason: asText(r.badge_reason)!,
+  }),
+});
+
+const LIVE_LOADERS = [liveStatus, liveTeamPerf, liveCapplus] as unknown as Loader<Record<string, unknown>>[];
+
 /** SHARE_ALIKE is derived from `license_machine` (SPEC §7.10) — not invented. */
 function deriveShareAlike(licenseMachine: string | null): boolean | null {
   if (licenseMachine === null) return null;
@@ -922,6 +1042,8 @@ async function createSchema(conn: Connection) {
     position_group: s.positionGroupEnum.enumValues,
     coach_role: s.coachRoleEnum.enumValues,
     regime_kind: s.regimeKindEnum.enumValues,
+    live_badge: s.liveBadgeEnum.enumValues,
+    live_state: s.liveStateEnum.enumValues,
   };
 
   const stmts: string[] = [];
@@ -980,13 +1102,17 @@ async function insertRows(conn: Connection, table: PgTable, rows: Record<string,
 }
 
 async function seedCsvLoader(conn: Connection, l: Loader<Record<string, unknown>>) {
-  const file = findMart(...l.candidates);
+  const file = l.dir
+    ? (l.candidates.map((c) => path.join(l.dir!, `${c}.csv`)).find((p) => existsSync(p)) ?? null)
+    : findMart(...l.candidates);
   if (!file) {
     record({
       tableName: l.name,
       sourceFile: null,
       status: 'skipped',
-      reason: `no file found among [${l.candidates.join(', ')}] in data/marts, data/curated, data/curated/staging`,
+      reason: `no file found among [${l.candidates.join(', ')}] in ${
+        l.dir ? rel(l.dir) : 'data/marts, data/curated, data/curated/staging'
+      }`,
       rowCount: 0,
       expectedRows: l.expected ?? null,
       columnsSeeded: null,
@@ -1310,6 +1436,59 @@ async function assertions(conn: Connection): Promise<{ label: string; ok: boolea
     });
   }
 
+  /* ---- the live tier (SPEC §7.14, DECISIONS 116) ---- */
+  if (seeded.get('team_season_results')?.status === 'seeded') {
+    const maxSeason = await scalar(
+      sql`SELECT max(season)::int AS n FROM ${s.teamSeasonResults}`,
+    );
+    out.push({
+      label: 'the frozen marts top out at 2025 (no live row)',
+      ok: maxSeason === 2025,
+      detail: `max(team_season_results.season) = ${maxSeason}`,
+    });
+  }
+  const ls = seeded.get('live_status');
+  if (ls?.status === 'seeded') {
+    out.push({ label: 'live_status is one row', ok: ls.rowCount === 1, detail: `${ls.rowCount} rows` });
+    const perfValue = await scalar(
+      sql`SELECT count(*)::int AS n FROM ${s.liveStatus} WHERE perf_state = 'value'`,
+    );
+    const capValue = await scalar(
+      sql`SELECT count(*)::int AS n FROM ${s.liveStatus} WHERE capplus_state = 'value'`,
+    );
+    const perf = seeded.get('live_team_perf');
+    const nPerf = perf?.status === 'seeded' ? perf.rowCount : -1;
+    out.push({
+      label: 'live_team_perf is 32 rows (value) or 0 (blank)',
+      ok: perfValue ? nPerf === 32 : nPerf === 0,
+      detail: `${nPerf} rows · perf_state ${perfValue ? 'value' : 'blank'}`,
+    });
+    const cap = seeded.get('live_capplus');
+    const nCap = cap?.status === 'seeded' ? cap.rowCount : -1;
+    out.push({
+      label: 'live_capplus is 32 rows (value) or 0 (gated)',
+      ok: capValue ? nCap === 32 : nCap === 0,
+      detail: `${nCap} rows · capplus_state ${capValue ? 'value' : 'blank'}`,
+    });
+    const weeks = await scalar(
+      sql`SELECT count(DISTINCT w)::int AS n FROM (
+            SELECT asof_week AS w FROM ${s.liveStatus}
+            UNION SELECT asof_week FROM ${s.liveTeamPerf}
+            UNION SELECT asof_week FROM ${s.liveCapplus}) q`,
+    );
+    const seasons = await scalar(
+      sql`SELECT count(DISTINCT y)::int AS n FROM (
+            SELECT season AS y FROM ${s.liveStatus}
+            UNION SELECT season FROM ${s.liveTeamPerf}
+            UNION SELECT season FROM ${s.liveCapplus}) q`,
+    );
+    out.push({
+      label: 'every live row shares one season and one asof_week',
+      ok: weeks === 1 && seasons === 1,
+      detail: `${seasons} season(s), ${weeks} asof_week value(s)`,
+    });
+  }
+
   if (seeded.get('team_season_results')?.status === 'seeded') {
     const zeroWin = await scalar(
       sql`SELECT count(*)::int AS n FROM ${s.teamSeasonResults} WHERE wins = 0`,
@@ -1354,6 +1533,7 @@ async function main() {
     await createSchema(conn);
 
     for (const l of CSV_LOADERS) await seedCsvLoader(conn, l);
+    for (const l of LIVE_LOADERS) await seedCsvLoader(conn, l);
     await seedPlayerImages(conn);
     await seedTeamMeta(conn);
     await seedCredits(conn);

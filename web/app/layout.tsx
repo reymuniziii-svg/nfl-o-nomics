@@ -3,6 +3,7 @@ import './globals.css';
 import { AppHeader, TabBar } from '@/components/shell/chrome';
 import { AppFooter } from '@/components/shell/footer';
 import { getBuildStamp, latestSeason, type BuildStamp } from '@/lib/data';
+import { getLiveStatus, shortHash } from '@/lib/data/live';
 import { DEAD_MONEY_TIER, TEAM_LOGOS_ENABLED } from '@/lib/flags';
 
 export const metadata: Metadata = {
@@ -78,9 +79,10 @@ const THEME_BOOTSTRAP = [
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   // The seed manifest renders as a build stamp so any screenshot is traceable to
   // a data version (`ARCHITECTURE.md` §7 item 5).
-  const [stamp, season] = await Promise.all([
+  const [stamp, season, liveStatus] = await Promise.all([
     getBuildStamp().catch((): BuildStamp => ({})),
     latestSeason().catch(() => 2025),
+    getLiveStatus().catch(() => null),
   ]);
 
   return (
@@ -96,6 +98,17 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             stamp={stamp}
             deadMoneyTier={DEAD_MONEY_TIER}
             logosEnabled={TEAM_LOGOS_ENABLED}
+            live={
+              liveStatus
+                ? {
+                    season: liveStatus.season,
+                    week: liveStatus.week,
+                    date: liveStatus.date,
+                    pbp: shortHash(liveStatus.pbpSha256),
+                    money: liveStatus.moneyAsofDate,
+                  }
+                : null
+            }
           />
           <TabBar />
         </div>

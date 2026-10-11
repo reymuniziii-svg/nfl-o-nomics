@@ -75,6 +75,15 @@ export const capplusBadgeEnum = pgEnum('capplus_badge', [
   'estimated',
 ]);
 
+/**
+ * `SPEC.md` §7.14 — the live-tier badge. A SEPARATE enum from `capplus_badge`
+ * on purpose: the historical mart can never carry `in_season_live`.
+ */
+export const liveBadgeEnum = pgEnum('live_badge', ['in_season_live']);
+
+/** `SPEC.md` §7.14 — a whole-season live state: a value, or a blank with its reason. */
+export const liveStateEnum = pgEnum('live_state', ['value', 'blank']);
+
 /** `team_season_results.playoff_result` — the deepest round reached. */
 export const playoffResultEnum = pgEnum('playoff_result', [
   'none',
@@ -891,6 +900,103 @@ export const seedStamp = pgTable('seed_stamp', {
 });
 
 /* ================================================================== */
+/* §7.14  THE LIVE TIER — `data/marts/live/`, season 2026 only          */
+/*                                                                      */
+/* Separate tables, never joined to the 861/416 marts above. Read ONLY  */
+/* through `lib/data/live.ts` (tests/test_live_isolation.py enforces    */
+/* it). Every row shares one `asof_week`; no column holds a wall clock. */
+/* ================================================================== */
+
+/** 1 row. Whole-season states and their sentences live here once. */
+export const liveStatus = pgTable('live_status', {
+  season: integer('season').primaryKey(),
+  /** Last closed REG week; 0 before week 1 closes. */
+  asofWeek: integer('asof_week').notNull(),
+  /** Last game day of `asof_week` (a data date). NULL at week 0. */
+  asofDate: text('asof_date'),
+  weeksInSeason: integer('weeks_in_season').notNull(),
+  gamesScheduledPerTeam: integer('games_scheduled_per_team').notNull(),
+  leagueGamesPlayed: integer('league_games_played').notNull(),
+  pbpSha256: text('pbp_sha256').notNull(),
+  pbpAssetUpdatedAt: text('pbp_asset_updated_at').notNull(),
+  gamesCommitSha: text('games_commit_sha').notNull(),
+  /** NULL until `freeze-money` exists. */
+  moneyAsofDate: text('money_asof_date'),
+  contractsSha256: text('contracts_sha256'),
+  dmAsofDate: text('dm_asof_date'),
+  dmAsofStage: asofStageEnum('dm_asof_stage'),
+  dmBasis: text('dm_basis').$type<'full32' | 'estimated' | 'none'>().notNull(),
+  perfState: liveStateEnum('perf_state').notNull(),
+  perfBlankReason: text('perf_blank_reason'),
+  capplusState: liveStateEnum('capplus_state').notNull(),
+  capplusBlankReason: text('capplus_blank_reason'),
+});
+
+/** 32 rows when `perf_state = 'value'`, 0 before week 4. Grain (season, team). */
+export const liveTeamPerf = pgTable(
+  'live_team_perf',
+  {
+    season: integer('season').notNull(),
+    team: text('team').notNull(),
+    asofWeek: integer('asof_week').notNull(),
+    gamesPlayed: integer('games_played').notNull(),
+    /** 17, less any cancelled game. */
+    gamesScheduled: integer('games_scheduled').notNull(),
+    /** A bye is a value, not a blank. */
+    byeWeek: integer('bye_week').notNull(),
+    byeTaken: boolean('bye_taken').notNull(),
+    wins: integer('wins').notNull(),
+    losses: integer('losses').notNull(),
+    ties: integer('ties').notNull(),
+    /** Ties count half. */
+    winPct: doublePrecision('win_pct').notNull(),
+    pointsFor: integer('points_for').notNull(),
+    pointsAgainst: integer('points_against').notNull(),
+    pointDiff: integer('point_diff').notNull(),
+    pointDiffPerGame: doublePrecision('point_diff_per_game').notNull(),
+    offPlays: integer('off_plays').notNull(),
+    defPlays: integer('def_plays').notNull(),
+    offEpaPerPlay: doublePrecision('off_epa_per_play').notNull(),
+    defEpaPerPlay: doublePrecision('def_epa_per_play').notNull(),
+    epaMarginPerPlay: doublePrecision('epa_margin_per_play').notNull(),
+    offEpaPerPlayAdj: doublePrecision('off_epa_per_play_adj').notNull(),
+    defEpaPerPlayAdj: doublePrecision('def_epa_per_play_adj').notNull(),
+    epaMarginPerPlayAdj: doublePrecision('epa_margin_per_play_adj').notNull(),
+    sosEpa: doublePrecision('sos_epa').notNull(),
+    /** §2.4 composite within the 2026 frame: mean 0, SD 1. */
+    pLive: doublePrecision('p_live').notNull(),
+    /** 100 + 15 × P_live — "Team Rating (performance only) · live". */
+    perfIndexLive: doublePrecision('perf_index_live').notNull(),
+    /** 1 = best within 2026. */
+    perfRankLive: integer('perf_rank_live').notNull(),
+    badge: liveBadgeEnum('badge').notNull(),
+    badgeReason: text('badge_reason').notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.season, t.team] })],
+);
+
+/** 0 rows while `live_status.capplus_state = 'blank'`. Columns fixed now. */
+export const liveCapplus = pgTable(
+  'live_capplus',
+  {
+    season: integer('season').notNull(),
+    team: text('team').notNull(),
+    capplusLive: doublePrecision('capplus_live').notNull(),
+    costLive: doublePrecision('cost_live').notNull(),
+    capConsumedLive: doublePrecision('cap_consumed_live').notNull(),
+    costFloorLive: doublePrecision('cost_floor_live').notNull(),
+    rLive: doublePrecision('r_live').notNull(),
+    wasFloored: boolean('was_floored').notNull(),
+    capplusRankLive: integer('capplus_rank_live').notNull(),
+    asofWeek: integer('asof_week').notNull(),
+    gamesPlayed: integer('games_played').notNull(),
+    badge: liveBadgeEnum('badge').notNull(),
+    badgeReason: text('badge_reason').notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.season, t.team] })],
+);
+
+/* ================================================================== */
 
 export const schema = {
   teamSeasonResults,
@@ -914,6 +1020,9 @@ export const schema = {
   leagueCap,
   positionAllocation,
   capplusContext,
+  liveStatus,
+  liveTeamPerf,
+  liveCapplus,
   teamMeta,
   creditEntry,
   creditLicenseGroup,

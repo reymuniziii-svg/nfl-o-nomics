@@ -15,10 +15,13 @@ export function AppFooter({
   stamp,
   deadMoneyTier,
   logosEnabled,
+  live = null,
 }: {
   stamp: BuildStamp;
   deadMoneyTier: string;
   logosEnabled: boolean;
+  /** The live tier's as-of (DECISIONS 116): week, data date, short pbp hash, money date. */
+  live?: { season: number; week: number; date: string | null; pbp: string; money: string | null } | null;
 }) {
   return (
     <footer className={css.footer}>
@@ -50,6 +53,13 @@ export function AppFooter({
         sources {stamp.dead_money_tier ?? deadMoneyTier} · team logos{' '}
         {logosEnabled ? 'on' : 'off (typographic fallback)'}
       </p>
+      {live ? (
+        <p className={`yy-label ${css.stamp}`}>
+          Live {live.season}: as of week {live.week}
+          {live.date ? ` · through ${live.date}` : ''} · pbp {live.pbp} · money{' '}
+          {live.money ? `as of ${live.money}` : 'none (performance only)'}
+        </p>
+      ) : null}
     </footer>
   );
 }

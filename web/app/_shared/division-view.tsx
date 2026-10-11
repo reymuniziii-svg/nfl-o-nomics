@@ -60,6 +60,12 @@ import { CsvExport } from '@/components/csv-export';
 import { csvTable } from '@/lib/csv';
 import { FranchiseSparkline } from '@/components/charts/franchise-sparkline';
 import { ShareButton } from '@/components/share/share-button';
+import { getLiveLeague, liveCsvMeta, type LiveLeague } from '@/lib/data/live';
+import { TEAM_RATING_LIVE_NAME } from '@/lib/metric';
+import { ModeFrames, SeasonModeSwitch } from '@/components/live/season-mode';
+import { LiveField, LiveLeaderboard, type LiveClubView } from '@/components/live/live-home';
+import { LiveDivisionStrip, LiveWithheld } from '@/components/live/live-views';
+import { LiveAsOfLine } from '@/components/live/live-marks';
 
 const NOT_TIER2 = 'Not available — league-wide contract coverage begins in 2013.';
 
@@ -119,8 +125,41 @@ function toScrub(f: LeagueFrame): ScrubFrame {
   };
 }
 
+/** The live rows as the client views need them — serializable, no accessor. */
+function liveClubs(live: LiveLeague | null): LiveClubView[] {
+  if (!live) return [];
+  return live.rows.map((r) => ({
+    team: r.team,
+    teamName: r.teamName,
+    div: r.divisionSlug,
+    record: r.record,
+    winPct: r.winPct,
+    gp: r.gamesPlayed,
+    gs: r.gamesScheduled,
+    byeWeek: r.byeWeek,
+    byeTaken: r.byeTaken,
+    rank: r.rank,
+    rating: r.rating,
+    epaAdj: r.epaAdj.state === 'blank' ? 0 : r.epaAdj.value,
+    epaRaw: r.epaRaw,
+    href: `/team/${r.team.toLowerCase()}/${live.status.season}`,
+  }));
+}
+
+/** The frontier needs a full season on both axes. */
+const FRONTIER_WITHHELD =
+  "compares a full season's wins to a full season's cash; returns when 2026 is final.";
+
 export async function DivisionView({ slug }: { slug: DivisionSlug }) {
   const { season, division, leaderboard, ledger, entryCards } = await getHomeBundle(slug);
+  // The live tier (DECISIONS 116) — its own accessor, its own frame. Nothing
+  // from it enters the scrub frames, the frontier domain, the spark series,
+  // the deltas or the final leaderboard below.
+  const live = await getLiveLeague();
+  const clubs = liveClubs(live);
+  /** Final and live frames, cross-faded; the final frame alone without a live tier. */
+  const framed = (final: React.ReactNode, liveNode: React.ReactNode) =>
+    live ? <ModeFrames final={final} live={liveNode} /> : final;
 
   const frameSeasons = Array.from(
     { length: season - TIER2_FIRST_SEASON + 1 },
@@ -219,129 +258,246 @@ export async function DivisionView({ slug }: { slug: DivisionSlug }) {
         />
       </div>
 
-      <LeagueLinkProvider initialSeason={season}>
-        {/* 2 — THE RECEIPT, on one league-wide domain for the season. The
-            SAMPLE chip is derived from the snapshot, never asserted. */}
-        <Receipt
-          title={division.name.toUpperCase()}
-          wideTitle={`${division.name.toUpperCase()} — WHAT A WIN COSTS`}
-          season={season}
-          rows={{ cash: receiptRows(division), cap: receiptRows(divisionCap) }}
-          leagueAvg={{ cash: avgCash, cap: avgCap }}
-          league={{ cash: ratiosOf(spendCash), cap: ratiosOf(spendCap) }}
-          sample={sample}
-          coverage={receiptCoverage(season, division.teams.length)}
-        />
+      <LeagueLinkProvider initialSeason={season} liveAvailable={!!live}>
+        {live ? (
+          <SeasonModeSwitch
+            finalSeason={season}
+            liveSeason={live.status.season}
+            liveWeek={live.status.week}
+            note={{
+              live: `${live.status.season} in progress: results and Team Rating only, ranked within ${live.status.season}. No money, no verdict.`,
+            }}
+          />
+        ) : null}
+        {/* 2 — THE RECEIPT, framed: final ⇄ the live division strip */}
+        {framed(
+          /* 2 — THE RECEIPT, on one league-wide domain for the season. The
+              SAMPLE chip is derived from the snapshot, never asserted. */
+          <Receipt
+            title={division.name.toUpperCase()}
+            wideTitle={`${division.name.toUpperCase()} — WHAT A WIN COSTS`}
+            season={season}
+            rows={{ cash: receiptRows(division), cap: receiptRows(divisionCap) }}
+            leagueAvg={{ cash: avgCash, cap: avgCap }}
+            league={{ cash: ratiosOf(spendCash), cap: ratiosOf(spendCap) }}
+            sample={sample}
+            coverage={receiptCoverage(season, division.teams.length)}
+          />,
+          live ? (
+            <LiveDivisionStrip
+              divisionName={division.name}
+              clubs={clubs.filter((c) => c.div === slug)}
+              season={live.status.season}
+              week={live.status.week}
+              date={live.status.date}
+              weeksInSeason={live.status.weeksInSeason}
+              blankReason={live.status.perf.state === 'blank' ? live.status.perf.reason : null}
+            />
+          ) : null,
+        )}
 
         {/* 3 — the frontier: every club's wins against what it paid */}
-        <Card ariaLabel="Wins against cash spent, all 32 clubs">
-          <CardHeader eyebrow={`All 32 clubs · ${division.name} highlighted`} title="WINS VS. WHAT THEY COST" />
-          <Frontier
-            frames={scrub}
-            latestSeason={season}
-            focusDivision={slug}
-            divisionName={division.name}
-          />
-          <ChartCaption>
-            Each dot is a club: wins against the cash it paid its roster (not players released
-            in-year), as a share of that season&apos;s cap. On the gold line a club paid the league
-            price for a win; above it, wins came cheaper.
-          </ChartCaption>
-        </Card>
+        {framed(
+          <Card ariaLabel="Wins against cash spent, all 32 clubs">
+            <CardHeader eyebrow={`All 32 clubs · ${division.name} highlighted`} title="WINS VS. WHAT THEY COST" />
+            <Frontier
+              frames={scrub}
+              latestSeason={season}
+              focusDivision={slug}
+              divisionName={division.name}
+            />
+            <ChartCaption>
+              Each dot is a club: wins against the cash it paid its roster (not players released
+              in-year), as a share of that season&apos;s cap. On the gold line a club paid the league
+              price for a win; above it, wins came cheaper.
+            </ChartCaption>
+          </Card>,
+          live ? (
+            <Card ariaLabel={`Wins against cash spent, withheld while ${live.status.season} is in progress`}>
+              <CardHeader
+                eyebrow={`All 32 clubs · ${live.status.season} in progress`}
+                title="WINS VS. WHAT THEY COST"
+              />
+              <LiveWithheld title={`Not shown for ${live.status.season} yet`} reason={`The frontier ${FRONTIER_WITHHELD}`} />
+            </Card>
+          ) : null,
+        )}
 
         {/* 4 — the league leaderboard, ALL 32 rows, the Field above it */}
-        <Card ariaLabel={`${indexName} leaderboard`}>
-          <CardHeader
-            eyebrow={`League · ${season}`}
-            title={leaderboard.capplusCovered ? 'CAP+ INDEX' : 'TEAM RATING'}
-            right={
-              <CsvExport
-                title={`${indexName} leaderboard`}
-                filename={`yieldyard_leaderboard_${season}.csv`}
-                table={csvTable(
-                  rows,
-                  [
-                    { key: 'rank', label: 'capplus_rank', get: (r) => r.rank },
-                    { key: 'team', label: 'team', get: (r) => r.team },
-                    { key: 'team_name', label: 'team_name', get: (r) => r.teamName },
-                    { key: 'record', label: 'record', get: (r) => r.record },
-                    { key: 'wins', label: 'wins', get: (r) => r.wins },
-                    {
-                      key: 'index',
-                      label: leaderboard.capplusCovered ? 'capplus' : 'team_rating',
-                      get: (r) => (r.index.state === 'blank' ? '' : r.index.value.toFixed(6)),
-                    },
-                    {
-                      key: 'index_blank_reason',
-                      label: 'index_blank_reason',
-                      get: (r) => (r.index.state === 'blank' ? r.index.reason : ''),
-                    },
-                    { key: 'qbn', label: 'capplus_qb_neutral', get: (r) => (r.ctx ? r.ctx.qbn.toFixed(6) : '') },
-                    { key: 'rookie', label: 'qb_rookie_window', get: (r) => (r.rookie === null ? '' : String(r.rookie)) },
-                    { key: 'qb', label: 'starting_qb', get: (r) => r.qb ?? '' },
-                    {
-                      key: 'cash_spent',
-                      label: 'cash_spent_usd',
-                      get: (r) => (r.spend.cash.state === 'blank' ? '' : r.spend.cash.value),
-                    },
-                    {
-                      key: 'cap_hit',
-                      label: 'cap_hit_usd',
-                      get: (r) => (r.spend.cap.state === 'blank' ? '' : r.spend.cap.value),
-                    },
-                    {
-                      key: 'cpw_cash',
-                      label: 'cost_per_win_cash_usd',
-                      get: (r) => (r.perWin.cash.state === 'blank' ? '' : r.perWin.cash.value.toFixed(2)),
-                    },
-                    {
-                      key: 'cpw_cap',
-                      label: 'cost_per_win_cap_usd',
-                      get: (r) => (r.perWin.cap.state === 'blank' ? '' : r.perWin.cap.value.toFixed(2)),
-                    },
-                    {
-                      key: 'delta',
-                      label: `delta_vs_${prior.priorSeason ?? 'prior'}`,
-                      get: (r) => (r.delta.state === 'blank' ? '' : r.delta.value.toFixed(6)),
-                    },
-                  ],
-                  [
-                    `YIELD/YARD — ${indexName} leaderboard, ${season}`,
-                    `source marts: ${leaderboard.capplusCovered ? 'capplus_official' : 'team_rating'}, capplus_context, team_season_results, team_season_cap`,
-                    'coverage: all 32 clubs. 100 = league average. Contract, cap and cash coverage begins in 2013.',
-                    ...(leaderboard.rows.some((r) => r.badge === 'estimated' || r.badge === 'provisional')
-                      ? [`badge: ${leaderboard.rows.find((r) => r.badgeReason)?.badgeReason ?? ''}`]
-                      : []),
-                    'zero-win rule: a club with no wins carries its total spend and no ratio. The ratio is never Infinity, "N/A" or a blank.',
-                    `league average cost per win (cash): ${
-                      avgCash.state === 'blank' ? avgCash.reason : usdShort(avgCash.value)
-                    }`,
-                  ],
-                )}
+        {framed(
+          <Card ariaLabel={`${indexName} leaderboard`}>
+            <CardHeader
+              eyebrow={`League · ${season}`}
+              title={leaderboard.capplusCovered ? 'CAP+ INDEX' : 'TEAM RATING'}
+              right={
+                <CsvExport
+                  title={`${indexName} leaderboard`}
+                  filename={`yieldyard_leaderboard_${season}.csv`}
+                  table={csvTable(
+                    rows,
+                    [
+                      { key: 'rank', label: 'capplus_rank', get: (r) => r.rank },
+                      { key: 'team', label: 'team', get: (r) => r.team },
+                      { key: 'team_name', label: 'team_name', get: (r) => r.teamName },
+                      { key: 'record', label: 'record', get: (r) => r.record },
+                      { key: 'wins', label: 'wins', get: (r) => r.wins },
+                      {
+                        key: 'index',
+                        label: leaderboard.capplusCovered ? 'capplus' : 'team_rating',
+                        get: (r) => (r.index.state === 'blank' ? '' : r.index.value.toFixed(6)),
+                      },
+                      {
+                        key: 'index_blank_reason',
+                        label: 'index_blank_reason',
+                        get: (r) => (r.index.state === 'blank' ? r.index.reason : ''),
+                      },
+                      { key: 'qbn', label: 'capplus_qb_neutral', get: (r) => (r.ctx ? r.ctx.qbn.toFixed(6) : '') },
+                      { key: 'rookie', label: 'qb_rookie_window', get: (r) => (r.rookie === null ? '' : String(r.rookie)) },
+                      { key: 'qb', label: 'starting_qb', get: (r) => r.qb ?? '' },
+                      {
+                        key: 'cash_spent',
+                        label: 'cash_spent_usd',
+                        get: (r) => (r.spend.cash.state === 'blank' ? '' : r.spend.cash.value),
+                      },
+                      {
+                        key: 'cap_hit',
+                        label: 'cap_hit_usd',
+                        get: (r) => (r.spend.cap.state === 'blank' ? '' : r.spend.cap.value),
+                      },
+                      {
+                        key: 'cpw_cash',
+                        label: 'cost_per_win_cash_usd',
+                        get: (r) => (r.perWin.cash.state === 'blank' ? '' : r.perWin.cash.value.toFixed(2)),
+                      },
+                      {
+                        key: 'cpw_cap',
+                        label: 'cost_per_win_cap_usd',
+                        get: (r) => (r.perWin.cap.state === 'blank' ? '' : r.perWin.cap.value.toFixed(2)),
+                      },
+                      {
+                        key: 'delta',
+                        label: `delta_vs_${prior.priorSeason ?? 'prior'}`,
+                        get: (r) => (r.delta.state === 'blank' ? '' : r.delta.value.toFixed(6)),
+                      },
+                    ],
+                    [
+                      `YIELD/YARD — ${indexName} leaderboard, ${season}`,
+                      `source marts: ${leaderboard.capplusCovered ? 'capplus_official' : 'team_rating'}, capplus_context, team_season_results, team_season_cap`,
+                      'coverage: all 32 clubs. 100 = league average. Contract, cap and cash coverage begins in 2013.',
+                      ...(leaderboard.rows.some((r) => r.badge === 'estimated' || r.badge === 'provisional')
+                        ? [`badge: ${leaderboard.rows.find((r) => r.badgeReason)?.badgeReason ?? ''}`]
+                        : []),
+                      'zero-win rule: a club with no wins carries its total spend and no ratio. The ratio is never Infinity, "N/A" or a blank.',
+                      `league average cost per win (cash): ${
+                        avgCash.state === 'blank' ? avgCash.reason : usdShort(avgCash.value)
+                      }`,
+                    ],
+                  )}
+                />
+              }
+            />
+            {live ? (
+              <SeasonModeSwitch
+                finalSeason={season}
+                liveSeason={live.status.season}
+                liveWeek={live.status.week}
+                label="Field season"
               />
-            }
-          />
-          {/* `SPEC.md` §4 — one of the product's two field-literal surfaces.
-              It sits ABOVE the row list and does not replace it. */}
-          {leaderboard.capplusCovered ? (
-            <LeagueField frames={scrub} latestSeason={season} focusDivision={slug} />
-          ) : null}
+            ) : null}
+            {/* `SPEC.md` §4 — one of the product's two field-literal surfaces.
+                It sits ABOVE the row list and does not replace it. */}
+            {leaderboard.capplusCovered ? (
+              <LeagueField frames={scrub} latestSeason={season} focusDivision={slug} />
+            ) : null}
 
-          <CapPlusLeaderboard
-            rows={rows}
-            season={season}
-            indexName={indexName}
-            isCapPlus={leaderboard.capplusCovered}
-            focusTeams={divisionTeams}
-            leagueAvg={{
-              cash: avgCash.state === 'blank' ? null : avgCash.value,
-              cap: avgCap.state === 'blank' ? null : avgCap.value,
-            }}
-            priorSeason={prior.priorSeason}
-            strata={strataLines}
-            strataReason={strata.state === 'blank' ? strata.reason : undefined}
-          />
-        </Card>
+            <CapPlusLeaderboard
+              rows={rows}
+              season={season}
+              indexName={indexName}
+              isCapPlus={leaderboard.capplusCovered}
+              focusTeams={divisionTeams}
+              leagueAvg={{
+                cash: avgCash.state === 'blank' ? null : avgCash.value,
+                cap: avgCap.state === 'blank' ? null : avgCap.value,
+              }}
+              priorSeason={prior.priorSeason}
+              strata={strataLines}
+              strataReason={strata.state === 'blank' ? strata.reason : undefined}
+            />
+          </Card>,
+          live ? (
+            <Card ariaLabel={`${TEAM_RATING_LIVE_NAME} leaderboard, ${live.status.season}`}>
+              <CardHeader
+                eyebrow={`League · ${live.status.season} in progress`}
+                title="TEAM RATING · LIVE"
+                right={
+                  live.rows.length ? (
+                    <CsvExport
+                      title={`${TEAM_RATING_LIVE_NAME} leaderboard`}
+                      filename={`yieldyard_leaderboard_${live.status.season}_wk${live.status.week}.csv`}
+                      table={csvTable(
+                        live.rows,
+                        [
+                          { key: 'rank', label: 'perf_rank_live', get: (r) => r.rank },
+                          { key: 'team', label: 'team', get: (r) => r.team },
+                          { key: 'team_name', label: 'team_name', get: (r) => r.teamName },
+                          { key: 'record', label: 'record', get: (r) => r.record },
+                          { key: 'wins', label: 'wins', get: (r) => r.wins },
+                          { key: 'losses', label: 'losses', get: (r) => r.losses },
+                          { key: 'ties', label: 'ties', get: (r) => r.ties },
+                          { key: 'gp', label: 'games_played', get: (r) => r.gamesPlayed },
+                          { key: 'gs', label: 'games_scheduled', get: (r) => r.gamesScheduled },
+                          { key: 'bye', label: 'bye_week', get: (r) => r.byeWeek },
+                          { key: 'bye_taken', label: 'bye_taken', get: (r) => String(r.byeTaken) },
+                          {
+                            key: 'rating',
+                            label: 'team_rating_live',
+                            get: (r) => (r.rating.state === 'blank' ? '' : r.rating.value.toFixed(6)),
+                          },
+                          {
+                            key: 'epa_adj',
+                            label: 'epa_margin_per_play_adj',
+                            get: (r) => (r.epaAdj.state === 'blank' ? '' : r.epaAdj.value.toFixed(6)),
+                          },
+                          { key: 'epa', label: 'epa_margin_per_play', get: (r) => r.epaRaw.toFixed(6) },
+                          { key: 'sos', label: 'sos_epa', get: (r) => r.sos.toFixed(6) },
+                          { key: 'week', label: 'asof_week', get: (r) => r.live.week },
+                          { key: 'date', label: 'asof_date', get: (r) => r.live.date },
+                        ],
+                        liveCsvMeta(live.status, `${TEAM_RATING_LIVE_NAME} leaderboard`),
+                      )}
+                    />
+                  ) : undefined
+                }
+              />
+              <LiveAsOfLine
+                season={live.status.season}
+                week={live.status.week}
+                date={live.status.date}
+                reason={live.rows[0]?.badgeReason}
+              />
+              <SeasonModeSwitch
+                finalSeason={season}
+                liveSeason={live.status.season}
+                liveWeek={live.status.week}
+                label="Field season"
+              />
+              {live.status.perf.state === 'blank' ? (
+                <p className="yy-blank">{live.status.perf.reason}</p>
+              ) : (
+                <>
+                  <LiveField
+                    clubs={clubs}
+                    focusDivision={slug}
+                    capplusReason={live.capplus.state === 'blank' ? live.capplus.reason : ''}
+                    season={live.status.season}
+                  />
+                  <LiveLeaderboard clubs={clubs} season={live.status.season} focusTeams={divisionTeams} />
+                </>
+              )}
+            </Card>
+          ) : null,
+        )}
       </LeagueLinkProvider>
 
       {/* 5 — largest dead-money charges */}

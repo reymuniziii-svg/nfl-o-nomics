@@ -66,14 +66,22 @@ import {
 } from '@/components/pickers/team-season-picker';
 import { CsvExport } from '@/components/csv-export';
 import { csvTable } from '@/lib/csv';
+import { getLiveTeam, isLiveTeamSeason, liveTeamKeys } from '@/lib/data/live';
+import { teamOgImage } from '@/lib/og';
+import { LiveTeamSeasonPage } from './live-team-page';
+import live from '@/components/live/live.module.css';
+import { LiveChip } from '@/components/live/live-marks';
 
-/** `SPEC.md` §6 — `/team/{abbr}/{season}`, static, 861 pages. */
+/**
+ * `SPEC.md` §6 — `/team/{abbr}/{season}`, static: the 861 final team-seasons
+ * plus the 32 live 2026 pages (§7.14), which render the slim live variant.
+ */
 export const dynamic = 'force-static';
 export const dynamicParams = false;
 
 export async function generateStaticParams() {
-  const keys = await allTeamSeasons();
-  return keys.map((k) => ({ abbr: k.team.toLowerCase(), season: String(k.season) }));
+  const [keys, liveKeys] = await Promise.all([allTeamSeasons(), liveTeamKeys()]);
+  return [...keys, ...liveKeys].map((k) => ({ abbr: k.team.toLowerCase(), season: String(k.season) }));
 }
 
 export async function generateMetadata({
@@ -86,13 +94,35 @@ export async function generateMetadata({
   if (!team) return {};
   const id = eraIdentity(team, Number(season));
   const path = `/team/${abbr.toLowerCase()}/${season}`;
+  if (await isLiveTeamSeason(team, Number(season))) {
+    const lt = await getLiveTeam(team);
+    const week = lt?.status.week ?? 0;
+    const t = `${id.name} · ${season} · week ${week}, live`;
+    const d = `${id.name}, ${season} as of week ${week}${lt?.status.date ? ` (through ${lt.status.date})` : ''}: record, games played and Team Rating, live. No verdict until the season is final.`;
+    // `?wk=` versions the card so feeds refetch it each week.
+    const image = teamOgImage(abbr, season, week);
+    return {
+      title: t,
+      description: d,
+      alternates: { canonical: path },
+      openGraph: { type: 'article', url: path, title: t, description: d, images: [image] },
+      twitter: { title: t, images: [image] },
+    };
+  }
   const description = `${id.name}, ${season}: what the club spent, what it got, and what the numbers can't see.`;
+  const image = teamOgImage(abbr, season);
   return {
     title: `${id.name} · ${season}`,
     description,
     alternates: { canonical: path },
-    openGraph: { type: 'article', url: path, title: `${id.name} · ${season} — the receipt`, description },
-    twitter: { title: `${id.name} · ${season} — the receipt` },
+    openGraph: {
+      type: 'article',
+      url: path,
+      title: `${id.name} · ${season} — the receipt`,
+      description,
+      images: [image],
+    },
+    twitter: { title: `${id.name} · ${season} — the receipt`, images: [image] },
   };
 }
 
@@ -106,8 +136,19 @@ export default async function TeamSeasonPage({
   const season = Number(seasonRaw);
   if (!team || !Number.isInteger(season)) notFound();
 
+  // The live season renders the slim variant and nothing else (DECISIONS 116).
+  if (await isLiveTeamSeason(team, season)) {
+    return <LiveTeamSeasonPage team={team} />;
+  }
+
   const b = await getTeamBundle(team, season);
   if (!b) notFound();
+  // The live season's one mark for the arc, and the forward link from the
+  // last final season. Read through live.ts only; never merged into a series.
+  const liveTeam = await getLiveTeam(team);
+  const liveRow = liveTeam?.row ?? null;
+  const liveRating = liveRow && liveRow.rating.state !== 'blank' ? liveRow.rating.value : null;
+  const latestFinal = Math.max(...b.seasons);
 
   const inTier2 = season >= TIER2_FIRST_SEASON;
   const slug = await divisionSlugForTeam(team);
@@ -259,6 +300,12 @@ export default async function TeamSeasonPage({
       <div className={css.pickers}>
         <TeamPicker teams={teamOptions} team={team} hrefPattern={`/team/{abbr}/${season}`} />
         <SeasonPicker seasons={b.seasons} season={season} hrefPattern={`/team/${abbrLower}/{season}`} />
+        {liveTeam && liveRow && season === latestFinal ? (
+          <a className={`yy-label ${live.forward}`} href={`/team/${abbrLower}/${liveTeam.status.season}`}>
+            <LiveChip reason={liveRow.badgeReason} />
+            {liveTeam.status.season} · week {liveTeam.status.week} live →
+          </a>
+        ) : null}
       </div>
 
       {/* ── 2. THE VERDICT — the page's question, answered first (review D #1) ── */}
@@ -383,6 +430,20 @@ export default async function TeamSeasonPage({
           abbr={abbrLower}
           currentSeason={season}
           details={arcDetails}
+          live={
+            liveTeam && liveRow && liveRating !== null
+              ? {
+                  season: liveTeam.status.season,
+                  value: liveRating,
+                  covered: liveRow.gamesPlayed,
+                  total: liveRow.gamesScheduled,
+                  week: liveTeam.status.week,
+                  date: liveTeam.status.date ?? '',
+                  rank: liveRow.rank,
+                  record: liveRow.record,
+                }
+              : null
+          }
         />
         {/* §4.4 — the bridge sentence is always visible; the rest is precision. */}
         <FinePrint

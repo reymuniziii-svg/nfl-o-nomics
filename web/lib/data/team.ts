@@ -28,7 +28,7 @@ import {
 import { eraIdentity, type EraIdentity, type TeamAbbr } from '@/lib/teams';
 import { isSeeded } from './registry';
 import { getLeagueAvgCostPerWin } from './league';
-import { seasonsForTeam } from './seasons';
+import { latestSeason, seasonsForTeam } from './seasons';
 import {
   capplusBlankSeasons,
   DEFAULT_NUMERATOR,
@@ -944,6 +944,9 @@ export async function getReceiptVerdict(
   team: string,
 ): Promise<Metric<ReceiptVerdict>> {
   if (season < TIER2_FIRST_SEASON) return blank(BLANK_REASON.PRE_TIER2);
+  // No verdict on a season in progress, ever (DECISIONS 116 e): a season past
+  // the last final one is the live season, and it has no final cap per win.
+  if (season > (await latestSeason())) return blank(BLANK_REASON.LIVE_SEASON);
   const all = await seasonCapPerWin(season);
   const mine = all.get(team);
   if (mine === undefined) {

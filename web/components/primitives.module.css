@@ -127,6 +127,13 @@
   border-color: color-mix(in srgb, currentColor 40%, transparent);
 }
 
+/* LIVE — the in-season chip (SPEC §7.14). `--yy-live` (an alias of --yy-fg-2):
+   never gold, never lime. */
+.chipLive {
+  color: var(--yy-live);
+  border-color: color-mix(in srgb, currentColor 40%, transparent);
+}
+
 /* ── AS-OF — COMPONENTS.md §8.1. One line, one block. Never truncates. ────── */
 
 .asof {

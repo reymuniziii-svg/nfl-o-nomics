@@ -31,6 +31,13 @@ export const MARTS_DIR = path.join(DATA_DIR, 'marts');
 export const CURATED_DIR = path.join(DATA_DIR, 'curated');
 export const STAGING_DIR = path.join(CURATED_DIR, 'staging');
 
+/**
+ * The live tier (`SPEC.md` §7.14, `DECISIONS.md` 116) — read by the seed's live
+ * loaders by this exact path and NEVER searched: a live file must not be
+ * resolvable by `findMart` (tests/test_live_isolation.py asserts it).
+ */
+export const LIVE_DIR = path.join(MARTS_DIR, 'live');
+
 /** Searched in order, exactly as `tests/conftest.py::DATA_DIRS` (plus staging). */
 export const SEARCH_DIRS = [MARTS_DIR, CURATED_DIR, STAGING_DIR] as const;
 

@@ -30,6 +30,11 @@
  *  - **Measured width, scale 1.0.** The chart lays itself out at its
  *    container's width instead of a fixed 332, which removes the 15px sideways
  *    scroller at 375 without letting type fall below the 11px floor.
+ *  - **The live season is a separate mark** (DECISIONS 116). 2026 in progress
+ *    sits after a dashed `IN PROGRESS` gap as ONE hatched, UNCONNECTED mark —
+ *    Team Rating (performance only) · live, labelled `⟨GP/17⟩`. No `<path>`
+ *    joins 2025 to it, and it never enters the series, the runs, the Drive or
+ *    the CSV: a partial reading is not the next point of a final series.
  *  - **Labels never overprint.** Off-scale values on the same edge stagger to
  *    a second line; on the phone composition the terminus labels sit above and
  *    below the last point instead of in a right margin that clipped "TEAM
@@ -62,6 +67,21 @@ import { yardsToGoal } from '../field/field-kit';
 import { ordinal } from '../team/format';
 
 const TIER2_BREAK = 2013;
+
+/**
+ * The live season's one mark (DECISIONS 116): Team Rating (performance only) ·
+ * live through `week`. Serialisable; built from `lib/data/live.ts` by the page.
+ */
+export interface ArcLiveMark {
+  season: number;
+  value: number;
+  covered: number;
+  total: number;
+  week: number;
+  date: string;
+  rank: number;
+  record: string;
+}
 
 /** What the readout adds to the two plotted values. Serialisable, formatted server-side. */
 export interface ArcSeasonDetail {
@@ -109,6 +129,7 @@ export function FranchiseArc({
   abbr,
   currentSeason,
   details,
+  live = null,
 }: {
   points: HistoryPoint[];
   team: string;
@@ -116,6 +137,8 @@ export function FranchiseArc({
   abbr: string;
   currentSeason: number;
   details: ArcSeasonDetail[];
+  /** The season in progress, drawn apart from the series; null without a live tier. */
+  live?: ArcLiveMark | null;
 }) {
   const [mode, setMode] = useState<Mode>('index');
   /** The cross-fade plays on a user's toggle only — never on first paint (§6.3). */
@@ -156,6 +179,15 @@ export function FranchiseArc({
           ...(estimated.length
             ? [{ swatch: 'estimated', label: 'Estimated', tone: 'partial' } as LegendItem]
             : []),
+          ...(live
+            ? [
+                {
+                  swatch: 'hatch',
+                  label: `${live.season} in progress · Team Rating live, through week ${live.week} ⟨${live.covered}/${live.total}⟩`,
+                  tone: 'partial',
+                } as LegendItem,
+              ]
+            : []),
         ]
       : driveLegend({ gap: anyGap, estimated: estimated.length > 0 });
 
@@ -163,6 +195,21 @@ export function FranchiseArc({
   const pointBy = new Map(points.map((p) => [p.season, p]));
 
   const renderTip = (season: number) => {
+    if (live && season === live.season) {
+      return (
+        <>
+          <p className={`yy-label ${team.tipHead}`}>
+            {live.season} · {live.record} · live
+          </p>
+          <TipRow
+            name="Team Rating"
+            value={`${live.value.toFixed(1)} ⟨${live.covered}/${live.total}⟩ · ${ordinal(live.rank)} of 32`}
+          />
+          <TipRow name="As of" value={`week ${live.week} · through ${live.date}`} />
+          <TipRow name="Cap+" value="Not until the season is final" />
+        </>
+      );
+    }
     const p = pointBy.get(season);
     const d = detailBy.get(season);
     if (!p) return null;
@@ -203,6 +250,20 @@ export function FranchiseArc({
 
   const hitSeasons = (geo: Geometry, xOf: (s: number) => number, seasons: number[]) =>
     seasons.map((s) => {
+      if (live && s === live.season) {
+        return {
+          season: s,
+          x: geo.ml + xOf(s),
+          href: `/team/${abbr}/${s}`,
+          label: [
+            `${s}, ${live.record}, in progress`,
+            `Team Rating live ${live.value.toFixed(1)}, ${live.covered} of ${live.total} games, as of week ${live.week}`,
+            s === currentSeason ? 'this page' : '',
+          ]
+            .filter(Boolean)
+            .join('. '),
+        };
+      }
       const p = pointBy.get(s);
       const d = detailBy.get(s);
       const cp =
@@ -280,6 +341,7 @@ export function FranchiseArc({
               setActive={setActive}
               hitSeasons={hitSeasons}
               renderTip={renderTip}
+              live={live}
             />
           ) : (
             <FieldView
@@ -337,6 +399,7 @@ function IndexView({
   setActive,
   hitSeasons,
   renderTip,
+  live,
 }: {
   points: HistoryPoint[];
   teamName: string;
@@ -348,6 +411,7 @@ function IndexView({
   setActive: (s: number | null) => void;
   hitSeasons: HitBuilder;
   renderTip: (s: number) => React.ReactNode;
+  live: ArcLiveMark | null;
 }) {
   const { w, h, ml, mr, mt, mb, compact } = geo;
   const innerW = Math.max(40, w - ml - mr);
@@ -357,7 +421,11 @@ function IndexView({
   const seasons = points.map((p) => p.season);
   if (!seasons.length) return null;
 
-  const x = scalePoint<number>().domain(seasons).range([0, innerW]).padding(0.5);
+  // The live season takes the slot after an empty GAP slot (2025.5): the gap
+  // is where the dashed IN PROGRESS rule stands, and no series crosses it.
+  const gapSlot = live ? live.season - 0.5 : null;
+  const xDomain = live && gapSlot !== null ? [...seasons, gapSlot, live.season] : seasons;
+  const x = scalePoint<number>().domain(xDomain).range([0, innerW]).padding(0.5);
   const y = scaleLinear().domain(INDEX_DOMAIN).range([innerH, 0]);
   const px = (s: number) => x(s) ?? 0;
   const step = x.step();
@@ -399,10 +467,13 @@ function IndexView({
     if (lastRating) ratingLabel = { x: innerW + mr - 2 - (lastCapplus ? 78 : 0), y: -9, anchor: 'end' };
   } else {
     const collide = lastCapplus && lastRating && Math.abs(cY - rY) < 15;
+    // With a live mark, the names sit right of it: the 2026 mark and the gap
+    // rule own the two slots after 2025.
+    const after = (s: number) => (live ? px(live.season) + 14 : px(s) + 10);
     if (lastCapplus)
-      capLabel = { x: px(lastCapplus.x) + 10, y: cY + (collide ? (capAbove ? -6 : 9) : 4), anchor: 'start' };
+      capLabel = { x: after(lastCapplus.x), y: cY + (collide ? (capAbove ? -6 : 9) : 4), anchor: 'start' };
     if (lastRating)
-      ratingLabel = { x: px(lastRating.x) + 10, y: rY + (collide ? (capAbove ? 15 : -1) : 4), anchor: 'start' };
+      ratingLabel = { x: after(lastRating.x), y: rY + (collide ? (capAbove ? 15 : -1) : 4), anchor: 'start' };
   }
 
   /* Tick labels: the budget, plus the page's own season, which is always
@@ -660,6 +731,84 @@ function IndexView({
             );
           })}
 
+          {/* THE LIVE SEASON (DECISIONS 116): a dashed IN PROGRESS rule in its
+              own slot, then ONE hatched, unconnected mark. No path joins it. */}
+          {live && gapSlot !== null ? (
+            <g data-live-mark={live.season}>
+              <line
+                x1={px(gapSlot)}
+                x2={px(gapSlot)}
+                y1={0}
+                y2={innerH}
+                stroke="var(--yy-fg-dim)"
+                strokeWidth={1}
+                style={{ strokeDasharray: 'var(--yy-dash-absence)' }}
+              />
+              <text
+                className={css.micro}
+                x={px(gapSlot) - 4}
+                y={innerH - 4}
+                textAnchor="start"
+                transform={`rotate(-90 ${px(gapSlot) - 4} ${innerH - 4})`}
+              >
+                In progress
+              </text>
+              {(() => {
+                const lx = px(live.season);
+                const ly = clampY(live.value);
+                const off = offScale(live.value);
+                return (
+                  <>
+                    <rect x={lx - 5.5} y={ly - 5.5} width={11} height={11} fill="var(--yy-compare)" />
+                    <rect
+                      x={lx - 5.5}
+                      y={ly - 5.5}
+                      width={11}
+                      height={11}
+                      fill={`url(#${id}-hatch)`}
+                      stroke="var(--yy-compare)"
+                      strokeWidth={1}
+                    />
+                    <rect x={lx - 5.5} y={ly - 5.5} width={11} height={11} fill={`url(#${id}-hatch)`} />
+                    {off ? (
+                      <text
+                        className={css.micro}
+                        x={lx}
+                        y={off === 'above' ? ly + 18 : ly - 10}
+                        textAnchor="middle"
+                        fill="var(--yy-compare)"
+                      >
+                        {live.value.toFixed(1)}
+                      </text>
+                    ) : null}
+                    {!compact ? (
+                      <text
+                        className={css.micro}
+                        x={lx}
+                        y={off === 'above' ? ly + 30 : ly + 18}
+                        textAnchor="middle"
+                        fill="var(--yy-fg-3)"
+                      >
+                        {`⟨${live.covered}/${live.total}⟩`}
+                      </text>
+                    ) : null}
+                    {currentSeason === live.season ? (
+                      <rect
+                        x={lx - 8.5}
+                        y={ly - 8.5}
+                        width={17}
+                        height={17}
+                        fill="none"
+                        stroke="var(--yy-fg-1)"
+                        strokeWidth={2}
+                      />
+                    ) : null}
+                  </>
+                );
+              })()}
+            </g>
+          ) : null}
+
           {/* YOU ARE HERE — the ring on the page's own point. */}
           {cur && curY !== null ? (
             <circle
@@ -725,6 +874,11 @@ function IndexView({
               </text>
             ),
           )}
+          {live && live.season !== currentSeason ? (
+            <text className={css.tick} x={px(live.season)} y={innerH + 18} textAnchor="middle">
+              &rsquo;{String(live.season).slice(2)}
+            </text>
+          ) : null}
           {/* the page's own season — a filled tick label */}
           <g>
             <rect x={px(currentSeason) - 19} y={innerH + 5} width={38} height={18} rx={2} fill="var(--yy-fg-1)" />
@@ -753,7 +907,7 @@ function IndexView({
         </g>
       </svg>
       <SeasonHitLayer
-        seasons={hitSeasons(geo, px, seasons)}
+        seasons={hitSeasons(geo, px, live ? [...seasons, live.season] : seasons)}
         top={mt}
         height={innerH + 24}
         current={currentSeason}
@@ -768,6 +922,9 @@ function IndexView({
         {estimated.length ? ` ${estimated.join(', ')} are estimated and carry a dashed ring.` : ''}
         {provisional.length ? ` ${provisional.join(', ')} are provisional.` : ''} Any season with no
         Cap+ shows as a hatched gap and is never interpolated. The {currentSeason} season is marked.
+        {live
+          ? ` ${live.season} is in progress: after a dashed gap, one separate hatched mark shows Team Rating live, ${live.value.toFixed(1)} through week ${live.week}, ${live.covered} of ${live.total} games. No line connects it to ${live.season - 1}. `
+          : ''}
         Each season below the chart is a link with its values.
       </p>
     </div>

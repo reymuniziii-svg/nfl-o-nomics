@@ -5,7 +5,7 @@ import { badgeNote, type AsOf } from '@/lib/metric';
 import { FieldStrip, type StripBall } from './field-strip';
 import { ogFonts } from './fonts';
 import { OG, OG_TEXT, TONE_COLOR, toneOf } from './theme';
-import type { DivisionCard, TeamCard } from './data';
+import type { DivisionCard, LiveTeamCard, TeamCard } from './data';
 
 /**
  * The 1200 × 630 share cards (blind proposals §6). Rules every card obeys:
@@ -738,3 +738,152 @@ export function CompareOg({ a, b }: { a: TeamCard; b: TeamCard }) {
   );
 }
 
+
+/* ── LIVE TEAM (DECISIONS 116) ─────────────────────────────────────────── */
+
+/** Satori draws the hatch as an SVG pattern: the bar is a partial mark. */
+const LIVE_DOMAIN: [number, number] = [55, 145];
+
+function LiveBar({ value, width }: { value: number; width: number }) {
+  const h = 34;
+  const x = (v: number) =>
+    ((Math.max(LIVE_DOMAIN[0], Math.min(LIVE_DOMAIN[1], v)) - LIVE_DOMAIN[0]) / (LIVE_DOMAIN[1] - LIVE_DOMAIN[0])) *
+    width;
+  const mid = x(100);
+  const at = x(value);
+  const left = Math.min(mid, at);
+  const w = Math.max(3, Math.abs(at - mid));
+  return (
+    <svg width={width} height={h + 12} viewBox={`0 0 ${width} ${h + 12}`}>
+      <defs>
+        <pattern id="h" width="12" height="12" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+          <rect x="0" y="0" width="4" height="12" fill={OG.partial} />
+        </pattern>
+      </defs>
+      <rect x="0" y="6" width={width} height={h} rx="4" fill="rgba(168, 177, 173, 0.14)" />
+      <rect x={left} y="6" width={w} height={h} rx="4" fill={OG.track} stroke={OG.mid} strokeWidth="2" />
+      <rect x={left} y="6" width={w} height={h} rx="4" fill="url(#h)" />
+      <rect x={left} y="6" width={w} height={h} rx="4" fill="url(#h)" />
+      <rect x={mid - 2} y="0" width="4" height={h + 12} fill={OG.gold} />
+    </svg>
+  );
+}
+
+export function LiveTeamOg({ card }: { card: LiveTeamCard }) {
+  const r = card.row;
+  const asOf = card.date
+    ? `${card.season} · AS OF WEEK ${card.week} · THROUGH ${card.date}`
+    : `${card.season} · NO WEEK CLOSED YET`;
+
+  const band = (
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'space-between',
+        width: BAND_W,
+        height: MAIN_H,
+        padding: '24px 36px 22px',
+        background: card.bg,
+        color: card.fg,
+      }}
+    >
+      <div style={{ display: 'flex', flexDirection: 'column' }}>
+        <span style={{ fontFamily: OG_TEXT.display, fontSize: 168, lineHeight: 0.86, letterSpacing: 2 }}>
+          {card.team}
+        </span>
+        <span style={{ fontFamily: OG_TEXT.display, fontSize: 112, lineHeight: 0.9, letterSpacing: 2 }}>
+          {String(card.season)}
+        </span>
+        <span
+          style={{
+            fontFamily: OG_TEXT.athletic,
+            fontWeight: 600,
+            fontSize: 28,
+            letterSpacing: 1,
+            textTransform: 'uppercase',
+            marginTop: 6,
+          }}
+        >
+          {card.name}
+        </span>
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+        <span style={{ fontFamily: OG_TEXT.display, fontSize: 64, lineHeight: 0.9, letterSpacing: 1 }}>
+          {r ? `${rec(r.wins, r.losses, r.ties)}  ·  ${signed(r.pointDiff)} PTS` : 'NOT YET RATED'}
+        </span>
+        {/* No verdict stamp on a live card: the as-of week takes its place. */}
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignSelf: 'flex-start',
+            padding: '8px 16px',
+            background: OG.surfaceApp,
+            border: `3px solid rgba(168, 177, 173, 0.4)`,
+            borderRadius: 8,
+            color: OG.ink2,
+          }}
+        >
+          <span style={{ fontFamily: OG_TEXT.display, fontSize: 48, lineHeight: 1 }}>
+            {`LIVE · WEEK ${card.week}`}
+          </span>
+          <span style={{ fontFamily: OG_TEXT.athletic, fontWeight: 600, fontSize: 28 }}>
+            {r ? `${r.gamesPlayed} OF ${r.gamesScheduled} GAMES · NO VERDICT` : 'NO VERDICT'}
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+
+  const head = r ? (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+      <span style={{ fontFamily: OG_TEXT.athletic, fontWeight: 600, fontSize: 32, color: OG.ink2 }}>
+        TEAM RATING (PERFORMANCE ONLY) · LIVE
+      </span>
+      <div style={{ display: 'flex', alignItems: 'baseline', gap: 16 }}>
+        <span style={{ fontFamily: OG_TEXT.display, fontSize: 88, lineHeight: 0.9, color: OG.ink1 }}>
+          {r.rating.state === 'blank' ? '' : r.rating.value.toFixed(0)}
+        </span>
+        <span style={{ fontFamily: OG_TEXT.athletic, fontWeight: 600, fontSize: 28, color: OG.ink2 }}>
+          {`#${r.rank} OF 32 · ${r.gamesPlayed} OF ${r.gamesScheduled} GP`}
+        </span>
+        <span style={{ fontFamily: OG_TEXT.athletic, fontWeight: 600, fontSize: 28, color: OG.gold }}>
+          100 = 2026 AVERAGE
+        </span>
+      </div>
+    </div>
+  ) : (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+      <span style={{ fontFamily: OG_TEXT.athletic, fontWeight: 600, fontSize: 32, color: OG.ink2 }}>
+        TEAM RATING · LIVE
+      </span>
+      <Reason>{card.reason ?? ''}</Reason>
+    </div>
+  );
+
+  const lines = r ? (
+    <div style={{ display: 'flex', flexDirection: 'column' }}>
+      <Line label="Adj. EPA margin / play" value={signed(r.epaAdj.state === 'blank' ? 0 : r.epaAdj.value, 2)} />
+      <Line label="Raw · schedule" value={`${signed(r.epaRaw, 2)} · ${signed(r.sos, 2)}`} />
+      <Line label="Cost per win" value="When 2026 is final" valueColor={OG.ink2} />
+    </div>
+  ) : (
+    <div style={{ display: 'flex', flexDirection: 'column' }} />
+  );
+
+  return (
+    <Frame
+      band={band}
+      dated={`${asOf} · pbp ${card.pbpShort}`}
+      method="Live: results and EPA only · ranked within 2026 · no money"
+      panel={
+        <div style={COL}>
+          {head}
+          {r && r.rating.state !== 'blank' ? <LiveBar value={r.rating.value} width={STRIP_W} /> : null}
+          {lines}
+        </div>
+      }
+    />
+  );
+}

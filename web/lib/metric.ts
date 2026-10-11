@@ -12,6 +12,10 @@
  * `badgeReason`. An ESTIMATED season is a value with `badge: 'estimated'`, never a
  * blank; `provisional` stays as the boolean shorthand for `badge === 'provisional'`.
  *
+ * Extension (2026-10-11, SPEC §1.2 / §7.14, DECISIONS 116): a LIVE in-season
+ * reading is `partial` (covered = games played, total = games scheduled) and
+ * may carry `badge: 'in_season_live'`, its `badgeReason` and the `live` as-of.
+ *
  * Every data-layer accessor returns one of these, never a bare `number | null`.
  * A component that receives `state: 'blank'` renders the reason string; there is
  * no code path that renders an empty cell, a dash, a zero, or an interpolated
@@ -42,7 +46,36 @@ export type Metric<T> =
       badgeReason?: string;
     }
   | { state: 'blank'; reason: string }
-  | { state: 'partial'; value: T; covered: number; total: number; reason: string };
+  | {
+      state: 'partial';
+      value: T;
+      covered: number;
+      total: number;
+      reason: string;
+      /** `SPEC.md` §1.2 / §7.14 — set on a live (in-season) reading only. */
+      badge?: LiveBadge;
+      /** The live mart's `badge_reason` sentence, verbatim. */
+      badgeReason?: string;
+      /** The as-of week and date, never dropped from a live value. */
+      live?: LiveAsOf;
+    };
+
+/**
+ * `SPEC.md` §7.14 — the live-tier badge. A different type from `CapPlusBadge`
+ * on purpose: a historical Cap+ value can never carry it, and a live value can
+ * never carry a historical badge.
+ */
+export type LiveBadge = 'in_season_live';
+
+/** The as-of of a live reading: the last closed week and its last game day. */
+export interface LiveAsOf {
+  season: number;
+  week: number;
+  /** ISO date — the last game day of `week` (a data date, never a run time). */
+  date: string;
+  gamesPlayed: number;
+  gamesScheduled: number;
+}
 
 export function value<T>(v: T, asOf?: AsOf, provisional?: boolean): Metric<T> {
   return asOf === undefined && provisional === undefined
@@ -132,6 +165,29 @@ export function partial<T>(v: T, covered: number, total: number, reason: string)
 }
 
 /**
+ * A live in-season reading (`SPEC.md` §1.2): `partial` with `covered = games
+ * played`, `total = games scheduled`, the `in_season_live` badge, the mart's
+ * badge sentence and the as-of week. The only way a live value is built.
+ */
+export function liveValue<T>(v: T, live: LiveAsOf, badgeReason: string): Metric<T> {
+  return {
+    state: 'partial',
+    value: v,
+    covered: live.gamesPlayed,
+    total: live.gamesScheduled,
+    reason: badgeReason,
+    badge: 'in_season_live',
+    badgeReason,
+    live,
+  };
+}
+
+/** True for a live in-season reading — the guard every final-only surface uses. */
+export function isLive(m: Metric<unknown> | null | undefined): boolean {
+  return !!m && m.state === 'partial' && m.badge === 'in_season_live';
+}
+
+/**
  * Project a Metric onto a different value type, PRESERVING THE STATE.
  *
  * This is the only sanctioned way to go from `Metric<Row>` to `Metric<number>`:
@@ -157,6 +213,9 @@ export function mapMetric<A, B>(m: Metric<A>, f: (a: A) => B): Metric<B> {
         covered: m.covered,
         total: m.total,
         reason: m.reason,
+        ...(m.badge ? { badge: m.badge } : {}),
+        ...(m.badgeReason ? { badgeReason: m.badgeReason } : {}),
+        ...(m.live ? { live: m.live } : {}),
       };
     default:
       return m;
@@ -188,7 +247,31 @@ export const BLANK_REASON = {
   PRE_SNAPS: 'Not available — snap counts begin in 2013.',
   /** A mart the ETL has not produced yet (seed manifest says "skipped"). */
   MART_ABSENT: 'Not available — this dataset is not in the current data snapshot.',
+  /**
+   * `SPEC.md` §7.14 / DECISIONS 116 — every block a live (in-season) team page
+   * withholds: cost per win, the receipt, the lenses, Cap+ context, coaching,
+   * the draft, dead money.
+   */
+  LIVE_SEASON:
+    'Not available while 2026 is in progress — this block publishes when the season is final.',
 } as const;
+
+/** The chip text on every live surface. Never gold, never lime (`--yy-live`). */
+export const LIVE_LABEL = 'Live';
+
+/** The live Team Rating's full name (SPEC §1.1) — never "Cap+ · live". */
+export const TEAM_RATING_LIVE_NAME = 'Team Rating (performance only) · live';
+
+/**
+ * The mandatory as-of line on every live surface: `2026 · AS OF WEEK 4 ·
+ * THROUGH 2026-10-05`. Upper-cased where it is a stamp; the data date only,
+ * never a relative time ("3 days ago" goes stale on a static page).
+ */
+export function liveAsOfLine(a: { season: number; week: number; date: string | null }): string {
+  return a.date
+    ? `${a.season} · as of week ${a.week} · through ${a.date}`
+    : `${a.season} · no week closed yet`;
+}
 
 /**
  * The provisional fallback sentence, used only where a row carries no
