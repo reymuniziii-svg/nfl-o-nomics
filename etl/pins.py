@@ -51,10 +51,13 @@ ASSETS = {
     },
     "contracts": {
         "url": config.CONTRACTS_URL,
-        "projected": "* (the nested `cols` list is unnested and deduped in DuckDB)",
-        "note": "OTC-derived. `cols` is a PLAYER-level career table replicated onto "
-                "every contract row — dedupe on (otc_id, year) or team totals "
-                "inflate 3-7x (DATA_AUDIT §6 trap 1).",
+        "projected": "* (the nested `season_history` list, `cols` before the "
+                     "October 2026 release, is unnested and deduped in DuckDB)",
+        "note": "OTC-derived. `season_history` (formerly `cols`) is a PLAYER-level "
+                "career table replicated onto every contract row — dedupe on "
+                "(otc_id, year) or team totals inflate 3-7x (DATA_AUDIT §6 trap 1). "
+                "Blank nested team: zero-money rows dropped, money rows go to the "
+                "contract in force (DECISIONS 115).",
     },
     "draft_picks": {
         "url": config.DRAFT_URL,

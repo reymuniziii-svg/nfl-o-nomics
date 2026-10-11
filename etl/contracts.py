@@ -6,7 +6,8 @@ produces the deduplicated player-season table and the position-at-signing rule i
 `team_season_cap.csv` is final and must re-emit byte-identically.
 
 THE CENTRAL STRUCTURAL FACT (`DATA_AUDIT.md` §6 trap 1):
-  The nested `cols` column is NOT contract-specific. It is the player's *entire
+  The nested `cols` column (renamed `season_history` in the October 2026
+  release, DECISIONS.md 115) is NOT contract-specific. It is the player's *entire
   career cap table*, replicated byte-identically onto every contract row that
   player has (100% of the 6,788 multi-contract players). Unnesting without
   deduplicating on `(otc_id, year)` yields 304,313 rows instead of 41,976 and
@@ -44,14 +45,33 @@ GOLDEN_WILSON_SEA_2013 = 681_085      # scheduled number (trap 12)
 # --------------------------------------------------------------------------- #
 # 1. load + dedup  (verbatim from audit/audit_contracts.py)
 # --------------------------------------------------------------------------- #
-def build_player_seasons(con) -> None:
-    """Unnest `cols` -> `psu`, then dedupe to one row per (otc_id, season) -> `ps`.
+# The nested career table was `cols` through the July 2026 read; the October
+# 2026 release renamed it `season_history` (same thirteen fields). Prefer the new
+# name, fall back to the old (DECISIONS.md 115).
+CAREER_TABLE_COLUMNS = ("season_history", "cols")
 
-    Dedup is mandatory: `cols` is a player-level career table replicated onto
-    every contract row. `rid` is a stable per-contract row id.
+
+def career_table_column(con) -> str:
+    """Name of the nested per-player career cap table in `c`. Exactly one of
+    `season_history` / `cols` must be present: both or neither is an upstream
+    schema change this loader has not seen, and must stop the build."""
+    have = set(con.execute("DESCRIBE SELECT * FROM c").df()["column_name"])
+    present = [c for c in CAREER_TABLE_COLUMNS if c in have]
+    assert len(present) == 1, (
+        f"contracts: expected exactly one of {CAREER_TABLE_COLUMNS}, found {present}")
+    return present[0]
+
+
+def build_player_seasons(con) -> None:
+    """Unnest `season_history` (formerly `cols`) -> `psu`, then dedupe to one row
+    per (otc_id, season) -> `ps`.
+
+    Dedup is mandatory: the career table is player-level, replicated onto every
+    contract row. `rid` is a stable per-contract row id.
     """
+    career = career_table_column(con)
     con.execute("CREATE OR REPLACE TABLE cr AS SELECT row_number() OVER () AS rid, * FROM c")
-    con.execute("""
+    con.execute(f"""
         CREATE OR REPLACE TABLE psu AS
         SELECT cr.rid, cr.player, cr.position, cr.team AS contract_team, cr.is_active,
                cr.year_signed, cr.years, cr.value, cr.apy, cr.otc_id, cr.gsis_id,
@@ -59,7 +79,7 @@ def build_player_seasons(con) -> None:
                u.base_salary, u.prorated_bonus, u.roster_bonus, u.guaranteed_salary,
                u.cap_number, u.cap_percent, u.cash_paid, u.workout_bonus,
                u.other_bonus, u.per_game_roster_bonus, u.option_bonus
-        FROM cr, UNNEST(cr.cols) AS t(u)
+        FROM cr, UNNEST(cr.{career}) AS t(u)
     """)
     # Drop the per-contract 'Total' footer row and non-year junk ('0', '201').
     con.execute("""
@@ -81,6 +101,62 @@ def load(con, *, download: bool = False) -> None:
     build_player_seasons(con)
 
 
+def blank_team_contract(con) -> pd.DataFrame:
+    """For each blank-nickname player-season, the top-level `team` of the
+    contract in force: the most recent signing at or before that season (the
+    DECISIONS.md 27 rule), `rid` breaking ties. Used only for money-carrying
+    blank rows (DECISIONS.md 115)."""
+    return con.execute("""
+        SELECT DISTINCT ON (p.otc_id, p.season)
+               p.otc_id, p.season, cr.contract_team_raw AS contract_team
+        FROM ps p
+        JOIN (SELECT otc_id, year_signed, rid, team AS contract_team_raw FROM cr) cr
+          ON cr.otc_id = p.otc_id AND cr.year_signed <= p.season
+        WHERE p.nickname = '' AND p.season IS NOT NULL
+        ORDER BY p.otc_id, p.season, cr.year_signed DESC, cr.rid
+    """).df()
+
+
+def resolve_blank_teams(df: pd.DataFrame, con) -> tuple[pd.DataFrame, dict]:
+    """DECISIONS.md 115 — the October 2026 release carries `''` as the nested
+    team on 5 player-seasons (13 replicated rows, 2014/2015/2018), none of which
+    existed in the July read.
+
+    * Zero-money rows (`cap_number` and `cash_paid` both 0 or null) are DROPPED:
+      four placeholders with no roster evidence (Cyrus Jones 2015 is the year
+      before he was drafted; Heeney, Robinson and Hungalu 2018 are $0 seasons
+      after their last charge). Dropping them moves no money.
+    * Money-carrying rows are ATTRIBUTED to the team of the contract in force
+      (most recent signing at/before the season, DECISIONS.md 27). In this
+      release that is one row: Alex Henery 2014, $531,176 cap and cash, whose
+      only 2014 contract is a one-year Lions deal -> DET. It enters DET 2014
+      `cap_used_total`; `unaccounted_vs_adjusted` falls by the same amount
+      (its 0.004 `cap_percent` is below the 0.02 floor, so the implied adjusted
+      cap is unchanged).
+    * A money-carrying blank row whose contract team does not map to exactly one
+      franchise stops the build: money is never silently dropped.
+    """
+    blank = df["nickname"].eq("")
+    money = (df["cap_number"].fillna(0).ne(0) | df["cash_paid"].fillna(0).ne(0))
+    drop = blank & ~money
+    fix = blank & money
+    stats = {"blank_rows": int(blank.sum()), "blank_dropped_zero_money": int(drop.sum()),
+             "blank_attributed": int(fix.sum()),
+             "blank_attributed_cap_usd": float(df.loc[fix, "cap_number"].sum() * 1e6)}
+    if fix.any():
+        ct = blank_team_contract(con)
+        ct["resolved"] = ct["contract_team"].map(nickname_to_code)
+        m = df.loc[fix, ["otc_id", "season"]].merge(ct, on=["otc_id", "season"], how="left")
+        if m["resolved"].isna().any():
+            bad = m[m["resolved"].isna()].to_dict("records")
+            raise AssertionError(f"blank OTC team with money and no single contract team: {bad}")
+        df.loc[fix, "team"] = m["resolved"].to_numpy()
+        stats["blank_attributed_detail"] = [
+            f"{r.otc_id}/{r.season} -> {r.resolved} ({r.contract_team})"
+            for r in m.itertuples()]
+    return df.loc[~drop].reset_index(drop=True), stats
+
+
 def player_seasons_df(con) -> pd.DataFrame:
     df = con.execute("""
         SELECT otc_id, gsis_id, player, season, nickname,
@@ -89,6 +165,8 @@ def player_seasons_df(con) -> pd.DataFrame:
         FROM ps WHERE season IS NOT NULL
     """).df()
     df["team"] = df["nickname"].map(nickname_to_code)
+    df, blank_stats = resolve_blank_teams(df, con)
+    _CACHE["blank_team"] = blank_stats
     # Source is in $ MILLIONS; the rest of this project works in USD.
     for c in ("cap_number", "cash_paid", "base_salary", "prorated_bonus",
               "roster_bonus", "guaranteed_salary"):
@@ -339,11 +417,11 @@ def build_player_season_cap(con, df: pd.DataFrame, pos: pd.DataFrame, *,
     d = df[df["season"].between(TIER2_START, TIER2_END) & df["team"].notna()].copy()
     d = d.merge(pos, on=["otc_id", "season"], how="left")
     # `position_group` is the CLOSED nine-value vocabulary of SPEC §7.12. A
-    # player-season with no recorded signing position (502 of 32,105 = 1.6%,
-    # carrying 0.375% of cap) gets NULL, not a tenth `UNK` bucket: SPEC §2.6 says
+    # player-season with no recorded signing position (548 of 32,265 = 1.7%,
+    # carrying 0.393% of cap; October 2026 read) gets NULL, not a tenth `UNK` bucket: SPEC §2.6 says
     # unmapped cap is *dropped*, not bucketed into "other", and the drop happens
     # in `position_allocation`. Every player-season still ships here, because the
-    # 32,105-row Tier 2 promise is a roster, not a filtered sample.
+    # 32,265-row Tier 2 promise is a roster, not a filtered sample.
     d["position_group"] = d["position"].map(config.POSITION_GROUP)
 
     terms = contract_in_force(con)
@@ -435,7 +513,7 @@ def build_position_allocation(psc: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
     """Cap share by position group per team-season versus the league average.
 
     The denominator is the team's **mapped rostered cap**. Unmapped cap share is
-    0.375% and is dropped, not bucketed into "other" (`SPEC.md` §2.6), so the
+    0.393% (October 2026 read) and is dropped, not bucketed into "other" (`SPEC.md` §2.6), so the
     nine group shares sum to 1.000 and the diverging bars close.
 
     This is a share of *rostered* cap and therefore inherits the dead-money
@@ -541,6 +619,13 @@ def _prepare(ctx):
     pos = position_by_player_season(con)
     gc = golden_checks(df)
     if ctx.verbose:
+        b = _CACHE.get("blank_team", {})
+        print(f"  blank OTC team rows: {b.get('blank_rows', 0)} "
+              f"(dropped zero-money {b.get('blank_dropped_zero_money', 0)}, "
+              f"attributed {b.get('blank_attributed', 0)} = "
+              f"${b.get('blank_attributed_cap_usd', 0):,.0f} cap)")
+        for d in b.get("blank_attributed_detail", []):
+            print(f"    {d}")
         for r in gc:
             print(f"  golden {r['check']}: ${r['got']:,.0f} (delta {r['delta']:+.0f})")
     _CACHE.update({"con": con, "df": df, "pos": pos, "golden": gc})

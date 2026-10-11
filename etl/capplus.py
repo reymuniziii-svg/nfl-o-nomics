@@ -67,22 +67,26 @@ if str(config.AUDIT) not in sys.path:
 import capplus_backtest as bt  # noqa: E402  (audit/capplus_backtest.py)
 
 #: Regression guard — (season, team, Cap+, season rank), recorded from the
-#: 2026-10-10 build (λ = 1, adjusted EPA, measured-only calibration) and frozen.
-#: The first ten are the July memo's cases (CAPPLUS_MEMO.md §3.1); the last three
-#: check one team in each estimated season. CAPPLUS_MEMO.md §9 prints old vs new.
+#: 2026-10-10 build (λ = 1, adjusted EPA, measured-only calibration) and
+#: RE-FROZEN 2026-10-11 on the October nflverse contracts release (DECISIONS 115:
+#: `cols` -> `season_history`, 167 backfilled player-seasons, Brady's 2023 Route-R
+#: charge withdrawn upstream). Every rank held; 11 of 13 values moved by more
+#: than the 0.05 tolerance. The first ten are the July memo's cases
+#: (CAPPLUS_MEMO.md §3.1); the last three check one team in each estimated
+#: season. CAPPLUS_MEMO.md §9.2 prints July vs 10-10, §9.5 prints 10-10 vs 10-11.
 SNIFF = [
-    (2023, "SF", 135.4, 1),
-    (2022, "CHI", 77.3, 30),
-    (2024, "DEN", 111.8, 10),
-    (2014, "NE", 121.6, 3),
-    (2017, "PHI", 117.7, 5),
-    (2017, "CLE", 71.6, 32),
+    (2023, "SF", 135.0, 1),
+    (2022, "CHI", 77.2, 30),
+    (2024, "DEN", 111.9, 10),
+    (2014, "NE", 122.0, 3),
+    (2017, "PHI", 117.9, 5),
+    (2017, "CLE", 71.5, 32),
     (2022, "ATL", 96.2, 20),
-    (2019, "KC", 125.5, 2),
-    (2025, "NO", 93.1, 23),
-    (2023, "LA", 107.5, 10),
-    (2016, "NO", 104.1, 13),
-    (2020, "CAR", 87.5, 24),
+    (2019, "KC", 125.6, 2),
+    (2025, "NO", 93.0, 23),
+    (2023, "LA", 107.0, 10),
+    (2016, "NO", 104.3, 13),
+    (2020, "CAR", 87.4, 24),
     (2021, "PHI", 105.7, 13),
 ]
 SNIFF_TOL = 0.05  # index points — the memo's own reconciliation tolerance

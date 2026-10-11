@@ -12,7 +12,7 @@ drift_detection = "named tag + exact projected column set + observed row count +
 
 [data_version]
 coaching_window = "2000-2025"
-dead_money_resolved_rows = 316
+dead_money_resolved_rows = 416
 draft_window = "2000-2025"
 excluded_season = 2026
 league_cap_window = "1994-2025"
@@ -22,11 +22,11 @@ tier2_window = "2013-2025"
 [assets.contracts]
 tag = "contracts"
 url = "https://github.com/nflverse/nflverse-data/releases/download/contracts/historical_contracts.parquet"
-projected_columns = "* (the nested `cols` list is unnested and deduped in DuckDB)"
-observed_rows_consumed = 41976
+projected_columns = "* (the nested `season_history` list, `cols` before the October 2026 release, is unnested and deduped in DuckDB)"
+observed_rows_consumed = 43091
 window = "2013-2025"
 consumed_by = ["team_season_cap"]
-note = "OTC-derived. `cols` is a PLAYER-level career table replicated onto every contract row — dedupe on (otc_id, year) or team totals inflate 3-7x (DATA_AUDIT §6 trap 1)."
+note = "OTC-derived. `season_history` (formerly `cols`) is a PLAYER-level career table replicated onto every contract row — dedupe on (otc_id, year) or team totals inflate 3-7x (DATA_AUDIT §6 trap 1). Blank nested team: zero-money rows dropped, money rows go to the contract in force (DECISIONS 115)."
 
 [assets.draft_picks]
 tag = "draft_picks"
@@ -50,7 +50,7 @@ note = "NOT A RELEASE ASSET — nfldata serves games.csv from the master branch,
 tag = "pbp"
 url = "https://github.com/nflverse/nflverse-data/releases/download/pbp/play_by_play_{year}.parquet"
 projected_columns = "season, season_type, posteam, defteam, play_type, epa"
-observed_rows_consumed = 870208
+observed_rows_consumed = 870218
 window = "1999-2025 REG pass+run"
 consumed_by = ["team_season_epa"]
 note = "372 columns in the file; we read six. One file per season."
@@ -59,7 +59,7 @@ note = "372 columns in the file; we read six. One file per season."
 tag = "players"
 url = "https://github.com/nflverse/nflverse-data/releases/download/players/players.parquet"
 projected_columns = "otc_id, gsis_id, pfr_id, display_name"
-observed_rows_consumed = 9338
+observed_rows_consumed = 9818
 window = "2013-2025"
 consumed_by = ["player_season_cap"]
 note = "The crosswalk hub. The ONLY file carrying otc_id, and the only bridge from gsis_id to snap counts' pfr_id (DECISIONS 38)."
@@ -68,7 +68,7 @@ note = "The crosswalk hub. The ONLY file carrying otc_id, and the only bridge fr
 tag = "snap_counts"
 url = "https://github.com/nflverse/nflverse-data/releases/download/snap_counts/snap_counts_{year}.parquet"
 projected_columns = "season, game_type, game_id, player, pfr_player_id, team, offense_snaps, offense_pct, defense_snaps, st_snaps"
-observed_rows_consumed = 310475
+observed_rows_consumed = 310476
 window = "2013-2025 REG"
 consumed_by = ["player_season_availability"]
 note = "One file per season. The 2012 asset returns HTTP 200 and ZERO rows — the pipeline asserts it is still empty rather than trusting the 2013 boundary constant (DECISIONS 37)."

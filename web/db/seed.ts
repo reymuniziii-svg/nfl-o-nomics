@@ -572,7 +572,7 @@ const playerSeasonCap = loader({
   name: 'player_season_cap',
   candidates: ['player_season_cap'],
   required: ['season', 'team', 'otc_id', 'cap_number'],
-  expected: 32105,
+  expected: 32265,
   map: (r) => ({
     otcId: asInt(r.otc_id)!,
     gsisId: asText(r.gsis_id),

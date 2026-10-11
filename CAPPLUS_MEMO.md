@@ -256,7 +256,8 @@ The July evidence record, `capplus_candidates.csv`, is frozen and no longer repr
 ### 9.2 Sniff table — old vs new
 
 Index value and rank in season. "Old" is the July build (§3.1: λ = 1.5, raw EPA, nine seasons).
-"New" is frozen as the regression guard (`etl/capplus.SNIFF`, tolerance 0.05 points, exact rank).
+"New" was frozen as the regression guard (`etl/capplus.SNIFF`, tolerance 0.05 points, exact rank)
+and was re-frozen on 2026-10-11 after the upstream contracts refresh; §9.5 has those values.
 
 | Case | Old | New | Field rank | Dead money |
 |---|---:|---:|---:|---:|
@@ -327,3 +328,35 @@ Now over 416 team-seasons: 146 rookie-window, 270 veteran. Rookie-window teams a
 Cap+ and 97.4 on Team Rating; QB-timing points average **+3.2** (veterans −1.7). Still about a
 fifth of one SD. The 2019 Chiefs score −1.4 (floored, as before). Within each season,
 corr(Cap+, QB cap share) runs +0.10 to +0.42. §8.1's verdict stands.
+
+### 9.5 Upstream contracts refresh 2026-10-11
+
+The nflverse contracts release changed after the July read (`DECISIONS.md` 115): `cols` became
+`season_history`, 167 player-seasons were backfilled (+$94.9M, mostly 2013–2015), and Tom Brady's
+TB 2023 $35.104M Route-R charge was withdrawn. That charge was also inside TB 2023's $75.32M
+dead-money reading, so the July read counted it twice; TB 2023 moves 85.1 → 98.8 (#27 → #19).
+League rostered cap moves +0.09% over 13 seasons; 2013 most (+1.2%), 2023 −0.6% (Brady).
+11 of 13 sniff cases moved past the 0.05 tolerance; **every rank held**. Re-frozen:
+
+| Case | 2026-10-10 | 2026-10-11 |
+|---|---:|---:|
+| 2023 SF | 135.4 (#1) | **135.0 (#1)** |
+| 2022 CHI | 77.3 (#30) | **77.2 (#30)** |
+| 2024 DEN | 111.8 (#10) | **111.9 (#10)** |
+| 2014 NE | 121.6 (#3) | **122.0 (#3)** |
+| 2017 PHI | 117.7 (#5) | **117.9 (#5)** |
+| 2017 CLE | 71.6 (#32) | **71.5 (#32)** |
+| 2022 ATL | 96.2 (#20) | 96.2 (#20) |
+| 2019 KC | 125.5 (#2) | **125.6 (#2)** |
+| 2025 NO | 93.1 (#23) | **93.0 (#23)** |
+| 2023 LA | 107.5 (#10) | **107.0 (#10)** |
+| 2016 NO | 104.1 (#13) | **104.3 (#13)** |
+| 2020 CAR | 87.5 (#24) | **87.4 (#24)** |
+| 2021 PHI | 105.7 (#13) | 105.7 (#13) |
+
+Across all 416 team-seasons: 36 values move more than 0.5 points (19 of them in 2013), 7 more than
+2, 46 ranks change (max 8 places); corr with the 10-10 build 0.998. §9.3 diagnostics at the
+refresh: corr(Cap+, Team Rating) 0.966 (0.963 measured), mean |rank shift| 1.87 (1.91 measured),
+cost > 1.00 still 12.5%, estimated-season pooled SD 14.8. §9.4: rookie-window 97.8 Cap+ / 97.4
+Team Rating, QB-timing +3.2 (veterans −1.8). All-time top 10 and bottom 10 keep their members; only
+adjacent pairs swap (2014 SEA/2022 SF, 2016 NE/2024 DET, 2013 CAR/2022 BUF, 2016 SF/2021 JAX).

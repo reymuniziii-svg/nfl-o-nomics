@@ -74,7 +74,7 @@ Row counts are the shipping (`DEAD_MONEY_TIER=full`) build.
 | `team_season_epa` | 861 | 9 | SPEC §7.2 — REG only, `play_type IN ('pass','run')` |
 | `league_cap` | 32 | 5 | SPEC §7.11 — 1994–2025; **2010 NULL, uncapped** |
 | `team_season_cap` | 416 | 14 | SPEC §7.3 — 2013–2025; dead-money columns **always null** |
-| `player_season_cap` | 32,105 | 27 | SPEC §7.9 — player-season detail + marquee dead-money markers |
+| `player_season_cap` | 32,265 | 27 | SPEC §7.9 — player-season detail + marquee dead-money markers |
 | `player_season_availability` | 28,190 | 10 | SPEC §7.9 — games + snaps, 2013–2025, REG only |
 | `player_images` | 251 | 27 | SPEC §7.10 — licence, attribution, self-hosted rendition |
 | `position_allocation` | 3,744 | 7 | SPEC §7.12 / §2.6 — 13 × 32 × 9 groups |
@@ -114,9 +114,10 @@ risk 6); the one uncovered case is a byte-level republish that changed nothing w
 read. Closing it needs a `--download` verification pass and is recorded in
 `etl/pins.py` as the open item rather than faked.
 
-Observed consumption reconciles to `DATA_AUDIT.md` §2 exactly: games 6,967 REG ·
-pbp 870,208 REG pass+run · contracts 41,976 deduped player-seasons · draft 6,644
-picks · snaps 310,475 REG · players 9,338 `otc_id` crosswalk rows.
+Observed consumption reconciled to `DATA_AUDIT.md` §2 exactly on the July 2026 read. On the
+2026-10-11 refresh (DECISIONS 115) it reads: games 6,967 REG · pbp 870,218 REG pass+run ·
+contracts 43,091 deduped player-seasons (July 41,976) · draft 6,644 picks · snaps 310,476 REG
+· players 9,818 `otc_id` crosswalk rows (July 9,338).
 
 ---
 
@@ -296,8 +297,8 @@ Golden facts, re-run against the built marts at `DATA_AUDIT.md` §3 tolerances:
 * 2007 NE 16-0-0, 2008 DET 0-16-0, 2017 CLE 0-16-0 — exact.
 * Mahomes KC 2023 `$37,133,824` and Wilson SEA 2013 `$681,085` — **delta $0**.
 * Tom Brady 2000: round 6, pick 199, raw code `NWE` → `NE` — exact.
-* The thirteen `CAPPLUS_MEMO.md` §9.2 sniff values, to ±0.05 index points **and
-  exact rank**, including 2023 SF 135.4 #1, 2022 CHI 77.3 #30, 2024 DEN 111.8 #10.
+* The thirteen `CAPPLUS_MEMO.md` §9.5 sniff values (re-frozen 2026-10-11), to ±0.05 index
+  points **and exact rank**, including 2023 SF 135.0 #1, 2022 CHI 77.2 #30, 2024 DEN 111.9 #10.
 
 Structural:
 

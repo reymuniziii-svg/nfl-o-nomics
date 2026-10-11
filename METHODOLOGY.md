@@ -120,7 +120,7 @@ in his rookie window. We call that a rookie-deal starter.
 | | Teams | Avg Cap+ | Avg Team Rating | QB-timing points |
 |---|---:|---:|---:|---:|
 | Rookie-deal QB | 146 | 97.8 | 97.4 | +3.2 |
-| Veteran-deal QB | 270 | 101.2 | 101.4 | −1.7 |
+| Veteran-deal QB | 270 | 101.2 | 101.4 | −1.8 |
 
 Teams with a rookie-deal starter average below 100 because they're usually still bad. Their cheap
 quarterbacks add 3.2 points on average, about a fifth of one standard deviation. Give each a
@@ -155,7 +155,7 @@ This is where the money varies. As a share of one league cap, the mortgage has a
 standard deviation of 0.16, against 0.05 for cap consumed and 0.12 for cash paid.
 
 It's an estimate. It assumes flat proration. It can't see void years, the dummy contract years
-that push cap hits later, or restructures not yet signed. It counts 504 of 32,105 player-seasons
+that push cap hits later, or restructures not yet signed. It counts 550 of 32,265 player-seasons
 as zero for lack of a contract length.
 
 ## Cap or cash: the mortgage is the bridge

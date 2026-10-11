@@ -444,12 +444,12 @@ REGISTRY: tuple[Mart, ...] = (
             "gsis_id": Col("str", NULLABLE),
             "season": SEASON, "team": _team(),
             # ETL implementation note (SPEC §7.9). Both are NULLABLE against
-            # observed data: 502 of 32,105 player-seasons (1.6%, carrying the
-            # 0.375% of cap SPEC §2.6 calls "unmapped") have no recorded signing
+            # observed data: 548 of 32,265 player-seasons (1.7%, carrying the
+            # 0.393% of cap SPEC §2.6 calls "unmapped") have no recorded signing
             # position. They keep NULL rather than a tenth `UNK` bucket, because
             # §2.6 says unmapped cap is DROPPED, not bucketed into "other" — and
             # the drop happens in position_allocation. Every player-season still
-            # ships here: the 32,105-row Tier 2 promise is a roster, not a
+            # ships here: the 32,265-row Tier 2 promise is a roster, not a
             # filtered sample. The nine-value vocabulary still holds on non-null.
             "position_at_signing": Col("str", NULLABLE),
             "position_group": Col("str", NULLABLE, frozenset(POSITION_GROUPS)),
@@ -487,7 +487,7 @@ REGISTRY: tuple[Mart, ...] = (
             "dm_ledger_split_established": Col("bool"),
             "dm_ledger_source_url": Col("str", NULLABLE),
         },
-        grain=("otc_id", "season"), rows=32105, seasons=(2013, 2025),
+        grain=("otc_id", "season"), rows=32265, seasons=(2013, 2025),
         note="Source is $ millions — ETL converts to USD. `cash_paid` is ANNUAL, "
              "not cumulative. Deduplicate on (otc_id, year) or the `cols` "
              "replication trap inflates team totals 3-7x.",

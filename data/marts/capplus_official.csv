@@ -1,417 +1,417 @@
 season,team,capplus,perf_index,P,cost_rec,cap_consumed_rec,cost_floor,R_rec,was_floored,dead_money_rec,dm_asof_date,dm_asof_stage,dm_is_modeled,league_median_dead_money_usd,license_tier,badge,badge_reason,season_rank
-2013,ARI,119.561368,111.537515,0.769168,0.866763,0.866763,0.864981,0.936955,False,12410450,2013-03-18,preseason,False,5946448,REVIEW_SPOTRAC,provisional,published one week into the league year; understates the final figure.,2
-2013,ATL,85.54548,86.849203,-0.87672,0.935224,0.935224,0.864981,1.010961,False,11513432,2013-03-18,preseason,False,5946448,REVIEW_SPOTRAC,provisional,published one week into the league year; understates the final figure.,29
-2013,BAL,95.713978,93.079627,-0.461358,0.898696,0.898696,0.864981,0.971474,False,8136837,2013-03-18,preseason,False,5946448,REVIEW_SPOTRAC,provisional,published one week into the league year; understates the final figure.,19
-2013,BUF,100.008985,93.499695,-0.433354,0.838626,0.838626,0.864981,0.935029,True,9500035,2013-03-18,preseason,False,5946448,REVIEW_SPOTRAC,provisional,published one week into the league year; understates the final figure.,16
-2013,CAR,129.995493,120.811841,1.387456,0.795752,0.795752,0.864981,0.935029,True,9754796,2013-03-18,preseason,False,5946448,REVIEW_SPOTRAC,provisional,published one week into the league year; understates the final figure.,1
-2013,CHI,90.927822,96.974942,-0.201671,0.984196,0.984196,0.864981,1.063898,False,2325099,2013-03-18,preseason,False,5946448,REVIEW_SPOTRAC,provisional,published one week into the league year; understates the final figure.,23
-2013,CIN,111.067176,114.731815,0.982121,0.958186,0.958186,0.864981,1.035781,False,1697186,2013-03-18,preseason,False,5946448,REVIEW_SPOTRAC,provisional,published one week into the league year; understates the final figure.,9
-2013,CLE,88.31513,82.848761,-1.143416,0.838794,0.838794,0.864981,0.935029,True,7262779,2013-03-18,preseason,False,5946448,REVIEW_SPOTRAC,provisional,published one week into the league year; understates the final figure.,26
-2013,DAL,107.288365,100.12986,0.008657,0.854183,0.854183,0.864981,0.935029,True,5986584,2013-03-18,preseason,False,5946448,REVIEW_SPOTRAC,provisional,published one week into the league year; understates the final figure.,12
-2013,DEN,115.47494,127.885224,1.859015,1.028182,1.028182,0.864981,1.111446,False,7335301,2013-03-18,preseason,False,5946448,REVIEW_SPOTRAC,provisional,published one week into the league year; understates the final figure.,7
-2013,DET,100.17535,98.4839,-0.101073,0.909617,0.909617,0.864981,0.98328,False,7567505,2013-03-18,preseason,False,5946448,REVIEW_SPOTRAC,provisional,published one week into the league year; understates the final figure.,15
-2013,GB,94.259959,97.945786,-0.136948,0.959869,0.959869,0.864981,1.037601,False,121297,2013-03-18,preseason,False,5946448,REVIEW_SPOTRAC,provisional,published one week into the league year; understates the final figure.,21
-2013,HOU,74.275435,76.75067,-1.549955,0.94757,0.94757,0.864981,1.024306,False,2130742,2013-03-18,preseason,False,5946448,REVIEW_SPOTRAC,provisional,published one week into the league year; understates the final figure.,32
-2013,IND,107.485212,108.576881,0.571792,0.936275,0.936275,0.864981,1.012097,False,5657004,2013-03-18,preseason,False,5946448,REVIEW_SPOTRAC,provisional,published one week into the league year; understates the final figure.,10
-2013,JAX,76.063321,72.929018,-1.804732,0.879935,0.879935,0.864981,0.951194,False,24012892,2013-03-18,preseason,False,5946448,REVIEW_SPOTRAC,provisional,published one week into the league year; understates the final figure.,31
-2013,KC,101.230675,114.413052,0.96087,1.046006,1.046006,0.864981,1.130714,False,13326323,2013-03-18,preseason,False,5946448,REVIEW_SPOTRAC,provisional,published one week into the league year; understates the final figure.,14
-2013,LA,92.65269,97.40949,-0.172701,0.970713,0.970713,0.864981,1.049323,False,10312806,2013-03-18,preseason,False,5946448,REVIEW_SPOTRAC,provisional,published one week into the league year; understates the final figure.,22
-2013,LAC,112.67106,105.804183,0.386946,0.871337,0.871337,0.864981,0.941899,False,1019422,2013-03-18,preseason,False,5946448,REVIEW_SPOTRAC,provisional,published one week into the league year; understates the final figure.,8
-2013,LV,86.198656,80.921047,-1.27193,0.748931,0.748931,0.864981,0.935029,True,26601452,2013-03-18,preseason,False,5946448,REVIEW_SPOTRAC,provisional,published one week into the league year; understates the final figure.,27
-2013,MIA,103.393926,96.582748,-0.227817,0.827184,0.827184,0.864981,0.935029,True,3289282,2013-03-18,preseason,False,5946448,REVIEW_SPOTRAC,provisional,published one week into the league year; understates the final figure.,13
-2013,MIN,78.127737,85.579772,-0.961349,1.006184,1.006184,0.864981,1.087667,False,2189826,2013-03-18,preseason,False,5946448,REVIEW_SPOTRAC,provisional,published one week into the league year; understates the final figure.,30
-2013,NE,116.672572,113.224859,0.881657,0.901178,0.901178,0.864981,0.974157,False,6637523,2013-03-18,preseason,False,5946448,REVIEW_SPOTRAC,provisional,published one week into the league year; understates the final figure.,5
-2013,NO,116.638563,119.345147,1.289676,0.950161,0.950161,0.864981,1.027107,False,1170190,2013-03-18,preseason,False,5946448,REVIEW_SPOTRAC,provisional,published one week into the league year; understates the final figure.,6
-2013,NYG,88.885562,90.618918,-0.625405,0.940209,0.940209,0.864981,1.016349,False,6771306,2013-03-18,preseason,False,5946448,REVIEW_SPOTRAC,provisional,published one week into the league year; understates the final figure.,25
-2013,NYJ,96.62438,90.416948,-0.63887,0.859637,0.859637,0.864981,0.935029,True,7130453,2013-03-18,preseason,False,5946448,REVIEW_SPOTRAC,provisional,published one week into the league year; understates the final figure.,18
-2013,PHI,107.422171,110.552036,0.703469,0.953853,0.953853,0.864981,1.031098,False,5906313,2013-03-18,preseason,False,5946448,REVIEW_SPOTRAC,provisional,published one week into the league year; understates the final figure.,11
-2013,PIT,97.004186,98.345081,-0.110328,0.937241,0.937241,0.864981,1.01314,False,5532445,2013-03-18,preseason,False,5946448,REVIEW_SPOTRAC,provisional,published one week into the league year; understates the final figure.,17
-2013,SEA,117.55459,129.271949,1.951463,1.021349,1.021349,0.864981,1.10406,False,1057668,2013-03-18,preseason,False,5946448,REVIEW_SPOTRAC,provisional,published one week into the league year; understates the final figure.,4
-2013,SF,118.429933,119.830531,1.322035,0.93991,0.93991,0.864981,1.016026,False,957674,2013-03-18,preseason,False,5946448,REVIEW_SPOTRAC,provisional,published one week into the league year; understates the final figure.,3
-2013,TB,89.349209,86.593941,-0.893737,0.89392,0.89392,0.864981,0.966312,False,1343534,2013-03-18,preseason,False,5946448,REVIEW_SPOTRAC,provisional,published one week into the league year; understates the final figure.,24
-2013,TEN,95.358685,97.654831,-0.156345,0.946288,0.946288,0.864981,1.022921,False,4398793,2013-03-18,preseason,False,5946448,REVIEW_SPOTRAC,provisional,published one week into the league year; understates the final figure.,20
-2013,WAS,85.62739,80.400729,-1.306618,0.845154,0.845154,0.864981,0.935029,True,3375750,2013-03-18,preseason,False,5946448,REVIEW_SPOTRAC,provisional,published one week into the league year; understates the final figure.,28
-2014,ARI,103.170046,107.057825,0.470522,0.95537,0.95537,0.869384,1.03832,False,10087468,2014-02-18,preseason,False,4030884,SAFE_LEAGUE,provisional,published before the league year opened; understates the final figure.,13
-2014,ATL,86.388011,90.677754,-0.621483,0.961667,0.961667,0.869384,1.045164,False,5922507,2014-02-18,preseason,False,4030884,SAFE_LEAGUE,provisional,published before the league year opened; understates the final figure.,27
-2014,BAL,117.827102,110.912701,0.727513,0.841854,0.841854,0.869384,0.944869,True,4422216,2014-02-18,preseason,False,4030884,SAFE_LEAGUE,provisional,published before the league year opened; understates the final figure.,6
-2014,BUF,99.91233,107.758277,0.517218,0.992157,0.992157,0.869384,1.078301,False,12070113,2014-02-18,preseason,False,4030884,SAFE_LEAGUE,provisional,published before the league year opened; understates the final figure.,16
-2014,CAR,95.466699,96.488745,-0.234084,0.928637,0.928637,0.869384,1.009266,False,17840241,2014-02-18,preseason,False,4030884,SAFE_LEAGUE,provisional,published before the league year opened; understates the final figure.,19
-2014,CHI,87.881031,83.350363,-1.109976,0.863022,0.863022,0.869384,0.944869,True,1476671,2014-02-18,preseason,False,4030884,SAFE_LEAGUE,provisional,published before the league year opened; understates the final figure.,26
-2014,CIN,100.242239,104.543936,0.302929,0.959476,0.959476,0.869384,1.042782,False,984283,2014-02-18,preseason,False,4030884,SAFE_LEAGUE,provisional,published before the league year opened; understates the final figure.,15
-2014,CLE,94.190895,93.524744,-0.431684,0.911965,0.911965,0.869384,0.991147,False,7194157,2014-02-18,preseason,False,4030884,SAFE_LEAGUE,provisional,published before the league year opened; understates the final figure.,20
-2014,DAL,123.395841,116.038163,1.069211,0.854557,0.854557,0.869384,0.944869,True,11809439,2014-02-18,preseason,False,4030884,SAFE_LEAGUE,provisional,published before the league year opened; understates the final figure.,2
-2014,DEN,118.424026,122.570847,1.504723,0.956031,0.956031,0.869384,1.039038,False,3992330,2014-02-18,preseason,False,4030884,SAFE_LEAGUE,provisional,published before the league year opened; understates the final figure.,4
-2014,DET,108.794531,111.127217,0.741814,0.941648,0.941648,0.869384,1.023407,False,4069438,2014-02-18,preseason,False,4030884,SAFE_LEAGUE,provisional,published before the league year opened; understates the final figure.,10
-2014,GB,113.7996,121.512079,1.434139,0.985401,0.985401,0.869384,1.070959,False,2677484,2014-02-18,preseason,False,4030884,SAFE_LEAGUE,provisional,published before the league year opened; understates the final figure.,7
-2014,HOU,113.610561,107.031801,0.468787,0.861839,0.861839,0.869384,0.944869,True,3247174,2014-02-18,preseason,False,4030884,SAFE_LEAGUE,provisional,published before the league year opened; understates the final figure.,8
-2014,IND,118.367829,111.410386,0.760692,0.860925,0.860925,0.869384,0.944869,True,800734,2014-02-18,preseason,False,4030884,SAFE_LEAGUE,provisional,published before the league year opened; understates the final figure.,5
-2014,JAX,78.174111,74.416122,-1.705592,0.847045,0.847045,0.869384,0.944869,True,5600511,2014-02-18,preseason,False,4030884,SAFE_LEAGUE,provisional,published before the league year opened; understates the final figure.,30
-2014,KC,106.974283,109.128526,0.608568,0.940062,0.940062,0.869384,1.021683,False,3505823,2014-02-18,preseason,False,4030884,SAFE_LEAGUE,provisional,published before the league year opened; understates the final figure.,11
-2014,LA,93.079837,93.76817,-0.415455,0.924948,0.924948,0.869384,1.005256,False,133805,2014-02-18,preseason,False,4030884,SAFE_LEAGUE,provisional,published before the league year opened; understates the final figure.,22
-2014,LAC,101.576805,104.743066,0.316204,0.948998,0.948998,0.869384,1.031395,False,8674983,2014-02-18,preseason,False,4030884,SAFE_LEAGUE,provisional,published before the league year opened; understates the final figure.,14
-2014,LV,79.029327,75.386708,-1.640886,0.871505,0.871505,0.869384,0.947174,False,9311192,2014-02-18,preseason,False,4030884,SAFE_LEAGUE,provisional,published before the league year opened; understates the final figure.,28
-2014,MIA,91.366525,102.597773,0.173185,1.030482,1.030482,0.869384,1.119954,False,4942896,2014-02-18,preseason,False,4030884,SAFE_LEAGUE,provisional,published before the league year opened; understates the final figure.,24
-2014,MIN,97.781867,95.123382,-0.325108,0.894398,0.894398,0.869384,0.972054,False,1783163,2014-02-18,preseason,False,4030884,SAFE_LEAGUE,provisional,published before the league year opened; understates the final figure.,18
-2014,NE,121.645349,121.237619,1.415841,0.921129,0.921129,0.869384,1.001107,False,8533721,2014-02-18,preseason,False,4030884,SAFE_LEAGUE,provisional,published before the league year opened; understates the final figure.,3
-2014,NO,92.040517,94.529513,-0.364699,0.942689,0.942689,0.869384,1.024538,False,10450051,2014-02-18,preseason,False,4030884,SAFE_LEAGUE,provisional,published before the league year opened; understates the final figure.,23
-2014,NYG,93.635467,93.439638,-0.437357,0.91639,0.91639,0.869384,0.995955,False,2778141,2014-02-18,preseason,False,4030884,SAFE_LEAGUE,provisional,published before the league year opened; understates the final figure.,21
-2014,NYJ,88.755316,84.155054,-1.05633,0.747072,0.747072,0.869384,0.944869,True,48958,2014-02-18,preseason,False,4030884,SAFE_LEAGUE,provisional,published before the league year opened; understates the final figure.,25
-2014,PHI,104.912733,107.408886,0.493926,0.942978,0.942978,0.869384,1.024852,False,1348343,2014-02-18,preseason,False,4030884,SAFE_LEAGUE,provisional,published before the league year opened; understates the final figure.,12
-2014,PIT,108.801478,109.513168,0.634211,0.927913,0.927913,0.869384,1.008479,False,4552933,2014-02-18,preseason,False,4030884,SAFE_LEAGUE,provisional,published before the league year opened; understates the final figure.,9
-2014,SEA,132.892048,124.778464,1.651898,0.838105,0.838105,0.869384,0.944869,True,907367,2014-02-18,preseason,False,4030884,SAFE_LEAGUE,provisional,published before the league year opened; understates the final figure.,1
-2014,SF,99.896953,98.731147,-0.08459,0.909178,0.909178,0.869384,0.988117,False,1934689,2014-02-18,preseason,False,4030884,SAFE_LEAGUE,provisional,published before the league year opened; understates the final figure.,17
-2014,TB,74.906327,76.329234,-1.578051,0.929294,0.929294,0.869384,1.00998,False,139119,2014-02-18,preseason,False,4030884,SAFE_LEAGUE,provisional,published before the league year opened; understates the final figure.,31
-2014,TEN,74.332768,71.660061,-1.889329,0.878945,0.878945,0.869384,0.95526,False,2449725,2014-02-18,preseason,False,4030884,SAFE_LEAGUE,provisional,published before the league year opened; understates the final figure.,32
-2014,WAS,78.727549,79.048632,-1.396758,0.917226,0.917226,0.869384,0.996864,False,7470233,2014-02-18,preseason,False,4030884,SAFE_LEAGUE,provisional,published before the league year opened; understates the final figure.,29
-2015,ARI,124.590241,128.511491,1.900766,1.017392,1.017392,0.953159,1.037764,False,12792586,2015-10-28,midseason,False,14259529,SAFE_LEAGUE,in_season,,2
-2015,ATL,99.908859,97.022995,-0.198467,0.911463,0.911463,0.953159,0.972245,True,14571570,2015-10-28,midseason,False,14259529,SAFE_LEAGUE,in_season,,15
-2015,BAL,90.38915,88.750885,-0.749941,0.961213,0.961213,0.953159,0.98046,False,23351218,2015-10-28,midseason,False,14259529,SAFE_LEAGUE,in_season,,22
-2015,BUF,103.114035,100.654586,0.043639,0.958837,0.958837,0.953159,0.978037,False,11793665,2015-10-28,midseason,False,14259529,SAFE_LEAGUE,in_season,,12
-2015,CAR,125.989996,128.37785,1.891857,1.005265,1.005265,0.953159,1.025395,False,14532757,2015-10-28,midseason,False,14259529,SAFE_LEAGUE,in_season,,1
-2015,CHI,93.76076,92.529037,-0.498064,0.967045,0.967045,0.953159,0.986409,False,25573238,2015-10-28,midseason,False,14259529,SAFE_LEAGUE,in_season,,20
-2015,CIN,120.499454,121.558532,1.437235,0.994344,0.994344,0.953159,1.014254,False,2398947,2015-10-28,midseason,False,14259529,SAFE_LEAGUE,in_season,,4
-2015,CLE,78.494005,79.050817,-1.396612,0.981839,0.981839,0.953159,1.001499,False,6934915,2015-10-28,midseason,False,14259529,SAFE_LEAGUE,in_season,,31
-2015,DAL,80.12839,81.037268,-1.264182,0.986611,0.986611,0.953159,1.006367,False,16513691,2015-10-28,midseason,False,14259529,SAFE_LEAGUE,in_season,,30
-2015,DEN,112.645983,115.084783,1.005652,1.005575,1.005575,0.953159,1.025711,False,3935731,2015-10-28,midseason,False,14259529,SAFE_LEAGUE,in_season,,8
-2015,DET,96.671177,95.54802,-0.296799,0.969302,0.969302,0.953159,0.988711,False,19363607,2015-10-28,midseason,False,14259529,SAFE_LEAGUE,in_season,,17
-2015,GB,106.016874,108.303757,0.553584,1.004114,1.004114,0.953159,1.024221,False,4995375,2015-10-28,midseason,False,14259529,SAFE_LEAGUE,in_season,,10
-2015,HOU,104.316261,103.725754,0.248384,0.976976,0.976976,0.953159,0.996539,False,13949305,2015-10-28,midseason,False,14259529,SAFE_LEAGUE,in_season,,11
-2015,IND,89.670683,90.629472,-0.624702,0.989207,0.989207,0.953159,1.009015,False,10010298,2015-10-28,midseason,False,14259529,SAFE_LEAGUE,in_season,,25
-2015,JAX,86.850143,84.655528,-1.022965,0.931661,0.931661,0.953159,0.972245,True,5362098,2015-10-28,midseason,False,14259529,SAFE_LEAGUE,in_season,,27
-2015,KC,118.991995,118.893565,1.259571,0.984608,0.984608,0.953159,1.004324,False,21901376,2015-10-28,midseason,False,14259529,SAFE_LEAGUE,in_season,,6
-2015,LA,94.667136,94.644618,-0.357025,0.979932,0.979932,0.953159,0.999555,False,11113036,2015-10-28,midseason,False,14259529,SAFE_LEAGUE,in_season,,18
-2015,LAC,90.356371,87.976157,-0.80159,0.940781,0.940781,0.953159,0.972245,True,10439227,2015-10-28,midseason,False,14259529,SAFE_LEAGUE,in_season,,23
-2015,LV,99.004834,96.166824,-0.255545,0.948843,0.948843,0.953159,0.972245,True,16310434,2015-10-28,midseason,False,14259529,SAFE_LEAGUE,in_season,,16
-2015,MIA,86.86806,86.872215,-0.875186,0.977921,0.977921,0.953159,0.997503,False,25636044,2015-10-28,midseason,False,14259529,SAFE_LEAGUE,in_season,,26
-2015,MIN,107.756865,111.950506,0.7967,1.02155,1.02155,0.953159,1.042005,False,8446161,2015-10-28,midseason,False,14259529,SAFE_LEAGUE,in_season,,9
-2015,NE,119.207073,119.429343,1.29529,0.987298,0.987298,0.953159,1.007067,False,19294985,2015-10-28,midseason,False,14259529,SAFE_LEAGUE,in_season,,5
-2015,NO,89.897079,90.032661,-0.664489,0.980286,0.980286,0.953159,0.999915,False,32482518,2015-10-28,midseason,False,14259529,SAFE_LEAGUE,in_season,,24
-2015,NYG,94.000138,91.427046,-0.57153,0.892006,0.892006,0.953159,0.972245,True,12763133,2015-10-28,midseason,False,14259529,SAFE_LEAGUE,in_season,,19
-2015,NYJ,102.93835,109.993715,0.666248,1.049547,1.049547,0.953159,1.070563,False,5734579,2015-10-28,midseason,False,14259529,SAFE_LEAGUE,in_season,,13
-2015,PHI,85.653104,90.852073,-0.609862,1.036812,1.036812,0.953159,1.057573,False,16381613,2015-10-28,midseason,False,14259529,SAFE_LEAGUE,in_season,,28
-2015,PIT,118.779308,115.06796,1.004531,0.954597,0.954597,0.953159,0.973712,False,17101608,2015-10-28,midseason,False,14259529,SAFE_LEAGUE,in_season,,7
-2015,SEA,122.093596,121.583509,1.438901,0.981827,0.981827,0.953159,1.001487,False,13986301,2015-10-28,midseason,False,14259529,SAFE_LEAGUE,in_season,,3
-2015,SF,85.302481,83.189789,-1.120681,0.922011,0.922011,0.953159,0.972245,True,23223258,2015-10-28,midseason,False,14259529,SAFE_LEAGUE,in_season,,29
-2015,TB,92.000979,89.53371,-0.697753,0.926031,0.926031,0.953159,0.972245,True,23601993,2015-10-28,midseason,False,14259529,SAFE_LEAGUE,in_season,,21
-2015,TEN,77.868906,76.149701,-1.59002,0.88721,0.88721,0.953159,0.972245,True,15499225,2015-10-28,midseason,False,14259529,SAFE_LEAGUE,in_season,,32
-2015,WAS,101.567715,100.795832,0.053055,0.974445,0.974445,0.953159,0.993957,False,11333421,2015-10-28,midseason,False,14259529,SAFE_LEAGUE,in_season,,14
-2016,ARI,105.375812,105.337301,0.35582,0.951074,0.951074,0.922875,1.001671,False,6063224,2016-10-05,midseason,True,8198941,MODELED,estimated,Estimated — 8 of 32 teams are published figures; the rest are modeled from contract data.,11
-2016,ATL,118.219015,120.745343,1.383023,0.974285,0.974285,0.922875,1.026117,False,21437553,2016-10-05,midseason,False,8198941,SAFE_EDITORIAL,estimated,Estimated — 8 of 32 teams are published figures; the rest are modeled from contract data.,3
-2016,BAL,101.463736,100.971341,0.064756,0.945933,0.945933,0.922875,0.996256,False,14891319,2016-10-05,midseason,True,8198941,MODELED,estimated,Estimated — 8 of 32 teams are published figures; the rest are modeled from contract data.,17
-2016,BUF,103.233702,100.544168,0.036278,0.926175,0.926175,0.922875,0.975448,False,9792757,2016-10-05,midseason,True,8198941,MODELED,estimated,Estimated — 8 of 32 teams are published figures; the rest are modeled from contract data.,14
-2016,CAR,95.045971,92.433798,-0.504413,0.874566,0.874566,0.922875,0.971972,True,8588102,2016-10-05,midseason,True,8198941,MODELED,estimated,Estimated — 8 of 32 teams are published figures; the rest are modeled from contract data.,25
-2016,CHI,78.504302,78.832303,-1.41118,0.947641,0.947641,0.922875,0.998055,False,11279754,2016-10-05,midseason,True,8198941,MODELED,estimated,Estimated — 8 of 32 teams are published figures; the rest are modeled from contract data.,29
-2016,CIN,96.127586,100.19177,0.012785,0.989371,0.989371,0.922875,1.042006,False,674415,2016-10-05,midseason,False,8198941,SAFE_EDITORIAL,estimated,Estimated — 8 of 32 teams are published figures; the rest are modeled from contract data.,24
-2016,CLE,67.454307,66.309987,-2.246001,0.810102,0.810102,0.922875,0.971972,True,31114222,2016-10-05,midseason,False,8198941,SAFE_EDITORIAL,estimated,Estimated — 8 of 32 teams are published figures; the rest are modeled from contract data.,32
-2016,DAL,120.019963,122.948095,1.529873,0.977486,0.977486,0.922875,1.029488,False,1171852,2016-10-05,midseason,False,8198941,SAFE_EDITORIAL,estimated,Estimated — 8 of 32 teams are published figures; the rest are modeled from contract data.,2
-2016,DEN,111.962196,108.450095,0.56334,0.879471,0.879471,0.922875,0.971972,True,3743825,2016-10-05,midseason,True,8198941,MODELED,estimated,Estimated — 8 of 32 teams are published figures; the rest are modeled from contract data.,7
-2016,DET,99.894026,97.078617,-0.194759,0.923395,0.923395,0.922875,0.97252,False,18559071,2016-10-05,midseason,True,8198941,MODELED,estimated,Estimated — 8 of 32 teams are published figures; the rest are modeled from contract data.,20
-2016,GB,106.502327,109.541538,0.636103,0.97882,0.97882,0.922875,1.030893,False,1725917,2016-10-05,midseason,False,8198941,SAFE_EDITORIAL,estimated,Estimated — 8 of 32 teams are published figures; the rest are modeled from contract data.,10
-2016,HOU,96.317507,97.745695,-0.150287,0.963363,0.963363,0.922875,1.014614,False,6584003,2016-10-05,midseason,True,8198941,MODELED,estimated,Estimated — 8 of 32 teams are published figures; the rest are modeled from contract data.,23
-2016,IND,101.606695,98.645497,-0.0903,0.920858,0.920858,0.922875,0.971972,True,6902302,2016-10-05,midseason,True,8198941,MODELED,estimated,Estimated — 8 of 32 teams are published figures; the rest are modeled from contract data.,16
-2016,JAX,81.882387,83.734138,-1.084391,0.966308,0.966308,0.922875,1.017716,False,3481401,2016-10-05,midseason,True,8198941,MODELED,estimated,Estimated — 8 of 32 teams are published figures; the rest are modeled from contract data.,27
-2016,KC,114.78465,114.881308,0.992087,0.954093,0.954093,0.922875,1.004851,False,9868219,2016-10-05,midseason,True,8198941,MODELED,estimated,Estimated — 8 of 32 teams are published figures; the rest are modeled from contract data.,4
-2016,LA,70.236929,68.944576,-2.070362,0.896507,0.896507,0.922875,0.971972,True,8998464,2016-10-05,midseason,True,8198941,MODELED,estimated,Estimated — 8 of 32 teams are published figures; the rest are modeled from contract data.,31
-2016,LAC,94.361322,95.595326,-0.293645,0.961181,0.961181,0.922875,1.012316,False,7271405,2016-10-05,midseason,True,8198941,MODELED,estimated,Estimated — 8 of 32 teams are published figures; the rest are modeled from contract data.,26
-2016,LV,104.692406,109.803502,0.653567,0.997715,0.997715,0.922875,1.050793,False,2512446,2016-10-05,midseason,True,8198941,MODELED,estimated,Estimated — 8 of 32 teams are published figures; the rest are modeled from contract data.,12
-2016,MIA,98.870586,101.021697,0.068113,0.970595,0.970595,0.922875,1.02223,False,10629724,2016-10-05,midseason,True,8198941,MODELED,estimated,Estimated — 8 of 32 teams are published figures; the rest are modeled from contract data.,22
-2016,MIN,100.82549,104.914594,0.32764,0.988941,0.988941,0.922875,1.041552,False,3518881,2016-10-05,midseason,True,8198941,MODELED,estimated,Estimated — 8 of 32 teams are published figures; the rest are modeled from contract data.,18
-2016,NE,132.387503,129.085311,1.939021,0.932239,0.932239,0.922875,0.981834,False,11139395,2016-10-05,midseason,True,8198941,MODELED,estimated,Estimated — 8 of 32 teams are published figures; the rest are modeled from contract data.,1
-2016,NO,104.067321,100.97522,0.065015,0.91704,0.91704,0.922875,0.971972,True,37885635,2016-10-05,midseason,False,8198941,SAFE_EDITORIAL,estimated,Estimated — 8 of 32 teams are published figures; the rest are modeled from contract data.,13
-2016,NYG,107.692889,108.426497,0.561766,0.958396,0.958396,0.922875,1.009383,False,5702082,2016-10-05,midseason,True,8198941,MODELED,estimated,Estimated — 8 of 32 teams are published figures; the rest are modeled from contract data.,9
-2016,NYJ,80.688487,79.421449,-1.371903,0.92968,0.92968,0.922875,0.979139,False,5214931,2016-10-05,midseason,True,8198941,MODELED,estimated,Estimated — 8 of 32 teams are published figures; the rest are modeled from contract data.,28
-2016,PHI,100.509738,103.738819,0.249255,0.980853,0.980853,0.922875,1.033034,False,22495981,2016-10-05,midseason,False,8198941,SAFE_EDITORIAL,estimated,Estimated — 8 of 32 teams are published figures; the rest are modeled from contract data.,19
-2016,PIT,113.629207,113.509287,0.900619,0.952072,0.952072,0.922875,1.002722,False,7809780,2016-10-05,midseason,True,8198941,MODELED,estimated,Estimated — 8 of 32 teams are published figures; the rest are modeled from contract data.,6
-2016,SEA,113.852495,110.55185,0.703457,0.925487,0.925487,0.922875,0.974723,False,6320961,2016-10-05,midseason,True,8198941,MODELED,estimated,Estimated — 8 of 32 teams are published figures; the rest are modeled from contract data.,5
-2016,SF,71.213528,69.869221,-2.008719,0.921315,0.921315,0.922875,0.971972,True,17462201,2016-10-05,midseason,True,8198941,MODELED,estimated,Estimated — 8 of 32 teams are published figures; the rest are modeled from contract data.,30
-2016,TB,98.986834,101.21443,0.080962,0.971334,0.971334,0.922875,1.023008,False,1484360,2016-10-05,midseason,False,8198941,SAFE_EDITORIAL,estimated,Estimated — 8 of 32 teams are published figures; the rest are modeled from contract data.,21
-2016,TEN,101.795893,100.032457,0.002164,0.934155,0.934155,0.922875,0.983852,False,11828508,2016-10-05,midseason,True,8198941,MODELED,estimated,Estimated — 8 of 32 teams are published figures; the rest are modeled from contract data.,15
-2016,WAS,107.79519,104.504769,0.300318,0.917471,0.917471,0.922875,0.971972,True,13110558,2016-10-05,midseason,True,8198941,MODELED,estimated,Estimated — 8 of 32 teams are published figures; the rest are modeled from contract data.,8
-2017,ARI,89.412525,94.262119,-0.382525,0.992064,0.992064,0.905182,1.051226,False,2940000,2017-07-05,preseason,False,5270000,REVIEW_SPOTRAC,preseason,,25
-2017,ATL,104.502513,108.268567,0.551238,0.978992,0.978992,0.905182,1.037374,False,4570000,2017-07-05,preseason,False,5270000,REVIEW_SPOTRAC,preseason,,15
-2017,BAL,108.853871,107.47838,0.498559,0.933918,0.933918,0.905182,0.989612,False,18870000,2017-07-05,preseason,False,5270000,REVIEW_SPOTRAC,preseason,,9
-2017,BUF,97.235208,93.315834,-0.445611,0.804857,0.804857,0.905182,0.959163,True,7920000,2017-07-05,preseason,False,5270000,REVIEW_SPOTRAC,preseason,,16
-2017,CAR,105.01544,109.532079,0.635472,0.985698,0.985698,0.905182,1.04448,False,1980000,2017-07-05,preseason,False,5270000,REVIEW_SPOTRAC,preseason,,14
-2017,CHI,91.512089,91.018041,-0.598797,0.936561,0.936561,0.905182,0.992413,False,3800000,2017-07-05,preseason,False,5270000,REVIEW_SPOTRAC,preseason,,20
-2017,CIN,89.845797,90.847708,-0.610153,0.95165,0.95165,0.905182,1.008402,False,333000,2017-07-05,preseason,False,5270000,REVIEW_SPOTRAC,preseason,,24
-2017,CLE,71.64221,69.403697,-2.039754,0.726208,0.726208,0.905182,0.959163,True,11470000,2017-07-05,preseason,False,5270000,REVIEW_SPOTRAC,preseason,,32
-2017,DAL,108.014495,103.387174,0.225812,0.894664,0.894664,0.905182,0.959163,True,16250000,2017-07-05,preseason,False,5270000,REVIEW_SPOTRAC,preseason,,11
-2017,DEN,91.368394,88.17454,-0.788364,0.908688,0.908688,0.905182,0.962878,False,72000,2017-07-05,preseason,False,5270000,REVIEW_SPOTRAC,preseason,,21
-2017,DET,107.262135,104.384461,0.292297,0.92017,0.92017,0.905182,0.975045,False,3940000,2017-07-05,preseason,False,5270000,REVIEW_SPOTRAC,preseason,,12
-2017,GB,90.337518,93.071016,-0.461932,0.969784,0.969784,0.905182,1.027617,False,4270000,2017-07-05,preseason,False,5270000,REVIEW_SPOTRAC,preseason,,23
-2017,HOU,84.406461,83.501701,-1.099887,0.929357,0.929357,0.905182,0.984779,False,9440000,2017-07-05,preseason,False,5270000,REVIEW_SPOTRAC,preseason,,28
-2017,IND,78.940861,76.222997,-1.585134,0.821135,0.821135,0.905182,0.959163,True,8620000,2017-07-05,preseason,False,5270000,REVIEW_SPOTRAC,preseason,,30
-2017,JAX,113.656971,119.274016,1.284934,0.99361,0.99361,0.905182,1.052864,False,4390000,2017-07-05,preseason,False,5270000,REVIEW_SPOTRAC,preseason,,7
-2017,KC,108.686625,110.293872,0.686258,0.959822,0.959822,0.905182,1.017062,False,8590000,2017-07-05,preseason,False,5270000,REVIEW_SPOTRAC,preseason,,10
-2017,LA,123.417488,119.606132,1.307075,0.919228,0.919228,0.905182,0.974047,False,5710000,2017-07-05,preseason,False,5270000,REVIEW_SPOTRAC,preseason,,3
-2017,LAC,109.472393,111.928418,0.795228,0.96722,0.96722,0.905182,1.0249,False,21840000,2017-07-05,preseason,False,5270000,REVIEW_SPOTRAC,preseason,,8
-2017,LV,84.629785,87.31212,-0.845859,0.969279,0.969279,0.905182,1.027083,False,55000,2017-07-05,preseason,False,5270000,REVIEW_SPOTRAC,preseason,,27
-2017,MIA,81.929987,82.994904,-1.133673,0.950766,0.950766,0.905182,1.007465,False,8200000,2017-07-05,preseason,False,5270000,REVIEW_SPOTRAC,preseason,,29
-2017,MIN,129.773289,123.716924,1.581128,0.879036,0.879036,0.905182,0.959163,True,4470000,2017-07-05,preseason,False,5270000,REVIEW_SPOTRAC,preseason,,1
-2017,NE,120.569051,120.199005,1.3466,0.945141,0.945141,0.905182,1.001505,False,1550000,2017-07-05,preseason,False,5270000,REVIEW_SPOTRAC,preseason,,4
-2017,NO,124.267468,119.161378,1.277425,0.909676,0.909676,0.905182,0.963925,False,16250000,2017-07-05,preseason,False,5270000,REVIEW_SPOTRAC,preseason,,2
-2017,NYG,78.761593,80.161549,-1.322563,0.954051,0.954051,0.905182,1.010946,False,3090000,2017-07-05,preseason,False,5270000,REVIEW_SPOTRAC,preseason,,31
-2017,NYJ,90.851231,87.351134,-0.843258,0.854057,0.854057,0.905182,0.959163,True,17320000,2017-07-05,preseason,False,5270000,REVIEW_SPOTRAC,preseason,,22
-2017,PHI,117.725126,125.608168,1.707211,1.01101,1.01101,0.905182,1.071302,False,14000000,2017-07-05,preseason,False,5270000,REVIEW_SPOTRAC,preseason,,5
-2017,PIT,117.3022,117.508624,1.167242,0.949153,0.949153,0.905182,1.005756,False,6360000,2017-07-05,preseason,False,5270000,REVIEW_SPOTRAC,preseason,,6
-2017,SEA,105.098387,106.533814,0.435588,0.957978,0.957978,0.905182,1.015107,False,827000,2017-07-05,preseason,False,5270000,REVIEW_SPOTRAC,preseason,,13
-2017,SF,96.017229,92.177847,-0.521477,0.717697,0.717697,0.905182,0.959163,True,13430000,2017-07-05,preseason,False,5270000,REVIEW_SPOTRAC,preseason,,18
-2017,TB,94.433752,90.698367,-0.620109,0.893243,0.893243,0.905182,0.959163,True,865000,2017-07-05,preseason,False,5270000,REVIEW_SPOTRAC,preseason,,19
-2017,TEN,96.271049,96.232611,-0.251159,0.942575,0.942575,0.905182,0.998786,False,4830000,2017-07-05,preseason,False,5270000,REVIEW_SPOTRAC,preseason,,17
-2017,WAS,88.786858,96.372803,-0.241813,1.021219,1.021219,0.905182,1.08212,False,9780000,2017-07-05,preseason,False,5270000,REVIEW_SPOTRAC,preseason,,26
-2018,ARI,70.890023,68.71586,-2.085609,0.863561,0.863561,0.918074,0.957461,True,20330000,2018-07-14,preseason,False,8815000,REVIEW_OTC,preseason,,32
-2018,ATL,95.690671,97.223698,-0.185087,0.971822,0.971822,0.918074,1.013516,False,5890000,2018-07-14,preseason,False,8815000,REVIEW_OTC,preseason,,16
-2018,BAL,118.133754,114.434868,0.962325,0.931557,0.931557,0.918074,0.971524,False,9120000,2018-07-14,preseason,False,8815000,REVIEW_OTC,preseason,,5
-2018,BUF,91.475588,87.915313,-0.805646,0.896912,0.896912,0.918074,0.957461,True,46710000,2018-07-14,preseason,False,8815000,REVIEW_OTC,preseason,,24
-2018,CAR,94.430588,98.569007,-0.0954,0.99804,0.99804,0.918074,1.040858,False,8790000,2018-07-14,preseason,False,8815000,REVIEW_OTC,preseason,,21
-2018,CHI,114.773352,120.005277,1.333685,1.004828,1.004828,0.918074,1.047938,False,11970000,2018-07-14,preseason,False,8815000,REVIEW_OTC,preseason,,11
-2018,CIN,84.905813,87.994718,-0.800352,0.987745,0.987745,0.918074,1.030122,False,1300000,2018-07-14,preseason,False,8815000,REVIEW_OTC,preseason,,25
-2018,CLE,94.677116,97.695507,-0.153633,0.986693,0.986693,0.918074,1.029025,False,17230000,2018-07-14,preseason,False,8815000,REVIEW_OTC,preseason,,18
-2018,DAL,108.005225,106.860083,0.457339,0.94942,0.94942,0.918074,0.990153,False,26360000,2018-07-14,preseason,False,8815000,REVIEW_OTC,preseason,,12
-2018,DEN,99.320308,95.231816,-0.317879,0.886311,0.886311,0.918074,0.957461,True,2480000,2018-07-14,preseason,False,8815000,REVIEW_OTC,preseason,,14
-2018,DET,94.681822,90.905658,-0.606289,0.896177,0.896177,0.918074,0.957461,True,8180000,2018-07-14,preseason,False,8815000,REVIEW_OTC,preseason,,17
-2018,GB,94.492226,94.631581,-0.357895,0.957565,0.957565,0.918074,0.998647,False,8040000,2018-07-14,preseason,False,8815000,REVIEW_OTC,preseason,,19
-2018,HOU,117.000717,112.262037,0.817469,0.922514,0.922514,0.918074,0.962092,False,5050000,2018-07-14,preseason,False,8815000,REVIEW_OTC,preseason,,6
-2018,IND,116.043738,110.829188,0.721946,0.758803,0.758803,0.918074,0.957461,True,1950000,2018-07-14,preseason,False,8815000,REVIEW_OTC,preseason,,10
-2018,JAX,80.559426,87.191936,-0.853871,1.029774,1.029774,0.918074,1.073954,False,4110000,2018-07-14,preseason,False,8815000,REVIEW_OTC,preseason,,28
-2018,KC,123.403341,123.714324,1.580955,0.965041,0.965041,0.918074,1.006444,False,16750000,2018-07-14,preseason,False,8815000,REVIEW_OTC,preseason,,2
-2018,LA,122.260494,123.315572,1.554371,0.970722,0.970722,0.918074,1.012369,False,12370000,2018-07-14,preseason,False,8815000,REVIEW_OTC,preseason,,3
-2018,LAC,118.822398,119.853856,1.32359,0.970146,0.970146,0.918074,1.011768,False,8840000,2018-07-14,preseason,False,8815000,REVIEW_OTC,preseason,,4
-2018,LV,78.588688,75.896142,-1.606924,0.880627,0.880627,0.918074,0.957461,True,3790000,2018-07-14,preseason,False,8815000,REVIEW_OTC,preseason,,30
-2018,MIA,84.740579,83.629534,-1.091364,0.940518,0.940518,0.918074,0.980869,False,15000000,2018-07-14,preseason,False,8815000,REVIEW_OTC,preseason,,26
-2018,MIN,93.429742,102.984883,0.198992,1.053599,1.053599,0.918074,1.098801,False,2990000,2018-07-14,preseason,False,8815000,REVIEW_OTC,preseason,,22
-2018,NE,116.468908,115.435514,1.029034,0.952822,0.952822,0.918074,0.9937,False,4020000,2018-07-14,preseason,False,8815000,REVIEW_OTC,preseason,,7
-2018,NO,124.782378,124.197951,1.613197,0.958341,0.958341,0.918074,0.999457,False,16080000,2018-07-14,preseason,False,8815000,REVIEW_OTC,preseason,,1
-2018,NYG,94.433168,90.673747,-0.62175,0.843184,0.843184,0.918074,0.957461,True,21120000,2018-07-14,preseason,False,8815000,REVIEW_OTC,preseason,,20
-2018,NYJ,79.66675,79.166111,-1.388926,0.945108,0.945108,0.918074,0.985656,False,14860000,2018-07-14,preseason,False,8815000,REVIEW_OTC,preseason,,29
-2018,PHI,105.347624,103.690838,0.246056,0.943904,0.943904,0.918074,0.9844,False,9580000,2018-07-14,preseason,False,8815000,REVIEW_OTC,preseason,,13
-2018,PIT,116.105656,110.886937,0.725796,0.904754,0.904754,0.918074,0.957461,True,5820000,2018-07-14,preseason,False,8815000,REVIEW_OTC,preseason,,9
-2018,SEA,116.15322,112.593645,0.839576,0.931831,0.931831,0.918074,0.971809,False,14420000,2018-07-14,preseason,False,8815000,REVIEW_OTC,preseason,,8
-2018,SF,76.59934,84.018388,-1.065441,1.041792,1.041792,0.918074,1.086488,False,16160000,2018-07-14,preseason,False,8815000,REVIEW_OTC,preseason,,31
-2018,TB,83.659622,89.228246,-0.718117,1.016031,1.016031,0.918074,1.059621,False,815510,2018-07-14,preseason,False,8815000,REVIEW_OTC,preseason,,27
-2018,TEN,98.549296,100.456202,0.030413,0.975807,0.975807,0.918074,1.017672,False,3050000,2018-07-14,preseason,False,8815000,REVIEW_OTC,preseason,,15
-2018,WAS,91.908429,89.791562,-0.680563,0.933381,0.933381,0.918074,0.973425,False,5290000,2018-07-14,preseason,False,8815000,REVIEW_OTC,preseason,,23
-2019,ARI,94.311912,90.225016,-0.651666,0.836304,0.836304,0.869674,0.954933,True,16390000,2019-03-10,preseason,False,3390000,REVIEW_OTC,provisional,published before the league year opened; understates the final figure.,22
-2019,ATL,97.818896,97.458955,-0.169403,0.906621,0.906621,0.869674,0.995503,False,4830000,2019-03-10,preseason,False,3390000,REVIEW_OTC,provisional,published before the league year opened; understates the final figure.,19
-2019,BAL,140.227566,133.826148,2.255077,0.875498,0.875498,0.869674,0.961328,False,7720000,2019-03-10,preseason,False,3390000,REVIEW_OTC,provisional,published before the league year opened; understates the final figure.,1
-2019,BUF,110.253206,106.667907,0.444527,0.883037,0.883037,0.869674,0.969607,False,7560000,2019-03-10,preseason,False,3390000,REVIEW_OTC,provisional,published before the league year opened; understates the final figure.,7
-2019,CAR,85.135102,84.621899,-1.025207,0.900901,0.900901,0.869674,0.989222,False,3520000,2019-03-10,preseason,False,3390000,REVIEW_OTC,provisional,published before the league year opened; understates the final figure.,28
-2019,CHI,98.428739,97.759776,-0.149348,0.903934,0.903934,0.869674,0.992553,False,920000,2019-03-10,preseason,False,3390000,REVIEW_OTC,provisional,published before the league year opened; understates the final figure.,18
-2019,CIN,74.48319,75.62222,-1.625185,0.916222,0.916222,0.869674,1.006045,False,2170000,2019-03-10,preseason,False,3390000,REVIEW_OTC,provisional,published before the league year opened; understates the final figure.,31
-2019,CLE,82.709517,92.133155,-0.524456,1.008729,1.008729,0.869674,1.107621,False,7440000,2019-03-10,preseason,False,3390000,REVIEW_OTC,provisional,published before the league year opened; understates the final figure.,29
-2019,DAL,108.084392,109.639547,0.642636,0.925409,0.925409,0.869674,1.016132,False,4270000,2019-03-10,preseason,False,3390000,REVIEW_OTC,provisional,published before the league year opened; understates the final figure.,8
-2019,DEN,99.368619,94.928779,-0.338081,0.8382,0.8382,0.869674,0.954933,True,10380000,2019-03-10,preseason,False,3390000,REVIEW_OTC,provisional,published before the league year opened; understates the final figure.,16
-2019,DET,87.530657,84.937059,-1.004196,0.880244,0.880244,0.869674,0.96654,False,4500000,2019-03-10,preseason,False,3390000,REVIEW_OTC,provisional,published before the league year opened; understates the final figure.,26
-2019,GB,112.511298,113.389914,0.892661,0.920284,0.920284,0.869674,1.010505,False,566000,2019-03-10,preseason,False,3390000,REVIEW_OTC,provisional,published before the league year opened; understates the final figure.,6
-2019,HOU,105.162095,103.578093,0.23854,0.897937,0.897937,0.869674,0.985967,False,1770000,2019-03-10,preseason,False,3390000,REVIEW_OTC,provisional,published before the league year opened; understates the final figure.,13
-2019,IND,96.170603,97.067949,-0.19547,0.91804,0.91804,0.869674,1.008041,False,1230000,2019-03-10,preseason,False,3390000,REVIEW_OTC,provisional,published before the league year opened; understates the final figure.,20
-2019,JAX,91.019805,87.162688,-0.855821,0.86758,0.86758,0.869674,0.954933,True,7650000,2019-03-10,preseason,False,3390000,REVIEW_OTC,provisional,published before the league year opened; understates the final figure.,23
-2019,KC,125.520764,119.255583,1.283706,0.791751,0.791751,0.869674,0.954933,True,898000,2019-03-10,preseason,False,3390000,REVIEW_OTC,provisional,published before the league year opened; understates the final figure.,2
-2019,LA,106.023565,106.49958,0.433305,0.915947,0.915947,0.869674,1.005743,False,3850000,2019-03-10,preseason,False,3390000,REVIEW_OTC,provisional,published before the league year opened; understates the final figure.,10
-2019,LAC,90.007048,93.879616,-0.408026,0.946927,0.946927,0.869674,1.03976,False,3260000,2019-03-10,preseason,False,3390000,REVIEW_OTC,provisional,published before the league year opened; understates the final figure.,25
-2019,LV,94.956573,90.824681,-0.611688,0.811575,0.811575,0.869674,0.954933,True,1500000,2019-03-10,preseason,False,3390000,REVIEW_OTC,provisional,published before the league year opened; understates the final figure.,21
-2019,MIA,79.636031,76.573467,-1.561769,0.672442,0.672442,0.869674,0.954933,True,15990000,2019-03-10,preseason,False,3390000,REVIEW_OTC,provisional,published before the league year opened; understates the final figure.,30
-2019,MIN,105.300434,112.420538,0.828036,0.973345,0.973345,0.869674,1.068768,False,433000,2019-03-10,preseason,False,3390000,REVIEW_OTC,provisional,published before the league year opened; understates the final figure.,12
-2019,NE,123.519393,122.242766,1.482851,0.905595,0.905595,0.869674,0.994376,False,706000,2019-03-10,preseason,False,3390000,REVIEW_OTC,provisional,published before the league year opened; understates the final figure.,3
-2019,NO,117.281906,120.696781,1.379785,0.940632,0.940632,0.869674,1.032848,False,9920000,2019-03-10,preseason,False,3390000,REVIEW_OTC,provisional,published before the league year opened; understates the final figure.,4
-2019,NYG,85.311388,81.852701,-1.20982,0.785161,0.785161,0.869674,0.954933,True,9660000,2019-03-10,preseason,False,3390000,REVIEW_OTC,provisional,published before the league year opened; understates the final figure.,27
-2019,NYJ,90.237263,88.447798,-0.770147,0.889928,0.889928,0.869674,0.977173,False,2700000,2019-03-10,preseason,False,3390000,REVIEW_OTC,provisional,published before the league year opened; understates the final figure.,24
-2019,PHI,107.362891,102.4472,0.163147,0.870371,0.870371,0.869674,0.955699,False,10860000,2019-03-10,preseason,False,3390000,REVIEW_OTC,provisional,published before the league year opened; understates the final figure.,9
-2019,PIT,99.525902,98.510562,-0.099296,0.901099,0.901099,0.869674,0.989439,False,251000,2019-03-10,preseason,False,3390000,REVIEW_OTC,provisional,published before the league year opened; understates the final figure.,15
-2019,SEA,112.958326,107.569965,0.504664,0.858381,0.858381,0.869674,0.954933,True,2480000,2019-03-10,preseason,False,3390000,REVIEW_OTC,provisional,published before the league year opened; understates the final figure.,5
-2019,SF,105.346976,125.311695,1.687446,1.08449,1.08449,0.869674,1.19081,False,11540000,2019-03-10,preseason,False,3390000,REVIEW_OTC,provisional,published before the league year opened; understates the final figure.,11
-2019,TB,98.640618,102.187355,0.145824,0.942898,0.942898,0.869674,1.035336,False,94000,2019-03-10,preseason,False,3390000,REVIEW_OTC,provisional,published before the league year opened; understates the final figure.,17
-2019,TEN,101.299169,108.213966,0.547598,0.972977,0.972977,0.869674,1.068364,False,1150000,2019-03-10,preseason,False,3390000,REVIEW_OTC,provisional,published before the league year opened; understates the final figure.,14
-2019,WAS,73.856157,74.046642,-1.730224,0.904482,0.904482,0.869674,0.993154,False,1940000,2019-03-10,preseason,False,3390000,REVIEW_OTC,provisional,published before the league year opened; understates the final figure.,32
-2020,ARI,105.469272,103.691573,0.246105,0.956482,0.956482,0.934168,0.98487,False,9374584,2020-06-02,preseason,True,11692701,MODELED,estimated,Estimated — 11 of 32 teams are published figures; the rest are modeled from contract data.,12
-2020,ATL,95.827032,92.237889,-0.517474,0.928724,0.928724,0.934168,0.961894,True,13100000,2020-06-02,preseason,False,11692701,REVIEW_OTC,estimated,Estimated — 11 of 32 teams are published figures; the rest are modeled from contract data.,21
-2020,BAL,122.998351,119.467168,1.297811,0.948218,0.948218,0.934168,0.976361,False,16800000,2020-06-02,preseason,False,11692701,REVIEW_OTC,estimated,Estimated — 11 of 32 teams are published figures; the rest are modeled from contract data.,2
-2020,BUF,110.373245,120.399377,1.359958,1.062396,1.062396,0.934168,1.093929,False,4324879,2020-06-02,preseason,True,11692701,MODELED,estimated,Estimated — 11 of 32 teams are published figures; the rest are modeled from contract data.,9
-2020,CAR,87.470021,91.013888,-0.599074,1.007283,1.007283,0.934168,1.037179,False,48000000,2020-06-02,preseason,False,11692701,SAFE_EDITORIAL,estimated,Estimated — 11 of 32 teams are published figures; the rest are modeled from contract data.,24
-2020,CHI,98.437151,98.811549,-0.07923,0.974896,0.974896,0.934168,1.003831,False,6697899,2020-06-02,preseason,True,11692701,MODELED,estimated,Estimated — 11 of 32 teams are published figures; the rest are modeled from contract data.,17
-2020,CIN,83.631172,82.085149,-1.194323,0.948902,0.948902,0.934168,0.977065,False,8592821,2020-06-02,preseason,True,11692701,MODELED,estimated,Estimated — 11 of 32 teams are published figures; the rest are modeled from contract data.,29
-2020,CLE,101.743438,102.833382,0.188892,0.982432,0.982432,0.934168,1.011591,False,11540337,2020-06-02,preseason,True,11692701,MODELED,estimated,Estimated — 11 of 32 teams are published figures; the rest are modeled from contract data.,14
-2020,DAL,92.015334,88.666391,-0.755574,0.927396,0.927396,0.934168,0.961894,True,16161181,2020-06-02,preseason,True,11692701,MODELED,estimated,Estimated — 11 of 32 teams are published figures; the rest are modeled from contract data.,23
-2020,DEN,85.248731,83.550398,-1.09664,0.948059,0.948059,0.934168,0.976197,False,16000000,2020-06-02,preseason,False,11692701,REVIEW_OTC,estimated,Estimated — 11 of 32 teams are published figures; the rest are modeled from contract data.,28
-2020,DET,78.577018,79.705497,-1.352967,0.97875,0.97875,0.934168,1.007799,False,20400000,2020-06-02,preseason,False,11692701,REVIEW_OTC,estimated,Estimated — 11 of 32 teams are published figures; the rest are modeled from contract data.,30
-2020,GB,119.460163,122.015497,1.4677,0.996513,0.996513,0.934168,1.02609,False,3476111,2020-06-02,preseason,True,11692701,MODELED,estimated,Estimated — 11 of 32 teams are published figures; the rest are modeled from contract data.,4
-2020,HOU,85.711452,86.134507,-0.924366,0.972261,0.972261,0.934168,1.001118,False,6436500,2020-06-02,preseason,True,11692701,MODELED,estimated,Estimated — 11 of 32 teams are published figures; the rest are modeled from contract data.,27
-2020,IND,98.655341,111.697046,0.779803,1.099652,1.099652,0.934168,1.13229,False,2804842,2020-06-02,preseason,True,11692701,MODELED,estimated,Estimated — 11 of 32 teams are published figures; the rest are modeled from contract data.,16
-2020,JAX,72.614873,70.488478,-1.967435,0.847236,0.847236,0.934168,0.961894,True,37000000,2020-06-02,preseason,False,11692701,SAFE_EDITORIAL,estimated,Estimated — 11 of 32 teams are published figures; the rest are modeled from contract data.,32
-2020,KC,113.566944,120.26524,1.351016,1.032041,1.032041,0.934168,1.062672,False,3163142,2020-06-02,preseason,True,11692701,MODELED,estimated,Estimated — 11 of 32 teams are published figures; the rest are modeled from contract data.,8
-2020,LA,113.986115,114.585191,0.972346,0.979764,0.979764,0.934168,1.008843,False,34000000,2020-06-02,preseason,False,11692701,SAFE_EDITORIAL,estimated,Estimated — 11 of 32 teams are published figures; the rest are modeled from contract data.,7
-2020,LAC,96.791868,95.4708,-0.301947,0.957525,0.957525,0.934168,0.985945,False,7875380,2020-06-02,preseason,True,11692701,MODELED,estimated,Estimated — 11 of 32 teams are published figures; the rest are modeled from contract data.,20
-2020,LV,86.884172,94.518048,-0.365463,1.052912,1.052912,0.934168,1.084163,False,3061188,2020-06-02,preseason,True,11692701,MODELED,estimated,Estimated — 11 of 32 teams are published figures; the rest are modeled from contract data.,25
-2020,MIA,110.162265,107.37699,0.491799,0.94926,0.94926,0.934168,0.977435,False,22000000,2020-06-02,preseason,False,11692701,SAFE_EDITORIAL,estimated,Estimated — 11 of 32 teams are published figures; the rest are modeled from contract data.,10
-2020,MIN,99.752705,95.916181,-0.272255,0.903465,0.903465,0.934168,0.961894,True,20400000,2020-06-02,preseason,False,11692701,REVIEW_OTC,estimated,Estimated — 11 of 32 teams are published figures; the rest are modeled from contract data.,15
-2020,NE,98.056271,94.32665,-0.378223,0.918448,0.918448,0.934168,0.961894,True,24000000,2020-06-02,preseason,False,11692701,SAFE_EDITORIAL,estimated,Estimated — 11 of 32 teams are published figures; the rest are modeled from contract data.,18
-2020,NO,127.379214,121.801765,1.453451,0.933183,0.933183,0.934168,0.961894,True,11845065,2020-06-02,preseason,True,11692701,MODELED,estimated,Estimated — 11 of 32 teams are published figures; the rest are modeled from contract data.,1
-2020,NYG,93.300107,89.901785,-0.673214,0.934496,0.934496,0.934168,0.962232,False,13075501,2020-06-02,preseason,True,11692701,MODELED,estimated,Estimated — 11 of 32 teams are published figures; the rest are modeled from contract data.,22
-2020,NYJ,73.81383,71.611881,-1.892541,0.772162,0.772162,0.934168,0.961894,True,22000000,2020-06-02,preseason,True,11692701,MODELED,estimated,Estimated — 11 of 32 teams are published figures; the rest are modeled from contract data.,31
-2020,PHI,86.102442,86.647335,-0.890178,0.973739,0.973739,0.934168,1.00264,False,15400000,2020-06-02,preseason,False,11692701,REVIEW_OTC,estimated,Estimated — 11 of 32 teams are published figures; the rest are modeled from contract data.,26
-2020,PIT,119.68003,115.339971,1.022665,0.9403,0.9403,0.934168,0.968208,False,4716101,2020-06-02,preseason,True,11692701,MODELED,estimated,Estimated — 11 of 32 teams are published figures; the rest are modeled from contract data.,3
-2020,SEA,115.793078,113.096457,0.873097,0.952277,0.952277,0.934168,0.980541,False,6173423,2020-06-02,preseason,True,11692701,MODELED,estimated,Estimated — 11 of 32 teams are published figures; the rest are modeled from contract data.,6
-2020,SF,97.193733,99.970019,-0.001999,0.998613,0.998613,0.934168,1.028252,False,8119648,2020-06-02,preseason,True,11692701,MODELED,estimated,Estimated — 11 of 32 teams are published figures; the rest are modeled from contract data.,19
-2020,TB,117.905552,119.696888,1.313126,0.990187,0.990187,0.934168,1.019576,False,2250652,2020-06-02,preseason,True,11692701,MODELED,estimated,Estimated — 11 of 32 teams are published figures; the rest are modeled from contract data.,5
-2020,TEN,108.700686,108.000771,0.533385,0.967311,0.967311,0.934168,0.996021,False,8197645,2020-06-02,preseason,True,11692701,MODELED,estimated,Estimated — 11 of 32 teams are published figures; the rest are modeled from contract data.,11
-2020,WAS,102.698392,98.676241,-0.088251,0.899136,0.899136,0.934168,0.961894,True,18191086,2020-06-02,preseason,True,11692701,MODELED,estimated,Estimated — 11 of 32 teams are published figures; the rest are modeled from contract data.,13
-2021,ARI,111.336598,113.640758,0.909384,0.997678,0.997678,0.955216,1.023897,False,5865215,2021-09-06,preseason,True,11117714,MODELED,estimated,Estimated — 10 of 32 teams are published figures; the rest are modeled from contract data.,9
-2021,ATL,84.438423,83.176208,-1.121586,0.955883,0.955883,0.955216,0.981003,False,19664851,2021-09-06,preseason,True,11117714,MODELED,estimated,Estimated — 10 of 32 teams are published figures; the rest are modeled from contract data.,27
-2021,BAL,98.218138,96.276807,-0.248213,0.921222,0.921222,0.955216,0.980318,True,4290900,2021-09-06,preseason,False,11117714,SAFE_EDITORIAL,estimated,Estimated — 10 of 32 teams are published figures; the rest are modeled from contract data.,21
-2021,BUF,118.349408,122.139662,1.475977,1.010121,1.010121,0.955216,1.036666,False,6366909,2021-09-06,preseason,True,11117714,MODELED,estimated,Estimated — 10 of 32 teams are published figures; the rest are modeled from contract data.,3
-2021,CAR,86.86661,85.769151,-0.948723,0.95893,0.95893,0.955216,0.984131,False,45634297,2021-09-06,preseason,False,11117714,SAFE_EDITORIAL,estimated,Estimated — 10 of 32 teams are published figures; the rest are modeled from contract data.,25
-2021,CHI,85.567733,86.634173,-0.891055,0.982871,0.982871,0.955216,1.0087,False,15939310,2021-09-06,preseason,True,11117714,MODELED,estimated,Estimated — 10 of 32 teams are published figures; the rest are modeled from contract data.,26
-2021,CIN,108.059132,108.17338,0.544892,0.977806,0.977806,0.955216,1.003502,False,8286393,2021-09-06,preseason,True,11117714,MODELED,estimated,Estimated — 10 of 32 teams are published figures; the rest are modeled from contract data.,11
-2021,CLE,98.427446,98.434306,-0.10438,0.974598,0.974598,0.955216,1.00021,False,3240871,2021-09-06,preseason,False,11117714,SAFE_EDITORIAL,estimated,Estimated — 10 of 32 teams are published figures; the rest are modeled from contract data.,20
-2021,DAL,114.483345,121.872363,1.458158,1.04119,1.04119,0.955216,1.068552,False,9714385,2021-09-06,preseason,True,11117714,MODELED,estimated,Estimated — 10 of 32 teams are published figures; the rest are modeled from contract data.,7
-2021,DEN,99.254888,97.266831,-0.182211,0.929209,0.929209,0.955216,0.980318,True,18470462,2021-09-06,preseason,True,11117714,MODELED,estimated,Estimated — 10 of 32 teams are published figures; the rest are modeled from contract data.,19
-2021,DET,78.050644,78.461169,-1.435922,0.973111,0.973111,0.955216,0.998684,False,48051675,2021-09-06,preseason,False,11117714,SAFE_EDITORIAL,estimated,Estimated — 10 of 32 teams are published figures; the rest are modeled from contract data.,28
-2021,GB,115.703689,116.900009,1.126667,0.988408,0.988408,0.955216,1.014383,False,9020461,2021-09-06,preseason,True,11117714,MODELED,estimated,Estimated — 10 of 32 teams are published figures; the rest are modeled from contract data.,4
-2021,HOU,75.564117,75.302717,-1.646486,0.963648,0.963648,0.955216,0.988972,False,34328118,2021-09-06,preseason,True,11117714,MODELED,estimated,Estimated — 10 of 32 teams are published figures; the rest are modeled from contract data.,30
-2021,IND,103.764959,106.165597,0.41104,0.998399,0.998399,0.955216,1.024637,False,596187,2021-09-06,preseason,False,11117714,SAFE_EDITORIAL,estimated,Estimated — 10 of 32 teams are published figures; the rest are modeled from contract data.,14
-2021,JAX,71.22259,71.962505,-1.869166,0.97506,0.97506,0.955216,1.000684,False,21273395,2021-09-06,preseason,True,11117714,MODELED,estimated,Estimated — 10 of 32 teams are published figures; the rest are modeled from contract data.,32
-2021,KC,119.68087,117.313653,1.154244,0.959645,0.959645,0.955216,0.984864,False,6410540,2021-09-06,preseason,True,11117714,MODELED,estimated,Estimated — 10 of 32 teams are published figures; the rest are modeled from contract data.,2
-2021,LA,115.624239,114.761289,0.984086,0.970977,0.970977,0.955216,0.996494,False,39473971,2021-09-06,preseason,False,11117714,SAFE_EDITORIAL,estimated,Estimated — 10 of 32 teams are published figures; the rest are modeled from contract data.,5
-2021,LAC,102.891419,104.175784,0.278386,0.987799,0.987799,0.955216,1.013758,False,2250012,2021-09-06,preseason,False,11117714,SAFE_EDITORIAL,estimated,Estimated — 10 of 32 teams are published figures; the rest are modeled from contract data.,15
-2021,LV,99.5868,97.583784,-0.161081,0.94581,0.94581,0.955216,0.980318,True,18667409,2021-09-06,preseason,True,11117714,MODELED,estimated,Estimated — 10 of 32 teams are published figures; the rest are modeled from contract data.,18
-2021,MIA,96.475944,97.192972,-0.187135,0.981262,0.981262,0.955216,1.007049,False,8788323,2021-09-06,preseason,True,11117714,MODELED,estimated,Estimated — 10 of 32 teams are published figures; the rest are modeled from contract data.,23
-2021,MIN,101.776805,100.79332,0.052888,0.965932,0.965932,0.955216,0.991316,False,11834241,2021-09-06,preseason,True,11117714,MODELED,estimated,Estimated — 10 of 32 teams are published figures; the rest are modeled from contract data.,16
-2021,NE,114.746596,115.180377,1.012025,0.981811,0.981811,0.955216,1.007613,False,10887704,2021-09-06,preseason,True,11117714,MODELED,estimated,Estimated — 10 of 32 teams are published figures; the rest are modeled from contract data.,6
-2021,NO,106.175385,103.875426,0.258362,0.951063,0.951063,0.955216,0.980318,True,35755096,2021-09-06,preseason,False,11117714,SAFE_EDITORIAL,estimated,Estimated — 10 of 32 teams are published figures; the rest are modeled from contract data.,12
-2021,NYG,77.711646,77.702782,-1.486481,0.967773,0.967773,0.955216,0.993206,False,11347723,2021-09-06,preseason,True,11117714,MODELED,estimated,Estimated — 10 of 32 teams are published figures; the rest are modeled from contract data.,29
-2021,NYJ,73.495688,74.556098,-1.69626,0.980027,0.980027,0.955216,1.005782,False,6876487,2021-09-06,preseason,True,11117714,MODELED,estimated,Estimated — 10 of 32 teams are published figures; the rest are modeled from contract data.,31
-2021,PHI,105.661799,105.422024,0.361468,0.974037,0.974037,0.955216,0.999634,False,50041688,2021-09-06,preseason,False,11117714,SAFE_EDITORIAL,estimated,Estimated — 10 of 32 teams are published figures; the rest are modeled from contract data.,13
-2021,PIT,98.072681,96.137905,-0.257473,0.923153,0.923153,0.955216,0.980318,True,20098279,2021-09-06,preseason,True,11117714,MODELED,estimated,Estimated — 10 of 32 teams are published figures; the rest are modeled from contract data.,22
-2021,SEA,101.138645,99.065689,-0.062287,0.953213,0.953213,0.955216,0.980318,True,14291748,2021-09-06,preseason,True,11117714,MODELED,estimated,Estimated — 10 of 32 teams are published figures; the rest are modeled from contract data.,17
-2021,SF,109.571096,110.40622,0.693748,0.984537,0.984537,0.955216,1.01041,False,7348051,2021-09-06,preseason,True,11117714,MODELED,estimated,Estimated — 10 of 32 teams are published figures; the rest are modeled from contract data.,10
-2021,TB,126.798055,123.568649,1.571243,0.945867,0.945867,0.955216,0.980318,True,2380126,2021-09-06,preseason,False,11117714,SAFE_EDITORIAL,estimated,Estimated — 10 of 32 teams are published figures; the rest are modeled from contract data.,1
-2021,TEN,113.479519,110.850369,0.723358,0.920595,0.920595,0.955216,0.980318,True,17134479,2021-09-06,preseason,True,11117714,MODELED,estimated,Estimated — 10 of 32 teams are published figures; the rest are modeled from contract data.,8
-2021,WAS,87.805092,89.238021,-0.717465,0.987357,0.987357,0.955216,1.013304,False,7567502,2021-09-06,preseason,True,11117714,MODELED,estimated,Estimated — 10 of 32 teams are published figures; the rest are modeled from contract data.,24
-2022,ARI,82.874452,80.668257,-1.288783,0.91899,0.91899,0.908865,0.969322,False,10278530,2022-07-05,preseason,False,19109982,REVIEW_SPOTRAC,preseason,,29
-2022,ATL,96.188935,92.212758,-0.519149,0.874392,0.874392,0.908865,0.958642,True,63209124,2022-07-05,preseason,False,19109982,REVIEW_SPOTRAC,preseason,,20
-2022,BAL,112.056458,107.366094,0.491073,0.911718,0.911718,0.908865,0.961652,False,12292703,2022-07-05,preseason,False,19109982,REVIEW_SPOTRAC,preseason,,7
-2022,BUF,130.009624,129.217043,1.947803,0.948671,0.948671,0.908865,1.000629,False,16601356,2022-07-05,preseason,False,19109982,REVIEW_SPOTRAC,preseason,,2
-2022,CAR,97.77097,93.690088,-0.420661,0.83237,0.83237,0.908865,0.958642,True,23507283,2022-07-05,preseason,False,19109982,REVIEW_SPOTRAC,preseason,,17
-2022,CHI,77.324325,74.596678,-1.693555,0.816043,0.816043,0.908865,0.958642,True,57643341,2022-07-05,preseason,False,19109982,REVIEW_SPOTRAC,preseason,,30
-2022,CIN,117.284809,121.360456,1.42403,0.985594,0.985594,0.908865,1.039574,False,9592578,2022-07-05,preseason,False,19109982,REVIEW_SPOTRAC,preseason,,5
-2022,CLE,101.68164,97.341934,-0.177204,0.816987,0.816987,0.908865,0.958642,True,18774054,2022-07-05,preseason,False,19109982,REVIEW_SPOTRAC,preseason,,11
-2022,DAL,114.149978,118.244162,1.216277,0.986079,0.986079,0.908865,1.040086,False,22713132,2022-07-05,preseason,False,19109982,REVIEW_SPOTRAC,preseason,,6
-2022,DEN,88.486744,85.749008,-0.950066,0.916654,0.916654,0.908865,0.966859,False,14938136,2022-07-05,preseason,False,19109982,REVIEW_SPOTRAC,preseason,,27
-2022,DET,100.697613,102.229793,0.148653,0.963598,0.963598,0.908865,1.016374,False,20324288,2022-07-05,preseason,False,19109982,REVIEW_SPOTRAC,preseason,,14
-2022,GB,92.373806,97.225864,-0.184942,0.996785,0.996785,0.908865,1.051379,False,24628608,2022-07-05,preseason,False,19109982,REVIEW_SPOTRAC,preseason,,25
-2022,HOU,74.997457,72.423811,-1.838413,0.895438,0.895438,0.908865,0.958642,True,52289341,2022-07-05,preseason,False,19109982,REVIEW_SPOTRAC,preseason,,32
-2022,IND,75.840496,76.426605,-1.57156,0.948783,0.948783,0.908865,1.000748,False,7037428,2022-07-05,preseason,False,19109982,REVIEW_SPOTRAC,preseason,,31
-2022,JAX,94.73611,106.043494,0.4029,1.060789,1.060789,0.908865,1.118888,False,21852872,2022-07-05,preseason,False,19109982,REVIEW_SPOTRAC,preseason,,23
-2022,KC,127.176841,126.600582,1.773372,0.949757,0.949757,0.908865,1.001774,False,7982236,2022-07-05,preseason,False,19109982,REVIEW_SPOTRAC,preseason,,3
-2022,LA,87.94609,84.515455,-1.032303,0.900305,0.900305,0.908865,0.958642,True,13522002,2022-07-05,preseason,False,19109982,REVIEW_SPOTRAC,preseason,,28
-2022,LAC,98.255206,101.923707,0.128247,0.983988,0.983988,0.908865,1.03788,False,3661167,2022-07-05,preseason,False,19109982,REVIEW_SPOTRAC,preseason,,16
-2022,LV,94.330307,90.47714,-0.634857,0.859863,0.859863,0.908865,0.958642,True,29441565,2022-07-05,preseason,False,19109982,REVIEW_SPOTRAC,preseason,,24
-2022,MIA,103.527628,104.439936,0.295996,0.958169,0.958169,0.908865,1.010648,False,8483400,2022-07-05,preseason,False,19109982,REVIEW_SPOTRAC,preseason,,9
-2022,MIN,102.536154,105.611481,0.374099,0.978058,0.978058,0.908865,1.031626,False,22092189,2022-07-05,preseason,False,19109982,REVIEW_SPOTRAC,preseason,,10
-2022,NE,101.61381,102.879918,0.191995,0.961197,0.961197,0.908865,1.013841,False,9158009,2022-07-05,preseason,False,19109982,REVIEW_SPOTRAC,preseason,,12
-2022,NO,98.446655,97.527555,-0.16483,0.939762,0.939762,0.908865,0.991232,False,33347982,2022-07-05,preseason,False,19109982,REVIEW_SPOTRAC,preseason,,15
-2022,NYG,104.294861,99.782203,-0.01452,0.863267,0.863267,0.908865,0.958642,True,29262372,2022-07-05,preseason,False,19109982,REVIEW_SPOTRAC,preseason,,8
-2022,NYJ,96.420389,95.869353,-0.275376,0.942695,0.942695,0.908865,0.994326,False,2092411,2022-07-05,preseason,False,19109982,REVIEW_SPOTRAC,preseason,,19
-2022,PHI,118.261317,124.555059,1.637004,1.003363,1.003363,0.908865,1.058316,False,54915221,2022-07-05,preseason,False,19109982,REVIEW_SPOTRAC,preseason,,4
-2022,PIT,95.960923,99.598325,-0.026778,0.98393,0.98393,0.908865,1.037819,False,30863174,2022-07-05,preseason,False,19109982,REVIEW_SPOTRAC,preseason,,21
-2022,SEA,95.568562,99.157236,-0.056184,0.983489,0.983489,0.908865,1.037354,False,46022390,2022-07-05,preseason,False,19109982,REVIEW_SPOTRAC,preseason,,22
-2022,SF,132.443485,127.25761,1.817174,0.917442,0.917442,0.908865,0.96769,False,6495221,2022-07-05,preseason,False,19109982,REVIEW_SPOTRAC,preseason,,1
-2022,TB,96.529263,96.607593,-0.22616,0.948911,0.948911,0.908865,1.000882,False,19445910,2022-07-05,preseason,False,19109982,REVIEW_SPOTRAC,preseason,,18
-2022,TEN,89.479742,90.141972,-0.657202,0.953219,0.953219,0.908865,1.005426,False,14290108,2022-07-05,preseason,False,19109982,REVIEW_SPOTRAC,preseason,,26
-2022,WAS,100.73535,98.258831,-0.116078,0.92583,0.92583,0.908865,0.976537,False,6300496,2022-07-05,preseason,False,19109982,REVIEW_SPOTRAC,preseason,,13
-2023,ARI,82.864135,79.484056,-1.36773,0.824785,0.824785,0.897895,0.953549,True,36960000,2023-07-14,preseason,False,20300000,REVIEW_OTC,preseason,,29
-2023,ATL,88.075188,90.542729,-0.630485,0.964109,0.964109,0.897895,1.023867,False,18780000,2023-07-14,preseason,False,20300000,REVIEW_OTC,preseason,,26
-2023,BAL,127.047961,129.444329,1.962955,0.964347,0.964347,0.897895,1.024121,False,10780000,2023-07-14,preseason,False,20300000,REVIEW_OTC,preseason,,2
-2023,BUF,113.645245,118.752875,1.250192,0.986605,0.986605,0.897895,1.047758,False,5230000,2023-07-14,preseason,False,20300000,REVIEW_OTC,preseason,,6
-2023,CAR,65.735859,70.142427,-1.990505,0.990659,0.990659,0.897895,1.052063,False,51540000,2023-07-14,preseason,False,20300000,REVIEW_OTC,preseason,,32
-2023,CHI,93.52164,94.993484,-0.333768,0.954251,0.954251,0.897895,1.013399,False,23520000,2023-07-14,preseason,False,20300000,REVIEW_OTC,preseason,,21
-2023,CIN,100.030134,100.278456,0.018564,0.943526,0.943526,0.897895,1.002008,False,593000,2023-07-14,preseason,False,20300000,REVIEW_OTC,preseason,,15
-2023,CLE,108.651996,109.178057,0.61187,0.947729,0.947729,0.897895,1.006472,False,16000000,2023-07-14,preseason,False,20300000,REVIEW_OTC,preseason,,8
-2023,DAL,122.179756,125.018634,1.667909,0.967682,0.967682,0.897895,1.027662,False,14640000,2023-07-14,preseason,False,20300000,REVIEW_OTC,preseason,,3
-2023,DEN,93.345606,92.356308,-0.509579,0.92946,0.92946,0.897895,0.987071,False,9720000,2023-07-14,preseason,False,20300000,REVIEW_OTC,preseason,,23
-2023,DET,114.867706,114.278603,0.951907,0.939561,0.939561,0.897895,0.997798,False,18690000,2023-07-14,preseason,False,20300000,REVIEW_OTC,preseason,,5
-2023,GB,105.963135,104.546739,0.303116,0.929981,0.929981,0.897895,0.987624,False,57140000,2023-07-14,preseason,False,20300000,REVIEW_OTC,preseason,,11
-2023,HOU,104.257547,103.354711,0.223647,0.934037,0.934037,0.897895,0.991932,False,31720000,2023-07-14,preseason,False,20300000,REVIEW_OTC,preseason,,12
-2023,IND,103.571003,98.717732,-0.085485,0.886864,0.886864,0.897895,0.953549,True,24890000,2023-07-14,preseason,False,20300000,REVIEW_OTC,preseason,,13
-2023,JAX,99.754529,100.778498,0.0519,0.950781,0.950781,0.897895,1.009714,False,4700000,2023-07-14,preseason,False,20300000,REVIEW_OTC,preseason,,17
-2023,KC,112.026523,112.855606,0.85704,0.950839,0.950839,0.897895,1.009775,False,7650000,2023-07-14,preseason,False,20300000,REVIEW_OTC,preseason,,7
-2023,LA,107.489617,107.542751,0.50285,0.94338,0.94338,0.897895,1.001854,False,74230000,2023-07-14,preseason,False,20300000,REVIEW_OTC,preseason,,10
-2023,LAC,91.508657,87.513563,-0.832429,0.860896,0.860896,0.897895,0.953549,True,2190000,2023-07-14,preseason,False,20300000,REVIEW_OTC,preseason,,24
-2023,LV,101.778302,97.052573,-0.196495,0.879834,0.879834,0.897895,0.953549,True,29950000,2023-07-14,preseason,False,20300000,REVIEW_OTC,preseason,,14
-2023,MIA,115.856475,114.998795,0.99992,0.937598,0.937598,0.897895,0.995713,False,8430000,2023-07-14,preseason,False,20300000,REVIEW_OTC,preseason,,4
-2023,MIN,99.798225,95.693596,-0.287094,0.902424,0.902424,0.897895,0.958359,False,35540000,2023-07-14,preseason,False,20300000,REVIEW_OTC,preseason,,16
-2023,NE,77.452116,78.793051,-1.413797,0.950183,0.950183,0.897895,1.009079,False,21820000,2023-07-14,preseason,False,20300000,REVIEW_OTC,preseason,,30
-2023,NO,107.740252,106.73645,0.449097,0.934183,0.934183,0.897895,0.992086,False,24580000,2023-07-14,preseason,False,20300000,REVIEW_OTC,preseason,,9
-2023,NYG,85.105131,81.565617,-1.228959,0.849683,0.849683,0.897895,0.953549,True,22740000,2023-07-14,preseason,False,20300000,REVIEW_OTC,preseason,,28
-2023,NYJ,90.380429,86.569399,-0.895373,0.898973,0.898973,0.897895,0.954694,False,7950000,2023-07-14,preseason,False,20300000,REVIEW_OTC,preseason,,25
-2023,PHI,99.303858,105.061548,0.337437,0.995568,0.995568,0.897895,1.057276,False,54730000,2023-07-14,preseason,False,20300000,REVIEW_OTC,preseason,,18
-2023,PIT,99.100881,102.379983,0.158666,0.972092,0.972092,0.897895,1.032345,False,13260000,2023-07-14,preseason,False,20300000,REVIEW_OTC,preseason,,19
-2023,SEA,98.826436,98.113503,-0.125766,0.9341,0.9341,0.897895,0.991998,False,17910000,2023-07-14,preseason,False,20300000,REVIEW_OTC,preseason,,20
-2023,SF,135.435812,128.315516,1.887701,0.814661,0.814661,0.897895,0.953549,True,17160000,2023-07-14,preseason,False,20300000,REVIEW_OTC,preseason,,1
-2023,TB,85.143021,102.429129,0.161942,1.127079,1.127079,0.897895,1.196939,False,75320000,2023-07-14,preseason,False,20300000,REVIEW_OTC,preseason,,27
-2023,TEN,93.515945,89.378042,-0.708131,0.894661,0.894661,0.897895,0.953549,True,36560000,2023-07-14,preseason,False,20300000,REVIEW_OTC,preseason,,22
-2023,WAS,76.026883,73.133241,-1.791117,0.870871,0.870871,0.897895,0.953549,True,23010000,2023-07-14,preseason,False,20300000,REVIEW_OTC,preseason,,31
-2024,ARI,99.442697,101.910238,0.127349,1.001929,1.001929,0.956986,1.024392,False,29350000,2024-11-27,late_season,False,50285000,REVIEW_OTC,in_season,,17
-2024,ATL,95.559486,95.965298,-0.26898,0.980773,0.980773,0.956986,1.002762,False,11550000,2024-11-27,late_season,False,50285000,REVIEW_OTC,in_season,,20
-2024,BAL,122.881735,122.50371,1.500247,0.979576,0.979576,0.956986,1.001537,False,21350000,2024-11-27,late_season,False,50285000,REVIEW_OTC,in_season,,3
-2024,BUF,121.016704,120.580203,1.372014,0.978732,0.978732,0.956986,1.000674,False,68470000,2024-11-27,late_season,False,50285000,REVIEW_OTC,in_season,,4
-2024,CAR,75.556339,77.929227,-1.471385,1.00006,1.00006,0.956986,1.02248,False,68280000,2024-11-27,late_season,False,50285000,REVIEW_OTC,in_season,,32
-2024,CHI,88.45615,90.251123,-0.649925,0.994261,0.994261,0.956986,1.016552,False,29650000,2024-11-27,late_season,False,50285000,REVIEW_OTC,in_season,,22
-2024,CIN,101.441352,103.825256,0.255017,1.001164,1.001164,0.956986,1.023609,False,9110000,2024-11-27,late_season,False,50285000,REVIEW_OTC,in_season,,14
-2024,CLE,78.193343,77.208706,-1.51942,0.958508,0.958508,0.956986,0.979998,False,38790000,2024-11-27,late_season,False,50285000,REVIEW_OTC,in_season,,30
-2024,DAL,87.400773,85.861655,-0.942556,0.92982,0.92982,0.956986,0.978441,True,26790000,2024-11-27,late_season,False,50285000,REVIEW_OTC,in_season,,24
-2024,DEN,111.820808,111.621779,0.774785,0.978779,0.978779,0.956986,1.000722,False,85210000,2024-11-27,late_season,False,50285000,REVIEW_OTC,in_season,,10
-2024,DET,132.256767,128.613975,1.907598,0.895063,0.895063,0.956986,0.978441,True,33710000,2024-11-27,late_season,False,50285000,REVIEW_OTC,in_season,,1
-2024,GB,115.320917,115.544697,1.036313,0.983127,0.983127,0.956986,1.005168,False,65530000,2024-11-27,late_season,False,50285000,REVIEW_OTC,in_season,,8
-2024,HOU,101.201834,101.883281,0.125552,0.984703,0.984703,0.956986,1.006779,False,39280000,2024-11-27,late_season,False,50285000,REVIEW_OTC,in_season,,15
-2024,IND,94.62594,93.832743,-0.41115,0.968178,0.968178,0.956986,0.989884,False,11800000,2024-11-27,late_season,False,50285000,REVIEW_OTC,in_season,,21
-2024,JAX,81.42897,82.194504,-1.187033,0.981153,0.981153,0.956986,1.00315,False,51200000,2024-11-27,late_season,False,50285000,REVIEW_OTC,in_season,,28
-2024,KC,115.400805,114.338957,0.95593,0.972209,0.972209,0.956986,0.994006,False,12650000,2024-11-27,late_season,False,50285000,REVIEW_OTC,in_season,,7
-2024,LA,99.994733,101.287773,0.085852,0.990456,0.990456,0.956986,1.012661,False,34630000,2024-11-27,late_season,False,50285000,REVIEW_OTC,in_season,,16
-2024,LAC,108.21906,111.290659,0.752711,1.007568,1.007568,0.956986,1.030157,False,58620000,2024-11-27,late_season,False,50285000,REVIEW_OTC,in_season,,11
-2024,LV,83.377521,82.027087,-1.198194,0.88482,0.88482,0.956986,0.978441,True,49370000,2024-11-27,late_season,False,50285000,REVIEW_OTC,in_season,,26
-2024,MIA,97.061972,96.615141,-0.225657,0.972542,0.972542,0.956986,0.994345,False,52280000,2024-11-27,late_season,False,50285000,REVIEW_OTC,in_season,,19
-2024,MIN,115.749309,116.602393,1.106826,0.988538,0.988538,0.956986,1.0107,False,69830000,2024-11-27,late_season,False,50285000,REVIEW_OTC,in_season,,5
-2024,NE,83.120785,81.782392,-1.214507,0.869519,0.869519,0.956986,0.978441,True,53370000,2024-11-27,late_season,False,50285000,REVIEW_OTC,in_season,,27
-2024,NO,86.385404,87.769979,-0.815335,0.989407,0.989407,0.956986,1.011589,False,59440000,2024-11-27,late_season,False,50285000,REVIEW_OTC,in_season,,25
-2024,NYG,76.568234,79.310602,-1.379293,1.004792,1.004792,0.956986,1.027319,False,79570000,2024-11-27,late_season,False,50285000,REVIEW_OTC,in_season,,31
-2024,NYJ,88.213215,90.450743,-0.636617,0.999123,0.999123,0.956986,1.021523,False,59240000,2024-11-27,late_season,False,50285000,REVIEW_OTC,in_season,,23
-2024,PHI,122.970346,122.011151,1.46741,0.974949,0.974949,0.956986,0.996807,False,61950000,2024-11-27,late_season,False,50285000,REVIEW_OTC,in_season,,2
-2024,PIT,103.323335,102.980681,0.198712,0.975391,0.975391,0.956986,0.997258,False,30180000,2024-11-27,late_season,False,50285000,REVIEW_OTC,in_season,,12
-2024,SEA,102.983931,102.768795,0.184586,0.97651,0.97651,0.956986,0.998403,False,52000000,2024-11-27,late_season,False,50285000,REVIEW_OTC,in_season,,13
-2024,SF,98.652707,96.585891,-0.227607,0.951273,0.951273,0.956986,0.978441,True,26910000,2024-11-27,late_season,False,50285000,REVIEW_OTC,in_season,,18
-2024,TB,114.392221,111.587247,0.772483,0.952417,0.952417,0.956986,0.978441,True,60640000,2024-11-27,late_season,False,50285000,REVIEW_OTC,in_season,,9
-2024,TEN,81.300321,80.047305,-1.33018,0.946039,0.946039,0.956986,0.978441,True,62890000,2024-11-27,late_season,False,50285000,REVIEW_OTC,in_season,,29
-2024,WAS,115.682284,112.816809,0.854454,0.934002,0.934002,0.956986,0.978441,True,42810000,2024-11-27,late_season,False,50285000,REVIEW_OTC,in_season,,6
-2025,ARI,82.814876,82.794231,-1.147051,0.9986,0.9986,0.974327,0.992332,False,16510000,2025-12-17,late_season,False,41025000,REVIEW_OTC,in_season,,28
-2025,ATL,95.639529,95.76285,-0.282477,1.0046,1.0046,0.974327,0.998294,False,27000000,2025-12-17,late_season,False,41025000,REVIEW_OTC,in_season,,20
-2025,BAL,103.939125,100.704766,0.046984,0.957106,0.957106,0.974327,0.968211,True,38380000,2025-12-17,late_season,False,41025000,REVIEW_OTC,in_season,,13
-2025,BUF,118.240907,115.12381,1.008254,0.982266,0.982266,0.974327,0.9761,False,37580000,2025-12-17,late_season,False,41025000,REVIEW_OTC,in_season,,4
-2025,CAR,94.306266,91.619663,-0.558689,0.956963,0.956963,0.974327,0.968211,True,36550000,2025-12-17,late_season,False,41025000,REVIEW_OTC,in_season,,22
-2025,CHI,107.787892,107.192598,0.479507,1.001015,1.001015,0.974327,0.994732,False,8600000,2025-12-17,late_season,False,41025000,REVIEW_OTC,in_season,,10
-2025,CIN,86.909943,86.462561,-0.902496,0.995261,0.995261,0.974327,0.989014,False,20990000,2025-12-17,late_season,False,41025000,REVIEW_OTC,in_season,,25
-2025,CLE,77.316367,84.394358,-1.040376,1.087727,1.087727,0.974327,1.080899,False,83220000,2025-12-17,late_season,False,41025000,REVIEW_OTC,in_season,,29
-2025,DAL,95.522154,92.766412,-0.482239,0.970262,0.970262,0.974327,0.968211,True,41340000,2025-12-17,late_season,False,41025000,REVIEW_OTC,in_season,,21
-2025,DEN,118.131364,117.130087,1.142006,1.000289,1.000289,0.974327,0.99401,False,42780000,2025-12-17,late_season,False,41025000,REVIEW_OTC,in_season,,5
-2025,DET,105.918275,108.096379,0.539759,1.026809,1.026809,0.974327,1.020363,False,40710000,2025-12-17,late_season,False,41025000,REVIEW_OTC,in_season,,11
-2025,GB,103.535725,105.887895,0.392526,1.028359,1.028359,0.974327,1.021904,False,57980000,2025-12-17,late_season,False,41025000,REVIEW_OTC,in_season,,14
-2025,HOU,118.053074,116.947278,1.129819,0.999375,0.999375,0.974327,0.993102,False,66440000,2025-12-17,late_season,False,41025000,REVIEW_OTC,in_season,,6
-2025,IND,103.436733,105.804071,0.386938,1.028502,1.028502,0.974327,1.022046,False,17370000,2025-12-17,late_season,False,41025000,REVIEW_OTC,in_season,,15
-2025,JAX,115.048863,119.177962,1.278531,1.044391,1.044391,0.974327,1.037835,False,85490000,2025-12-17,late_season,False,41025000,REVIEW_OTC,in_season,,7
-2025,KC,99.984979,100.602598,0.040173,1.010769,1.010769,0.974327,1.004424,False,20330000,2025-12-17,late_season,False,41025000,REVIEW_OTC,in_season,,18
-2025,LA,128.321758,123.700923,1.580062,0.968997,0.968997,0.974327,0.968211,True,56230000,2025-12-17,late_season,False,41025000,REVIEW_OTC,in_season,,2
-2025,LAC,107.881843,107.275078,0.485005,1.000935,1.000935,0.974327,0.994652,False,38780000,2025-12-17,late_season,False,41025000,REVIEW_OTC,in_season,,9
-2025,LV,68.045771,74.061234,-1.729251,1.07939,1.07939,0.974327,1.072615,False,87790000,2025-12-17,late_season,False,41025000,REVIEW_OTC,in_season,,32
-2025,MIA,88.011976,88.313103,-0.779126,1.004231,1.004231,0.974327,0.997927,False,72450000,2025-12-17,late_season,False,41025000,REVIEW_OTC,in_season,,24
-2025,MIN,104.356396,101.09831,0.073221,0.964917,0.964917,0.974327,0.968211,True,30600000,2025-12-17,late_season,False,41025000,REVIEW_OTC,in_season,,12
-2025,NE,125.461269,121.212264,1.414151,0.976011,0.976011,0.974327,0.969884,False,50560000,2025-12-17,late_season,False,41025000,REVIEW_OTC,in_season,,3
-2025,NO,93.054878,90.565191,-0.628987,0.975682,0.975682,0.974327,0.969557,False,107830000,2025-12-17,late_season,False,41025000,REVIEW_OTC,in_season,,23
-2025,NYG,85.285401,87.754456,-0.81637,1.028754,1.028754,0.974327,1.022296,False,33740000,2025-12-17,late_season,False,41025000,REVIEW_OTC,in_season,,27
-2025,NYJ,71.388321,70.004908,-1.999673,0.928363,0.928363,0.974327,0.968211,True,102100000,2025-12-17,late_season,False,41025000,REVIEW_OTC,in_season,,31
-2025,PHI,112.322548,110.887532,0.725835,0.994745,0.994745,0.974327,0.9885,False,87270000,2025-12-17,late_season,False,41025000,REVIEW_OTC,in_season,,8
-2025,PIT,102.479507,102.636843,0.17579,1.006782,1.006782,0.974327,1.000463,False,33700000,2025-12-17,late_season,False,41025000,REVIEW_OTC,in_season,,16
-2025,SEA,129.374402,124.69371,1.646247,0.963678,0.963678,0.974327,0.968211,True,86100000,2025-12-17,late_season,False,41025000,REVIEW_OTC,in_season,,1
-2025,SF,96.244382,110.503459,0.700231,1.152159,1.152159,0.974327,1.144927,False,103770000,2025-12-17,late_season,False,41025000,REVIEW_OTC,in_season,,19
-2025,TB,100.46247,97.425805,-0.171613,0.952102,0.952102,0.974327,0.968211,True,40390000,2025-12-17,late_season,False,41025000,REVIEW_OTC,in_season,,17
-2025,TEN,73.88504,74.330294,-1.711314,1.000861,1.000861,0.974327,0.994579,False,59420000,2025-12-17,late_season,False,41025000,REVIEW_OTC,in_season,,30
-2025,WAS,86.837967,85.069374,-0.995375,0.98001,0.98001,0.974327,0.973858,False,27290000,2025-12-17,late_season,False,41025000,REVIEW_OTC,in_season,,26
+2013,ARI,112.595031,111.537515,0.769168,0.928888,0.928888,0.86954,0.994422,False,12410450,2013-03-18,preseason,False,5946448,REVIEW_SPOTRAC,provisional,published one week into the league year; understates the final figure.,8
+2013,ATL,85.573488,86.849203,-0.87672,0.943781,0.943781,0.86954,1.010366,False,11513432,2013-03-18,preseason,False,5946448,REVIEW_SPOTRAC,provisional,published one week into the league year; understates the final figure.,29
+2013,BAL,95.883257,93.079627,-0.461358,0.906094,0.906094,0.86954,0.97002,False,8136837,2013-03-18,preseason,False,5946448,REVIEW_SPOTRAC,provisional,published one week into the league year; understates the final figure.,19
+2013,BUF,100.508191,93.499695,-0.433354,0.856919,0.856919,0.86954,0.930886,True,9500035,2013-03-18,preseason,False,5946448,REVIEW_SPOTRAC,provisional,published one week into the league year; understates the final figure.,16
+2013,CAR,130.762398,120.811841,1.387456,0.8425,0.8425,0.86954,0.930886,True,9754796,2013-03-18,preseason,False,5946448,REVIEW_SPOTRAC,provisional,published one week into the league year; understates the final figure.,1
+2013,CHI,91.843488,96.974942,-0.201671,0.984196,0.984196,0.86954,1.053632,False,2325099,2013-03-18,preseason,False,5946448,REVIEW_SPOTRAC,provisional,published one week into the league year; understates the final figure.,23
+2013,CIN,109.091312,114.731815,0.982121,0.98534,0.98534,0.86954,1.054857,False,1697186,2013-03-18,preseason,False,5946448,REVIEW_SPOTRAC,provisional,published one week into the league year; understates the final figure.,9
+2013,CLE,88.70994,82.848761,-1.143416,0.839568,0.839568,0.86954,0.930886,True,7262779,2013-03-18,preseason,False,5946448,REVIEW_SPOTRAC,provisional,published one week into the league year; understates the final figure.,24
+2013,DAL,107.852556,100.12986,0.008657,0.856524,0.856524,0.86954,0.930886,True,5986584,2013-03-18,preseason,False,5946448,REVIEW_SPOTRAC,provisional,published one week into the league year; understates the final figure.,11
+2013,DEN,115.395805,127.885224,1.859015,1.039852,1.039852,0.86954,1.113214,False,7335301,2013-03-18,preseason,False,5946448,REVIEW_SPOTRAC,provisional,published one week into the league year; understates the final figure.,6
+2013,DET,101.22274,98.4839,-0.101073,0.909617,0.909617,0.86954,0.973791,False,7567505,2013-03-18,preseason,False,5946448,REVIEW_SPOTRAC,provisional,published one week into the league year; understates the final figure.,15
+2013,GB,95.223088,97.945786,-0.136948,0.959869,0.959869,0.86954,1.027588,False,121297,2013-03-18,preseason,False,5946448,REVIEW_SPOTRAC,provisional,published one week into the league year; understates the final figure.,21
+2013,HOU,74.761036,76.75067,-1.549955,0.949918,0.949918,0.86954,1.016936,False,2130742,2013-03-18,preseason,False,5946448,REVIEW_SPOTRAC,provisional,published one week into the league year; understates the final figure.,32
+2013,IND,107.888642,108.576881,0.571792,0.942588,0.942588,0.86954,1.009088,False,5657004,2013-03-18,preseason,False,5946448,REVIEW_SPOTRAC,provisional,published one week into the league year; understates the final figure.,10
+2013,JAX,76.767252,72.929018,-1.804732,0.879935,0.879935,0.86954,0.942015,False,24012892,2013-03-18,preseason,False,5946448,REVIEW_SPOTRAC,provisional,published one week into the league year; understates the final figure.,31
+2013,KC,102.293098,114.413052,0.96087,1.046006,1.046006,0.86954,1.119802,False,13326323,2013-03-18,preseason,False,5946448,REVIEW_SPOTRAC,provisional,published one week into the league year; understates the final figure.,14
+2013,LA,93.592925,97.40949,-0.172701,0.970713,0.970713,0.86954,1.039198,False,10312806,2013-03-18,preseason,False,5946448,REVIEW_SPOTRAC,provisional,published one week into the league year; understates the final figure.,22
+2013,LAC,113.896443,105.804183,0.386946,0.871337,0.871337,0.86954,0.93281,False,1019422,2013-03-18,preseason,False,5946448,REVIEW_SPOTRAC,provisional,published one week into the league year; understates the final figure.,7
+2013,LV,86.574572,80.921047,-1.27193,0.749028,0.749028,0.86954,0.930886,True,26601452,2013-03-18,preseason,False,5946448,REVIEW_SPOTRAC,provisional,published one week into the league year; understates the final figure.,26
+2013,MIA,103.923351,96.582748,-0.227817,0.827184,0.827184,0.86954,0.930886,True,3289282,2013-03-18,preseason,False,5946448,REVIEW_SPOTRAC,provisional,published one week into the league year; understates the final figure.,13
+2013,MIN,78.41995,85.579772,-0.961349,1.011631,1.011631,0.86954,1.083003,False,2189826,2013-03-18,preseason,False,5946448,REVIEW_SPOTRAC,provisional,published one week into the league year; understates the final figure.,30
+2013,NE,115.581941,113.224859,0.881657,0.919202,0.919202,0.86954,0.984052,False,6637523,2013-03-18,preseason,False,5946448,REVIEW_SPOTRAC,provisional,published one week into the league year; understates the final figure.,5
+2013,NO,117.650695,119.345147,1.289676,0.952284,0.952284,0.86954,1.019469,False,1170190,2013-03-18,preseason,False,5946448,REVIEW_SPOTRAC,provisional,published one week into the league year; understates the final figure.,4
+2013,NYG,86.065281,90.618918,-0.625405,0.979313,0.979313,0.86954,1.048404,False,6771306,2013-03-18,preseason,False,5946448,REVIEW_SPOTRAC,provisional,published one week into the league year; understates the final figure.,27
+2013,NYJ,97.09337,90.416948,-0.63887,0.86415,0.86415,0.86954,0.930886,True,7130453,2013-03-18,preseason,False,5946448,REVIEW_SPOTRAC,provisional,published one week into the league year; understates the final figure.,18
+2013,PHI,105.455676,110.552036,0.703469,0.981252,0.981252,0.86954,1.05048,False,5906313,2013-03-18,preseason,False,5946448,REVIEW_SPOTRAC,provisional,published one week into the league year; understates the final figure.,12
+2013,PIT,97.977791,98.345081,-0.110328,0.937506,0.937506,0.86954,1.003648,False,5532445,2013-03-18,preseason,False,5946448,REVIEW_SPOTRAC,provisional,published one week into the league year; understates the final figure.,17
+2013,SEA,118.849536,129.271949,1.951463,1.021349,1.021349,0.86954,1.093406,False,1057668,2013-03-18,preseason,False,5946448,REVIEW_SPOTRAC,provisional,published one week into the league year; understates the final figure.,2
+2013,SF,118.414933,119.830531,1.322035,0.950142,0.950142,0.86954,1.017175,False,957674,2013-03-18,preseason,False,5946448,REVIEW_SPOTRAC,provisional,published one week into the league year; understates the final figure.,3
+2013,TB,88.32322,86.593941,-0.893737,0.912693,0.912693,0.86954,0.977085,False,1343534,2013-03-18,preseason,False,5946448,REVIEW_SPOTRAC,provisional,published one week into the league year; understates the final figure.,25
+2013,TEN,95.810787,97.654831,-0.156345,0.951329,0.951329,0.86954,1.018446,False,4398793,2013-03-18,preseason,False,5946448,REVIEW_SPOTRAC,provisional,published one week into the league year; understates the final figure.,20
+2013,WAS,85.998206,80.400729,-1.306618,0.853746,0.853746,0.86954,0.930886,True,3375750,2013-03-18,preseason,False,5946448,REVIEW_SPOTRAC,provisional,published one week into the league year; understates the final figure.,28
+2014,ARI,103.716032,107.057825,0.470522,0.955512,0.955512,0.877225,1.033373,False,10087468,2014-02-18,preseason,False,4030884,SAFE_LEAGUE,provisional,published before the league year opened; understates the final figure.,13
+2014,ATL,86.791862,90.677754,-0.621483,0.961667,0.961667,0.877225,1.040029,False,5922507,2014-02-18,preseason,False,4030884,SAFE_LEAGUE,provisional,published before the league year opened; understates the final figure.,27
+2014,BAL,117.439827,110.912701,0.727513,0.861535,0.861535,0.877225,0.948706,True,4422216,2014-02-18,preseason,False,4030884,SAFE_LEAGUE,provisional,published before the league year opened; understates the final figure.,5
+2014,BUF,100.30035,107.758277,0.517218,0.99353,0.99353,0.877225,1.074489,False,12070113,2014-02-18,preseason,False,4030884,SAFE_LEAGUE,provisional,published before the league year opened; understates the final figure.,16
+2014,CAR,95.327657,96.488745,-0.234084,0.934565,0.934565,0.877225,1.010718,False,17840241,2014-02-18,preseason,False,4030884,SAFE_LEAGUE,provisional,published before the league year opened; understates the final figure.,19
+2014,CHI,87.48194,83.350363,-1.109976,0.865441,0.865441,0.877225,0.948706,True,1476671,2014-02-18,preseason,False,4030884,SAFE_LEAGUE,provisional,published before the league year opened; understates the final figure.,26
+2014,CIN,100.776545,104.543936,0.302929,0.959476,0.959476,0.877225,1.037659,False,984283,2014-02-18,preseason,False,4030884,SAFE_LEAGUE,provisional,published before the league year opened; understates the final figure.,15
+2014,CLE,94.508759,93.524744,-0.431684,0.913455,0.913455,0.877225,0.987888,False,7194157,2014-02-18,preseason,False,4030884,SAFE_LEAGUE,provisional,published before the league year opened; understates the final figure.,20
+2014,DAL,123.010763,116.038163,1.069211,0.860935,0.860935,0.877225,0.948706,True,11809439,2014-02-18,preseason,False,4030884,SAFE_LEAGUE,provisional,published before the league year opened; understates the final figure.,2
+2014,DEN,116.849523,122.570847,1.504723,0.974201,0.974201,0.877225,1.053584,False,3992330,2014-02-18,preseason,False,4030884,SAFE_LEAGUE,provisional,published before the league year opened; understates the final figure.,6
+2014,DET,108.458242,111.127217,0.741814,0.949675,0.949675,0.877225,1.02706,False,4069438,2014-02-18,preseason,False,4030884,SAFE_LEAGUE,provisional,published before the league year opened; understates the final figure.,10
+2014,GB,114.187469,121.512079,1.434139,0.987704,0.987704,0.877225,1.068187,False,2677484,2014-02-18,preseason,False,4030884,SAFE_LEAGUE,provisional,published before the league year opened; understates the final figure.,7
+2014,HOU,113.221623,107.031801,0.468787,0.863012,0.863012,0.877225,0.948706,True,3247174,2014-02-18,preseason,False,4030884,SAFE_LEAGUE,provisional,published before the league year opened; understates the final figure.,8
+2014,IND,117.665937,111.410386,0.760692,0.879511,0.879511,0.877225,0.951179,False,800734,2014-02-18,preseason,False,4030884,SAFE_LEAGUE,provisional,published before the league year opened; understates the final figure.,4
+2014,JAX,77.77119,74.416122,-1.705592,0.847045,0.847045,0.877225,0.948706,True,5600511,2014-02-18,preseason,False,4030884,SAFE_LEAGUE,provisional,published before the league year opened; understates the final figure.,30
+2014,KC,107.188949,109.128526,0.608568,0.943327,0.943327,0.877225,1.020194,False,3505823,2014-02-18,preseason,False,4030884,SAFE_LEAGUE,provisional,published before the league year opened; understates the final figure.,11
+2014,LA,93.5467,93.76817,-0.415455,0.924948,0.924948,0.877225,1.000318,False,133805,2014-02-18,preseason,False,4030884,SAFE_LEAGUE,provisional,published before the league year opened; understates the final figure.,22
+2014,LAC,101.861195,104.743066,0.316204,0.951371,0.951371,0.877225,1.028894,False,8674983,2014-02-18,preseason,False,4030884,SAFE_LEAGUE,provisional,published before the league year opened; understates the final figure.,14
+2014,LV,78.826132,75.386708,-1.640886,0.872062,0.872062,0.877225,0.948706,True,9311192,2014-02-18,preseason,False,4030884,SAFE_LEAGUE,provisional,published before the league year opened; understates the final figure.,28
+2014,MIA,90.384255,102.597773,0.173185,1.046276,1.046276,0.877225,1.131532,False,4942896,2014-02-18,preseason,False,4030884,SAFE_LEAGUE,provisional,published before the league year opened; understates the final figure.,24
+2014,MIN,98.293006,95.123382,-0.325108,0.894398,0.894398,0.877225,0.967278,False,1783163,2014-02-18,preseason,False,4030884,SAFE_LEAGUE,provisional,published before the league year opened; understates the final figure.,18
+2014,NE,121.994641,121.237619,1.415841,0.923976,0.923976,0.877225,0.999266,False,8533721,2014-02-18,preseason,False,4030884,SAFE_LEAGUE,provisional,published before the league year opened; understates the final figure.,3
+2014,NO,92.497593,94.529513,-0.364699,0.942689,0.942689,0.877225,1.019505,False,10450051,2014-02-18,preseason,False,4030884,SAFE_LEAGUE,provisional,published before the league year opened; understates the final figure.,23
+2014,NYG,94.107562,93.439638,-0.437357,0.91639,0.91639,0.877225,0.991062,False,2778141,2014-02-18,preseason,False,4030884,SAFE_LEAGUE,provisional,published before the league year opened; understates the final figure.,21
+2014,NYJ,88.35657,84.155054,-1.05633,0.748696,0.748696,0.877225,0.948706,True,48958,2014-02-18,preseason,False,4030884,SAFE_LEAGUE,provisional,published before the league year opened; understates the final figure.,25
+2014,PHI,105.327601,107.408886,0.493926,0.944399,0.944399,0.877225,1.021353,False,1348343,2014-02-18,preseason,False,4030884,SAFE_LEAGUE,provisional,published before the league year opened; understates the final figure.,12
+2014,PIT,109.264191,109.513168,0.634211,0.92917,0.92917,0.877225,1.004884,False,4552933,2014-02-18,preseason,False,4030884,SAFE_LEAGUE,provisional,published before the league year opened; understates the final figure.,9
+2014,SEA,132.510717,124.778464,1.651898,0.848022,0.848022,0.877225,0.948706,True,907367,2014-02-18,preseason,False,4030884,SAFE_LEAGUE,provisional,published before the league year opened; understates the final figure.,1
+2014,SF,100.06792,98.731147,-0.08459,0.912351,0.912351,0.877225,0.986694,False,1934689,2014-02-18,preseason,False,4030884,SAFE_LEAGUE,provisional,published before the league year opened; understates the final figure.,17
+2014,TB,75.010061,76.329234,-1.578051,0.931578,0.931578,0.877225,1.007488,False,139119,2014-02-18,preseason,False,4030884,SAFE_LEAGUE,provisional,published before the league year opened; understates the final figure.,31
+2014,TEN,74.623102,71.660061,-1.889329,0.878945,0.878945,0.877225,0.950567,False,2449725,2014-02-18,preseason,False,4030884,SAFE_LEAGUE,provisional,published before the league year opened; understates the final figure.,32
+2014,WAS,78.632084,79.048632,-1.396758,0.92202,0.92202,0.877225,0.997151,False,7470233,2014-02-18,preseason,False,4030884,SAFE_LEAGUE,provisional,published before the league year opened; understates the final figure.,29
+2015,ARI,125.168957,128.511491,1.900766,1.017392,1.017392,0.954024,1.033816,False,12792586,2015-10-28,midseason,False,14259529,SAFE_LEAGUE,in_season,,2
+2015,ATL,100.189257,97.022995,-0.198467,0.911463,0.911463,0.954024,0.969425,True,14571570,2015-10-28,midseason,False,14259529,SAFE_LEAGUE,in_season,,15
+2015,BAL,87.932786,88.750885,-0.749941,0.990294,0.990294,0.954024,1.006281,False,23351218,2015-10-28,midseason,False,14259529,SAFE_LEAGUE,in_season,,25
+2015,BUF,103.514656,100.654586,0.043639,0.958837,0.958837,0.954024,0.974316,False,11793665,2015-10-28,midseason,False,14259529,SAFE_LEAGUE,in_season,,12
+2015,CAR,126.467592,128.37785,1.891857,1.006141,1.006141,0.954024,1.022383,False,14532757,2015-10-28,midseason,False,14259529,SAFE_LEAGUE,in_season,,1
+2015,CHI,94.046832,92.529037,-0.498064,0.967414,0.967414,0.954024,0.983032,False,25573238,2015-10-28,midseason,False,14259529,SAFE_LEAGUE,in_season,,20
+2015,CIN,121.044247,121.558532,1.437235,0.994344,0.994344,0.954024,1.010396,False,2398947,2015-10-28,midseason,False,14259529,SAFE_LEAGUE,in_season,,4
+2015,CLE,78.636831,79.050817,-1.396612,0.982484,0.982484,0.954024,0.998345,False,6934915,2015-10-28,midseason,False,14259529,SAFE_LEAGUE,in_season,,31
+2015,DAL,80.326726,81.037268,-1.264182,0.986749,0.986749,0.954024,1.002679,False,16513691,2015-10-28,midseason,False,14259529,SAFE_LEAGUE,in_season,,30
+2015,DEN,113.125649,115.084783,1.005652,1.005575,1.005575,0.954024,1.021809,False,3935731,2015-10-28,midseason,False,14259529,SAFE_LEAGUE,in_season,,8
+2015,DET,94.903278,95.54802,-0.296799,0.99024,0.99024,0.954024,1.006226,False,19363607,2015-10-28,midseason,False,14259529,SAFE_LEAGUE,in_season,,17
+2015,GB,106.441567,108.303757,0.553584,1.004114,1.004114,0.954024,1.020325,False,4995375,2015-10-28,midseason,False,14259529,SAFE_LEAGUE,in_season,,10
+2015,HOU,104.726852,103.725754,0.248384,0.976976,0.976976,0.954024,0.992748,False,13949305,2015-10-28,midseason,False,14259529,SAFE_LEAGUE,in_season,,11
+2015,IND,89.813918,90.629472,-0.624702,0.990762,0.990762,0.954024,1.006757,False,10010298,2015-10-28,midseason,False,14259529,SAFE_LEAGUE,in_season,,24
+2015,JAX,87.034186,84.655528,-1.022965,0.931661,0.931661,0.954024,0.969425,True,5362098,2015-10-28,midseason,False,14259529,SAFE_LEAGUE,in_season,,26
+2015,KC,118.892616,118.893565,1.259571,0.98971,0.98971,0.954024,1.005688,False,21901376,2015-10-28,midseason,False,14259529,SAFE_LEAGUE,in_season,,7
+2015,LA,94.304592,94.644618,-0.357025,0.986912,0.986912,0.954024,1.002844,False,11113036,2015-10-28,midseason,False,14259529,SAFE_LEAGUE,in_season,,18
+2015,LAC,90.566285,87.976157,-0.80159,0.940828,0.940828,0.954024,0.969425,True,10439227,2015-10-28,midseason,False,14259529,SAFE_LEAGUE,in_season,,22
+2015,LV,99.278561,96.166824,-0.255545,0.952303,0.952303,0.954024,0.969425,True,16310434,2015-10-28,midseason,False,14259529,SAFE_LEAGUE,in_season,,16
+2015,MIA,84.690946,86.872215,-0.875186,1.005161,1.005161,0.954024,1.021388,False,25636044,2015-10-28,midseason,False,14259529,SAFE_LEAGUE,in_season,,29
+2015,MIN,108.195987,111.950506,0.7967,1.02155,1.02155,0.954024,1.038042,False,8446161,2015-10-28,midseason,False,14259529,SAFE_LEAGUE,in_season,,9
+2015,NE,119.140143,119.429343,1.29529,0.992155,0.992155,0.954024,1.008173,False,19294985,2015-10-28,midseason,False,14259529,SAFE_LEAGUE,in_season,,6
+2015,NO,89.957749,90.032661,-0.664489,0.982715,0.982715,0.954024,0.99858,False,32482518,2015-10-28,midseason,False,14259529,SAFE_LEAGUE,in_season,,23
+2015,NYG,94.236938,91.427046,-0.57153,0.892052,0.892052,0.954024,0.969425,True,12763133,2015-10-28,midseason,False,14259529,SAFE_LEAGUE,in_season,,19
+2015,NYJ,102.863541,109.993715,0.666248,1.054245,1.054245,0.954024,1.071265,False,5734579,2015-10-28,midseason,False,14259529,SAFE_LEAGUE,in_season,,13
+2015,PHI,85.908928,90.852073,-0.609862,1.036812,1.036812,0.954024,1.05355,False,16381613,2015-10-28,midseason,False,14259529,SAFE_LEAGUE,in_season,,27
+2015,PIT,119.309836,115.06796,1.004531,0.954597,0.954597,0.954024,0.970008,False,17101608,2015-10-28,midseason,False,14259529,SAFE_LEAGUE,in_season,,5
+2015,SEA,121.640218,121.583509,1.438901,0.989793,0.989793,0.954024,1.005772,False,13986301,2015-10-28,midseason,False,14259529,SAFE_LEAGUE,in_season,,3
+2015,SF,85.475105,83.189789,-1.120681,0.925564,0.925564,0.954024,0.969425,True,23223258,2015-10-28,midseason,False,14259529,SAFE_LEAGUE,in_season,,28
+2015,TB,92.223028,89.53371,-0.697753,0.928646,0.928646,0.954024,0.969425,True,23601993,2015-10-28,midseason,False,14259529,SAFE_LEAGUE,in_season,,21
+2015,TEN,77.98668,76.149701,-1.59002,0.887993,0.887993,0.954024,0.969425,True,15499225,2015-10-28,midseason,False,14259529,SAFE_LEAGUE,in_season,,32
+2015,WAS,101.955513,100.795832,0.053055,0.974445,0.974445,0.954024,0.990176,False,11333421,2015-10-28,midseason,False,14259529,SAFE_LEAGUE,in_season,,14
+2016,ARI,105.632434,105.337301,0.35582,0.951074,0.951074,0.922875,0.999516,False,6063224,2016-10-05,midseason,True,8198941,MODELED,estimated,Estimated — 8 of 32 teams are published figures; the rest are modeled from contract data.,11
+2016,ATL,118.544067,120.745343,1.383023,0.974418,0.974418,0.922875,1.024048,False,21437553,2016-10-05,midseason,False,8198941,SAFE_EDITORIAL,estimated,Estimated — 8 of 32 teams are published figures; the rest are modeled from contract data.,3
+2016,BAL,98.805219,100.971341,0.064756,0.972768,0.972768,0.922875,1.022314,False,14891319,2016-10-05,midseason,True,8198941,MODELED,estimated,Estimated — 8 of 32 teams are published figures; the rest are modeled from contract data.,21
+2016,BUF,103.476135,100.544168,0.036278,0.926175,0.926175,0.922875,0.973348,False,9792757,2016-10-05,midseason,True,8198941,MODELED,estimated,Estimated — 8 of 32 teams are published figures; the rest are modeled from contract data.,14
+2016,CAR,95.234172,92.433798,-0.504413,0.874566,0.874566,0.922875,0.96988,True,8588102,2016-10-05,midseason,True,8198941,MODELED,estimated,Estimated — 8 of 32 teams are published figures; the rest are modeled from contract data.,25
+2016,CHI,78.582939,78.832303,-1.41118,0.947641,0.947641,0.922875,0.995907,False,11279754,2016-10-05,midseason,True,8198941,MODELED,estimated,Estimated — 8 of 32 teams are published figures; the rest are modeled from contract data.,29
+2016,CIN,96.322952,100.19177,0.012785,0.989371,0.989371,0.922875,1.039763,False,674415,2016-10-05,midseason,False,8198941,SAFE_EDITORIAL,estimated,Estimated — 8 of 32 teams are published figures; the rest are modeled from contract data.,24
+2016,CLE,67.459753,66.309987,-2.246001,0.810102,0.810102,0.922875,0.96988,True,31114222,2016-10-05,midseason,False,8198941,SAFE_EDITORIAL,estimated,Estimated — 8 of 32 teams are published figures; the rest are modeled from contract data.,32
+2016,DAL,120.373581,122.948095,1.529873,0.977486,0.977486,0.922875,1.027272,False,1171852,2016-10-05,midseason,False,8198941,SAFE_EDITORIAL,estimated,Estimated — 8 of 32 teams are published figures; the rest are modeled from contract data.,2
+2016,DEN,112.262443,108.450095,0.56334,0.879515,0.879515,0.922875,0.96988,True,3743825,2016-10-05,midseason,True,8198941,MODELED,estimated,Estimated — 8 of 32 teams are published figures; the rest are modeled from contract data.,7
+2016,DET,100.114339,97.078617,-0.194759,0.923395,0.923395,0.922875,0.970427,False,18559071,2016-10-05,midseason,True,8198941,MODELED,estimated,Estimated — 8 of 32 teams are published figures; the rest are modeled from contract data.,19
+2016,GB,106.76641,109.541538,0.636103,0.97882,0.97882,0.922875,1.028674,False,1725917,2016-10-05,midseason,False,8198941,SAFE_EDITORIAL,estimated,Estimated — 8 of 32 teams are published figures; the rest are modeled from contract data.,10
+2016,HOU,96.477406,97.745695,-0.150287,0.963719,0.963719,0.922875,1.012804,False,6584003,2016-10-05,midseason,True,8198941,MODELED,estimated,Estimated — 8 of 32 teams are published figures; the rest are modeled from contract data.,22
+2016,IND,101.838352,98.645497,-0.0903,0.920858,0.920858,0.922875,0.96988,True,6902302,2016-10-05,midseason,True,8198941,MODELED,estimated,Estimated — 8 of 32 teams are published figures; the rest are modeled from contract data.,16
+2016,JAX,81.983399,83.734138,-1.084391,0.966308,0.966308,0.922875,1.015526,False,3481401,2016-10-05,midseason,True,8198941,MODELED,estimated,Estimated — 8 of 32 teams are published figures; the rest are modeled from contract data.,27
+2016,KC,115.070584,114.881308,0.992087,0.95436,0.95436,0.922875,1.002969,False,9868219,2016-10-05,midseason,True,8198941,MODELED,estimated,Estimated — 8 of 32 teams are published figures; the rest are modeled from contract data.,4
+2016,LA,70.260806,68.944576,-2.070362,0.896507,0.896507,0.922875,0.96988,True,8998464,2016-10-05,midseason,True,8198941,MODELED,estimated,Estimated — 8 of 32 teams are published figures; the rest are modeled from contract data.,31
+2016,LAC,94.176183,95.595326,-0.293645,0.964828,0.964828,0.922875,1.01397,False,7271405,2016-10-05,midseason,True,8198941,MODELED,estimated,Estimated — 8 of 32 teams are published figures; the rest are modeled from contract data.,26
+2016,LV,104.631508,109.803502,0.653567,1.000615,1.000615,0.922875,1.05158,False,2512446,2016-10-05,midseason,True,8198941,MODELED,estimated,Estimated — 8 of 32 teams are published figures; the rest are modeled from contract data.,12
+2016,MIA,96.358746,101.021697,0.068113,0.997207,0.997207,0.922875,1.047998,False,10629724,2016-10-05,midseason,True,8198941,MODELED,estimated,Estimated — 8 of 32 teams are published figures; the rest are modeled from contract data.,23
+2016,MIN,101.051972,104.914594,0.32764,0.988941,0.988941,0.922875,1.039311,False,3518881,2016-10-05,midseason,True,8198941,MODELED,estimated,Estimated — 8 of 32 teams are published figures; the rest are modeled from contract data.,17
+2016,NE,132.142691,129.085311,1.939021,0.93693,0.93693,0.922875,0.984651,False,11139395,2016-10-05,midseason,True,8198941,MODELED,estimated,Estimated — 8 of 32 teams are published figures; the rest are modeled from contract data.,1
+2016,NO,104.315276,100.97522,0.065015,0.91704,0.91704,0.922875,0.96988,True,37885635,2016-10-05,midseason,False,8198941,SAFE_EDITORIAL,estimated,Estimated — 8 of 32 teams are published figures; the rest are modeled from contract data.,13
+2016,NYG,107.964858,108.426497,0.561766,0.958396,0.958396,0.922875,1.00721,False,5702082,2016-10-05,midseason,True,8198941,MODELED,estimated,Estimated — 8 of 32 teams are published figures; the rest are modeled from contract data.,9
+2016,NYJ,80.78159,79.421449,-1.371903,0.92968,0.92968,0.922875,0.977032,False,5214931,2016-10-05,midseason,True,8198941,MODELED,estimated,Estimated — 8 of 32 teams are published figures; the rest are modeled from contract data.,28
+2016,PHI,100.734129,103.738819,0.249255,0.980853,0.980853,0.922875,1.030811,False,22495981,2016-10-05,midseason,False,8198941,SAFE_EDITORIAL,estimated,Estimated — 8 of 32 teams are published figures; the rest are modeled from contract data.,18
+2016,PIT,113.940495,113.509287,0.900619,0.952072,0.952072,0.922875,1.000564,False,7809780,2016-10-05,midseason,True,8198941,MODELED,estimated,Estimated — 8 of 32 teams are published figures; the rest are modeled from contract data.,6
+2016,SEA,114.165263,110.55185,0.703457,0.925487,0.925487,0.922875,0.972626,False,6320961,2016-10-05,midseason,True,8198941,MODELED,estimated,Estimated — 8 of 32 teams are published figures; the rest are modeled from contract data.,5
+2016,SF,71.243874,69.869221,-2.008719,0.921315,0.921315,0.922875,0.96988,True,17462201,2016-10-05,midseason,True,8198941,MODELED,estimated,Estimated — 8 of 32 teams are published figures; the rest are modeled from contract data.,30
+2016,TB,99.191784,101.21443,0.080962,0.971422,0.971422,0.922875,1.0209,False,1484360,2016-10-05,midseason,False,8198941,SAFE_EDITORIAL,estimated,Estimated — 8 of 32 teams are published figures; the rest are modeled from contract data.,20
+2016,TEN,102.028803,100.032457,0.002164,0.934155,0.934155,0.922875,0.981734,False,11828508,2016-10-05,midseason,True,8198941,MODELED,estimated,Estimated — 8 of 32 teams are published figures; the rest are modeled from contract data.,15
+2016,WAS,108.067836,104.504769,0.300318,0.917471,0.917471,0.922875,0.96988,True,13110558,2016-10-05,midseason,True,8198941,MODELED,estimated,Estimated — 8 of 32 teams are published figures; the rest are modeled from contract data.,8
+2017,ARI,89.3464,94.262119,-0.382525,0.992668,0.992668,0.905182,1.051472,False,2940000,2017-07-05,preseason,False,5270000,REVIEW_SPOTRAC,preseason,,25
+2017,ATL,104.565567,108.268567,0.551238,0.978992,0.978992,0.905182,1.036986,False,4570000,2017-07-05,preseason,False,5270000,REVIEW_SPOTRAC,preseason,,15
+2017,BAL,108.937958,107.47838,0.498559,0.933918,0.933918,0.905182,0.989242,False,18870000,2017-07-05,preseason,False,5270000,REVIEW_SPOTRAC,preseason,,9
+2017,BUF,97.263137,93.315834,-0.445611,0.805438,0.805438,0.905182,0.958804,True,7920000,2017-07-05,preseason,False,5270000,REVIEW_SPOTRAC,preseason,,16
+2017,CAR,105.080974,109.532079,0.635472,0.985698,0.985698,0.905182,1.044089,False,1980000,2017-07-05,preseason,False,5270000,REVIEW_SPOTRAC,preseason,,14
+2017,CHI,91.494938,91.018041,-0.598797,0.936733,0.936733,0.905182,0.992224,False,3800000,2017-07-05,preseason,False,5270000,REVIEW_SPOTRAC,preseason,,20
+2017,CIN,89.82959,90.847708,-0.610153,0.951736,0.951736,0.905182,1.008116,False,333000,2017-07-05,preseason,False,5270000,REVIEW_SPOTRAC,preseason,,24
+2017,CLE,71.546436,69.403697,-2.039754,0.726208,0.726208,0.905182,0.958804,True,11470000,2017-07-05,preseason,False,5270000,REVIEW_SPOTRAC,preseason,,32
+2017,DAL,108.094525,103.387174,0.225812,0.894664,0.894664,0.905182,0.958804,True,16250000,2017-07-05,preseason,False,5270000,REVIEW_SPOTRAC,preseason,,11
+2017,DEN,91.367965,88.17454,-0.788364,0.908688,0.908688,0.905182,0.962518,False,72000,2017-07-05,preseason,False,5270000,REVIEW_SPOTRAC,preseason,,21
+2017,DET,107.084081,104.384461,0.292297,0.922295,0.922295,0.905182,0.976931,False,3940000,2017-07-05,preseason,False,5270000,REVIEW_SPOTRAC,preseason,,12
+2017,GB,90.332107,93.071016,-0.461932,0.969784,0.969784,0.905182,1.027232,False,4270000,2017-07-05,preseason,False,5270000,REVIEW_SPOTRAC,preseason,,23
+2017,HOU,84.143168,83.501701,-1.099887,0.931799,0.931799,0.905182,0.986997,False,9440000,2017-07-05,preseason,False,5270000,REVIEW_SPOTRAC,preseason,,28
+2017,IND,78.880365,76.222997,-1.585134,0.821135,0.821135,0.905182,0.958804,True,8620000,2017-07-05,preseason,False,5270000,REVIEW_SPOTRAC,preseason,,30
+2017,JAX,113.764273,119.274016,1.284934,0.99361,0.99361,0.905182,1.05247,False,4390000,2017-07-05,preseason,False,5270000,REVIEW_SPOTRAC,preseason,,7
+2017,KC,108.769904,110.293872,0.686258,0.959822,0.959822,0.905182,1.016681,False,8590000,2017-07-05,preseason,False,5270000,REVIEW_SPOTRAC,preseason,,10
+2017,LA,123.571968,119.606132,1.307075,0.919228,0.919228,0.905182,0.973682,False,5710000,2017-07-05,preseason,False,5270000,REVIEW_SPOTRAC,preseason,,3
+2017,LAC,109.55947,111.928418,0.795228,0.96722,0.96722,0.905182,1.024516,False,21840000,2017-07-05,preseason,False,5270000,REVIEW_SPOTRAC,preseason,,8
+2017,LV,84.596786,87.31212,-0.845859,0.969279,0.969279,0.905182,1.026698,False,55000,2017-07-05,preseason,False,5270000,REVIEW_SPOTRAC,preseason,,27
+2017,MIA,81.883938,82.994904,-1.133673,0.950766,0.950766,0.905182,1.007088,False,8200000,2017-07-05,preseason,False,5270000,REVIEW_SPOTRAC,preseason,,29
+2017,MIN,129.95849,123.716924,1.581128,0.879036,0.879036,0.905182,0.958804,True,4470000,2017-07-05,preseason,False,5270000,REVIEW_SPOTRAC,preseason,,1
+2017,NE,119.999597,120.199005,1.3466,0.950594,0.950594,0.905182,1.006906,False,1550000,2017-07-05,preseason,False,5270000,REVIEW_SPOTRAC,preseason,,4
+2017,NO,124.426056,119.161378,1.277425,0.909676,0.909676,0.905182,0.963564,False,16250000,2017-07-05,preseason,False,5270000,REVIEW_SPOTRAC,preseason,,2
+2017,NYG,78.70023,80.161549,-1.322563,0.954051,0.954051,0.905182,1.010567,False,3090000,2017-07-05,preseason,False,5270000,REVIEW_SPOTRAC,preseason,,31
+2017,NYJ,90.848303,87.351134,-0.843258,0.854057,0.854057,0.905182,0.958804,True,17320000,2017-07-05,preseason,False,5270000,REVIEW_SPOTRAC,preseason,,22
+2017,PHI,117.852092,125.608168,1.707211,1.01101,1.01101,0.905182,1.070901,False,14000000,2017-07-05,preseason,False,5270000,REVIEW_SPOTRAC,preseason,,5
+2017,PIT,117.427122,117.508624,1.167242,0.949153,0.949153,0.905182,1.005379,False,6360000,2017-07-05,preseason,False,5270000,REVIEW_SPOTRAC,preseason,,6
+2017,SEA,105.164322,106.533814,0.435588,0.957978,0.957978,0.905182,1.014727,False,827000,2017-07-05,preseason,False,5270000,REVIEW_SPOTRAC,preseason,,13
+2017,SF,96.03927,92.177847,-0.521477,0.717697,0.717697,0.905182,0.958804,True,13430000,2017-07-05,preseason,False,5270000,REVIEW_SPOTRAC,preseason,,18
+2017,TB,94.44814,90.698367,-0.620109,0.893243,0.893243,0.905182,0.958804,True,865000,2017-07-05,preseason,False,5270000,REVIEW_SPOTRAC,preseason,,19
+2017,TEN,96.248877,96.232611,-0.251159,0.943006,0.943006,0.905182,0.998868,False,4830000,2017-07-05,preseason,False,5270000,REVIEW_SPOTRAC,preseason,,17
+2017,WAS,88.773952,96.372803,-0.241813,1.021219,1.021219,0.905182,1.081715,False,9780000,2017-07-05,preseason,False,5270000,REVIEW_SPOTRAC,preseason,,26
+2018,ARI,70.770866,68.71586,-2.085609,0.863561,0.863561,0.918074,0.957355,True,20330000,2018-07-14,preseason,False,8815000,REVIEW_OTC,preseason,,32
+2018,ATL,95.684828,97.223698,-0.185087,0.971822,0.971822,0.918074,1.013403,False,5890000,2018-07-14,preseason,False,8815000,REVIEW_OTC,preseason,,16
+2018,BAL,117.808965,114.434868,0.962325,0.934801,0.934801,0.918074,0.974798,False,9120000,2018-07-14,preseason,False,8815000,REVIEW_OTC,preseason,,5
+2018,BUF,91.450486,87.915313,-0.805646,0.896912,0.896912,0.918074,0.957355,True,46710000,2018-07-14,preseason,False,8815000,REVIEW_OTC,preseason,,24
+2018,CAR,94.418988,98.569007,-0.0954,0.99804,0.99804,0.918074,1.040743,False,8790000,2018-07-14,preseason,False,8815000,REVIEW_OTC,preseason,,21
+2018,CHI,114.854698,120.005277,1.333685,1.004828,1.004828,0.918074,1.047821,False,11970000,2018-07-14,preseason,False,8815000,REVIEW_OTC,preseason,,11
+2018,CIN,84.850695,87.994718,-0.800352,0.987745,0.987745,0.918074,1.030008,False,1300000,2018-07-14,preseason,False,8815000,REVIEW_OTC,preseason,,25
+2018,CLE,94.666642,97.695507,-0.153633,0.986693,0.986693,0.918074,1.028911,False,17230000,2018-07-14,preseason,False,8815000,REVIEW_OTC,preseason,,18
+2018,DAL,108.055647,106.860083,0.457339,0.94942,0.94942,0.918074,0.990043,False,26360000,2018-07-14,preseason,False,8815000,REVIEW_OTC,preseason,,12
+2018,DEN,99.331049,95.231816,-0.317879,0.886311,0.886311,0.918074,0.957355,True,2480000,2018-07-14,preseason,False,8815000,REVIEW_OTC,preseason,,14
+2018,DET,94.671369,90.905658,-0.606289,0.896177,0.896177,0.918074,0.957355,True,8180000,2018-07-14,preseason,False,8815000,REVIEW_OTC,preseason,,17
+2018,GB,94.480908,94.631581,-0.357895,0.957565,0.957565,0.918074,0.998536,False,8040000,2018-07-14,preseason,False,8815000,REVIEW_OTC,preseason,,19
+2018,HOU,117.09224,112.262037,0.817469,0.922514,0.922514,0.918074,0.961985,False,5050000,2018-07-14,preseason,False,8815000,REVIEW_OTC,preseason,,6
+2018,IND,116.130888,110.829188,0.721946,0.758803,0.758803,0.918074,0.957355,True,1950000,2018-07-14,preseason,False,8815000,REVIEW_OTC,preseason,,10
+2018,JAX,80.484449,87.191936,-0.853871,1.029774,1.029774,0.918074,1.073834,False,4110000,2018-07-14,preseason,False,8815000,REVIEW_OTC,preseason,,28
+2018,KC,123.524117,123.714324,1.580955,0.965041,0.965041,0.918074,1.006332,False,16750000,2018-07-14,preseason,False,8815000,REVIEW_OTC,preseason,,2
+2018,LA,122.376048,123.315572,1.554371,0.970722,0.970722,0.918074,1.012256,False,12370000,2018-07-14,preseason,False,8815000,REVIEW_OTC,preseason,,3
+2018,LAC,118.900645,119.853856,1.32359,0.970317,0.970317,0.918074,1.011834,False,8840000,2018-07-14,preseason,False,8815000,REVIEW_OTC,preseason,,4
+2018,LV,78.504706,75.896142,-1.606924,0.880627,0.880627,0.918074,0.957355,True,3790000,2018-07-14,preseason,False,8815000,REVIEW_OTC,preseason,,30
+2018,MIA,84.684706,83.629534,-1.091364,0.940518,0.940518,0.918074,0.98076,False,15000000,2018-07-14,preseason,False,8815000,REVIEW_OTC,preseason,,26
+2018,MIN,93.413569,102.984883,0.198992,1.053599,1.053599,0.918074,1.098679,False,2990000,2018-07-14,preseason,False,8815000,REVIEW_OTC,preseason,,22
+2018,NE,116.558001,115.435514,1.029034,0.952822,0.952822,0.918074,0.99359,False,4020000,2018-07-14,preseason,False,8815000,REVIEW_OTC,preseason,,7
+2018,NO,124.909455,124.197951,1.613197,0.958341,0.958341,0.918074,0.999345,False,16080000,2018-07-14,preseason,False,8815000,REVIEW_OTC,preseason,,1
+2018,NYG,94.421579,90.673747,-0.62175,0.843184,0.843184,0.918074,0.957355,True,21120000,2018-07-14,preseason,False,8815000,REVIEW_OTC,preseason,,20
+2018,NYJ,79.587694,79.166111,-1.388926,0.945108,0.945108,0.918074,0.985546,False,14860000,2018-07-14,preseason,False,8815000,REVIEW_OTC,preseason,,29
+2018,PHI,105.385904,103.690838,0.246056,0.943904,0.943904,0.918074,0.984291,False,9580000,2018-07-14,preseason,False,8815000,REVIEW_OTC,preseason,,13
+2018,PIT,116.193089,110.886937,0.725796,0.904754,0.904754,0.918074,0.957355,True,5820000,2018-07-14,preseason,False,8815000,REVIEW_OTC,preseason,,9
+2018,SEA,116.24087,112.593645,0.839576,0.931831,0.931831,0.918074,0.971701,False,14420000,2018-07-14,preseason,False,8815000,REVIEW_OTC,preseason,,8
+2018,SF,76.50627,84.018388,-1.065441,1.041792,1.041792,0.918074,1.086367,False,16160000,2018-07-14,preseason,False,8815000,REVIEW_OTC,preseason,,31
+2018,TB,83.598809,89.228246,-0.718117,1.016031,1.016031,0.918074,1.059503,False,815510,2018-07-14,preseason,False,8815000,REVIEW_OTC,preseason,,27
+2018,TEN,98.556514,100.456202,0.030413,0.975807,0.975807,0.918074,1.017559,False,3050000,2018-07-14,preseason,False,8815000,REVIEW_OTC,preseason,,15
+2018,WAS,91.885305,89.791562,-0.680563,0.933381,0.933381,0.918074,0.973317,False,5290000,2018-07-14,preseason,False,8815000,REVIEW_OTC,preseason,,23
+2019,ARI,94.295707,90.225016,-0.651666,0.836304,0.836304,0.869674,0.954831,True,16390000,2019-03-10,preseason,False,3390000,REVIEW_OTC,provisional,published before the league year opened; understates the final figure.,22
+2019,ATL,97.8187,97.458955,-0.169403,0.906621,0.906621,0.869674,0.995396,False,4830000,2019-03-10,preseason,False,3390000,REVIEW_OTC,provisional,published before the league year opened; understates the final figure.,19
+2019,BAL,140.420969,133.826148,2.255077,0.875498,0.875498,0.869674,0.961225,False,7720000,2019-03-10,preseason,False,3390000,REVIEW_OTC,provisional,published before the league year opened; understates the final figure.,1
+2019,BUF,110.309773,106.667907,0.444527,0.883037,0.883037,0.869674,0.969503,False,7560000,2019-03-10,preseason,False,3390000,REVIEW_OTC,provisional,published before the league year opened; understates the final figure.,7
+2019,CAR,85.077004,84.621899,-1.025207,0.900901,0.900901,0.869674,0.989115,False,3520000,2019-03-10,preseason,False,3390000,REVIEW_OTC,provisional,published before the league year opened; understates the final figure.,28
+2019,CHI,98.431327,97.759776,-0.149348,0.903934,0.903934,0.869674,0.992446,False,920000,2019-03-10,preseason,False,3390000,REVIEW_OTC,provisional,published before the league year opened; understates the final figure.,18
+2019,CIN,74.376465,75.62222,-1.625185,0.916222,0.916222,0.869674,1.005937,False,2170000,2019-03-10,preseason,False,3390000,REVIEW_OTC,provisional,published before the league year opened; understates the final figure.,31
+2019,CLE,82.640346,92.133155,-0.524456,1.008729,1.008729,0.869674,1.107502,False,7440000,2019-03-10,preseason,False,3390000,REVIEW_OTC,provisional,published before the league year opened; understates the final figure.,29
+2019,DAL,108.131059,109.639547,0.642636,0.925409,0.925409,0.869674,1.016023,False,4270000,2019-03-10,preseason,False,3390000,REVIEW_OTC,provisional,published before the league year opened; understates the final figure.,8
+2019,DEN,99.375497,94.928779,-0.338081,0.839134,0.839134,0.869674,0.954831,True,10380000,2019-03-10,preseason,False,3390000,REVIEW_OTC,provisional,published before the league year opened; understates the final figure.,16
+2019,DET,87.483495,84.937059,-1.004196,0.880244,0.880244,0.869674,0.966436,False,4500000,2019-03-10,preseason,False,3390000,REVIEW_OTC,provisional,published before the league year opened; understates the final figure.,26
+2019,GB,112.578174,113.389914,0.892661,0.920284,0.920284,0.869674,1.010396,False,566000,2019-03-10,preseason,False,3390000,REVIEW_OTC,provisional,published before the league year opened; understates the final figure.,6
+2019,HOU,105.195422,103.578093,0.23854,0.897937,0.897937,0.869674,0.985861,False,1770000,2019-03-10,preseason,False,3390000,REVIEW_OTC,provisional,published before the league year opened; understates the final figure.,12
+2019,IND,96.162883,97.067949,-0.19547,0.91804,0.91804,0.869674,1.007933,False,1230000,2019-03-10,preseason,False,3390000,REVIEW_OTC,provisional,published before the league year opened; understates the final figure.,20
+2019,JAX,90.988571,87.162688,-0.855821,0.86758,0.86758,0.869674,0.954831,True,7650000,2019-03-10,preseason,False,3390000,REVIEW_OTC,provisional,published before the league year opened; understates the final figure.,23
+2019,KC,125.64703,119.255583,1.283706,0.791751,0.791751,0.869674,0.954831,True,898000,2019-03-10,preseason,False,3390000,REVIEW_OTC,provisional,published before the league year opened; understates the final figure.,2
+2019,LA,106.060825,106.49958,0.433305,0.915947,0.915947,0.869674,1.005635,False,3850000,2019-03-10,preseason,False,3390000,REVIEW_OTC,provisional,published before the league year opened; understates the final figure.,10
+2019,LAC,89.97119,93.879616,-0.408026,0.946927,0.946927,0.869674,1.039648,False,3260000,2019-03-10,preseason,False,3390000,REVIEW_OTC,provisional,published before the league year opened; understates the final figure.,25
+2019,LV,94.943311,90.824681,-0.611688,0.811575,0.811575,0.869674,0.954831,True,1500000,2019-03-10,preseason,False,3390000,REVIEW_OTC,provisional,published before the league year opened; understates the final figure.,21
+2019,MIA,79.552829,76.573467,-1.561769,0.672442,0.672442,0.869674,0.954831,True,15990000,2019-03-10,preseason,False,3390000,REVIEW_OTC,provisional,published before the league year opened; understates the final figure.,30
+2019,MIN,105.334392,112.420538,0.828036,0.973345,0.973345,0.869674,1.068653,False,433000,2019-03-10,preseason,False,3390000,REVIEW_OTC,provisional,published before the league year opened; understates the final figure.,11
+2019,NE,123.636522,122.242766,1.482851,0.905595,0.905595,0.869674,0.994269,False,706000,2019-03-10,preseason,False,3390000,REVIEW_OTC,provisional,published before the league year opened; understates the final figure.,3
+2019,NO,117.37056,120.696781,1.379785,0.940632,0.940632,0.869674,1.032737,False,9920000,2019-03-10,preseason,False,3390000,REVIEW_OTC,provisional,published before the league year opened; understates the final figure.,4
+2019,NYG,85.254094,81.852701,-1.20982,0.785161,0.785161,0.869674,0.954831,True,9660000,2019-03-10,preseason,False,3390000,REVIEW_OTC,provisional,published before the league year opened; understates the final figure.,27
+2019,NYJ,90.202456,88.447798,-0.770147,0.889928,0.889928,0.869674,0.977068,False,2700000,2019-03-10,preseason,False,3390000,REVIEW_OTC,provisional,published before the league year opened; understates the final figure.,24
+2019,PHI,107.406264,102.4472,0.163147,0.870371,0.870371,0.869674,0.955597,False,10860000,2019-03-10,preseason,False,3390000,REVIEW_OTC,provisional,published before the league year opened; understates the final figure.,9
+2019,PIT,99.533498,98.510562,-0.099296,0.901099,0.901099,0.869674,0.989333,False,251000,2019-03-10,preseason,False,3390000,REVIEW_OTC,provisional,published before the league year opened; understates the final figure.,15
+2019,SEA,113.027243,107.569965,0.504664,0.858381,0.858381,0.869674,0.954831,True,2480000,2019-03-10,preseason,False,3390000,REVIEW_OTC,provisional,published before the league year opened; understates the final figure.,5
+2019,SF,105.068793,125.311695,1.687446,1.087621,1.087621,0.869674,1.194119,False,11540000,2019-03-10,preseason,False,3390000,REVIEW_OTC,provisional,published before the league year opened; understates the final figure.,13
+2019,TB,98.644173,102.187355,0.145824,0.942898,0.942898,0.869674,1.035225,False,94000,2019-03-10,preseason,False,3390000,REVIEW_OTC,provisional,published before the league year opened; understates the final figure.,17
+2019,TEN,101.314861,108.213966,0.547598,0.972977,0.972977,0.869674,1.06825,False,1150000,2019-03-10,preseason,False,3390000,REVIEW_OTC,provisional,published before the league year opened; understates the final figure.,14
+2019,WAS,73.746569,74.046642,-1.730224,0.904482,0.904482,0.869674,0.993047,False,1940000,2019-03-10,preseason,False,3390000,REVIEW_OTC,provisional,published before the league year opened; understates the final figure.,32
+2020,ARI,105.493649,103.691573,0.246105,0.956482,0.956482,0.934168,0.98487,False,9374584,2020-06-02,preseason,True,11692701,MODELED,estimated,Estimated — 11 of 32 teams are published figures; the rest are modeled from contract data.,12
+2020,ATL,95.808433,92.237889,-0.517474,0.928724,0.928724,0.934168,0.961894,True,13100000,2020-06-02,preseason,False,11692701,REVIEW_OTC,estimated,Estimated — 11 of 32 teams are published figures; the rest are modeled from contract data.,21
+2020,BAL,123.100859,119.467168,1.297811,0.948218,0.948218,0.934168,0.976361,False,16800000,2020-06-02,preseason,False,11692701,REVIEW_OTC,estimated,Estimated — 11 of 32 teams are published figures; the rest are modeled from contract data.,2
+2020,BUF,110.419481,120.399377,1.359958,1.062396,1.062396,0.934168,1.093929,False,4324879,2020-06-02,preseason,True,11692701,MODELED,estimated,Estimated — 11 of 32 teams are published figures; the rest are modeled from contract data.,9
+2020,CAR,87.414173,91.013888,-0.599074,1.007283,1.007283,0.934168,1.037179,False,48000000,2020-06-02,preseason,False,11692701,SAFE_EDITORIAL,estimated,Estimated — 11 of 32 teams are published figures; the rest are modeled from contract data.,24
+2020,CHI,98.430185,98.811549,-0.07923,0.974896,0.974896,0.934168,1.003831,False,6697899,2020-06-02,preseason,True,11692701,MODELED,estimated,Estimated — 11 of 32 teams are published figures; the rest are modeled from contract data.,17
+2020,CIN,83.558213,82.085149,-1.194323,0.948902,0.948902,0.934168,0.977065,False,8592821,2020-06-02,preseason,True,11692701,MODELED,estimated,Estimated — 11 of 32 teams are published figures; the rest are modeled from contract data.,29
+2020,CLE,101.751209,102.833382,0.188892,0.982432,0.982432,0.934168,1.011591,False,11540337,2020-06-02,preseason,True,11692701,MODELED,estimated,Estimated — 11 of 32 teams are published figures; the rest are modeled from contract data.,14
+2020,DAL,91.979745,88.666391,-0.755574,0.927396,0.927396,0.934168,0.961894,True,16161181,2020-06-02,preseason,True,11692701,MODELED,estimated,Estimated — 11 of 32 teams are published figures; the rest are modeled from contract data.,23
+2020,DEN,85.182982,83.550398,-1.09664,0.948059,0.948059,0.934168,0.976197,False,16000000,2020-06-02,preseason,False,11692701,REVIEW_OTC,estimated,Estimated — 11 of 32 teams are published figures; the rest are modeled from contract data.,28
+2020,DET,78.481532,79.705497,-1.352967,0.97875,0.97875,0.934168,1.007799,False,20400000,2020-06-02,preseason,False,11692701,REVIEW_OTC,estimated,Estimated — 11 of 32 teams are published figures; the rest are modeled from contract data.,30
+2020,GB,119.546901,122.015497,1.4677,0.996513,0.996513,0.934168,1.02609,False,3476111,2020-06-02,preseason,True,11692701,MODELED,estimated,Estimated — 11 of 32 teams are published figures; the rest are modeled from contract data.,4
+2020,HOU,85.647765,86.134507,-0.924366,0.972261,0.972261,0.934168,1.001118,False,6436500,2020-06-02,preseason,True,11692701,MODELED,estimated,Estimated — 11 of 32 teams are published figures; the rest are modeled from contract data.,27
+2020,IND,98.649347,111.697046,0.779803,1.099652,1.099652,0.934168,1.13229,False,2804842,2020-06-02,preseason,True,11692701,MODELED,estimated,Estimated — 11 of 32 teams are published figures; the rest are modeled from contract data.,16
+2020,JAX,72.492812,70.488478,-1.967435,0.847236,0.847236,0.934168,0.961894,True,37000000,2020-06-02,preseason,False,11692701,SAFE_EDITORIAL,estimated,Estimated — 11 of 32 teams are published figures; the rest are modeled from contract data.,32
+2020,KC,113.627415,120.26524,1.351016,1.032041,1.032041,0.934168,1.062672,False,3163142,2020-06-02,preseason,True,11692701,MODELED,estimated,Estimated — 11 of 32 teams are published figures; the rest are modeled from contract data.,8
+2020,LA,114.048454,114.585191,0.972346,0.979764,0.979764,0.934168,1.008843,False,34000000,2020-06-02,preseason,False,11692701,SAFE_EDITORIAL,estimated,Estimated — 11 of 32 teams are published figures; the rest are modeled from contract data.,7
+2020,LAC,96.777569,95.4708,-0.301947,0.957525,0.957525,0.934168,0.985945,False,7875380,2020-06-02,preseason,True,11692701,MODELED,estimated,Estimated — 11 of 32 teams are published figures; the rest are modeled from contract data.,20
+2020,LV,86.825712,94.518048,-0.365463,1.052912,1.052912,0.934168,1.084163,False,3061188,2020-06-02,preseason,True,11692701,MODELED,estimated,Estimated — 11 of 32 teams are published figures; the rest are modeled from contract data.,25
+2020,MIA,110.20756,107.37699,0.491799,0.94926,0.94926,0.934168,0.977435,False,22000000,2020-06-02,preseason,False,11692701,SAFE_EDITORIAL,estimated,Estimated — 11 of 32 teams are published figures; the rest are modeled from contract data.,10
+2020,MIN,99.751603,95.916181,-0.272255,0.903465,0.903465,0.934168,0.961894,True,20400000,2020-06-02,preseason,False,11692701,REVIEW_OTC,estimated,Estimated — 11 of 32 teams are published figures; the rest are modeled from contract data.,15
+2020,NE,98.047607,94.32665,-0.378223,0.918448,0.918448,0.934168,0.961894,True,24000000,2020-06-02,preseason,False,11692701,SAFE_EDITORIAL,estimated,Estimated — 11 of 32 teams are published figures; the rest are modeled from contract data.,18
+2020,NO,127.501249,121.801765,1.453451,0.933183,0.933183,0.934168,0.961894,True,11845065,2020-06-02,preseason,True,11692701,MODELED,estimated,Estimated — 11 of 32 teams are published figures; the rest are modeled from contract data.,1
+2020,NYG,93.270245,89.901785,-0.673214,0.934496,0.934496,0.934168,0.962232,False,13075501,2020-06-02,preseason,True,11692701,MODELED,estimated,Estimated — 11 of 32 teams are published figures; the rest are modeled from contract data.,22
+2020,NYJ,73.697113,71.611881,-1.892541,0.77229,0.77229,0.934168,0.961894,True,22000000,2020-06-02,preseason,True,11692701,MODELED,estimated,Estimated — 11 of 32 teams are published figures; the rest are modeled from contract data.,31
+2020,PHI,86.040498,86.647335,-0.890178,0.973739,0.973739,0.934168,1.00264,False,15400000,2020-06-02,preseason,False,11692701,REVIEW_OTC,estimated,Estimated — 11 of 32 teams are published figures; the rest are modeled from contract data.,26
+2020,PIT,119.767747,115.339971,1.022665,0.9403,0.9403,0.934168,0.968208,False,4716101,2020-06-02,preseason,True,11692701,MODELED,estimated,Estimated — 11 of 32 teams are published figures; the rest are modeled from contract data.,3
+2020,SEA,115.86347,113.096457,0.873097,0.952277,0.952277,0.934168,0.980541,False,6173423,2020-06-02,preseason,True,11692701,MODELED,estimated,Estimated — 11 of 32 teams are published figures; the rest are modeled from contract data.,6
+2020,SF,97.181225,99.970019,-0.001999,0.998613,0.998613,0.934168,1.028252,False,8119648,2020-06-02,preseason,True,11692701,MODELED,estimated,Estimated — 11 of 32 teams are published figures; the rest are modeled from contract data.,19
+2020,TB,117.985361,119.696888,1.313126,0.990187,0.990187,0.934168,1.019576,False,2250652,2020-06-02,preseason,True,11692701,MODELED,estimated,Estimated — 11 of 32 teams are published figures; the rest are modeled from contract data.,5
+2020,TEN,108.739466,108.000771,0.533385,0.967311,0.967311,0.934168,0.996021,False,8197645,2020-06-02,preseason,True,11692701,MODELED,estimated,Estimated — 11 of 32 teams are published figures; the rest are modeled from contract data.,11
+2020,WAS,102.71042,98.676241,-0.088251,0.918056,0.918056,0.934168,0.961894,True,18191086,2020-06-02,preseason,True,11692701,MODELED,estimated,Estimated — 11 of 32 teams are published figures; the rest are modeled from contract data.,13
+2021,ARI,111.407944,113.640758,0.909384,0.997678,0.997678,0.955216,1.023722,False,5865215,2021-09-06,preseason,True,11117714,MODELED,estimated,Estimated — 10 of 32 teams are published figures; the rest are modeled from contract data.,9
+2021,ATL,84.385253,83.176208,-1.121586,0.955883,0.955883,0.955216,0.980835,False,19664851,2021-09-06,preseason,True,11117714,MODELED,estimated,Estimated — 10 of 32 teams are published figures; the rest are modeled from contract data.,27
+2021,BAL,98.228757,96.276807,-0.248213,0.921222,0.921222,0.955216,0.980151,True,4290900,2021-09-06,preseason,False,11117714,SAFE_EDITORIAL,estimated,Estimated — 10 of 32 teams are published figures; the rest are modeled from contract data.,21
+2021,BUF,118.453218,122.139662,1.475977,1.010121,1.010121,0.955216,1.036489,False,6366909,2021-09-06,preseason,True,11117714,MODELED,estimated,Estimated — 10 of 32 teams are published figures; the rest are modeled from contract data.,3
+2021,CAR,86.82468,85.769151,-0.948723,0.95893,0.95893,0.955216,0.983962,False,45634297,2021-09-06,preseason,False,11117714,SAFE_EDITORIAL,estimated,Estimated — 10 of 32 teams are published figures; the rest are modeled from contract data.,25
+2021,CHI,85.519791,86.634173,-0.891055,0.982871,0.982871,0.955216,1.008527,False,15939310,2021-09-06,preseason,True,11117714,MODELED,estimated,Estimated — 10 of 32 teams are published figures; the rest are modeled from contract data.,26
+2021,CIN,107.511559,108.17338,0.544892,0.983145,0.983145,0.955216,1.008809,False,8286393,2021-09-06,preseason,True,11117714,MODELED,estimated,Estimated — 10 of 32 teams are published figures; the rest are modeled from contract data.,11
+2021,CLE,98.439033,98.434306,-0.10438,0.974598,0.974598,0.955216,1.000039,False,3240871,2021-09-06,preseason,False,11117714,SAFE_EDITORIAL,estimated,Estimated — 10 of 32 teams are published figures; the rest are modeled from contract data.,20
+2021,DAL,114.569258,121.872363,1.458158,1.04119,1.04119,0.955216,1.068369,False,9714385,2021-09-06,preseason,True,11117714,MODELED,estimated,Estimated — 10 of 32 teams are published figures; the rest are modeled from contract data.,7
+2021,DEN,99.270306,97.266831,-0.182211,0.929209,0.929209,0.955216,0.980151,True,18470462,2021-09-06,preseason,True,11117714,MODELED,estimated,Estimated — 10 of 32 teams are published figures; the rest are modeled from contract data.,19
+2021,DET,77.967904,78.461169,-1.435922,0.973111,0.973111,0.955216,0.998513,False,48051675,2021-09-06,preseason,False,11117714,SAFE_EDITORIAL,estimated,Estimated — 10 of 32 teams are published figures; the rest are modeled from contract data.,28
+2021,GB,115.795251,116.900009,1.126667,0.988408,0.988408,0.955216,1.01421,False,9020461,2021-09-06,preseason,True,11117714,MODELED,estimated,Estimated — 10 of 32 teams are published figures; the rest are modeled from contract data.,4
+2021,HOU,75.469866,75.302717,-1.646486,0.963648,0.963648,0.955216,0.988803,False,34328118,2021-09-06,preseason,True,11117714,MODELED,estimated,Estimated — 10 of 32 teams are published figures; the rest are modeled from contract data.,30
+2021,IND,103.801255,106.165597,0.41104,0.998399,0.998399,0.955216,1.024461,False,596187,2021-09-06,preseason,False,11117714,SAFE_EDITORIAL,estimated,Estimated — 10 of 32 teams are published figures; the rest are modeled from contract data.,14
+2021,JAX,71.108241,71.962505,-1.869166,0.97506,0.97506,0.955216,1.000513,False,21273395,2021-09-06,preseason,True,11117714,MODELED,estimated,Estimated — 10 of 32 teams are published figures; the rest are modeled from contract data.,32
+2021,KC,119.790844,117.313653,1.154244,0.959645,0.959645,0.955216,0.984695,False,6410540,2021-09-06,preseason,True,11117714,MODELED,estimated,Estimated — 10 of 32 teams are published figures; the rest are modeled from contract data.,2
+2021,LA,115.715433,114.761289,0.984086,0.970977,0.970977,0.955216,0.996323,False,39473971,2021-09-06,preseason,False,11117714,SAFE_EDITORIAL,estimated,Estimated — 10 of 32 teams are published figures; the rest are modeled from contract data.,5
+2021,LAC,102.923671,104.175784,0.278386,0.987799,0.987799,0.955216,1.013584,False,2250012,2021-09-06,preseason,False,11117714,SAFE_EDITORIAL,estimated,Estimated — 10 of 32 teams are published figures; the rest are modeled from contract data.,15
+2021,LV,99.603754,97.583784,-0.161081,0.94581,0.94581,0.955216,0.980151,True,18667409,2021-09-06,preseason,True,11117714,MODELED,estimated,Estimated — 10 of 32 teams are published figures; the rest are modeled from contract data.,18
+2021,MIA,96.478498,97.192972,-0.187135,0.981262,0.981262,0.955216,1.006877,False,8788323,2021-09-06,preseason,True,11117714,MODELED,estimated,Estimated — 10 of 32 teams are published figures; the rest are modeled from contract data.,23
+2021,MIN,101.803897,100.79332,0.052888,0.965932,0.965932,0.955216,0.991147,False,11834241,2021-09-06,preseason,True,11117714,MODELED,estimated,Estimated — 10 of 32 teams are published figures; the rest are modeled from contract data.,16
+2021,NE,114.833728,115.180377,1.012025,0.981811,0.981811,0.955216,1.00744,False,10887704,2021-09-06,preseason,True,11117714,MODELED,estimated,Estimated — 10 of 32 teams are published figures; the rest are modeled from contract data.,6
+2021,NO,106.222839,103.875426,0.258362,0.951063,0.951063,0.955216,0.980151,True,35755096,2021-09-06,preseason,False,11117714,SAFE_EDITORIAL,estimated,Estimated — 10 of 32 teams are published figures; the rest are modeled from contract data.,12
+2021,NYG,77.627337,77.702782,-1.486481,0.967773,0.967773,0.955216,0.993036,False,11347723,2021-09-06,preseason,True,11117714,MODELED,estimated,Estimated — 10 of 32 teams are published figures; the rest are modeled from contract data.,29
+2021,NYJ,73.391862,74.556098,-1.69626,0.980027,0.980027,0.955216,1.005609,False,6876487,2021-09-06,preseason,True,11117714,MODELED,estimated,Estimated — 10 of 32 teams are published figures; the rest are modeled from contract data.,31
+2021,PHI,105.706876,105.422024,0.361468,0.974037,0.974037,0.955216,0.999463,False,50041688,2021-09-06,preseason,False,11117714,SAFE_EDITORIAL,estimated,Estimated — 10 of 32 teams are published figures; the rest are modeled from contract data.,13
+2021,PIT,98.082627,96.137905,-0.257473,0.923153,0.923153,0.955216,0.980151,True,20098279,2021-09-06,preseason,True,11117714,MODELED,estimated,Estimated — 10 of 32 teams are published figures; the rest are modeled from contract data.,22
+2021,SEA,101.162783,99.065689,-0.062287,0.953213,0.953213,0.955216,0.980151,True,14291748,2021-09-06,preseason,True,11117714,MODELED,estimated,Estimated — 10 of 32 teams are published figures; the rest are modeled from contract data.,17
+2021,SF,109.63427,110.40622,0.693748,0.984537,0.984537,0.955216,1.010237,False,7348051,2021-09-06,preseason,True,11117714,MODELED,estimated,Estimated — 10 of 32 teams are published figures; the rest are modeled from contract data.,10
+2021,TB,126.940975,123.568649,1.571243,0.945867,0.945867,0.955216,0.980151,True,2380126,2021-09-06,preseason,False,11117714,SAFE_EDITORIAL,estimated,Estimated — 10 of 32 teams are published figures; the rest are modeled from contract data.,1
+2021,TEN,113.560785,110.850369,0.723358,0.920595,0.920595,0.955216,0.980151,True,17134479,2021-09-06,preseason,True,11117714,MODELED,estimated,Estimated — 10 of 32 teams are published figures; the rest are modeled from contract data.,8
+2021,WAS,87.767507,89.238021,-0.717465,0.987357,0.987357,0.955216,1.013131,False,7567502,2021-09-06,preseason,True,11117714,MODELED,estimated,Estimated — 10 of 32 teams are published figures; the rest are modeled from contract data.,24
+2022,ARI,82.794908,80.668257,-1.288783,0.91899,0.91899,0.908865,0.969359,False,10278530,2022-07-05,preseason,False,19109982,REVIEW_SPOTRAC,preseason,,29
+2022,ATL,96.168232,92.212758,-0.519149,0.874392,0.874392,0.908865,0.958679,True,63209124,2022-07-05,preseason,False,19109982,REVIEW_SPOTRAC,preseason,,20
+2022,BAL,112.105878,107.366094,0.491073,0.911718,0.911718,0.908865,0.961688,False,12292703,2022-07-05,preseason,False,19109982,REVIEW_SPOTRAC,preseason,,7
+2022,BUF,130.138386,129.217043,1.947803,0.948671,0.948671,0.908865,1.000667,False,16601356,2022-07-05,preseason,False,19109982,REVIEW_SPOTRAC,preseason,,2
+2022,CAR,97.757258,93.690088,-0.420661,0.83237,0.83237,0.908865,0.958679,True,23507283,2022-07-05,preseason,False,19109982,REVIEW_SPOTRAC,preseason,,17
+2022,CHI,77.220252,74.596678,-1.693555,0.816043,0.816043,0.908865,0.958679,True,57643341,2022-07-05,preseason,False,19109982,REVIEW_SPOTRAC,preseason,,30
+2022,CIN,117.357335,121.360456,1.42403,0.985594,0.985594,0.908865,1.039614,False,9592578,2022-07-05,preseason,False,19109982,REVIEW_SPOTRAC,preseason,,5
+2022,CLE,101.68521,97.341934,-0.177204,0.816987,0.816987,0.908865,0.958679,True,18774054,2022-07-05,preseason,False,19109982,REVIEW_SPOTRAC,preseason,,11
+2022,DAL,114.20865,118.244162,1.216277,0.986079,0.986079,0.908865,1.040125,False,22713132,2022-07-05,preseason,False,19109982,REVIEW_SPOTRAC,preseason,,6
+2022,DEN,88.432002,85.749008,-0.950066,0.916654,0.916654,0.908865,0.966895,False,14938136,2022-07-05,preseason,False,19109982,REVIEW_SPOTRAC,preseason,,27
+2022,DET,100.696835,102.229793,0.148653,0.963598,0.963598,0.908865,1.016412,False,20324288,2022-07-05,preseason,False,19109982,REVIEW_SPOTRAC,preseason,,14
+2022,GB,92.336242,97.225864,-0.184942,0.996785,0.996785,0.908865,1.051418,False,24628608,2022-07-05,preseason,False,19109982,REVIEW_SPOTRAC,preseason,,25
+2022,HOU,74.883101,72.423811,-1.838413,0.895438,0.895438,0.908865,0.958679,True,52289341,2022-07-05,preseason,False,19109982,REVIEW_SPOTRAC,preseason,,32
+2022,IND,75.729866,76.426605,-1.57156,0.948783,0.948783,0.908865,1.000785,False,7037428,2022-07-05,preseason,False,19109982,REVIEW_SPOTRAC,preseason,,31
+2022,JAX,94.708986,106.043494,0.4029,1.060789,1.060789,0.908865,1.11893,False,21852872,2022-07-05,preseason,False,19109982,REVIEW_SPOTRAC,preseason,,23
+2022,KC,127.293083,126.600582,1.773372,0.949757,0.949757,0.908865,1.001812,False,7982236,2022-07-05,preseason,False,19109982,REVIEW_SPOTRAC,preseason,,3
+2022,LA,87.888958,84.515455,-1.032303,0.900305,0.900305,0.908865,0.958679,True,13522002,2022-07-05,preseason,False,19109982,REVIEW_SPOTRAC,preseason,,28
+2022,LAC,98.243634,101.923707,0.128247,0.983988,0.983988,0.908865,1.037919,False,3661167,2022-07-05,preseason,False,19109982,REVIEW_SPOTRAC,preseason,,16
+2022,LV,94.301389,90.47714,-0.634857,0.859863,0.859863,0.908865,0.958679,True,29441565,2022-07-05,preseason,False,19109982,REVIEW_SPOTRAC,preseason,,24
+2022,MIA,103.539356,104.439936,0.295996,0.958169,0.958169,0.908865,1.010686,False,8483400,2022-07-05,preseason,False,19109982,REVIEW_SPOTRAC,preseason,,9
+2022,MIN,102.543501,105.611481,0.374099,0.978058,0.978058,0.908865,1.031665,False,22092189,2022-07-05,preseason,False,19109982,REVIEW_SPOTRAC,preseason,,10
+2022,NE,101.617081,102.879918,0.191995,0.961197,0.961197,0.908865,1.01388,False,9158009,2022-07-05,preseason,False,19109982,REVIEW_SPOTRAC,preseason,,12
+2022,NO,98.559487,97.527555,-0.16483,0.938619,0.938619,0.908865,0.990064,False,33347982,2022-07-05,preseason,False,19109982,REVIEW_SPOTRAC,preseason,,15
+2022,NYG,104.30998,99.782203,-0.01452,0.863267,0.863267,0.908865,0.958679,True,29262372,2022-07-05,preseason,False,19109982,REVIEW_SPOTRAC,preseason,,8
+2022,NYJ,96.400709,95.869353,-0.275376,0.942695,0.942695,0.908865,0.994363,False,2092411,2022-07-05,preseason,False,19109982,REVIEW_SPOTRAC,preseason,,19
+2022,PHI,118.338159,124.555059,1.637004,1.003363,1.003363,0.908865,1.058356,False,54915221,2022-07-05,preseason,False,19109982,REVIEW_SPOTRAC,preseason,,4
+2022,PIT,95.939212,99.598325,-0.026778,0.98393,0.98393,0.908865,1.037858,False,30863174,2022-07-05,preseason,False,19109982,REVIEW_SPOTRAC,preseason,,21
+2022,SEA,95.545116,99.157236,-0.056184,0.983489,0.983489,0.908865,1.037393,False,46022390,2022-07-05,preseason,False,19109982,REVIEW_SPOTRAC,preseason,,22
+2022,SF,132.583003,127.25761,1.817174,0.917442,0.917442,0.908865,0.967726,False,6495221,2022-07-05,preseason,False,19109982,REVIEW_SPOTRAC,preseason,,1
+2022,TB,96.510064,96.607593,-0.22616,0.948911,0.948911,0.908865,1.000919,False,19445910,2022-07-05,preseason,False,19109982,REVIEW_SPOTRAC,preseason,,18
+2022,TEN,89.429388,90.141972,-0.657202,0.953219,0.953219,0.908865,1.005464,False,14290108,2022-07-05,preseason,False,19109982,REVIEW_SPOTRAC,preseason,,26
+2022,WAS,100.734739,98.258831,-0.116078,0.92583,0.92583,0.908865,0.976574,False,6300496,2022-07-05,preseason,False,19109982,REVIEW_SPOTRAC,preseason,,13
+2023,ARI,82.435075,79.484056,-1.36773,0.824785,0.824785,0.897895,0.958523,True,36960000,2023-07-14,preseason,False,20300000,REVIEW_OTC,preseason,,29
+2023,ATL,87.642197,90.542729,-0.630485,0.964109,0.964109,0.897895,1.029207,False,18780000,2023-07-14,preseason,False,20300000,REVIEW_OTC,preseason,,27
+2023,BAL,126.610492,129.444329,1.962955,0.964162,0.964162,0.897895,1.029264,False,10780000,2023-07-14,preseason,False,20300000,REVIEW_OTC,preseason,,2
+2023,BUF,113.192962,118.752875,1.250192,0.986605,0.986605,0.897895,1.053223,False,5230000,2023-07-14,preseason,False,20300000,REVIEW_OTC,preseason,,6
+2023,CAR,65.319721,70.142427,-1.990505,0.990659,0.990659,0.897895,1.05755,False,51540000,2023-07-14,preseason,False,20300000,REVIEW_OTC,preseason,,32
+2023,CHI,93.084539,94.993484,-0.333768,0.954251,0.954251,0.897895,1.018684,False,23520000,2023-07-14,preseason,False,20300000,REVIEW_OTC,preseason,,22
+2023,CIN,99.588123,100.278456,0.018564,0.943526,0.943526,0.897895,1.007235,False,593000,2023-07-14,preseason,False,20300000,REVIEW_OTC,preseason,,15
+2023,CLE,108.20348,109.178057,0.61187,0.947729,0.947729,0.897895,1.011721,False,16000000,2023-07-14,preseason,False,20300000,REVIEW_OTC,preseason,,8
+2023,DAL,121.721034,125.018634,1.667909,0.967682,0.967682,0.897895,1.033022,False,14640000,2023-07-14,preseason,False,20300000,REVIEW_OTC,preseason,,3
+2023,DEN,92.908638,92.356308,-0.509579,0.92946,0.92946,0.897895,0.992219,False,9720000,2023-07-14,preseason,False,20300000,REVIEW_OTC,preseason,,24
+2023,DET,114.414501,114.278603,0.951907,0.939561,0.939561,0.897895,1.003002,False,18690000,2023-07-14,preseason,False,20300000,REVIEW_OTC,preseason,,5
+2023,GB,105.516648,104.546739,0.303116,0.929981,0.929981,0.897895,0.992775,False,57140000,2023-07-14,preseason,False,20300000,REVIEW_OTC,preseason,,11
+2023,HOU,103.812346,103.354711,0.223647,0.934037,0.934037,0.897895,0.997105,False,31720000,2023-07-14,preseason,False,20300000,REVIEW_OTC,preseason,,12
+2023,IND,103.126321,98.717732,-0.085485,0.886864,0.886864,0.897895,0.958523,True,24890000,2023-07-14,preseason,False,20300000,REVIEW_OTC,preseason,,13
+2023,JAX,99.312727,100.778498,0.0519,0.950781,0.950781,0.897895,1.01498,False,4700000,2023-07-14,preseason,False,20300000,REVIEW_OTC,preseason,,17
+2023,KC,111.575462,112.855606,0.85704,0.950839,0.950839,0.897895,1.015041,False,7650000,2023-07-14,preseason,False,20300000,REVIEW_OTC,preseason,,7
+2023,LA,107.041979,107.542751,0.50285,0.94338,0.94338,0.897895,1.007079,False,74230000,2023-07-14,preseason,False,20300000,REVIEW_OTC,preseason,,10
+2023,LAC,91.073076,87.513563,-0.832429,0.860896,0.860896,0.897895,0.958523,True,2190000,2023-07-14,preseason,False,20300000,REVIEW_OTC,preseason,,25
+2023,LV,101.334973,97.052573,-0.196495,0.879834,0.879834,0.897895,0.958523,True,29950000,2023-07-14,preseason,False,20300000,REVIEW_OTC,preseason,,14
+2023,MIA,115.402524,114.998795,0.99992,0.937598,0.937598,0.897895,1.000906,False,8430000,2023-07-14,preseason,False,20300000,REVIEW_OTC,preseason,,4
+2023,MIN,99.356389,95.693596,-0.287094,0.902424,0.902424,0.897895,0.963357,False,35540000,2023-07-14,preseason,False,20300000,REVIEW_OTC,preseason,,16
+2023,NE,77.02714,78.793051,-1.413797,0.950183,0.950183,0.897895,1.014342,False,21820000,2023-07-14,preseason,False,20300000,REVIEW_OTC,preseason,,30
+2023,NO,107.292425,106.73645,0.449097,0.934183,0.934183,0.897895,0.99726,False,24580000,2023-07-14,preseason,False,20300000,REVIEW_OTC,preseason,,9
+2023,NYG,84.674381,81.565617,-1.228959,0.849683,0.849683,0.897895,0.958523,True,22740000,2023-07-14,preseason,False,20300000,REVIEW_OTC,preseason,,28
+2023,NYJ,89.945699,86.569399,-0.895373,0.898973,0.898973,0.897895,0.959673,False,7950000,2023-07-14,preseason,False,20300000,REVIEW_OTC,preseason,,26
+2023,PHI,98.862395,105.061548,0.337437,0.995568,0.995568,0.897895,1.062791,False,54730000,2023-07-14,preseason,False,20300000,REVIEW_OTC,preseason,,18
+2023,PIT,98.659571,102.379983,0.158666,0.972092,0.972092,0.897895,1.037729,False,13260000,2023-07-14,preseason,False,20300000,REVIEW_OTC,preseason,,20
+2023,SEA,98.385333,98.113503,-0.125766,0.9341,0.9341,0.897895,0.997172,False,17910000,2023-07-14,preseason,False,20300000,REVIEW_OTC,preseason,,21
+2023,SF,134.967089,128.315516,1.887701,0.814661,0.814661,0.897895,0.958523,True,17160000,2023-07-14,preseason,False,20300000,REVIEW_OTC,preseason,,1
+2023,TB,98.830931,102.429129,0.161942,0.970923,0.970923,0.897895,1.036481,False,75320000,2023-07-14,preseason,False,20300000,REVIEW_OTC,preseason,,19
+2023,TEN,93.078849,89.378042,-0.708131,0.894661,0.894661,0.897895,0.958523,True,36560000,2023-07-14,preseason,False,20300000,REVIEW_OTC,preseason,,23
+2023,WAS,75.602982,73.133241,-1.791117,0.870871,0.870871,0.897895,0.958523,True,23010000,2023-07-14,preseason,False,20300000,REVIEW_OTC,preseason,,31
+2024,ARI,99.440213,101.910238,0.127349,1.001929,1.001929,0.956986,1.024392,False,29350000,2024-11-27,late_season,False,50285000,REVIEW_OTC,in_season,,17
+2024,ATL,95.539694,95.965298,-0.26898,0.980773,0.980773,0.956986,1.002762,False,11550000,2024-11-27,late_season,False,50285000,REVIEW_OTC,in_season,,20
+2024,BAL,122.983723,122.50371,1.500247,0.979576,0.979576,0.956986,1.001537,False,21350000,2024-11-27,late_season,False,50285000,REVIEW_OTC,in_season,,3
+2024,BUF,121.110379,120.580203,1.372014,0.978732,0.978732,0.956986,1.000674,False,68470000,2024-11-27,late_season,False,50285000,REVIEW_OTC,in_season,,4
+2024,CAR,75.447389,77.929227,-1.471385,1.00006,1.00006,0.956986,1.02248,False,68280000,2024-11-27,late_season,False,50285000,REVIEW_OTC,in_season,,32
+2024,CHI,88.404697,90.251123,-0.649925,0.994261,0.994261,0.956986,1.016552,False,29650000,2024-11-27,late_season,False,50285000,REVIEW_OTC,in_season,,22
+2024,CIN,101.447776,103.825256,0.255017,1.001164,1.001164,0.956986,1.023609,False,9110000,2024-11-27,late_season,False,50285000,REVIEW_OTC,in_season,,14
+2024,CLE,78.096146,77.208706,-1.51942,0.958508,0.958508,0.956986,0.979998,False,38790000,2024-11-27,late_season,False,50285000,REVIEW_OTC,in_season,,30
+2024,DAL,87.344616,85.861655,-0.942556,0.92982,0.92982,0.956986,0.978441,True,26790000,2024-11-27,late_season,False,50285000,REVIEW_OTC,in_season,,24
+2024,DEN,111.873496,111.621779,0.774785,0.978779,0.978779,0.956986,1.000722,False,85210000,2024-11-27,late_season,False,50285000,REVIEW_OTC,in_season,,10
+2024,DET,132.400542,128.613975,1.907598,0.895063,0.895063,0.956986,0.978441,True,33710000,2024-11-27,late_season,False,50285000,REVIEW_OTC,in_season,,1
+2024,GB,115.389205,115.544697,1.036313,0.983127,0.983127,0.956986,1.005168,False,65530000,2024-11-27,late_season,False,50285000,REVIEW_OTC,in_season,,8
+2024,HOU,101.207191,101.883281,0.125552,0.984703,0.984703,0.956986,1.006779,False,39280000,2024-11-27,late_season,False,50285000,REVIEW_OTC,in_season,,15
+2024,IND,94.601986,93.832743,-0.41115,0.968178,0.968178,0.956986,0.989884,False,11800000,2024-11-27,late_season,False,50285000,REVIEW_OTC,in_season,,21
+2024,JAX,81.346196,82.194504,-1.187033,0.981153,0.981153,0.956986,1.00315,False,51200000,2024-11-27,late_season,False,50285000,REVIEW_OTC,in_season,,28
+2024,KC,115.469449,114.338957,0.95593,0.972209,0.972209,0.956986,0.994006,False,12650000,2024-11-27,late_season,False,50285000,REVIEW_OTC,in_season,,7
+2024,LA,99.994709,101.287773,0.085852,0.990456,0.990456,0.956986,1.012661,False,34630000,2024-11-27,late_season,False,50285000,REVIEW_OTC,in_season,,16
+2024,LAC,108.255694,111.290659,0.752711,1.007568,1.007568,0.956986,1.030157,False,58620000,2024-11-27,late_season,False,50285000,REVIEW_OTC,in_season,,11
+2024,LV,83.303432,82.027087,-1.198194,0.88482,0.88482,0.956986,0.978441,True,49370000,2024-11-27,late_season,False,50285000,REVIEW_OTC,in_season,,26
+2024,MIA,97.048877,96.615141,-0.225657,0.972542,0.972542,0.956986,0.994345,False,52280000,2024-11-27,late_season,False,50285000,REVIEW_OTC,in_season,,19
+2024,MIN,115.819507,116.602393,1.106826,0.988538,0.988538,0.956986,1.0107,False,69830000,2024-11-27,late_season,False,50285000,REVIEW_OTC,in_season,,5
+2024,NE,83.045551,81.782392,-1.214507,0.869519,0.869519,0.956986,0.978441,True,53370000,2024-11-27,late_season,False,50285000,REVIEW_OTC,in_season,,27
+2024,NO,86.324721,87.769979,-0.815335,0.989407,0.989407,0.956986,1.011589,False,59440000,2024-11-27,late_season,False,50285000,REVIEW_OTC,in_season,,25
+2024,NYG,76.463795,79.310602,-1.379293,1.004792,1.004792,0.956986,1.027319,False,79570000,2024-11-27,late_season,False,50285000,REVIEW_OTC,in_season,,31
+2024,NYJ,88.160679,90.450743,-0.636617,0.999123,0.999123,0.956986,1.021523,False,59240000,2024-11-27,late_season,False,50285000,REVIEW_OTC,in_season,,23
+2024,PHI,123.072729,122.011151,1.46741,0.974949,0.974949,0.956986,0.996807,False,61950000,2024-11-27,late_season,False,50285000,REVIEW_OTC,in_season,,2
+2024,PIT,103.338148,102.980681,0.198712,0.975391,0.975391,0.956986,0.997258,False,30180000,2024-11-27,late_season,False,50285000,REVIEW_OTC,in_season,,12
+2024,SEA,102.997231,102.768795,0.184586,0.97651,0.97651,0.956986,0.998403,False,52000000,2024-11-27,late_season,False,50285000,REVIEW_OTC,in_season,,13
+2024,SF,98.646701,96.585891,-0.227607,0.951273,0.951273,0.956986,0.978441,True,26910000,2024-11-27,late_season,False,50285000,REVIEW_OTC,in_season,,18
+2024,TB,114.45637,111.587247,0.772483,0.952417,0.952417,0.956986,0.978441,True,60640000,2024-11-27,late_season,False,50285000,REVIEW_OTC,in_season,,9
+2024,TEN,81.216974,80.047305,-1.33018,0.946039,0.946039,0.956986,0.978441,True,62890000,2024-11-27,late_season,False,50285000,REVIEW_OTC,in_season,,29
+2024,WAS,115.752183,112.816809,0.854454,0.934002,0.934002,0.956986,0.978441,True,42810000,2024-11-27,late_season,False,50285000,REVIEW_OTC,in_season,,6
+2025,ARI,82.723148,82.794231,-1.147051,0.9986,0.9986,0.974327,0.992514,False,16510000,2025-12-17,late_season,False,41025000,REVIEW_OTC,in_season,,28
+2025,ATL,95.602592,95.76285,-0.282477,1.0046,1.0046,0.974327,0.998477,False,27000000,2025-12-17,late_season,False,41025000,REVIEW_OTC,in_season,,20
+2025,BAL,103.937647,100.704766,0.046984,0.957106,0.957106,0.974327,0.968389,True,38380000,2025-12-17,late_season,False,41025000,REVIEW_OTC,in_season,,13
+2025,BUF,118.300533,115.12381,1.008254,0.982266,0.982266,0.974327,0.97628,False,37580000,2025-12-17,late_season,False,41025000,REVIEW_OTC,in_season,,4
+2025,CAR,94.263633,91.619663,-0.558689,0.956963,0.956963,0.974327,0.968389,True,36550000,2025-12-17,late_season,False,41025000,REVIEW_OTC,in_season,,22
+2025,CHI,107.802858,107.192598,0.479507,1.001015,1.001015,0.974327,0.994915,False,8600000,2025-12-17,late_season,False,41025000,REVIEW_OTC,in_season,,10
+2025,CIN,86.83571,86.462561,-0.902496,0.995261,0.995261,0.974327,0.989196,False,20990000,2025-12-17,late_season,False,41025000,REVIEW_OTC,in_season,,25
+2025,CLE,77.201147,84.394358,-1.040376,1.087727,1.087727,0.974327,1.081098,False,83220000,2025-12-17,late_season,False,41025000,REVIEW_OTC,in_season,,29
+2025,DAL,95.484717,92.766412,-0.482239,0.970262,0.970262,0.974327,0.968389,True,41340000,2025-12-17,late_season,False,41025000,REVIEW_OTC,in_season,,21
+2025,DEN,118.190522,117.130087,1.142006,1.000289,1.000289,0.974327,0.994193,False,42780000,2025-12-17,late_season,False,41025000,REVIEW_OTC,in_season,,5
+2025,DET,105.925253,108.096379,0.539759,1.026809,1.026809,0.974327,1.020551,False,40710000,2025-12-17,late_season,False,41025000,REVIEW_OTC,in_season,,11
+2025,GB,103.532524,105.887895,0.392526,1.028359,1.028359,0.974327,1.022092,False,57980000,2025-12-17,late_season,False,41025000,REVIEW_OTC,in_season,,15
+2025,HOU,118.111897,116.947278,1.129819,0.999375,0.999375,0.974327,0.993284,False,66440000,2025-12-17,late_season,False,41025000,REVIEW_OTC,in_season,,6
+2025,IND,103.767613,105.804071,0.386938,1.025289,1.025289,0.974327,1.01904,False,17370000,2025-12-17,late_season,False,41025000,REVIEW_OTC,in_season,,14
+2025,JAX,115.219605,119.177962,1.278531,1.043292,1.043292,0.974327,1.036933,False,85490000,2025-12-17,late_season,False,41025000,REVIEW_OTC,in_season,,7
+2025,KC,99.966608,100.602598,0.040173,1.010769,1.010769,0.974327,1.004609,False,20330000,2025-12-17,late_season,False,41025000,REVIEW_OTC,in_season,,18
+2025,LA,128.424453,123.700923,1.580062,0.968997,0.968997,0.974327,0.968389,True,56230000,2025-12-17,late_season,False,41025000,REVIEW_OTC,in_season,,2
+2025,LAC,107.897211,107.275078,0.485005,1.000935,1.000935,0.974327,0.994836,False,38780000,2025-12-17,late_season,False,41025000,REVIEW_OTC,in_season,,9
+2025,LV,67.890943,74.061234,-1.729251,1.07939,1.07939,0.974327,1.072812,False,87790000,2025-12-17,late_season,False,41025000,REVIEW_OTC,in_season,,32
+2025,MIA,87.95764,88.313103,-0.779126,1.004064,1.004064,0.974327,0.997945,False,72450000,2025-12-17,late_season,False,41025000,REVIEW_OTC,in_season,,24
+2025,MIN,104.356701,101.09831,0.073221,0.964917,0.964917,0.974327,0.968389,True,30600000,2025-12-17,late_season,False,41025000,REVIEW_OTC,in_season,,12
+2025,NE,125.551742,121.212264,1.414151,0.976011,0.976011,0.974327,0.970063,False,50560000,2025-12-17,late_season,False,41025000,REVIEW_OTC,in_season,,3
+2025,NO,93.006899,90.565191,-0.628987,0.975682,0.975682,0.974327,0.969735,False,107830000,2025-12-17,late_season,False,41025000,REVIEW_OTC,in_season,,23
+2025,NYG,85.204228,87.754456,-0.81637,1.028754,1.028754,0.974327,1.022484,False,33740000,2025-12-17,late_season,False,41025000,REVIEW_OTC,in_season,,27
+2025,NYJ,71.247774,70.004908,-1.999673,0.928363,0.928363,0.974327,0.968389,True,102100000,2025-12-17,late_season,False,41025000,REVIEW_OTC,in_season,,31
+2025,PHI,112.356888,110.887532,0.725835,0.994745,0.994745,0.974327,0.988682,False,87270000,2025-12-17,late_season,False,41025000,REVIEW_OTC,in_season,,8
+2025,PIT,102.471794,102.636843,0.17579,1.006782,1.006782,0.974327,1.000647,False,33700000,2025-12-17,late_season,False,41025000,REVIEW_OTC,in_season,,16
+2025,SEA,129.481594,124.69371,1.646247,0.963678,0.963678,0.974327,0.968389,True,86100000,2025-12-17,late_season,False,41025000,REVIEW_OTC,in_season,,1
+2025,SF,96.21003,110.503459,0.700231,1.152159,1.152159,0.974327,1.145138,False,103770000,2025-12-17,late_season,False,41025000,REVIEW_OTC,in_season,,19
+2025,TB,100.446139,97.425805,-0.171613,0.952102,0.952102,0.974327,0.968389,True,40390000,2025-12-17,late_season,False,41025000,REVIEW_OTC,in_season,,17
+2025,TEN,73.866531,74.330294,-1.711314,0.999417,0.999417,0.974327,0.993326,False,59420000,2025-12-17,late_season,False,41025000,REVIEW_OTC,in_season,,30
+2025,WAS,86.763427,85.069374,-0.995375,0.98001,0.98001,0.974327,0.974038,False,27290000,2025-12-17,late_season,False,41025000,REVIEW_OTC,in_season,,26

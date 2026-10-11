@@ -27,7 +27,7 @@ totals, 1999–2025); coaching (HC/OC/DC for 830 team-seasons, 2000–2025, Hous
 draft (every pick 2000–2025, 6,644 picks); league salary cap ceilings 1994–2025 as economic
 context (2010 blank — uncapped).
 
-**Tier 2 — Player-level economics · 2013–2025.** Available for 416 team-seasons / 32,105
+**Tier 2 — Player-level economics · 2013–2025.** Available for 416 team-seasons / 32,265
 player-seasons: per-player cap detail, team cap totals, positional cap allocation by group;
 cash spending (annual, per player and per team); cost-per-win and related economics.
 
@@ -156,7 +156,7 @@ Implementation rules, all mandatory:
   exactly 100.000, then divided by **one pooled within-season SD taken over the ten measured
   seasons** (2013–2015, 2017–2019, 2022–2025), so that pooled SD is exactly 15.000. The three
   estimated seasons are divided by **the same SD**, so a point means the same thing in every
-  season; their own spread is free (14.7 pooled). Asserted in the build.
+  season; their own spread is free (14.8 pooled). Asserted in the build.
 - **Coverage: all thirteen Tier 2 seasons, 416 of 416 team-seasons.**
   - **2013** ships from a measured full-32 table, the Houston Press reproduction of Spotrac
     dated 2013-03-18 (`REVIEW_SPOTRAC`).
@@ -281,7 +281,7 @@ Cap share by position group per team-season versus the league average, **2013–
   per-contract field recorded *at signing* and drifts for 949 of 12,857 players (7.4%). The UI
   label for the rule is *"position as of the deal then in force."*
 - **Nine groups:** QB · RB (RB+FB) · WR · TE · OL · DL (IDL+ED) · LB · DB (CB+S) · ST (K+P+LS).
-  Unmapped cap share is 0.375% and is dropped, not bucketed into "other".
+  Unmapped cap share is 0.393% and is dropped, not bucketed into "other".
 - **Denominator caveat, rendered on the chart:** this is a share of *rostered* cap and
   therefore inherits the dead-money omission. It is "% of cap held by players on the roster",
   never "% of cap".
@@ -1066,7 +1066,7 @@ bridged. Snap rows filter `game_type = 'REG'`; the postseason uses `WC/DIV/CON/S
 no `POST` literal.
 
 > **ETL implementation note (Phase 1).** `position_at_signing` and `position_group` are
-> **nullable**: 502 of the 32,105 player-seasons (1.6%, carrying the 0.375% of cap §2.6 calls
+> **nullable**: 548 of the 32,265 player-seasons (1.7%, carrying the 0.393% of cap §2.6 calls
 > unmapped) have no recorded signing position. They keep `null` rather than a tenth `UNK`
 > bucket, because §2.6 drops unmapped cap rather than bucketing it — and the drop happens in
 > §7.12. Every player-season still ships: the Tier 2 promise is a roster, not a filtered

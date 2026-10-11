@@ -179,7 +179,7 @@ POSITION_GROUP = {
     "CB": "DB", "S": "DB",
     "K": "ST", "P": "ST", "LS": "ST",
 }
-#: Unmapped cap share is 0.375% and is DROPPED, not bucketed into "other".
+#: Unmapped cap share is 0.393% (October 2026 read) and is DROPPED, not bucketed into "other".
 POSITION_UNMAPPED = "UNK"
 
 # --------------------------------------------------------------------------- #

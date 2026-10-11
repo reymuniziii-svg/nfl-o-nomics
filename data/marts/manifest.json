@@ -7,7 +7,7 @@
         "all_time_bottom10": [
           {
             "badge": "preseason",
-            "capplus": 65.7,
+            "capplus": 65.3,
             "season": 2023,
             "season_rank": 32,
             "team": "CAR"
@@ -21,24 +21,31 @@
           },
           {
             "badge": "in_season",
-            "capplus": 68.0,
+            "capplus": 67.9,
             "season": 2025,
             "season_rank": 32,
             "team": "LV"
           },
           {
             "badge": "estimated",
-            "capplus": 70.2,
+            "capplus": 70.3,
             "season": 2016,
             "season_rank": 31,
             "team": "LA"
           },
           {
             "badge": "preseason",
-            "capplus": 70.9,
+            "capplus": 70.8,
             "season": 2018,
             "season_rank": 32,
             "team": "ARI"
+          },
+          {
+            "badge": "estimated",
+            "capplus": 71.1,
+            "season": 2021,
+            "season_rank": 32,
+            "team": "JAX"
           },
           {
             "badge": "estimated",
@@ -48,29 +55,22 @@
             "team": "SF"
           },
           {
-            "badge": "estimated",
-            "capplus": 71.2,
-            "season": 2021,
-            "season_rank": 32,
-            "team": "JAX"
-          },
-          {
             "badge": "in_season",
-            "capplus": 71.4,
+            "capplus": 71.2,
             "season": 2025,
             "season_rank": 31,
             "team": "NYJ"
           },
           {
             "badge": "preseason",
-            "capplus": 71.6,
+            "capplus": 71.5,
             "season": 2017,
             "season_rank": 32,
             "team": "CLE"
           },
           {
             "badge": "estimated",
-            "capplus": 72.6,
+            "capplus": 72.5,
             "season": 2020,
             "season_rank": 32,
             "team": "JAX"
@@ -79,70 +79,70 @@
         "all_time_top10": [
           {
             "badge": "provisional",
-            "capplus": 140.2,
+            "capplus": 140.4,
             "season": 2019,
             "season_rank": 1,
             "team": "BAL"
           },
           {
             "badge": "preseason",
-            "capplus": 135.4,
+            "capplus": 135.0,
             "season": 2023,
             "season_rank": 1,
             "team": "SF"
           },
           {
-            "badge": "provisional",
-            "capplus": 132.9,
-            "season": 2014,
-            "season_rank": 1,
-            "team": "SEA"
-          },
-          {
             "badge": "preseason",
-            "capplus": 132.4,
+            "capplus": 132.6,
             "season": 2022,
             "season_rank": 1,
             "team": "SF"
           },
           {
-            "badge": "estimated",
-            "capplus": 132.4,
-            "season": 2016,
+            "badge": "provisional",
+            "capplus": 132.5,
+            "season": 2014,
             "season_rank": 1,
-            "team": "NE"
+            "team": "SEA"
           },
           {
             "badge": "in_season",
-            "capplus": 132.3,
+            "capplus": 132.4,
             "season": 2024,
             "season_rank": 1,
             "team": "DET"
           },
           {
-            "badge": "preseason",
-            "capplus": 130.0,
-            "season": 2022,
-            "season_rank": 2,
-            "team": "BUF"
+            "badge": "estimated",
+            "capplus": 132.1,
+            "season": 2016,
+            "season_rank": 1,
+            "team": "NE"
           },
           {
             "badge": "provisional",
-            "capplus": 130.0,
+            "capplus": 130.8,
             "season": 2013,
             "season_rank": 1,
             "team": "CAR"
           },
           {
             "badge": "preseason",
-            "capplus": 129.8,
+            "capplus": 130.1,
+            "season": 2022,
+            "season_rank": 2,
+            "team": "BUF"
+          },
+          {
+            "badge": "preseason",
+            "capplus": 130.0,
             "season": 2017,
             "season_rank": 1,
             "team": "MIN"
           },
           {
             "badge": "in_season",
-            "capplus": 129.4,
+            "capplus": 129.5,
             "season": 2025,
             "season_rank": 1,
             "team": "SEA"
@@ -150,16 +150,16 @@
         ],
         "arcs": {
           "BUF": "13:#16 14:#16 15:#12 16:#14 17:#16 18:#24 19:#7 20:#9 21:#3 22:#2 23:#6 24:#4 25:#4",
-          "KC": "13:#14 14:#11 15:#6 16:#4 17:#10 18:#2 19:#2 20:#8 21:#2 22:#3 23:#7 24:#7 25:#18",
-          "PHI": "13:#11 14:#12 15:#28 16:#19 17:#5 18:#13 19:#9 20:#26 21:#13 22:#4 23:#18 24:#2 25:#8",
-          "SF": "13:#3 14:#17 15:#29 16:#30 17:#18 18:#31 19:#11 20:#19 21:#10 22:#1 23:#1 24:#18 25:#19"
+          "KC": "13:#14 14:#11 15:#7 16:#4 17:#10 18:#2 19:#2 20:#8 21:#2 22:#3 23:#7 24:#7 25:#18",
+          "PHI": "13:#12 14:#12 15:#27 16:#18 17:#5 18:#13 19:#9 20:#26 21:#13 22:#4 23:#18 24:#2 25:#8",
+          "SF": "13:#3 14:#17 15:#28 16:#30 17:#18 18:#31 19:#13 20:#19 21:#10 22:#1 23:#1 24:#18 25:#19"
         },
-        "corr_capplus_vs_team_rating": 0.9646,
-        "corr_capplus_vs_team_rating_measured": 0.9608,
+        "corr_capplus_vs_team_rating": 0.9663,
+        "corr_capplus_vs_team_rating_measured": 0.9632,
         "mean_abs_rank_shift_vs_perf": 1.87,
-        "mean_abs_rank_shift_vs_perf_measured": 1.92,
+        "mean_abs_rank_shift_vs_perf_measured": 1.91,
         "within_season_sd_by_badge": {
-          "estimated": 14.74,
+          "estimated": 14.8,
           "measured": 15.0
         }
       },
@@ -171,7 +171,7 @@
       "lambda_dead": 1.0,
       "pct_cost_over_1": 0.125,
       "perf_epa_input": "epa_margin_per_play_adj",
-      "pooled_sd_measured_raw": 14.611541,
+      "pooled_sd_measured_raw": 14.546703,
       "provisional_seasons": [
         2013,
         2014,
@@ -274,54 +274,54 @@
       ],
       "sniff": [
         {
-          "expected": 135.4,
+          "expected": 135.0,
           "expected_rank": 1,
-          "got": 135.4,
+          "got": 135.0,
           "pass": true,
           "rank": 1,
           "season": 2023,
           "team": "SF"
         },
         {
-          "expected": 77.3,
+          "expected": 77.2,
           "expected_rank": 30,
-          "got": 77.3,
+          "got": 77.2,
           "pass": true,
           "rank": 30,
           "season": 2022,
           "team": "CHI"
         },
         {
-          "expected": 111.8,
+          "expected": 111.9,
           "expected_rank": 10,
-          "got": 111.8,
+          "got": 111.9,
           "pass": true,
           "rank": 10,
           "season": 2024,
           "team": "DEN"
         },
         {
-          "expected": 121.6,
+          "expected": 122.0,
           "expected_rank": 3,
-          "got": 121.6,
+          "got": 122.0,
           "pass": true,
           "rank": 3,
           "season": 2014,
           "team": "NE"
         },
         {
-          "expected": 117.7,
+          "expected": 117.9,
           "expected_rank": 5,
-          "got": 117.7,
+          "got": 117.9,
           "pass": true,
           "rank": 5,
           "season": 2017,
           "team": "PHI"
         },
         {
-          "expected": 71.6,
+          "expected": 71.5,
           "expected_rank": 32,
-          "got": 71.6,
+          "got": 71.5,
           "pass": true,
           "rank": 32,
           "season": 2017,
@@ -337,45 +337,45 @@
           "team": "ATL"
         },
         {
-          "expected": 125.5,
+          "expected": 125.6,
           "expected_rank": 2,
-          "got": 125.5,
+          "got": 125.6,
           "pass": true,
           "rank": 2,
           "season": 2019,
           "team": "KC"
         },
         {
-          "expected": 93.1,
+          "expected": 93.0,
           "expected_rank": 23,
-          "got": 93.1,
+          "got": 93.0,
           "pass": true,
           "rank": 23,
           "season": 2025,
           "team": "NO"
         },
         {
-          "expected": 107.5,
+          "expected": 107.0,
           "expected_rank": 10,
-          "got": 107.5,
+          "got": 107.0,
           "pass": true,
           "rank": 10,
           "season": 2023,
           "team": "LA"
         },
         {
-          "expected": 104.1,
+          "expected": 104.3,
           "expected_rank": 13,
-          "got": 104.1,
+          "got": 104.3,
           "pass": true,
           "rank": 13,
           "season": 2016,
           "team": "NO"
         },
         {
-          "expected": 87.5,
+          "expected": 87.4,
           "expected_rank": 24,
-          "got": 87.5,
+          "got": 87.4,
           "pass": true,
           "rank": 24,
           "season": 2020,
@@ -395,43 +395,43 @@
     "capplus_context": {
       "by_stratum": {
         "False": {
-          "mean_capplus": 101.18,
+          "mean_capplus": 101.2,
           "mean_perf": 101.39,
-          "mean_qb_timing_pts": -1.74,
+          "mean_qb_timing_pts": -1.76,
           "n": 270.0
         },
         "True": {
-          "mean_capplus": 97.83,
+          "mean_capplus": 97.78,
           "mean_perf": 97.43,
-          "mean_qb_timing_pts": 3.22,
+          "mean_qb_timing_pts": 3.25,
           "n": 146.0
         }
       },
-      "capplus_reproduction_drift": 6.9e-05,
-      "corr_capplus_vs_perf_index": 0.9646,
+      "capplus_reproduction_drift": 6.6e-05,
+      "corr_capplus_vs_perf_index": 0.9663,
       "corr_capplus_vs_qb_cap_share_by_season": {
-        "2013": 0.097,
-        "2014": 0.238,
-        "2015": 0.201,
-        "2016": 0.328,
+        "2013": 0.106,
+        "2014": 0.239,
+        "2015": 0.194,
+        "2016": 0.322,
         "2017": 0.157,
-        "2018": 0.232,
+        "2018": 0.231,
         "2019": 0.115,
         "2020": 0.361,
-        "2021": 0.226,
+        "2021": 0.227,
         "2022": 0.161,
-        "2023": 0.422,
+        "2023": 0.399,
         "2024": 0.38,
         "2025": 0.116
       },
-      "corr_mortgage_share_vs_perf_index": 0.2421,
+      "corr_mortgage_share_vs_perf_index": 0.2469,
       "index_rows": 416,
       "mean_abs_rank_shift_vs_perf": {
         "capplus": 1.87
       },
       "mortgage": {
-        "rows": 32105,
-        "rows_without_contract_years": 504
+        "rows": 32265,
+        "rows_without_contract_years": 550
       },
       "rookie_window_teams_per_season": {
         "2013": 12,
@@ -453,9 +453,9 @@
         "snaps": 416
       },
       "within_season_sd": {
-        "R_rec": 0.038,
-        "cash_share": 0.1234,
-        "future_mortgage_share": 0.1579,
+        "R_rec": 0.0369,
+        "cash_share": 0.1232,
+        "future_mortgage_share": 0.1559,
         "qb_cap_share": 0.0506
       }
     },
@@ -647,8 +647,8 @@
       "treatment_mode": "css_filter_only"
     },
     "player_season_availability": {
-      "bridge_rate": 0.998442,
-      "distinct_players": 7060,
+      "bridge_rate": 0.998512,
+      "distinct_players": 7062,
       "golden_tomlinson": {
         "delta": 0,
         "games": 17,
@@ -656,34 +656,34 @@
         "off_snaps": 1101
       },
       "player_team_seasons_before_bridge": 28234,
-      "reg_snap_rows_consumed": 310475,
-      "rows": 28190,
-      "unbridged_dropped": 44,
+      "reg_snap_rows_consumed": 310476,
+      "rows": 28192,
+      "unbridged_dropped": 42,
       "window": "2013-2025"
     },
     "player_season_cap": {
       "cap_pct_coverage": 1.0,
       "collision_notes": [],
       "gsis_coverage": 0.9802,
-      "ledger_marked_rows": 21,
-      "ledger_players_in_window": 15,
-      "player_seasons": 32105,
+      "ledger_marked_rows": 20,
+      "ledger_players_in_window": 14,
+      "player_seasons": 32265,
       "team_seasons": 416,
-      "unmapped_position_rows": 502
+      "unmapped_position_rows": 548
     },
     "position_allocation": {
       "league_2023": {
-        "DB": 0.1618,
-        "DL": 0.2203,
-        "LB": 0.0684,
-        "OL": 0.2012,
-        "QB": 0.0956,
-        "RB": 0.05,
-        "ST": 0.0288,
-        "TE": 0.0517,
-        "WR": 0.1223
+        "DB": 0.1627,
+        "DL": 0.2216,
+        "LB": 0.0688,
+        "OL": 0.2024,
+        "QB": 0.0902,
+        "RB": 0.0504,
+        "ST": 0.0289,
+        "TE": 0.0518,
+        "WR": 0.123
       },
-      "unmapped_cap_share": 0.003751
+      "unmapped_cap_share": 0.003931
     },
     "regime_events": {
       "aggregate": {
@@ -720,6 +720,26 @@
     }
   },
   "data_version": {
+    "capplus_estimated_seasons": [
+      2016,
+      2020,
+      2021
+    ],
+    "capplus_seasons": [
+      2013,
+      2014,
+      2015,
+      2016,
+      2017,
+      2018,
+      2019,
+      2020,
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
     "coaching_window": "2000-2025",
     "draft_window": "2000-2025",
     "excluded_season": 2026,
@@ -761,7 +781,7 @@
       ],
       "contract": "SPEC §7.13 — 416 rows: starting QB, rookie window, QB-neutral Cap+, future-cap mortgage (the cash-vs-cap bridge)",
       "file": "data/marts/capplus_context.csv",
-      "md5": "83bbd6636862343fad6dc03886c110b3",
+      "md5": "5f1df85931a3be4a7439d488002541df",
       "n_columns": 27,
       "rows": 416,
       "source_data": [
@@ -796,7 +816,7 @@
       ],
       "contract": "SPEC §7.4 — 416 rows, thirteen seasons, λ = 1, adjusted-EPA P",
       "file": "data/marts/capplus_official.csv",
-      "md5": "9503bb2ed381f71fe03b169d3b454cb1",
+      "md5": "de79383bc0aaea5748329c3976718d83",
       "n_columns": 19,
       "rows": 416,
       "source_data": [
@@ -864,7 +884,7 @@
       ],
       "contract": "416 render-ready rows; 320 measured + 96 estimated with provenance",
       "file": "data/marts/dead_money_display.csv",
-      "md5": "f020ca5ffaaf26f16d756d7eb5427385",
+      "md5": "eed9e409f9c0a4b561319136d9376fcd",
       "n_columns": 27,
       "rows": 416,
       "source_data": [
@@ -1136,13 +1156,13 @@
       ],
       "contract": "SPEC §7.9 — games + snaps per player-season, 2013+, REG only",
       "file": "data/marts/player_season_availability.csv",
-      "md5": "f3f85143b480c875ca49665f4497b2e0",
+      "md5": "84bfb7712f65ef8ef5e7f52259022568",
       "n_columns": 10,
-      "rows": 28190,
+      "rows": 28192,
       "source_data": [
         {
           "asset": "snap_counts",
-          "asset_rows": 310475,
+          "asset_rows": 310476,
           "rows": 28234,
           "source": "nflverse snap_counts_{year}.parquet + players.parquet bridge",
           "window": "2013-2025 REG"
@@ -1181,14 +1201,14 @@
       ],
       "contract": "SPEC §7.9 — player-season cap detail 2013-2025 + ledger markers",
       "file": "data/marts/player_season_cap.csv",
-      "md5": "93a509c9580aa05160eb52c0ab99edc3",
+      "md5": "6f8432449a31c6064166f8d4da81c2ef",
       "n_columns": 27,
-      "rows": 32105,
+      "rows": 32265,
       "source_data": [
         {
           "asset": "players",
-          "asset_rows": 9338,
-          "rows": 32105,
+          "asset_rows": 9818,
+          "rows": 32265,
           "source": "nflverse historical_contracts.parquet + players.parquet",
           "window": "2013-2025"
         }
@@ -1206,12 +1226,12 @@
       ],
       "contract": "SPEC §7.12 / §2.6 — team-season x nine position groups, 2013+",
       "file": "data/marts/position_allocation.csv",
-      "md5": "1aed0774f4c6580aa9047388251480b9",
+      "md5": "fc102dee16d088083b7177406b65198b",
       "n_columns": 7,
       "rows": 3744,
       "source_data": [
         {
-          "rows": 32105,
+          "rows": 32265,
           "source": "nflverse historical_contracts.parquet",
           "window": "2013-2025"
         }
@@ -1297,13 +1317,13 @@
       ],
       "contract": "SPEC §7.3 — 416 rows, 2013-2025, dead-money columns always null",
       "file": "data/marts/team_season_cap.csv",
-      "md5": "33b0639d8665fc43978f824cf822c54f",
+      "md5": "7c834c302aa8be93d99fe7ae946d8989",
       "n_columns": 14,
       "rows": 416,
       "source_data": [
         {
           "asset": "contracts",
-          "rows": 41976,
+          "rows": 43091,
           "source": "nflverse historical_contracts.parquet",
           "window": "2013-2025"
         }
