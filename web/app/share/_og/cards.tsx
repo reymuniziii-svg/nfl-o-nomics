@@ -300,6 +300,19 @@ function recordOf(card: TeamCard): string {
     : card.results.reason;
 }
 
+const PLAYOFF_PHRASE: Record<string, string> = {
+  wild_card: 'lost Wild Card',
+  divisional: 'lost Divisional',
+  conference: 'lost Conference',
+  super_bowl_loss: 'lost Super Bowl',
+  super_bowl_win: 'Super Bowl champion',
+};
+
+/** Deepest playoff round as a short phrase; null when the club missed the playoffs. */
+function playoffPhrase(card: TeamCard): string | null {
+  return card.results.state === 'value' ? (PLAYOFF_PHRASE[card.results.value.playoffResult] ?? null) : null;
+}
+
 function cpwOf(card: TeamCard): { value: string; lg: string | null; perWin: boolean } {
   if (card.receipt.state === 'blank') return { value: card.receipt.reason, lg: null, perWin: false };
   const r = card.receipt.value;
@@ -328,7 +341,7 @@ export function TeamOg({ card }: { card: TeamCard }) {
         justifyContent: 'space-between',
         width: BAND_W,
         height: MAIN_H,
-        padding: '30px 36px 30px',
+        padding: '24px 36px 22px',
         background: card.bg,
         color: card.fg,
       }}
@@ -353,10 +366,25 @@ export function TeamOg({ card }: { card: TeamCard }) {
           {card.name}
         </span>
       </div>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: playoffPhrase(card) ? 8 : 14 }}>
         <span style={{ fontFamily: OG_TEXT.display, fontSize: 64, lineHeight: 0.9, letterSpacing: 1 }}>
           {res ? `${rec(res.wins, res.losses, res.ties)}  ·  ${signed(res.pointDiff)} PTS` : recordOf(card)}
         </span>
+        {playoffPhrase(card) ? (
+          <span
+            style={{
+              fontFamily: OG_TEXT.athletic,
+              fontWeight: 600,
+              fontSize: 28,
+              letterSpacing: 1,
+              textTransform: 'uppercase',
+              lineHeight: 1,
+              marginTop: -4,
+            }}
+          >
+            {playoffPhrase(card)}
+          </span>
+        ) : null}
         <Stamp card={card} />
       </div>
     </div>
@@ -437,7 +465,7 @@ export function TeamOg({ card }: { card: TeamCard }) {
     </div>
   ) : (
     <div style={{ display: 'flex', flexDirection: 'column' }}>
-      <Line label="Record" value={recordOf(card)} />
+      <Line label="Record" value={`${recordOf(card)}${playoffPhrase(card) ? ` · ${playoffPhrase(card)}` : ''}`} />
       <Line label="Point differential" value={res ? signed(res.pointDiff) : ''} />
       <Line label="Points for · against" value={res ? `${res.pointsFor} · ${res.pointsAgainst}` : ''} />
     </div>

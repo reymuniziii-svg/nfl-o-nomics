@@ -512,6 +512,17 @@
   outline: 2px dashed var(--yy-fg-1);
 }
 
+/* A PROVISIONAL season's mark: a dotted ring in the same ink as the estimated
+   dashed one. Never gold — gold is the league-average benchmark. */
+.ballProvisional .dot {
+  outline: 1px dotted var(--yy-fg-2);
+  outline-offset: 2px;
+}
+
+.ballProvisional.ballHot .dot {
+  outline: 2px dotted var(--yy-fg-1);
+}
+
 .badgeNote {
   min-height: 0;
 }
@@ -825,6 +836,16 @@
   border-radius: 50%;
   background: var(--yy-fg-mid);
   outline: 1px dashed var(--yy-fg-2);
+  outline-offset: 2px;
+  margin: 0 3px;
+}
+
+.keyProvisional {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--yy-fg-mid);
+  outline: 1px dotted var(--yy-fg-2);
   outline-offset: 2px;
   margin: 0 3px;
 }

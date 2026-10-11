@@ -313,6 +313,7 @@ export function LeagueField({
                       lit ? css.ballLit : '',
                       hot === d.club.team ? css.ballHot : '',
                       d.club.ix?.badge === 'estimated' ? css.ballEstimated : '',
+                      d.club.ix?.badge === 'provisional' ? css.ballProvisional : '',
                     ].join(' ')}
                     data-slot={d.slot}
                     style={
@@ -323,7 +324,7 @@ export function LeagueField({
                         '--i': Math.min(i, 8),
                       } as CSSProperties
                     }
-                    aria-label={`${d.club.name}, ${frame.season}: ${name} ${d.v.toFixed(1)}${d.club.ix?.badge === 'estimated' ? ' (estimated)' : ''}${rank ? `, ${ordinal(rank)} of 32` : ''}, ${fieldPositionWords(d.v)}`}
+                    aria-label={`${d.club.name}, ${frame.season}: ${name} ${d.v.toFixed(1)}${d.club.ix?.badge === 'estimated' ? ' (estimated)' : d.club.ix?.badge === 'provisional' ? ' (provisional)' : ''}${rank ? `, ${ordinal(rank)} of 32` : ''}, ${fieldPositionWords(d.v)}`}
                     {...bind(d, pos.x, pos.y)}
                     onPointerEnter={(e) => {
                       bind(d, pos.x, pos.y).onPointerEnter(e);
@@ -410,8 +411,13 @@ export function LeagueField({
           </li>
         ) : null}
         {covered && frameBadge === 'estimated' ? (
-          <li className={`yy-label ${css.fieldKeyItem}`}>
+          <li className={`yy-label ${css.fieldKeyItem}`} title={frameBadgeSentence ?? undefined}>
             <i className={css.keyEstimated} aria-hidden="true" /> Estimated season
+          </li>
+        ) : null}
+        {covered && frameBadge === 'provisional' ? (
+          <li className={`yy-label ${css.fieldKeyItem}`} title={frameBadgeSentence ?? undefined}>
+            <i className={css.keyProvisional} aria-hidden="true" /> Provisional season
           </li>
         ) : null}
         <li className={`yy-label ${css.fieldKeyItem}`}>
