@@ -38,6 +38,17 @@ team's cap by 2004), usable only for top-of-market questions, never for team tot
 Special cases (dead money, snap counts, player images) are specified in §2.1, §2.9 and §5.2
 of this document; their coverage statements come from `DATA_AUDIT.md` §5 unchanged.
 
+**Live tier — the 2026 season in progress (2026-10-11, `DECISIONS.md` 116).** A separate,
+labelled reading of the current season, never part of either promise above. It covers the 32
+clubs of 2026 **as of week N**, the last regular-season week in which every game is final in
+both the schedule and the play-by-play; nothing after week N is read. It carries results, raw
+and opponent-adjusted EPA, and **Team Rating (performance only) · live** from week 4. It carries
+**no money figure, no cost per win and no verdict**; live Cap+ is gated to week 9 and to a dated
+2026 dead-money table and is blank until both hold. Live rows sit in their own marts (§7.14),
+are comparable within 2026 only, and never enter an all-time view, a multi-season series or the
+Cap+ calibration. 2026 joins Tier 1 and Tier 2 only when the season is final, in a reviewed
+promotion; the counts 861 and 416 do not move before then.
+
 ### 1.2 The never-silently-partial UI rule
 
 Verbatim from `DATA_AUDIT.md` §5, non-negotiable:
@@ -57,8 +68,22 @@ Engineering consequence, stated so it is testable: **every chart component takes
 type Metric<T> =
   | { state: 'value';    value: T; asOf?: AsOf; provisional?: boolean }
   | { state: 'blank';    reason: string }   // reason is rendered, never swallowed
-  | { state: 'partial';  value: T; covered: number; total: number; reason: string };
+  | { state: 'partial';  value: T; covered: number; total: number; reason: string;
+      badge?: LiveBadge; badgeReason?: string; live?: LiveAsOf };
+
+type LiveBadge = 'in_season_live';        // never a CapPlusBadge (§7.4); §7.14
+interface LiveAsOf {
+  season: number; week: number; date: string;   // date = last game day of the week, ISO
+  gamesPlayed: number; gamesScheduled: number;
+}
 ```
+
+**A live value is `state: 'partial'`** (2026-10-11, `DECISIONS.md` 116): `covered = gamesPlayed`,
+`total = gamesScheduled` (17), `badge = 'in_season_live'`, `badgeReason` the mart's
+`badge_reason` sentence, and `live` the as-of week and date from `live_status`. It renders with
+the partial hatch and its `⟨covered/total⟩` label, and the as-of week and date are never dropped.
+A whole-season live blank (before week 4; live Cap+ while gated) is `state: 'blank'` with the
+reason from `live_status`.
 
 A component that receives `state: 'blank'` renders the reason string. There is no code path
 that renders an empty cell, a dash, a zero, or an interpolated point for missing data. A unit
@@ -737,10 +762,15 @@ not an edit.
 | `/division/{div}` | Division view; `{div}` ∈ `afc-east`, `afc-north`, `afc-south`, `afc-west`, `nfc-east`, `nfc-north`, `nfc-south`, `nfc-west` | 8 |
 | `/team/{abbr}` | Franchise entry point — 301 to the franchise's most recent season | 32 |
 | `/team/{abbr}/{season}` | Team-season | 861 |
+| `/team/{abbr}/2026` | Live team-season, slim variant (§7.14, `DECISIONS.md` 116); the same URL becomes the final page when 2026 is promoted | 32 |
 | `/player/{id}` | Player; `{id}` is `otc_id` | ~251 |
 | `/compare?a={abbr}-{season}&b={abbr}-{season}` | Head-to-head | on demand |
 | `/methodology` | Public methodology (`METHODOLOGY.md`) | 1 |
 | `/credits` | Image attribution, data credits | 1 |
+
+**The live season changes no existing route.** `/` still lands on the most recent *complete*
+season (2025) and `/team/{abbr}` still 301s to the franchise's 2025 page, which links to the live
+page. The 32 live pages are added beside the 861, not counted in them.
 
 **`{abbr}` is always the current-franchise code** — the 32-code set the marts are keyed on:
 `ARI ATL BAL BUF CAR CHI CIN CLE DAL DEN DET GB HOU IND JAX KC LA LAC LV MIA MIN NE NO NYG NYJ
@@ -1170,6 +1200,80 @@ interface CapPlusContext {
 
 `capplus_obligation`, `obligation_rank` and `mortgage_alpha` were removed 2026-10-10
 (`DECISIONS.md` 111); the contract forbids them.
+
+### 7.14 The live marts — `data/marts/live/`, season 2026 only
+
+Added 2026-10-11 (`DECISIONS.md` 116). Built by `python -m etl.live build` from
+`etl/live/live_pins.toml`, refreshed by `.github/workflows/live-refresh.yml`, recorded in
+`data/marts/live/manifest.json`. **They never join the marts above**: separate files, separate
+tables, separate accessors (`web/lib/data/live.ts` is the only web module that may read them).
+Every row is `season = 2026` and shares one `asof_week`; no column holds a wall-clock time.
+The live season is `etl/live/config.py::LIVE_SEASON` and is carried in `live_status.season`.
+
+```ts
+type LiveSeason = 2026;
+type LiveState = 'value' | 'blank';
+
+// 1 row. Whole-season states and their sentences live here once.
+interface LiveStatus {
+  season: LiveSeason;
+  asof_week: number;                 // last closed REG week; 0 before week 1 closes
+  asof_date: string | null;          // last game day of asof_week (a data date), null at 0
+  weeks_in_season: number;           // 18
+  games_scheduled_per_team: number;  // 17
+  league_games_played: number;       // games through asof_week
+  pbp_sha256: string; pbp_asset_updated_at: string; games_commit_sha: string;
+  money_asof_date: string | null;    // null until freeze-money exists
+  contracts_sha256: string | null;
+  dm_asof_date: string | null; dm_asof_stage: AsOfStage | null;
+  dm_basis: 'full32' | 'estimated' | 'none';
+  perf_state: LiveState;   perf_blank_reason: string | null;     // blank before week 4
+  capplus_state: LiveState; capplus_blank_reason: string | null; // blank while gated
+}
+
+// 32 rows when perf_state = 'value', 0 when 'blank'. Grain (season, team).
+interface LiveTeamPerf {
+  season: LiveSeason; team: TeamAbbr; asof_week: number;
+  games_played: number; games_scheduled: number;     // 17, less any cancelled game
+  bye_week: number; bye_taken: boolean;              // a bye is a value, not a blank
+  wins: number; losses: number; ties: number;
+  win_pct: number;                                   // ties count half
+  points_for: number; points_against: number; point_diff: number; point_diff_per_game: number;
+  off_plays: number; def_plays: number;
+  off_epa_per_play: number; def_epa_per_play: number; epa_margin_per_play: number;
+  off_epa_per_play_adj: number; def_epa_per_play_adj: number; epa_margin_per_play_adj: number;
+  sos_epa: number;
+  P_live: number;               // §2.4 composite within the 2026 frame: mean 0, SD 1
+  perf_index_live: number;      // 100 + 15 × P_live — "Team Rating (performance only) · live"
+  perf_rank_live: number;       // 1 = best, ties share the lower rank
+  badge: LiveBadge;             // 'in_season_live'
+  badge_reason: string;         // "Live: through week 4 (2026-10-05), 4 of 17 games played. …"
+}
+
+// 0 rows while live_status.capplus_state = 'blank' (until week 9 AND a dated 2026
+// dead-money table). Columns fixed now so the seed and the web types do not move later.
+interface LiveCapPlus {
+  season: LiveSeason; team: TeamAbbr;
+  capplus_live: number; cost_live: number; cap_consumed_live: number;
+  cost_floor_live: number; R_live: number; was_floored: boolean; capplus_rank_live: number;
+  asof_week: number; games_played: number; badge: LiveBadge; badge_reason: string;
+}
+```
+
+**Not built in this pass:** `live_team_money` (32 rows: `money_asof_date`, `n_players`,
+`cap_used_snapshot`, `league_cap_2026`, `cap_pct_of_league`, `team_adjusted_cap_implied`,
+`unaccounted_vs_adjusted`, `cash_scheduled_2026`, and the dead-money block `dead_money_usd`,
+`dm_asof_date`, `dm_asof_stage`, `dm_source_url`, `dm_license_tier`, `dm_is_modeled`,
+`dm_lo_usd`, `dm_hi_usd`), written only by `python -m etl.live freeze-money` from one dated
+contracts snapshot; and the optional `live_team_week` history. Until `live_team_money` exists
+every money field in `live_status` is null and `dm_basis = 'none'`.
+
+Rules the contract tests enforce (`tests/test_live_contracts.py`, `test_live_isolation.py`):
+one `asof_week` across every live mart, `live_status` and the pin file; `games_played =
+asof_week − bye_taken` (less cancelled games); W + L + T = GP; league points and wins balance;
+`P_live` mean 0, SD 1; a Cap+ row exists only from week 9 with a non-null `dm_asof_date`; the
+frozen marts top out at 2025 and keep their row counts; no frozen mart, `manifest.json` or
+`etl/pins.toml` names a live asset. A missing live directory **fails**, it does not skip.
 
 ## 8. Cross-cutting requirements
 

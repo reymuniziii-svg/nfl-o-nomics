@@ -1,0 +1,169 @@
+{
+  "asof_date": "2026-10-05",
+  "asof_week": 4,
+  "checks": {
+    "adj_max_shift_def": 0.191248,
+    "adj_max_shift_margin": 0.267272,
+    "adj_max_shift_off": 0.168783,
+    "adj_min_corr": 0.853351,
+    "byes_taken": 0,
+    "league_off_epa_per_play": 0.013684,
+    "perf_state": "value",
+    "schedule_graph_connected": true
+  },
+  "generated_by": "python -m etl.live build",
+  "layer": "live — the 2026 in-season tier (DECISIONS 116, SPEC §1.1, §7.14)",
+  "marts": {
+    "live_capplus": {
+      "columns": [
+        "season",
+        "team",
+        "capplus_live",
+        "cost_live",
+        "cap_consumed_live",
+        "cost_floor_live",
+        "R_live",
+        "was_floored",
+        "capplus_rank_live",
+        "asof_week",
+        "games_played",
+        "badge",
+        "badge_reason"
+      ],
+      "contract": "SPEC §7.14 — 0 rows while gated (capplus_state = 'blank')",
+      "file": "data/marts/live/live_capplus.csv",
+      "md5": "6ba61648265af4af3c1a6967fda7bb51",
+      "n_columns": 13,
+      "rows": 0,
+      "source_data": [
+        {
+          "asset": "pbp",
+          "rows": 11155,
+          "source": "nflverse play_by_play_2026.parquet",
+          "window": "2026 REG weeks 1-4"
+        },
+        {
+          "asset": "games",
+          "rows": 272,
+          "source": "nfldata data/games.csv @ 2ad5861009e4ea0becafba0220f5ed7a5c96ccd9",
+          "window": "2026 REG schedule; scores through week 4"
+        }
+      ]
+    },
+    "live_status": {
+      "columns": [
+        "season",
+        "asof_week",
+        "asof_date",
+        "weeks_in_season",
+        "games_scheduled_per_team",
+        "league_games_played",
+        "pbp_sha256",
+        "pbp_asset_updated_at",
+        "games_commit_sha",
+        "money_asof_date",
+        "contracts_sha256",
+        "dm_asof_date",
+        "dm_asof_stage",
+        "dm_basis",
+        "perf_state",
+        "perf_blank_reason",
+        "capplus_state",
+        "capplus_blank_reason"
+      ],
+      "contract": "SPEC §7.14 — 1 row: as-of week, pins, whole-season states",
+      "file": "data/marts/live/live_status.csv",
+      "md5": "b3aa9801a18aad605f304072731dd147",
+      "n_columns": 18,
+      "rows": 1,
+      "source_data": [
+        {
+          "asset": "pbp",
+          "rows": 11155,
+          "source": "nflverse play_by_play_2026.parquet",
+          "window": "2026 REG weeks 1-4"
+        },
+        {
+          "asset": "games",
+          "rows": 272,
+          "source": "nfldata data/games.csv @ 2ad5861009e4ea0becafba0220f5ed7a5c96ccd9",
+          "window": "2026 REG schedule; scores through week 4"
+        }
+      ]
+    },
+    "live_team_perf": {
+      "columns": [
+        "season",
+        "team",
+        "asof_week",
+        "games_played",
+        "games_scheduled",
+        "bye_week",
+        "bye_taken",
+        "wins",
+        "losses",
+        "ties",
+        "win_pct",
+        "points_for",
+        "points_against",
+        "point_diff",
+        "point_diff_per_game",
+        "off_plays",
+        "def_plays",
+        "off_epa_per_play",
+        "def_epa_per_play",
+        "epa_margin_per_play",
+        "off_epa_per_play_adj",
+        "def_epa_per_play_adj",
+        "epa_margin_per_play_adj",
+        "sos_epa",
+        "P_live",
+        "perf_index_live",
+        "perf_rank_live",
+        "badge",
+        "badge_reason"
+      ],
+      "contract": "SPEC §7.14 — 32 rows (0 before week 4), grain (season, team); results, raw + adjusted EPA, P_live, Team Rating live",
+      "file": "data/marts/live/live_team_perf.csv",
+      "md5": "782d80d9e7740af9b651385a29656a8c",
+      "n_columns": 29,
+      "rows": 32,
+      "source_data": [
+        {
+          "asset": "pbp",
+          "rows": 11155,
+          "source": "nflverse play_by_play_2026.parquet",
+          "window": "2026 REG weeks 1-4"
+        },
+        {
+          "asset": "games",
+          "rows": 272,
+          "source": "nfldata data/games.csv @ 2ad5861009e4ea0becafba0220f5ed7a5c96ccd9",
+          "window": "2026 REG schedule; scores through week 4"
+        }
+      ]
+    }
+  },
+  "not_built": {
+    "live_team_money": "written only by `python -m etl.live freeze-money` (plan §1.4), which is not built yet; every money field in live_status is null"
+  },
+  "note": "No wall-clock timestamps: every byte here is a function of etl/live/live_pins.toml. These marts never join the frozen 1999-2025 marts in data/marts/.",
+  "pins": {
+    "games_commit_sha": "2ad5861009e4ea0becafba0220f5ed7a5c96ccd9",
+    "games_slice_sha256": "33059abaf9f200f9f2328b799bd88d4f176c92e11dea5bea221cf09412a4e7fd",
+    "pbp_asset_updated_at": "2026-10-10T15:17:30Z",
+    "pbp_sha256": "8acfb4cafc4d3ab86190734e70f10032e4a0485127e38d98e3a270c3480bc301",
+    "pbp_slice_sha256": "11fd98dc8dd6bab1f968016d3edda09a6826e05a39fde002570792031625f26e"
+  },
+  "product": "YIELD/YARD",
+  "runtime_config": {
+    "LIVE_ADJ_MAX_SHIFT": 0.3,
+    "LIVE_ADJ_MIN_CORR": 0.75,
+    "LIVE_CANCELLED_GAMES": [],
+    "LIVE_CAPPLUS_MIN_WEEK": 9,
+    "LIVE_MIN_SCRIM_PLAYS": 80,
+    "LIVE_PERF_MIN_WEEK": 4,
+    "PERF_EPA_INPUT": "epa_margin_per_play_adj"
+  },
+  "season": 2026
+}

@@ -245,8 +245,17 @@ doesn't, so the two can disagree.
 
 **Results, play-by-play, draft picks, rosters and snap counts** come from
 [nflverse](https://nflverse.nflverse.com/), an open NFL data project. Results and play-by-play
-cover **1999 through 2025** with no gaps, 861 team-seasons. The data is a snapshot, not a live
-feed. The 2026 season is excluded until it's complete.
+cover **1999 through 2025** with no gaps, 861 team-seasons. Those seasons are finished and
+frozen.
+
+**2026 runs on its own live table, kept apart from the finished seasons.** It carries results
+and Team Rating only. "As of week 6" means every game through week 6 is final in both the
+schedule and the play-by-play. If one game is late, the whole week waits, so no club is ever
+rated on half a week. A club that has had its bye simply has one fewer game, and the page says so.
+Team Rating goes live at week 4, once every club has played enough opponents for the opponent
+adjustment to hold. Live ratings rank 2026 clubs against each other and move every week, so they
+carry no verdict. And there's no money on them: no cap figure, no cost per win and no Cap+ until
+the season is final.
 
 **Contract and salary figures** come from Over The Cap data published through nflverse.
 **Player-level contract detail begins in 2013.** Before that, the record samples notable

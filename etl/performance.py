@@ -23,6 +23,15 @@ Two additive layers sit on top and never touch the columns above:
   play-weighted least squares with sum-to-zero team effects (numpy only); the
   adjusted rate is the raw team-mean plus the effect, so each season's
   team-mean is preserved exactly.
+
+The season builders are parameterised so the 2026 live layer (`etl/live/`,
+`DECISIONS.md` 116) reuses them on a partial season without touching history:
+`season_results`, `_season_epa` and `_season_games` take `max_week`, and
+`_opponent_adjust` checks each team's pbp game count against an
+`expected_games` mapping (the schedule's own count) rather than a hard-coded
+16/17. The adjustment thresholds are parameters with the historical values as
+defaults. Called with no `max_week`, every query and every check is the one the
+frozen marts were built with.
 """
 
 from __future__ import annotations
@@ -99,26 +108,22 @@ GOLDEN_RECORDS = [
 ASSET_ROWS: dict[str, int] = {}
 
 
-def build_team_season_results(*, verbose: bool = True) -> pd.DataFrame:
-    lo, hi = config.PERF_WINDOW
-    g = pd.read_csv(config.GAMES_URL)
-    g["home_team"] = normalize_series(g["home_team"])
-    g["away_team"] = normalize_series(g["away_team"])
+#: The regular-season block of `team_season_results`, in column order.
+RESULTS_REG_COLS = [
+    "season", "team", "games", "wins", "losses", "ties", "win_pct",
+    "points_for", "points_against", "point_diff",
+]
 
-    # games.csv already carries 272 unplayed 2026 rows with null scores; every
-    # mart clips to 1999-2025 (DECISIONS 46).
-    win = g[g["season"].between(lo, hi)]
-    reg = win[win["game_type"] == "REG"].copy()
-    unplayed = reg[reg["home_score"].isna() | reg["away_score"].isna()]
-    if not unplayed.empty:
-        raise AssertionError(
-            f"{len(unplayed)} REG games in {lo}-{hi} have a null score: "
-            f"{unplayed.groupby('season').size().to_dict()}"
-        )
-    reg["home_score"] = reg["home_score"].astype(int)
-    reg["away_score"] = reg["away_score"].astype(int)
-    ASSET_ROWS["games"] = len(reg)
 
+def season_results(reg: pd.DataFrame, *, max_week: int | None = None) -> pd.DataFrame:
+    """Per-team regular-season record from scored schedule rows. Pure.
+
+    `reg` holds REG games with integer scores and normalised team codes. With
+    `max_week`, only games in weeks <= max_week count (the live layer's closed
+    weeks); without it, every row counts, exactly as the frozen mart was built.
+    """
+    if max_week is not None:
+        reg = reg[reg["week"] <= int(max_week)]
     home = pd.DataFrame({
         "season": reg["season"], "team": reg["home_team"],
         "pf": reg["home_score"], "pa": reg["away_score"],
@@ -143,11 +148,31 @@ def build_team_season_results(*, verbose: bool = True) -> pd.DataFrame:
     # Ties count as half a win; per-team game counts drive the denominator.
     m["win_pct"] = ((m["wins"] + 0.5 * m["ties"]) / m["games"]).round(config.ROUND_RATIO)
     m["point_diff"] = m["points_for"] - m["points_against"]
-    reg_cols = [
-        "season", "team", "games", "wins", "losses", "ties", "win_pct",
-        "points_for", "points_against", "point_diff",
-    ]
-    base = m[reg_cols].sort_values(["season", "team"]).reset_index(drop=True)
+    return m[RESULTS_REG_COLS].sort_values(["season", "team"]).reset_index(drop=True)
+
+
+def build_team_season_results(*, verbose: bool = True) -> pd.DataFrame:
+    lo, hi = config.PERF_WINDOW
+    g = pd.read_csv(config.GAMES_URL)
+    g["home_team"] = normalize_series(g["home_team"])
+    g["away_team"] = normalize_series(g["away_team"])
+
+    # games.csv already carries 272 unplayed 2026 rows with null scores; every
+    # mart clips to 1999-2025 (DECISIONS 46).
+    win = g[g["season"].between(lo, hi)]
+    reg = win[win["game_type"] == "REG"].copy()
+    unplayed = reg[reg["home_score"].isna() | reg["away_score"].isna()]
+    if not unplayed.empty:
+        raise AssertionError(
+            f"{len(unplayed)} REG games in {lo}-{hi} have a null score: "
+            f"{unplayed.groupby('season').size().to_dict()}"
+        )
+    reg["home_score"] = reg["home_score"].astype(int)
+    reg["away_score"] = reg["away_score"].astype(int)
+    ASSET_ROWS["games"] = len(reg)
+
+    base = season_results(reg)
+    reg_cols = RESULTS_REG_COLS
 
     po = _playoffs(win)
     po["team"] = po["team"].astype(base["team"].dtype)
@@ -257,17 +282,24 @@ def _check_results(out: pd.DataFrame, *, verbose: bool) -> None:
 # --------------------------------------------------------------------------- #
 # team_season_epa
 # --------------------------------------------------------------------------- #
-def _season_epa(con, year: int) -> pd.DataFrame:
+def _weeks(max_week: int | None) -> str:
+    """The closed-week filter. Empty for a final season, so the historical SQL
+    is unchanged character for character."""
+    return "" if max_week is None else f" AND week <= {int(max_week)}"
+
+
+def _season_epa(con, year: int, *, max_week: int | None = None) -> pd.DataFrame:
+    wk = _weeks(max_week)
     off = con.execute(f"""
         SELECT posteam AS team, count(*) AS off_plays, sum(epa) AS off_epa_total
         FROM pbp
-        WHERE season_type='REG' AND {_SCRIM} AND epa IS NOT NULL AND {_HASPOS}
+        WHERE season_type='REG' AND {_SCRIM} AND epa IS NOT NULL AND {_HASPOS}{wk}
         GROUP BY 1
     """).df()
     dfn = con.execute(f"""
         SELECT defteam AS team, count(*) AS def_plays, sum(epa) AS def_epa_total
         FROM pbp
-        WHERE season_type='REG' AND {_SCRIM} AND epa IS NOT NULL AND {_HASDEF}
+        WHERE season_type='REG' AND {_SCRIM} AND epa IS NOT NULL AND {_HASDEF}{wk}
         GROUP BY 1
     """).df()
     off["team"] = normalize_series(off["team"])
@@ -283,14 +315,14 @@ def _season_epa(con, year: int) -> pd.DataFrame:
     return m
 
 
-def _season_games(con) -> pd.DataFrame:
+def _season_games(con, *, max_week: int | None = None) -> pd.DataFrame:
     """Offensive EPA by game: one row per (game_id, offense, defense)."""
     g = con.execute(f"""
         SELECT game_id, posteam AS off, defteam AS def,
                count(*) AS plays, sum(epa) AS epa_total
         FROM pbp
         WHERE season_type='REG' AND {_SCRIM} AND epa IS NOT NULL
-              AND {_HASPOS} AND {_HASDEF}
+              AND {_HASPOS} AND {_HASDEF}{_weeks(max_week)}
         GROUP BY 1, 2, 3
     """).df()
     g["off"] = normalize_series(g["off"])
@@ -302,7 +334,10 @@ def _season_games(con) -> pd.DataFrame:
     return g
 
 
-def _opponent_adjust(games: pd.DataFrame, ts: pd.DataFrame, year: int) -> pd.DataFrame:
+def _opponent_adjust(games: pd.DataFrame, ts: pd.DataFrame, year: int, *,
+                     expected_games: dict[str, int],
+                     missing_games: dict[str, int] | None = None,
+                     ridge: float = ADJ_RIDGE_PLAYS) -> pd.DataFrame:
     """Fit epa_game = mu + offense_i + defense_j, play-weighted, sum-to-zero.
 
     Solved as one KKT system (numpy only):
@@ -310,6 +345,11 @@ def _opponent_adjust(games: pd.DataFrame, ts: pd.DataFrame, year: int) -> pd.Dat
         s.t. sum(o) = 0,  sum(d) = 0
     Adjusted rate = the raw team-mean for that side + the team's effect, so the
     unweighted season mean of each side is preserved exactly.
+
+    `expected_games` is each team's scheduled REG game count over the window
+    read (the full season for history, weeks <= asof for the live layer);
+    `missing_games` declares games the schedule has and pbp does not. Every
+    team's pbp game count plus its declared gap must equal its schedule count.
     """
     teams = sorted(ts["team"])
     ix = {t: k for k, t in enumerate(teams)}
@@ -332,7 +372,7 @@ def _opponent_adjust(games: pd.DataFrame, ts: pd.DataFrame, year: int) -> pd.Dat
         np.add.at(b, cols[:, a], w * y)
         for c in range(3):
             np.add.at(A, (cols[:, a], cols[:, c]), w)
-    A[1:, 1:] += ADJ_RIDGE_PLAYS * np.eye(2 * n)
+    A[1:, 1:] += ridge * np.eye(2 * n)
     C = np.zeros((2, p))
     C[0, 1:1 + n] = 1.0
     C[1, 1 + n:] = 1.0
@@ -352,16 +392,33 @@ def _opponent_adjust(games: pd.DataFrame, ts: pd.DataFrame, year: int) -> pd.Dat
     margin = raw["epa_margin_per_play"]
     gp = games.assign(opp_margin=games["def"].map(margin))
     sos = gp.groupby("off")["opp_margin"].agg(["mean", "size"])
-    full = sos["size"] + [PBP_MISSING_GAMES.get((year, t), 0) for t in sos.index]
-    bad = full[~full.isin([16, 17])]
+    missing = missing_games or {}
+    full = sos["size"] + [missing.get(t, 0) for t in sos.index]
+    if set(full.index) != set(expected_games):
+        raise AssertionError(f"{year}: pbp teams differ from the schedule: "
+                             f"{sorted(set(full.index) ^ set(expected_games))}")
+    want = pd.Series(expected_games).reindex(full.index)
+    bad = full[full != want]
     if not bad.empty:
-        raise AssertionError(f"{year}: pbp game counts outside 16/17: {bad.to_dict()}")
+        raise AssertionError(f"{year}: pbp game counts differ from the schedule: "
+                             f"{ {t: (int(bad[t]), int(want[t])) for t in bad.index} }")
     adj["sos_epa"] = adj["team"].map(sos["mean"])
     return adj
 
 
+def _schedule_games() -> dict[int, dict[str, int]]:
+    """REG games per team per season, from the results mart the pipeline has
+    just written (it runs first): the schedule count the pbp must reproduce."""
+    res = io_utils.read_csv(config.MARTS / "team_season_results.csv")
+    out: dict[int, dict[str, int]] = {}
+    for season, g in res.groupby("season"):
+        out[int(season)] = {str(t): int(n) for t, n in zip(g["team"], g["games"])}
+    return out
+
+
 def build_team_season_epa(*, download: bool = False, verbose: bool = True) -> pd.DataFrame:
     lo, hi = config.PERF_WINDOW
+    expected = _schedule_games()
     con = sources.duck_connect()
     parts = []
     for year in range(lo, hi + 1):
@@ -371,7 +428,10 @@ def build_team_season_epa(*, download: bool = False, verbose: bool = True) -> pd
             download=download,
         )
         ts = _season_epa(con, year)
-        ts = ts.merge(_opponent_adjust(_season_games(con), ts, year),
+        missing = {t: n for (y, t), n in PBP_MISSING_GAMES.items() if y == year}
+        ts = ts.merge(_opponent_adjust(_season_games(con), ts, year,
+                                       expected_games=expected[year],
+                                       missing_games=missing),
                       on="team", how="left", validate="1:1")
         exp = EXPECTED_TEAMS[year]
         if len(ts) != exp:
@@ -404,7 +464,11 @@ def build_team_season_epa(*, download: bool = False, verbose: bool = True) -> pd
     return mart
 
 
-def _check_adjusted(mart: pd.DataFrame, *, verbose: bool) -> None:
+def _check_adjusted(mart: pd.DataFrame, *, verbose: bool,
+                    max_shift: float = ADJ_MAX_SHIFT,
+                    min_corr: float = ADJ_MIN_CORR) -> dict:
+    """Mean preservation, max |shift| and corr(adj, raw margin). Returns the
+    worst observed values so a caller can record them."""
     if mart[["off_epa_per_play_adj", "def_epa_per_play_adj", "sos_epa"]].isna().any().any():
         raise AssertionError("null opponent-adjusted value")
     worst = {"off": 0.0, "def": 0.0, "margin": 0.0}
@@ -418,15 +482,16 @@ def _check_adjusted(mart: pd.DataFrame, *, verbose: bool) -> None:
         worst["margin"] = max(worst["margin"], float(
             (g["epa_margin_per_play_adj"] - g["epa_margin_per_play"]).abs().max()))
         r = np.corrcoef(g["epa_margin_per_play_adj"], g["epa_margin_per_play"])[0, 1]
-        if r <= ADJ_MIN_CORR:
-            raise AssertionError(f"{season}: corr(adj, raw margin) {r:.3f} <= {ADJ_MIN_CORR}")
-    if max(worst["off"], worst["def"]) > ADJ_MAX_SHIFT:
+        worst["min_corr"] = min(worst.get("min_corr", 1.0), float(r))
+        if r <= min_corr:
+            raise AssertionError(f"{season}: corr(adj, raw margin) {r:.3f} <= {min_corr}")
+    if max(worst["off"], worst["def"]) > max_shift:
         raise AssertionError(f"opponent adjustment moved a side by "
-                             f"{max(worst['off'], worst['def']):.4f} > {ADJ_MAX_SHIFT}")
+                             f"{max(worst['off'], worst['def']):.4f} > {max_shift}")
     if verbose:
         print(f"  opponent adjustment: max |shift| off {worst['off']:.4f}, "
               f"def {worst['def']:.4f}, margin {worst['margin']:.4f} EPA/play; "
-              f"season means preserved; corr(adj, raw margin) > {ADJ_MIN_CORR} every season")
+              f"season means preserved; corr(adj, raw margin) > {min_corr} every season")
         last = mart[mart["season"] == mart["season"].max()].copy()
         last["shift"] = last["epa_margin_per_play_adj"] - last["epa_margin_per_play"]
         top = last.reindex(last["shift"].abs().sort_values(ascending=False).index).head(5)
@@ -435,6 +500,7 @@ def _check_adjusted(mart: pd.DataFrame, *, verbose: bool) -> None:
             print(f"    {r.team:<4} {r.epa_margin_per_play:+.4f} -> "
                   f"{r.epa_margin_per_play_adj:+.4f}  ({r['shift']:+.4f})  "
                   f"sos {r.sos_epa:+.4f}")
+    return worst
 
 
 # --------------------------------------------------------------------------- #

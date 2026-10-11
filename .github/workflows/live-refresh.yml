@@ -1,0 +1,186 @@
+name: live-refresh
+
+# The 2026 in-season layer's weekly refresh — DECISIONS.md 116,
+# design/plans/2026-in-season.md §3.
+#
+#   resolve -> no-op exit -> build --check-stable -> history guard -> pytest
+#           -> commit data/marts/live + etl/live/live_pins.toml -> push
+#
+# Safety, in order of what stops a bad commit:
+#   * resolve pins pbp by sha256 and games.csv by commit SHA and computes the
+#     last CLOSED week; a half-loaded week, a postponed game or pbp lagging the
+#     schedule keeps asof_week where it was. If asof_week and both closed-week
+#     slices match the committed pins, the job exits here and commits nothing.
+#     If asof_week would go BACKWARDS, resolve exits 3 and the job goes red.
+#   * build reads only through the pins and builds every live mart twice.
+#   * the history guard fails the job if a frozen mart, manifest.json,
+#     etl/pins.toml or data/curated moved, or if anything outside the two live
+#     paths changed.
+#   * the whole test suite runs on the new data before anything is committed.
+# A failure at any step commits nothing; the site keeps the previous week.
+#
+# Push target (owner ruling, DECISIONS 116): straight to main as
+# github-actions[bot]. If the Vercel probe below shows Vercel will not deploy a
+# bot-authored commit, set the repository variable LIVE_PUSH_MODE=pr and the
+# job opens a PR with auto-merge instead (needs "Allow auto-merge" in the repo
+# settings). Pushes made with GITHUB_TOKEN do not trigger ci.yml; this job runs
+# the same suite itself before committing.
+#
+# Manual runs default to dry_run=true: everything runs, the diff is printed,
+# nothing is pushed to main. dry_run + vercel_probe pushes the would-be commit
+# to the throwaway branch live/vercel-probe (force) so Vercel builds a preview
+# as the bot author; read the deployment status on that commit, then delete
+# the branch.
+
+on:
+  schedule:
+    - cron: '0 15 * * 2'   # Tue 15:00 UTC = 11:00 EDT / 10:00 EST, after Monday night
+    - cron: '0 15 * * 3'   # Wed retry
+    - cron: '0 15 * * 4'   # Thu retry; a still-open week is flagged stale from here
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Build, test and print the diff; push nothing to main'
+        type: boolean
+        default: true
+      vercel_probe:
+        description: 'With dry_run: push the would-be commit to live/vercel-probe for a Vercel author check'
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+concurrency:
+  group: live-refresh
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    name: resolve, build, guard, test, commit
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run || false }}
+      VERCEL_PROBE: ${{ github.event_name == 'workflow_dispatch' && inputs.vercel_probe || false }}
+      PUSH_MODE: ${{ vars.LIVE_PUSH_MODE || 'main' }}
+
+    steps:
+      - name: Check out main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 1
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pandas numpy duckdb pyarrow requests pytest
+
+      # Writes etl/live/live_pins.toml only when something the marts read
+      # changed. Outputs: decision (init|advance|restate|noop|regress), changed,
+      # asof_week, asof_date, prev_asof_week, stale, expected_week, message.
+      - name: Resolve pins and the closed week
+        id: resolve
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python -m etl.live resolve
+
+      - name: No-op exit
+        if: steps.resolve.outputs.changed != 'true'
+        run: |
+          echo "Nothing to publish: still through week ${{ steps.resolve.outputs.asof_week }} (${{ steps.resolve.outputs.decision }})." | tee -a "$GITHUB_STEP_SUMMARY"
+
+      - name: Build the live marts (twice, byte-compared)
+        if: steps.resolve.outputs.changed == 'true'
+        run: python -m etl.live build --check-stable
+
+      - name: History guard — the frozen marts must not move
+        if: steps.resolve.outputs.changed == 'true'
+        run: |
+          # ':(glob)' so '*' does not cross '/': data/marts/live/ is NOT covered here.
+          git diff --exit-code -- ':(glob)data/marts/*.csv' data/marts/manifest.json etl/pins.toml data/curated
+          stray=$(git status --porcelain --untracked-files=all \
+                  | grep -v -E '^.. (data/marts/live/[^/]+|etl/live/live_pins\.toml)$' || true)
+          if [ -n "$stray" ]; then
+            echo "::error::the live build changed files outside its two paths:"; echo "$stray"; exit 1
+          fi
+
+      - name: Test suite (golden + structural + contracts + live)
+        if: steps.resolve.outputs.changed == 'true'
+        run: pytest tests/ -q -p no:cacheprovider
+
+      - name: Show the diff
+        if: steps.resolve.outputs.changed == 'true'
+        run: |
+          git status --short
+          git diff --stat
+          python -m etl.live status | tee -a "$GITHUB_STEP_SUMMARY"
+          echo "Would commit: ${{ steps.resolve.outputs.message }}" | tee -a "$GITHUB_STEP_SUMMARY"
+
+      - name: Commit
+        id: commit
+        if: steps.resolve.outputs.changed == 'true'
+        env:
+          MSG: ${{ steps.resolve.outputs.message }}
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add data/marts/live etl/live/live_pins.toml
+          git commit -m "$MSG" -m "Automated by .github/workflows/live-refresh.yml (DECISIONS 116)."
+          git show --stat HEAD
+
+      - name: Vercel author probe (dry run only)
+        if: steps.commit.outcome == 'success' && env.DRY_RUN == 'true' && env.VERCEL_PROBE == 'true'
+        run: |
+          git push --force origin HEAD:refs/heads/live/vercel-probe
+          echo "Pushed $(git rev-parse --short HEAD) to live/vercel-probe. Check its Vercel deployment status; delete the branch after." | tee -a "$GITHUB_STEP_SUMMARY"
+
+      - name: Push
+        if: steps.commit.outcome == 'success' && env.DRY_RUN != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MSG: ${{ steps.resolve.outputs.message }}
+          WEEK: ${{ steps.resolve.outputs.asof_week }}
+        run: |
+          git fetch origin main
+          git rebase origin/main
+          if [ "$PUSH_MODE" = "pr" ]; then
+            branch="live/week-${WEEK}-${GITHUB_RUN_ID}"
+            git push origin "HEAD:refs/heads/${branch}"
+            gh pr create --base main --head "$branch" --title "$MSG" \
+              --body "Automated live refresh (DECISIONS 116). Built twice byte-identical, history guard clean, full test suite green in run ${GITHUB_RUN_ID}."
+            gh pr merge "$branch" --auto --squash
+          else
+            git push origin HEAD:main
+          fi
+
+      - name: Flag stale data
+        if: always() && steps.resolve.outputs.stale == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ASOF: ${{ steps.resolve.outputs.asof_week }}
+          EXPECTED: ${{ steps.resolve.outputs.expected_week }}
+        run: |
+          title="live data stale"
+          body="Week ${EXPECTED} ended more than 48 hours ago and is still not closed in nflverse; the site shows week ${ASOF}. Run ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}. If a game was postponed for good, add it to LIVE_CANCELLED_GAMES in etl/live/config.py."
+          if [ "$DRY_RUN" = "true" ]; then echo "dry run — would open/update issue: $body"; exit 0; fi
+          n=$(gh issue list --state open --search "in:title \"$title\"" --json number --jq '.[0].number // empty')
+          if [ -n "$n" ]; then gh issue comment "$n" --body "$body"; else gh issue create --title "$title" --body "$body"; fi
+
+      - name: Close the stale flag once the week advances
+        if: success() && env.DRY_RUN != 'true' && (steps.resolve.outputs.decision == 'advance' || steps.resolve.outputs.decision == 'init')
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          for n in $(gh issue list --state open --search 'in:title "live data stale"' --json number --jq '.[].number'); do
+            gh issue close "$n" --comment "Closed by run ${GITHUB_RUN_ID}: live data now through week ${{ steps.resolve.outputs.asof_week }}."
+          done
