@@ -172,6 +172,11 @@ def closed_week(schedule: pd.DataFrame, pbp: pd.DataFrame, *,
             return ClosedWeek(asof, asof_date, w, reasons)
         asof = w
         days = wk["gameday"].dropna()
+        # Upstream strings reach the pins and the commit message; accept only
+        # ISO dates so nothing else rides along.
+        bad = days[~days.astype(str).str.fullmatch(r"\d{4}-\d{2}-\d{2}")]
+        if len(bad):
+            raise ValueError(f"games.csv gameday is not an ISO date: {sorted(set(bad))[:3]}")
         asof_date = str(days.max()) if not days.empty else asof_date
     return ClosedWeek(asof, asof_date)
 

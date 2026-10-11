@@ -20,6 +20,10 @@ def _github_output(values: dict) -> None:
     with open(path, "a", encoding="utf-8") as fh:
         for k, v in values.items():
             v = str(v).lower() if isinstance(v, bool) else str(v)
+            # GITHUB_OUTPUT is line-delimited: a value carrying a line break
+            # could smuggle extra outputs into the workflow. Refuse, don't escape.
+            if "\n" in v or "\r" in v:
+                raise ValueError(f"step output {k!r} contains a line break")
             fh.write(f"{k}={v}\n")
 
 

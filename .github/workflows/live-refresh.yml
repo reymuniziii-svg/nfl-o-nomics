@@ -96,8 +96,11 @@ jobs:
 
       - name: No-op exit
         if: steps.resolve.outputs.changed != 'true'
+        env:
+          WEEK: ${{ steps.resolve.outputs.asof_week }}
+          DECISION: ${{ steps.resolve.outputs.decision }}
         run: |
-          echo "Nothing to publish: still through week ${{ steps.resolve.outputs.asof_week }} (${{ steps.resolve.outputs.decision }})." | tee -a "$GITHUB_STEP_SUMMARY"
+          echo "Nothing to publish: still through week ${WEEK} (${DECISION})." | tee -a "$GITHUB_STEP_SUMMARY"
 
       - name: Build the live marts (twice, byte-compared)
         if: steps.resolve.outputs.changed == 'true'
@@ -120,11 +123,13 @@ jobs:
 
       - name: Show the diff
         if: steps.resolve.outputs.changed == 'true'
+        env:
+          MSG: ${{ steps.resolve.outputs.message }}
         run: |
           git status --short
           git diff --stat
           python -m etl.live status | tee -a "$GITHUB_STEP_SUMMARY"
-          echo "Would commit: ${{ steps.resolve.outputs.message }}" | tee -a "$GITHUB_STEP_SUMMARY"
+          echo "Would commit: ${MSG}" | tee -a "$GITHUB_STEP_SUMMARY"
 
       - name: Commit
         id: commit
@@ -180,7 +185,8 @@ jobs:
         if: success() && env.DRY_RUN != 'true' && (steps.resolve.outputs.decision == 'advance' || steps.resolve.outputs.decision == 'init')
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          WEEK: ${{ steps.resolve.outputs.asof_week }}
         run: |
           for n in $(gh issue list --state open --search 'in:title "live data stale"' --json number --jq '.[].number'); do
-            gh issue close "$n" --comment "Closed by run ${GITHUB_RUN_ID}: live data now through week ${{ steps.resolve.outputs.asof_week }}."
+            gh issue close "$n" --comment "Closed by run ${GITHUB_RUN_ID}: live data now through week ${WEEK}."
           done
