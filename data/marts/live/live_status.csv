@@ -1,2 +1,2 @@
 season,asof_week,asof_date,weeks_in_season,games_scheduled_per_team,league_games_played,pbp_sha256,pbp_asset_updated_at,games_commit_sha,money_asof_date,contracts_sha256,dm_asof_date,dm_asof_stage,dm_basis,perf_state,perf_blank_reason,capplus_state,capplus_blank_reason
-2026,7,2026-10-26,18,17,107,e52903f452ff02fe5ad88436fac398b36df9c89c2b1bf8c2df25d7e510abdaea,2026-10-27T15:19:48Z,c4b3d8641e6703545b1900e544e6bdd0b6505510,,,,,none,value,,blank,Live Cap+ publishes from week 9 with a dated 2026 dead-money table.
+2026,7,2026-10-26,18,17,107,f76eb33c3fa03a1d552a644b73a66c73c45edc825885e239945864c447b0ac5f,2026-10-28T15:57:39Z,b393739852e19fd85cf2bf9bab5b67ac5f553bc2,,,,,none,value,,blank,Live Cap+ publishes from week 9 with a dated 2026 dead-money table.

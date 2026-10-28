@@ -2,12 +2,12 @@
   "asof_date": "2026-10-26",
   "asof_week": 7,
   "checks": {
-    "adj_max_shift_def": 0.067064,
-    "adj_max_shift_margin": 0.087042,
-    "adj_max_shift_off": 0.063684,
-    "adj_min_corr": 0.948276,
+    "adj_max_shift_def": 0.067065,
+    "adj_max_shift_margin": 0.087045,
+    "adj_max_shift_off": 0.063686,
+    "adj_min_corr": 0.948275,
     "byes_taken": 10,
-    "league_off_epa_per_play": 0.008322,
+    "league_off_epa_per_play": 0.008323,
     "perf_state": "value",
     "schedule_graph_connected": true
   },
@@ -45,7 +45,7 @@
         {
           "asset": "games",
           "rows": 272,
-          "source": "nfldata data/games.csv @ c4b3d8641e6703545b1900e544e6bdd0b6505510",
+          "source": "nfldata data/games.csv @ b393739852e19fd85cf2bf9bab5b67ac5f553bc2",
           "window": "2026 REG schedule; scores through week 7"
         }
       ]
@@ -73,7 +73,7 @@
       ],
       "contract": "SPEC §7.14 — 1 row: as-of week, pins, whole-season states",
       "file": "data/marts/live/live_status.csv",
-      "md5": "4916f718b0fb8b7b29d5beef712d56c0",
+      "md5": "b8de636f362c70834b522a281162cf15",
       "n_columns": 18,
       "rows": 1,
       "source_data": [
@@ -86,7 +86,7 @@
         {
           "asset": "games",
           "rows": 272,
-          "source": "nfldata data/games.csv @ c4b3d8641e6703545b1900e544e6bdd0b6505510",
+          "source": "nfldata data/games.csv @ b393739852e19fd85cf2bf9bab5b67ac5f553bc2",
           "window": "2026 REG schedule; scores through week 7"
         }
       ]
@@ -125,7 +125,7 @@
       ],
       "contract": "SPEC §7.14 — 32 rows (0 before week 4), grain (season, team); results, raw + adjusted EPA, P_live, Team Rating live",
       "file": "data/marts/live/live_team_perf.csv",
-      "md5": "04fb8754df54cfa8df0ce68eadc13ef7",
+      "md5": "89ed1c54dc653955151d3220bdf70d87",
       "n_columns": 29,
       "rows": 32,
       "source_data": [
@@ -138,7 +138,7 @@
         {
           "asset": "games",
           "rows": 272,
-          "source": "nfldata data/games.csv @ c4b3d8641e6703545b1900e544e6bdd0b6505510",
+          "source": "nfldata data/games.csv @ b393739852e19fd85cf2bf9bab5b67ac5f553bc2",
           "window": "2026 REG schedule; scores through week 7"
         }
       ]
@@ -149,11 +149,11 @@
   },
   "note": "No wall-clock timestamps: every byte here is a function of etl/live/live_pins.toml. These marts never join the frozen 1999-2025 marts in data/marts/.",
   "pins": {
-    "games_commit_sha": "c4b3d8641e6703545b1900e544e6bdd0b6505510",
+    "games_commit_sha": "b393739852e19fd85cf2bf9bab5b67ac5f553bc2",
     "games_slice_sha256": "3d3142a0f00524bb4119cc4bc7b88f804b1cf3bd5e1c9254f1b61c0101712c20",
-    "pbp_asset_updated_at": "2026-10-27T15:19:48Z",
-    "pbp_sha256": "e52903f452ff02fe5ad88436fac398b36df9c89c2b1bf8c2df25d7e510abdaea",
-    "pbp_slice_sha256": "97f628723e5cee732a2284bdf9eaac7cd6332e6483822f1093f3f0e68d38d7ec"
+    "pbp_asset_updated_at": "2026-10-28T15:57:39Z",
+    "pbp_sha256": "f76eb33c3fa03a1d552a644b73a66c73c45edc825885e239945864c447b0ac5f",
+    "pbp_slice_sha256": "fdeb780f25e137bb9b7ce1d49e15cb0a0d00414b54f8ca806676b85b58046593"
   },
   "product": "YIELD/YARD",
   "runtime_config": {
