@@ -1,13 +1,13 @@
 {
-  "asof_date": "2026-10-26",
-  "asof_week": 7,
+  "asof_date": "2026-11-02",
+  "asof_week": 8,
   "checks": {
-    "adj_max_shift_def": 0.067065,
-    "adj_max_shift_margin": 0.087045,
-    "adj_max_shift_off": 0.063686,
-    "adj_min_corr": 0.948275,
-    "byes_taken": 10,
-    "league_off_epa_per_play": 0.008323,
+    "adj_max_shift_def": 0.059497,
+    "adj_max_shift_margin": 0.077584,
+    "adj_max_shift_off": 0.057233,
+    "adj_min_corr": 0.951245,
+    "byes_taken": 14,
+    "league_off_epa_per_play": 0.002656,
     "perf_state": "value",
     "schedule_graph_connected": true
   },
@@ -38,15 +38,15 @@
       "source_data": [
         {
           "asset": "pbp",
-          "rows": 18738,
+          "rows": 21191,
           "source": "nflverse play_by_play_2026.parquet",
-          "window": "2026 REG weeks 1-7"
+          "window": "2026 REG weeks 1-8"
         },
         {
           "asset": "games",
           "rows": 272,
-          "source": "nfldata data/games.csv @ 65f71e1629ccc947b96e6e3cccf5bf20a172b98b",
-          "window": "2026 REG schedule; scores through week 7"
+          "source": "nfldata data/games.csv @ 8c2aab7c60f66155527669faea032573727c6d39",
+          "window": "2026 REG schedule; scores through week 8"
         }
       ]
     },
@@ -73,21 +73,21 @@
       ],
       "contract": "SPEC §7.14 — 1 row: as-of week, pins, whole-season states",
       "file": "data/marts/live/live_status.csv",
-      "md5": "fb7416dac6fe89143e162a1b484c38ea",
+      "md5": "c72d94b96a6aed019000755bf8c56358",
       "n_columns": 18,
       "rows": 1,
       "source_data": [
         {
           "asset": "pbp",
-          "rows": 18738,
+          "rows": 21191,
           "source": "nflverse play_by_play_2026.parquet",
-          "window": "2026 REG weeks 1-7"
+          "window": "2026 REG weeks 1-8"
         },
         {
           "asset": "games",
           "rows": 272,
-          "source": "nfldata data/games.csv @ 65f71e1629ccc947b96e6e3cccf5bf20a172b98b",
-          "window": "2026 REG schedule; scores through week 7"
+          "source": "nfldata data/games.csv @ 8c2aab7c60f66155527669faea032573727c6d39",
+          "window": "2026 REG schedule; scores through week 8"
         }
       ]
     },
@@ -125,21 +125,21 @@
       ],
       "contract": "SPEC §7.14 — 32 rows (0 before week 4), grain (season, team); results, raw + adjusted EPA, P_live, Team Rating live",
       "file": "data/marts/live/live_team_perf.csv",
-      "md5": "89ed1c54dc653955151d3220bdf70d87",
+      "md5": "87af820e0abdd5a7fe1e0ccb52b508da",
       "n_columns": 29,
       "rows": 32,
       "source_data": [
         {
           "asset": "pbp",
-          "rows": 18738,
+          "rows": 21191,
           "source": "nflverse play_by_play_2026.parquet",
-          "window": "2026 REG weeks 1-7"
+          "window": "2026 REG weeks 1-8"
         },
         {
           "asset": "games",
           "rows": 272,
-          "source": "nfldata data/games.csv @ 65f71e1629ccc947b96e6e3cccf5bf20a172b98b",
-          "window": "2026 REG schedule; scores through week 7"
+          "source": "nfldata data/games.csv @ 8c2aab7c60f66155527669faea032573727c6d39",
+          "window": "2026 REG schedule; scores through week 8"
         }
       ]
     }
@@ -149,11 +149,11 @@
   },
   "note": "No wall-clock timestamps: every byte here is a function of etl/live/live_pins.toml. These marts never join the frozen 1999-2025 marts in data/marts/.",
   "pins": {
-    "games_commit_sha": "65f71e1629ccc947b96e6e3cccf5bf20a172b98b",
-    "games_slice_sha256": "3d3142a0f00524bb4119cc4bc7b88f804b1cf3bd5e1c9254f1b61c0101712c20",
-    "pbp_asset_updated_at": "2026-10-29T16:04:36Z",
-    "pbp_sha256": "7be4cfcca6ae765044372ddada6cae17500d43195d6500e4c677b792d721f652",
-    "pbp_slice_sha256": "fea174481d0ebc7c22d8ed4be034fe04fa16ccffb1ea089340512ff606f8dac0"
+    "games_commit_sha": "8c2aab7c60f66155527669faea032573727c6d39",
+    "games_slice_sha256": "a6a26060384801cf3a04aeff3c0f579ffc4c65f4d1f40d5fd4c54dc17ccdfb49",
+    "pbp_asset_updated_at": "2026-11-03T17:03:47Z",
+    "pbp_sha256": "5edd7c42ed3f116f7e8914594c536088c337052fa53552ba7947499ba0f9f1b5",
+    "pbp_slice_sha256": "fd24e8f7dcfba8f639cd880ec96c9fdf0ef9afa876d64306ee455703c96aeca9"
   },
   "product": "YIELD/YARD",
   "runtime_config": {

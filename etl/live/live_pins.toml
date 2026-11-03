@@ -7,29 +7,29 @@
 
 [live]
 season = 2026
-asof_week = 7
-asof_date = "2026-10-26"
+asof_week = 8
+asof_date = "2026-11-02"
 cancelled_games = []
 
 [pbp]
 release_tag = "pbp"
 asset = "play_by_play_2026.parquet"
 url = "https://github.com/nflverse/nflverse-data/releases/download/pbp/play_by_play_2026.parquet"
-size = 7976271
-updated_at = "2026-10-29T16:04:36Z"
-github_digest = "sha256:7be4cfcca6ae765044372ddada6cae17500d43195d6500e4c677b792d721f652"
-sha256 = "7be4cfcca6ae765044372ddada6cae17500d43195d6500e4c677b792d721f652"
+size = 9035079
+updated_at = "2026-11-03T17:03:47Z"
+github_digest = "sha256:5edd7c42ed3f116f7e8914594c536088c337052fa53552ba7947499ba0f9f1b5"
+sha256 = "5edd7c42ed3f116f7e8914594c536088c337052fa53552ba7947499ba0f9f1b5"
 projected_columns = "season, season_type, week, game_id, play_id, posteam, defteam, play_type, epa, home_team, away_team, home_score, away_score"
-slice_sha256 = "fea174481d0ebc7c22d8ed4be034fe04fa16ccffb1ea089340512ff606f8dac0"
-slice_rows = 18738
+slice_sha256 = "fd24e8f7dcfba8f639cd880ec96c9fdf0ef9afa876d64306ee455703c96aeca9"
+slice_rows = 21191
 
 [games]
 repo = "nflverse/nfldata"
 path = "data/games.csv"
-commit_sha = "65f71e1629ccc947b96e6e3cccf5bf20a172b98b"
-commit_date = "2026-10-29T19:45:18Z"
-url = "https://raw.githubusercontent.com/nflverse/nfldata/65f71e1629ccc947b96e6e3cccf5bf20a172b98b/data/games.csv"
-sha256 = "b5fa7b442d58c0f2fc3f2a56c8fcab7569eb4520cfdc361d784e6700d58aaa83"
+commit_sha = "8c2aab7c60f66155527669faea032573727c6d39"
+commit_date = "2026-11-03T20:45:20Z"
+url = "https://raw.githubusercontent.com/nflverse/nfldata/8c2aab7c60f66155527669faea032573727c6d39/data/games.csv"
+sha256 = "5c06e2ed2ae4e287f496a5198f7e7c5bbe9a00b2d7e8e9924486eee96aa41f32"
 projected_columns = "game_id, season, game_type, week, gameday, home_team, away_team, home_score, away_score"
-slice_sha256 = "3d3142a0f00524bb4119cc4bc7b88f804b1cf3bd5e1c9254f1b61c0101712c20"
+slice_sha256 = "a6a26060384801cf3a04aeff3c0f579ffc4c65f4d1f40d5fd4c54dc17ccdfb49"
 slice_rows = 272
